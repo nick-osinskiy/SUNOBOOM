@@ -1,0 +1,1295 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/><meta name="theme-color" content="#0c0e1a"/><meta name="description" content="SUNOBOOM — закрытая музыкальная мастерская: энциклопедия жанров, идеи и промпты для Suno."/><title>SUNOBOOM 0.4 — музыкальная мастерская</title>
+<style>
+:root{color-scheme:dark;--bg:#0b0d19;--panel:#151827;--panel2:#1b2032;--panel3:#22283d;--stroke:#30354c;--text:#f6f3ff;--muted:#a2abc5;--pink:#fa4ca0;--violet:#8d76ff;--cyan:#5bd6d3;--orange:#f9ae65;--radius:20px}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 75% 5%,#252042 0,transparent 30%),radial-gradient(circle at 15% 80%,#1a1734 0,transparent 36%),var(--bg);color:var(--text);font:15px/1.55 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;min-height:100vh}button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}a{color:inherit}.app{display:grid;grid-template-columns:244px minmax(0,1fr);min-height:100vh}.side{height:100vh;position:sticky;top:0;padding:27px 18px;border-right:1px solid var(--stroke);display:flex;flex-direction:column;background:#101321e8}.brand{display:flex;gap:11px;align-items:center;padding:4px 8px 24px}.brand-mark{height:43px;width:43px;background:linear-gradient(135deg,#f84c9b,#765af9);display:grid;place-items:center;border-radius:13px;box-shadow:0 8px 28px #ce348844}.brand-mark svg{width:26px;height:26px}.brand-name{font-size:24px;font-weight:900;letter-spacing:-1.4px;line-height:1}.brand-sub{font-size:10px;letter-spacing:1.65px;color:#aab3ca;margin-top:6px}.side-heading{font-size:10px;text-transform:uppercase;color:#707b9c;letter-spacing:1.6px;margin:10px 13px 11px}.nav-button{width:100%;display:flex;align-items:center;gap:12px;color:#abb4cc;background:transparent;border:0;text-align:left;padding:12px 13px;border-radius:11px;margin:2px 0;font-weight:650}.nav-button:hover{background:#21243a;color:#fff}.nav-button.active{background:linear-gradient(90deg,#532441,#28233d);color:#fff;box-shadow:inset 3px 0 0 #f34b9c}.nav-button svg{width:19px;height:19px;stroke-width:2}.side-bottom{margin-top:auto;background:#1b2032;padding:14px;border:1px solid #333651;border-radius:14px;color:#b8bed4}.mini-dot{height:8px;width:8px;background:#51d7ae;border-radius:100%;display:inline-block;margin-right:6px}.side-bottom strong{font-size:12px;color:#e4def6}.side-bottom p{margin:6px 0 0;color:#8e99b4;font-size:11px}.main{min-width:0;padding:23px clamp(20px,3vw,52px) 80px;max-width:1600px;width:100%;margin:0 auto}.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:27px}.breadcrumbs{color:#929db7;font-size:13px}.breadcrumbs b{color:#ece6f7;font-weight:700}.top-right{display:flex;align-items:center;gap:10px}.pill,.small-chip{border:1px solid #3a3f5b;border-radius:100px;padding:7px 11px;font-size:12px;background:#1b1f32;color:#b9c2d8}.avatar{width:36px;height:36px;display:grid;place-items:center;background:linear-gradient(135deg,#f14b9b,#7b67f7);border-radius:11px;font-weight:900}.heading{margin-bottom:22px}.heading h1{font-size:clamp(26px,3vw,42px);line-height:1.1;margin:0 0 9px;letter-spacing:-1.1px;font-weight:850}.heading p{color:var(--muted);margin:0;max-width:780px}.hero{padding:clamp(25px,4vw,43px);border:1px solid #544574;min-height:255px;background:radial-gradient(circle at 80% 20%,#4f255b 0,transparent 33%),linear-gradient(115deg,#2b1f44,#1a2642 62%,#162b42);border-radius:23px;position:relative;overflow:hidden;display:flex;justify-content:space-between;gap:10px;align-items:center}.hero:after{content:"";position:absolute;width:350px;height:350px;border:1px solid #fdb4df20;border-radius:50%;right:-95px;top:-85px;box-shadow:0 0 0 45px #fdb4df08,0 0 0 110px #fdb4df05;pointer-events:none}.eyebrow{font-size:11px;color:#fcb9da;letter-spacing:1.7px;font-weight:800;text-transform:uppercase}.hero h2{font-size:clamp(30px,4vw,54px);line-height:1.08;letter-spacing:-1.2px;max-width:540px;margin:13px 0 14px}.hero p{max-width:580px;color:#c9cbe5;margin:0 0 24px}.hero-text{position:relative;z-index:2}.soundwave{flex:1;min-width:190px;max-width:320px;display:flex;align-items:center;justify-content:center;gap:5px;height:150px;z-index:1;transform:skew(-6deg)}.bar{width:6px;min-width:3px;border-radius:10px;background:linear-gradient(180deg,#fd85c3,#ac65f7,#62b8fc);box-shadow:0 0 14px #ca6aff55}.btn{border:0;border-radius:11px;padding:11px 16px;display:inline-flex;gap:9px;align-items:center;justify-content:center;font-weight:720;line-height:1.2}.btn svg{height:17px;width:17px}.btn.primary{background:linear-gradient(115deg,#f4479a,#b353e8);color:#fff;box-shadow:0 8px 22px #e63c9530}.btn.primary:hover{filter:brightness(1.12)}.btn.ghost{background:#24293e;color:#f4efff;border:1px solid #43475f}.btn.ghost:hover{background:#303651}.btn.soft{background:#442940;color:#ffbbdc}.btn.small{padding:8px 10px;font-size:12px;border-radius:9px}.btn.danger{background:#4d2536;color:#ff9aac}.section-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:29px 0 15px}.section-title h2{font-size:19px;margin:0;letter-spacing:-.25px}.section-title .hint{font-size:12px;color:#a2abc5}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin:17px 0}.stat{border:1px solid var(--stroke);background:#171a2a;padding:17px 19px;border-radius:16px;display:flex;justify-content:space-between;align-items:center}.stat strong{font-size:28px;line-height:1;font-weight:800;display:block}.stat span{color:var(--muted);font-size:12px}.stat .em{font-size:23px}.genre-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}.genre-card{position:relative;min-height:174px;text-align:left;border:1px solid #3d4157;border-radius:17px;padding:20px;overflow:hidden;background:#1d2133;color:white;transition:transform .15s,border-color .15s}.genre-card:hover{transform:translateY(-3px);border-color:#8b74ae}.genre-card .art{position:absolute;inset:0;background:radial-gradient(circle at 85% 0%,var(--accent),transparent 50%),repeating-linear-gradient(130deg,#ffffff08 0 1px,transparent 1px 15px);opacity:.45}.genre-card:after{content:"♫";position:absolute;right:12px;top:9px;font-size:91px;line-height:1;color:var(--accent);opacity:.17;transform:rotate(15deg)}.genre-content{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:space-between;min-height:130px}.genre-card h3{margin:14px 0 3px;font-size:21px;font-weight:820;letter-spacing:-.4px}.genre-card p{font-size:12px;color:#c0c4d6;margin:0}.genre-card .kicker{font-size:11px;color:#e6d7ef;font-weight:750}.genre-card .foot{display:flex;gap:8px;justify-content:space-between;align-items:center;margin-top:15px;font-size:12px;color:#c2bed2}.link-action{background:transparent;border:0;color:#ee91c4;font-weight:720;padding:5px;display:inline-flex;align-items:center;gap:5px}.link-action:hover{text-decoration:underline}.filters{display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin:16px 0 19px}.filter{border:1px solid #383d59;background:#1b2031;color:#b5c0d6;border-radius:25px;padding:8px 12px;font-size:12px;font-weight:650}.filter.on{background:#492442;border-color:#cd5199;color:#fff}.search-box{display:flex;align-items:center;gap:9px;border:1px solid #41465e;background:#1c2033;padding:0 13px;border-radius:12px;min-height:47px}.search-box svg{height:19px;width:19px;color:#aeb9d1}.search-box input{background:transparent;outline:none;border:0;color:#fff;width:100%;padding:12px 0}.search-box input::placeholder,textarea::placeholder,input::placeholder{color:#7c86a1}.catalog-top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}.detail-head{position:relative;overflow:hidden;background:linear-gradient(125deg,#26213d,#1a2340);border:1px solid #40435e;border-radius:19px;padding:25px;margin-bottom:16px}.detail-head:after{position:absolute;content:"♪";right:24px;top:-53px;font-size:235px;color:var(--accent);opacity:.12;transform:rotate(12deg);pointer-events:none}.detail-head>*{position:relative;z-index:1}.detail-head h1{font-size:clamp(30px,4vw,50px);margin:7px 0 9px;letter-spacing:-1.5px;line-height:1.1}.detail-head p{max-width:690px;color:#c3c5d7;margin:0 0 17px}.back{border:0;background:none;color:#e6a0d8;font-size:13px;font-weight:750;padding:0 0 7px}.detail-tags{display:flex;gap:7px;flex-wrap:wrap}.detail-tags span{font-size:11px;border:1px solid #61657d;background:#ffffff0e;border-radius:6px;padding:3px 9px}.detail-actions{display:flex;flex-wrap:wrap;gap:10px}.tabs{display:flex;border-bottom:1px solid #42455a;gap:21px;margin:13px 0 20px}.tab{padding:10px 0 11px;background:none;border:0;color:#acb5c9;font-weight:750;border-bottom:3px solid transparent}.tab.active{border-color:#f54fa3;color:#fff}.overview-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:14px}.panel{background:#171b2d;border:1px solid #353a50;border-radius:16px;padding:21px}.panel h3{margin:0 0 11px;font-size:17px}.panel p{color:#bfc8d7;margin:0 0 15px}.info-label{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:#8995af;font-weight:760;margin-bottom:6px}.info-value{color:#e0e2f0}.timeline{display:flex;gap:9px;align-items:center;color:#d3bdf8;margin:0 0 17px;font-size:13px}.list-pills{display:flex;flex-wrap:wrap;gap:8px}.list-pills span{border:1px solid #44465f;background:#22273b;border-radius:8px;font-size:12px;padding:6px 10px}.idea-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.idea{background:#191d30;border:1px solid #363a53;border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:9px}.idea h3{font-size:18px;margin:0}.idea p{margin:0;color:#b8c1d5;flex:1}.idea .actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px}.idea-badge{color:#f6a3cc;font-size:11px;font-weight:850;text-transform:uppercase;letter-spacing:1px}.studio-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:18px;align-items:start}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}.field label{font-size:12px;color:#bec6da;font-weight:730}.field input,.field select,.field textarea{width:100%;border:1px solid #41465f;border-radius:10px;background:#20253a;color:#fff;outline:none;padding:11px 12px;min-height:43px}.field input:focus,.field select:focus,.field textarea:focus{border-color:#e16cb9;box-shadow:0 0 0 2px #ed4f9a26}.field textarea{resize:vertical;min-height:90px}.range{display:flex;align-items:center;gap:12px}.range input{padding:0;min-height:0;accent-color:#e751a1}.range output{min-width:72px;font-size:13px;color:#fff}.checkrow{display:flex;flex-wrap:wrap;gap:12px}.checkrow label{display:flex;align-items:center;gap:7px;color:#bfc7da;font-size:12px}.checkrow input{accent-color:#f54fa3;width:16px;height:16px}.output{min-height:224px;white-space:pre-wrap;overflow-wrap:anywhere;background:#0e1323;border:1px solid #4b456b;border-radius:12px;color:#e5d7f2;padding:17px;font-size:13px;line-height:1.7}.counter{display:flex;align-items:center;justify-content:space-between;color:#a2adc5;font-size:11px;margin:11px 0}.counter b{color:#64e6bd}.muted{color:var(--muted)}.empty{padding:30px;background:#171b2a;border:1px dashed #464961;border-radius:16px;text-align:center;color:#a9b2cd}.empty strong{display:block;color:#fff;font-size:18px;margin:8px 0 3px}.saved-list{display:flex;flex-direction:column;gap:12px}.saved-item{padding:17px;background:#171b2c;border:1px solid #353b51;border-radius:14px}.saved-item h3{margin:0 0 6px;font-size:16px}.saved-item p{white-space:pre-wrap;overflow-wrap:anywhere;color:#c1c8da;font-size:13px;margin:8px 0}.saved-item .row{display:flex;align-items:center;justify-content:space-between;gap:9px;flex-wrap:wrap}.saved-item .sub{font-size:11px;color:#8795b0}.saved-item .actions{display:flex;gap:7px}.projects-layout{display:grid;grid-template-columns:330px minmax(0,1fr);gap:17px;align-items:start}.project-card{padding:15px;border:1px solid #42465e;background:#22273a;border-radius:13px;margin-bottom:10px;cursor:pointer}.project-card.selected{border-color:#f164a9;background:#3e2945}.project-card h3{margin:0 0 3px;font-size:15px}.project-card p{font-size:12px;color:#aeb8cf;margin:0}.project-card:hover{border-color:#9c7ac0}.side-mini{margin-bottom:8px;font-size:12px;color:#aab3cb}.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}.tagline{color:#eea8cf!important;font-size:13px;font-weight:750}.notice{background:#2a2332;border:1px solid #66506b;border-radius:12px;padding:12px 14px;color:#d7c1d4;font-size:12px}.toast{position:fixed;right:23px;bottom:20px;padding:12px 17px;border:1px solid #765e8b;border-radius:12px;color:white;background:#32223f;box-shadow:0 10px 36px #0008;z-index:40;font-size:13px;opacity:0;transform:translateY(12px);transition:.2s;pointer-events:none}.toast.show{opacity:1;transform:translateY(0)}.mobile-nav{display:none}.footer{color:#707e9c;font-size:12px;margin-top:33px;text-align:center}.spacer{height:12px}@media(max-width:1100px){.genre-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.side{padding:20px 12px}.app{grid-template-columns:204px minmax(0,1fr)}.main{padding:20px 22px 80px}.studio-grid{grid-template-columns:1fr}.projects-layout{grid-template-columns:1fr}}@media(max-width:700px){.app{display:block}.side{display:none}.main{padding:18px 15px 98px}.top{margin-bottom:21px}.pill{display:none}.brand-mobile{display:flex!important;gap:8px;align-items:center;font-weight:900;font-size:19px;letter-spacing:-.8px}.top .breadcrumbs{display:none}.hero{min-height:270px;padding:24px}.hero h2{font-size:34px;max-width:285px}.hero p{max-width:320px}.soundwave{position:absolute;right:-55px;bottom:24px;opacity:.27;transform:rotate(8deg);height:125px;max-width:220px}.stats{gap:8px}.stat{padding:12px 10px;border-radius:12px}.stat strong{font-size:21px}.stat span{font-size:10px}.stat .em{display:none}.genre-grid{grid-template-columns:1fr 1fr;gap:10px}.genre-card{padding:15px;min-height:157px}.genre-card h3{font-size:18px}.genre-content{min-height:126px}.genre-card .foot{font-size:10px}.overview-grid,.idea-grid,.form-grid,.two-col{grid-template-columns:1fr}.tabs{gap:17px}.tab{font-size:13px}.panel{padding:17px}.mobile-nav{position:fixed;display:flex;bottom:0;left:0;right:0;z-index:30;background:#131626ef;backdrop-filter:blur(20px);border-top:1px solid #343852;justify-content:space-around;padding:9px 3px calc(9px + env(safe-area-inset-bottom))}.mobile-nav button{min-width:57px;background:none;border:0;color:#96a1bc;display:flex;flex-direction:column;gap:3px;align-items:center;font-size:10px}.mobile-nav button.active{color:#fc71b9}.mobile-nav svg{width:21px;height:21px}.toast{bottom:82px;right:12px;left:12px;text-align:center}.detail-head{padding:20px}.catalog-top{grid-template-columns:1fr}.hidden-mobile{display:none}}@media(max-width:380px){.genre-grid{grid-template-columns:1fr}.genre-card{min-height:140px}.genre-content{min-height:107px}}
+
+
+
+/* v0.3 complete fallback: all six sections visible to script-limited viewers */
+.v3{width:min(1200px,100%);margin:auto;padding:20px 18px 90px;color:#f6f1ff;line-height:1.55}
+.v3 *{box-sizing:border-box}
+.v3-header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 17px}
+.v3-brand{font-weight:900;letter-spacing:-.7px;font-size:25px;display:flex;gap:10px;align-items:center}
+.v3-mark{border-radius:13px;background:linear-gradient(135deg,#fb448f,#7765ec);width:43px;height:43px;display:grid;place-items:center;font-size:24px;box-shadow:0 7px 23px #df3c9645}
+.v3-chip{border:1px solid #48465e;color:#afb4d4;border-radius:99px;padding:8px 12px;font-size:11px;white-space:nowrap}
+.v3-nav{display:flex;position:sticky;top:0;z-index:30;background:#101424f5;border:1px solid #383c56;border-radius:14px;padding:7px;gap:6px;overflow:auto;scrollbar-width:thin;box-shadow:0 12px 28px #0007}
+.v3-nav a{flex:0 0 auto;color:#d7d7e7;text-decoration:none;background:#22263b;border-radius:9px;padding:10px 13px;font-size:12px;font-weight:760;white-space:nowrap}
+.v3-nav a:hover,.v3-nav a:focus{background:#a82c73;color:white}
+.v3-hero{margin-top:17px;padding:clamp(20px,4vw,41px);border-radius:23px;background:radial-gradient(circle at 78% 25%,#793a789e 0,transparent 38%),linear-gradient(125deg,#282039,#16243b);border:1px solid #51466b}
+.v3-eyebrow{font-size:11px;letter-spacing:1.8px;font-weight:850;text-transform:uppercase;color:#f2abcf}
+.v3-hero h1{font-weight:900;letter-spacing:-1px;line-height:1.08;font-size:clamp(30px,5vw,48px);margin:15px 0}
+.v3-hero p{font-size:15px;max-width:690px;color:#cbd0e3}
+.v3-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:15px}
+.v3-actions a{background:#bd3c88;color:#fff;text-decoration:none;border-radius:10px;padding:10px 14px;font-weight:750;font-size:13px}
+.v3-actions a.secondary{background:#343752}
+.v3-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:14px 0}
+.v3-stat{border-radius:14px;padding:15px;border:1px solid #363b54;background:#191d2f}
+.v3-stat b{font-size:28px;display:block;line-height:1.1;color:#fff}
+.v3-stat span{color:#aeb9d0;font-size:11px}
+.v3-section{padding:12px 0 7px;scroll-margin-top:85px;border-bottom:1px solid #353a50}
+.v3-section h2{font-size:clamp(24px,3vw,30px);margin:17px 0 3px;letter-spacing:-.7px}
+.v3-sub{font-size:13px;color:#abb6cf;margin:3px 0 18px}
+.v3-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin:12px 0 24px}
+.v3-card{border:1px solid #404459;background:#1b2032;border-radius:15px;padding:16px;min-width:0}
+.v3-card h3{margin:0 0 5px;font-size:18px;line-height:1.3}
+.v3-card p{color:#bbc4d9;font-size:13px;margin:6px 0}
+.v3-card small{font-size:11px;color:#f5a3d0}
+.v3-card details>summary{cursor:pointer;color:#f6c5e7;font-weight:750;list-style:none}
+.v3-card details>summary:after{content:' ＋';color:#f477b6}
+.v3-card details[open]>summary:after{content:' −'}
+.v3-genre{border:1px solid #3a3e58;background:radial-gradient(circle at 100% 0%, color-mix(in srgb,var(--accent) 30%,transparent),transparent 50%),#1b2032;border-radius:15px;overflow:hidden}
+.v3-genre summary{list-style:none;display:flex;justify-content:space-between;align-items:center;gap:9px;padding:17px;cursor:pointer}
+.v3-genre summary::-webkit-details-marker,.v3-card summary::-webkit-details-marker{display:none}
+.v3-genre summary b{font-size:17px;display:block;line-height:1.25}
+.v3-genre summary small{font-size:11px;color:#bcc3d3;display:block;margin-top:5px}
+.v3-genre summary:after{content:'＋';font-size:20px;color:#ffa9d4}
+.v3-genre[open] summary:after{content:'−'}
+.v3-body{padding:0 17px 17px;color:#c8ccdd;font-size:13px}
+.v3-body p{margin:10px 0}
+.v3-body strong{color:#f9b2d9}
+.v3-idea{border-top:1px solid #44435a;padding:8px 0;display:flex;justify-content:space-between;gap:8px}
+.v3-idea b{color:#fff}
+.v3-prompt{padding:12px;border:1px solid #4a3b5b;background:#101426;color:#dedfeb;border-radius:10px;font-size:12px;overflow-wrap:anywhere;white-space:pre-wrap;user-select:text}
+.v3-idea-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:22px}
+.v3-notice{background:#261f36;border:1px solid #654569;border-left:4px solid #e75cab;color:#e6cde2;border-radius:10px;padding:14px 16px;font-size:13px;margin:15px 0}
+.v3-label{color:#efb8d6;font-size:12px;font-weight:760;margin-top:6px;display:block}
+.v3-textarea{display:block;background:#12182a;border:1px solid #454962;border-radius:9px;padding:12px;width:100%;color:#fff;min-height:100px;resize:vertical;font-size:13px}
+.v3-template{background:#22283e;border:1px dashed #665674;padding:13px;border-radius:10px;margin:10px 0;font-size:13px;color:#cfd2e9}
+.v3-foot{font-size:12px;color:#99a4ba;padding:22px 0}
+@media(max-width:650px){.v3{padding:10px 11px 90px}.v3-brand{font-size:20px}.v3-mark{width:37px;height:37px;font-size:20px}.v3-chip{font-size:9px;padding:6px 8px}.v3-grid,.v3-idea-grid{grid-template-columns:1fr}.v3-stat{padding:11px 9px}.v3-stat b{font-size:23px}.v3-stat span{font-size:10px}.v3-nav a{font-size:12px;padding:9px 11px}.v3-card{padding:14px}.v3-hero p{font-size:13px}}
+
+
+/* v0.3 complete fallback: all six sections visible to script-limited viewers */
+.v3{width:min(1200px,100%);margin:auto;padding:20px 18px 90px;color:#f6f1ff;line-height:1.55}
+.v3 *{box-sizing:border-box}
+.v3-header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 17px}
+.v3-brand{font-weight:900;letter-spacing:-.7px;font-size:25px;display:flex;gap:10px;align-items:center}
+.v3-mark{border-radius:13px;background:linear-gradient(135deg,#fb448f,#7765ec);width:43px;height:43px;display:grid;place-items:center;font-size:24px;box-shadow:0 7px 23px #df3c9645}
+.v3-chip{border:1px solid #48465e;color:#afb4d4;border-radius:99px;padding:8px 12px;font-size:11px;white-space:nowrap}
+.v3-nav{display:flex;position:sticky;top:0;z-index:30;background:#101424f5;border:1px solid #383c56;border-radius:14px;padding:7px;gap:6px;overflow:auto;scrollbar-width:thin;box-shadow:0 12px 28px #0007}
+.v3-nav a{flex:0 0 auto;color:#d7d7e7;text-decoration:none;background:#22263b;border-radius:9px;padding:10px 13px;font-size:12px;font-weight:760;white-space:nowrap}
+.v3-nav a:hover,.v3-nav a:focus{background:#a82c73;color:white}
+.v3-hero{margin-top:17px;padding:clamp(20px,4vw,41px);border-radius:23px;background:radial-gradient(circle at 78% 25%,#793a789e 0,transparent 38%),linear-gradient(125deg,#282039,#16243b);border:1px solid #51466b}
+.v3-eyebrow{font-size:11px;letter-spacing:1.8px;font-weight:850;text-transform:uppercase;color:#f2abcf}
+.v3-hero h1{font-weight:900;letter-spacing:-1px;line-height:1.08;font-size:clamp(30px,5vw,48px);margin:15px 0}
+.v3-hero p{font-size:15px;max-width:690px;color:#cbd0e3}
+.v3-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:15px}
+.v3-actions a{background:#bd3c88;color:#fff;text-decoration:none;border-radius:10px;padding:10px 14px;font-weight:750;font-size:13px}
+.v3-actions a.secondary{background:#343752}
+.v3-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:14px 0}
+.v3-stat{border-radius:14px;padding:15px;border:1px solid #363b54;background:#191d2f}
+.v3-stat b{font-size:28px;display:block;line-height:1.1;color:#fff}
+.v3-stat span{color:#aeb9d0;font-size:11px}
+.v3-section{padding:12px 0 7px;scroll-margin-top:85px;border-bottom:1px solid #353a50}
+.v3-section h2{font-size:clamp(24px,3vw,30px);margin:17px 0 3px;letter-spacing:-.7px}
+.v3-sub{font-size:13px;color:#abb6cf;margin:3px 0 18px}
+.v3-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin:12px 0 24px}
+.v3-card{border:1px solid #404459;background:#1b2032;border-radius:15px;padding:16px;min-width:0}
+.v3-card h3{margin:0 0 5px;font-size:18px;line-height:1.3}
+.v3-card p{color:#bbc4d9;font-size:13px;margin:6px 0}
+.v3-card small{font-size:11px;color:#f5a3d0}
+.v3-card details>summary{cursor:pointer;color:#f6c5e7;font-weight:750;list-style:none}
+.v3-card details>summary:after{content:' ＋';color:#f477b6}
+.v3-card details[open]>summary:after{content:' −'}
+.v3-genre{border:1px solid #3a3e58;background:radial-gradient(circle at 100% 0%, color-mix(in srgb,var(--accent) 30%,transparent),transparent 50%),#1b2032;border-radius:15px;overflow:hidden}
+.v3-genre summary{list-style:none;display:flex;justify-content:space-between;align-items:center;gap:9px;padding:17px;cursor:pointer}
+.v3-genre summary::-webkit-details-marker,.v3-card summary::-webkit-details-marker{display:none}
+.v3-genre summary b{font-size:17px;display:block;line-height:1.25}
+.v3-genre summary small{font-size:11px;color:#bcc3d3;display:block;margin-top:5px}
+.v3-genre summary:after{content:'＋';font-size:20px;color:#ffa9d4}
+.v3-genre[open] summary:after{content:'−'}
+.v3-body{padding:0 17px 17px;color:#c8ccdd;font-size:13px}
+.v3-body p{margin:10px 0}
+.v3-body strong{color:#f9b2d9}
+.v3-idea{border-top:1px solid #44435a;padding:8px 0;display:flex;justify-content:space-between;gap:8px}
+.v3-idea b{color:#fff}
+.v3-prompt{padding:12px;border:1px solid #4a3b5b;background:#101426;color:#dedfeb;border-radius:10px;font-size:12px;overflow-wrap:anywhere;white-space:pre-wrap;user-select:text}
+.v3-idea-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:22px}
+.v3-notice{background:#261f36;border:1px solid #654569;border-left:4px solid #e75cab;color:#e6cde2;border-radius:10px;padding:14px 16px;font-size:13px;margin:15px 0}
+.v3-label{color:#efb8d6;font-size:12px;font-weight:760;margin-top:6px;display:block}
+.v3-textarea{display:block;background:#12182a;border:1px solid #454962;border-radius:9px;padding:12px;width:100%;color:#fff;min-height:100px;resize:vertical;font-size:13px}
+.v3-template{background:#22283e;border:1px dashed #665674;padding:13px;border-radius:10px;margin:10px 0;font-size:13px;color:#cfd2e9}
+.v3-foot{font-size:12px;color:#99a4ba;padding:22px 0}
+@media(max-width:650px){.v3{padding:10px 11px 90px}.v3-brand{font-size:20px}.v3-mark{width:37px;height:37px;font-size:20px}.v3-chip{font-size:9px;padding:6px 8px}.v3-grid,.v3-idea-grid{grid-template-columns:1fr}.v3-stat{padding:11px 9px}.v3-stat b{font-size:23px}.v3-stat span{font-size:10px}.v3-nav a{font-size:12px;padding:9px 11px}.v3-card{padding:14px}.v3-hero p{font-size:13px}}
+
+
+/* Pure-CSS tab navigation for environments that block JavaScript */
+body:has(.v3-section:target) .v3-section:not(:target){display:none}
+
+/* IDEA LAB V0.4 */
+.generator-panel{margin:18px 0 27px;padding:24px;border-radius:20px;border:1px solid #624069;background:radial-gradient(circle at 96% 0%,#63316e75 0,transparent 45%),linear-gradient(125deg,#202039,#171c31 65%,#211729);box-shadow:0 15px 36px #0002}
+.generator-panel-top{display:flex;justify-content:space-between;gap:15px;align-items:flex-start;margin-bottom:22px}.generator-panel h2{font-size:27px;margin:8px 0 8px;line-height:1.15;letter-spacing:-.5px}.generator-panel h2 span{color:#ff83c7}.generator-panel-top p{font-size:13px;line-height:1.55;max-width:610px;color:#b5bbcf;margin:0}.generator-orb{font-size:37px;filter:drop-shadow(0 0 14px #f446a266)}
+.generator-form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.generator-form .field{margin:0}.generator-form label{color:#cbd5e1}.generator-form input,.generator-form select{width:100%;min-width:0;background:#111626;border:1px solid #4a4765;color:#f4f3ff;border-radius:10px;min-height:44px;padding:9px 11px}.generator-form select:focus,.generator-form input:focus{outline:2px solid #df5ba6;outline-offset:1px}.generator-detail-field{grid-column:span 2}.generator-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:20px}.generator-note{color:#9aa6bc;font-size:11px;margin-left:auto}.generated-card{border-color:#5c426d;background:linear-gradient(145deg,#22213a,#191d30)}.generated-card .generator-hook{background:#382342;border:1px solid #694368;border-radius:11px;padding:12px 13px;display:grid;gap:5px}.generator-hook span{font-size:10px;color:#ff99ca;font-weight:850;letter-spacing:1.1px}.generator-hook strong{font-size:16px;line-height:1.35;color:#fff5fe}.generator-story{font-size:12px;color:#bac9dd!important;border-left:2px solid #e967aa;padding-left:10px}.generator-detail{font-size:12px!important;color:#ffb9d8!important}.generated-card .actions{margin-top:auto}.generated-card h3{font-size:20px}.generated-card p{line-height:1.5}
+@media(max-width:850px){.generator-form{grid-template-columns:repeat(2,minmax(0,1fr))}.generator-detail-field{grid-column:span 2}}@media(max-width:520px){.generator-panel{padding:17px 14px;border-radius:15px}.generator-panel h2{font-size:23px}.generator-orb{font-size:26px}.generator-form{grid-template-columns:1fr}.generator-detail-field{grid-column:span 1}.generator-bar .btn{flex:1;justify-content:center}.generator-note{width:100%;text-align:center;margin:0}}
+</style></head><body><div id="app" data-sunoboom-preview="yes"><div class="v3"><header class="v3-header"><div class="v3-brand"><span class="v3-mark">♫</span><span>SUNO<span style="color:#fa67b2">BOOM</span></span></div><span class="v3-chip">PRIVATE WORKSPACE · v0.4</span></header><nav class="v3-nav" aria-label="Разделы SUNOBOOM"><a href="#view-home">Главная</a><a href="#view-catalog">Энциклопедия</a><a href="#view-ideas">Идеи песен</a><a href="#view-generator">Генератор ✦</a><a href="#view-studio">Suno Studio</a><a href="#view-projects">Мои проекты</a><a href="#view-saved">Избранное</a></nav>
+<section class="v3-section" id="view-home"><div class="v3-hero"><span class="v3-eyebrow">ЗАКРЫТАЯ МУЗЫКАЛЬНАЯ МАСТЕРСКАЯ</span><h1>Твои жанры.<br><span style="color:#fa70b8">Твои идеи.</span><br>Твоя музыка.</h1><p>Все разделы SUNOBOOM доступны из верхнего меню. В обычном браузере работает интерактивная студия; в ограниченном просмотрщике можно изучать жанры, сюжеты и промпты.</p><div class="v3-actions"><a href="#view-catalog">Открыть каталог</a><a class="secondary" href="#view-studio">Перейти в студию</a></div></div><div class="v3-stats"><div class="v3-stat"><b>27</b><span>жанров</span></div><div class="v3-stat"><b>81</b><span>идей для песен</span></div><div class="v3-stat"><b>6 + ✦</b><span>разделов и генератор</span></div></div><div class="v3-grid"><article class="v3-card"><h3><a href="#view-catalog" style="color:#f6c8e6;text-decoration:none">Энциклопедия →</a></h3><p>История, направления, инструменты, артисты и примеры.</p></article><article class="v3-card"><h3><a href="#view-ideas" style="color:#f6c8e6;text-decoration:none">Идеи песен →</a></h3><p>81 готовый сюжет и отдельный генератор новых историй.</p></article><article class="v3-card"><h3><a href="#view-generator" style="color:#f6c8e6;text-decoration:none">Генератор идей →</a></h3><p>Выбор жанра, темы, настроения и сюжетной подачи в полной версии приложения.</p></article><article class="v3-card"><h3><a href="#view-studio" style="color:#f6c8e6;text-decoration:none">Suno Studio →</a></h3><p>Шаблоны промптов и полный интерактивный конструктор.</p></article><article class="v3-card"><h3><a href="#view-projects" style="color:#f6c8e6;text-decoration:none">Мои проекты →</a></h3><p>Карточки исполнителей, EP и заметки.</p></article><article class="v3-card"><h3><a href="#view-saved" style="color:#f6c8e6;text-decoration:none">Избранное →</a></h3><p>Сохранённые идеи и промпты при открытии в обычном браузере.</p></article></div></section>
+<section class="v3-section" id="view-catalog"><h2>📚 Энциклопедия жанров</h2><p class="v3-sub">27 жанров. Нажми на карточку, чтобы увидеть звучание, исполнителей, идеи и стартовый промпт.</p><div class="v3-grid"><details class="v3-genre" style="--accent:#eb4ba6"><summary><span><b>Альтернативный рок</b><small>Рок · Гитары без правил</small></span></summary><div class="v3-body"><p>Гибкое направление, соединяющее рок, эксперименты, электронные текстуры и личные истории.</p><p><strong>Инструменты:</strong> динамические электрогитары, плотный бас, живые ударные, контраст тихих куплетов и мощных припевов</p><p><strong>BPM:</strong> 85–145</p><p><strong>Исполнители:</strong> R.E.M., Radiohead, Foo Fighters, Muse</p><p><strong>Идеи:</strong></p><div class="v3-idea"><span><b>Открытые окна</b> · Город просыпается, но герой впервые не боится перемен</span></div><div class="v3-idea"><span><b>Пока не погас свет</b> · Разговор о сложных чувствах на пустой ночной улице</span></div><div class="v3-idea"><span><b>Не по сценарию</b> · Отказ следовать навязанному плану жизни</span></div><p><strong>Промпт для Suno:</strong></p><div class="v3-prompt">Альтернативный рок, 115 BPM, raw electric guitars, dynamic live drums, melodic bass, dramatic quiet-loud contrast, atmospheric textures, expressive clean vocals, Russian lyrics, memorable chorus, polished studio production, no live audience.</div><p><a href="#view-studio" style="color:#f5add5">К Suno Studio ↓</a></p></div></details><details class="v3-genre" style="--accent:#9b7dff"><summary><span><b>Инди-рок</b><small>Рок · Своя музыка, свои правила</small></span></summary><div class="v3-body"><p>Рок из независимой сцены с личными текстами, характерными гитарами и свободой аранжировки.</p><p><strong>Инструменты:</strong> звонкие гитары, тёплый бас, органичные барабаны, камерный вокал</p><p><strong>BPM:</strong> 80–135</p><p><strong>Исполнители:</strong> The Strokes, Arctic Monkeys, The xx, Interpol</p><p><strong>Идеи:</strong></p><div class="v3-idea"><span><b>Лето не вернётся</b> · Ностальгия по последнему школьному лету</span></div><div class="v3-idea"><span><b>Седьмой этаж</b> · История одного большого города и маленького признания</span></div><div class="v3-idea"><span><b>Далеко от дома</b> · Молодой человек ищет своё место в новой жизни</span></div><p><strong>Промпт для Suno:</strong></p><div class="v3-prompt">Инди-рок, 108 BPM, jangly electric guitars, warm bass, organic drums, intimate indie production, nuanced guitar layers, expressive clean vocals, Russian lyrics, memorable chorus, polished studio production, no live audience.</div><p><a href="#view-studio" style="color:#f5add5">К Suno Studio ↓</a></p></div></details><details class="v3-genre" style="--accent:#b77bf1"><summary><span><b>Гранж</b><small>Рок · Шум и честность</small></span></summary><div class="v3-body"><p>Сырой рок Сиэтла с тяжёлыми гитарами, уязвимыми текстами и контрастной динамикой.</p><p><strong>Инструменты:</strong> гранжевые перегруженные гитары, тяжёлый бас, энергичные барабаны, резкая динамика</p><p><strong>BPM:</strong> 75–140</p><p><strong>Исполнители:</strong> Nirvana, Pearl Jam, Soundgarden, Alice in Chains</p><p><strong>Идеи:</strong></p><div class="v3-idea"><span><b>После звонка</b> · Человек не может произнести главные слова</span></div><div class="v3-idea"><span><b>Стены тонкие</b> · Соседи слышат музыку, но не слышат друг друга</span></div><div class="v3-idea"><span><b>Над нами дождь</b> · История уставших друзей, которые продолжают идти вперёд</span></div><p><strong>Промпт для Suno:</strong></p><div class="v3-prompt">Гранж, 108 BPM, raw fuzzy distorted guitars, thick bass, heavy drums, explosive quiet-loud dynamics, unpolished studio sound, expressive clean vocals, Russian lyrics, memorable chorus, polished studio production, no live audience.</div><p><a href="#view-studio" style="color:#f5add5">К Suno Studio ↓</a></p></div></details><details class="v3-genre" style="--accent:#fe6893"><summary><span><b>Панк-рок</b><small>Рок · Три аккорда и свобода</small></span></summary><div class="v3-body"><p>Быстрые песни, прямые тексты, простые энергичные риффы и DIY-эстетика.</p><p><strong>Инструменты:</strong> простые быстрые риффы, прямые барабаны, кричащий вокал, короткие формы</p><p><strong>BPM:</strong> 145–195</p><p><strong>Исполнители:</strong> Ramones, The Clash, Sex Pistols, Green Day</p><p><strong>Идеи:</strong></p><div class="v3-idea"><span><b>Мой район</b> · Весёлый и дерзкий гимн родным дворам</span></div><div class="v3-idea"><span><b>Не звони завтра</b> · Ссора, которую лучше завершить сегодня</span></div><div class="v3-idea"><span><b>Новая кассета</b> · Друзья начинают свою группу в гараже</span></div><p><strong>Промпт для Suno:</strong></p><div class="v3-prompt">Панк-рок, 170 BPM, fast downstroke power chords, punchy snare, driving bass, raw urgent vocal delivery, DIY edge, expressive clean vocals, Russian lyrics, memorable chorus, polished studio production, no live audience.</div><p><a href="#view-studio" style="color:#f5add5">К Suno Studio ↓</a></p></div></details><details class="v3-genre" style="--accent:#fb708c"><summary><span><b>Хеви-метал</b><small>Метал · Рифф, мощь и характер</small></span></summary><div class="v3-body"><p>Классический метал с тяжёлыми риффами, развитым соло и мощным вокалом.</p><p><strong>Инструменты:</strong> перегруженные гитары, двойные гитарные гармонии, мощные барабаны, высокий чистый вокал</p><p><strong>BPM:</strong> 105–170</p><p><strong>Исполнители:</strong> Iron Maiden, Judas Priest, Dio, Ария</p><p><strong>Идеи:</strong></p><div class="v3-idea"><span><b>Последний маяк</b> · Путник находит путь сквозь бурю</span></div><div class="v3-idea"><span><b>Пепел и сталь</b> · Испытание, после которого герой становится сильнее</span></div><div class="v3-idea"><span><b>Голос веков</b> · Историческая легенда о забытом городе</span></div><p><strong>Промпт для Suno:</strong></p><div class="v3-prompt">Хеви-метал, 138 BPM, classic heavy metal riffing, twin lead guitars, galloping bass, powerful drums, soaring clean male vocals, melodic guitar solo, expressive clean vocals, Russian lyrics, memorable chorus, polished studio production, no live audience.</div><p><a href="#view-studio" style="color:#f5add5">К Suno Studio ↓</a></p></div></details><details class="v3-genre" style="--accent:#b18dff"><summary><span><b>Прогрессивный рок</b><small>Рок · Музыка больших историй</small></span></summary><div class="v3-body"><p>Сложные структуры, смены размеров, концептуальные альбомы и художественные эксперименты.</p><p><strong>Инструменты:</strong> синтезаторы, меллотрон, длинные гитарные соло, необычные размеры, динамические переходы</p><p><strong>BPM:</strong> 75–150</p><p><strong>Исполнители:</strong> Pink Floyd, Yes, Genesis, King Crimson, Rush</p><p><strong>Идеи:</strong></p><div class="v3-idea"><span><b>Часы из стекла</b> · История человека, который живёт в разных временных линиях</span></div><div class="v3-idea"><span><b>Третий горизонт</b> · Путешествие за пределы знакомого мира</span></div><div class="v3-idea"><span><b>Город под водой</b> · Философская фантазия о забытом городе</span></div><p><strong>Промпт для Suno:</strong></p><div class="v3-prompt">Прогрессивный рок, 112 BPM, evolving multi-part composition, odd time signatures, intricate guitars, mellotron, analog synths, expressive drums, cinematic dynamics, expressive clean vocals, Russian lyrics, memorable chorus, polished studio production, no live audience.</div><p><a href="#view-studio" style="color:#f5add5">К Suno Studio ↓</a></p></div></details><details class="v3-genre" style="--accent:#fe8ab4"><summary><span><b>Поп-рок</b><small>Рок · Мелодия с гитарным драйвом</small></span></summary><div class="v3-body"><p>Мелодичность поп-музыки плюс живые рок-инструменты и цепкие припевы.</p><p><strong>Инструменты:</strong> яркие гитары, ровные ударные, мощный мелодичный припев, чистый вокал</p><p><strong>BPM:</strong> 95–155</p><p><strong>Исполнители:</strong> Coldplay, Maroon 5, OneRepublic, Imagine Dragons</p><p><strong>Идеи:</strong></p><div class="v3-idea"><span><b>Новый маршрут</b> · Двое отправляются в спонтанное путешествие</span></div><div class="v3-idea"><span><b>Город на ладони</b> · Песня о мечтах большого города</span></div><div class="v3-idea"><span><b>Кто-то ждёт</b> · Тёплая история о встрече после долгой разлуки</span></div><p><strong>Промпт для Suno:</strong></p><div class="v3-prompt">Поп-рок, 125 BPM, bright electric guitars, punchy drums, warm bass, accessible melodic hook, uplifting chorus, expressive clean vocals, Russian lyrics, memorable chorus, polished studio production, no live audience.</div><p><a href="#view-studio" style="color:#f5add5">К Suno Studio ↓</a></p></div></details><details class="v3-genre" style="--accent:#fc8b64"><summary><span><b>Хард-рок</b><small>Рок · Риффы на полной громкости</small></span></summary><div class="v3-body"><p>Мощная гитарная музыка с блюзовыми корнями, плотной ритм-секцией и сценической энергией.</p><p><strong>Инструменты:</strong> тяжёлые блюзовые гитарные риффы, овердрайв, сильный вокал, драйвовые барабаны</p><p><strong>BPM:</strong> 95–155</p><p><strong>Исполнители:</strong> AC/DC, Deep Purple, Led Zeppelin, Aerosmith</p><p><strong>Идеи:</strong></p><div class="v3-idea"><span><b>Мотор и ветер</b> · Ощущение ночной дороги и свободы</span></div><div class="v3-idea"><span><b>Стальная пятница</b> · История людей, которые ждут выходных</span></div><div class="v3-idea"><span><b>Не сдавай назад</b> · Песня о выборе и силе характера</span></div><p><strong>Промпт для Suno:</strong></p><div class="v3-prompt">Хард-рок, 125 BPM, crunchy blues-based electric guitar riffs, driving drums, punchy bass, expressive powerful vocals, blistering guitar solo, expressive clean vocals, Russian lyrics, memorable chorus, polished studio production, no live audience.</div><p><a href="#view-studio" style="color:#f5add5">К Suno Studio ↓</a></p></div></details><details class="v3-genre" style="--accent:#a5c787"><summary><span><b>Фолк-рок</b><small>Рок · Корни и движение</small></span></summary><div class="v3-body"><p>Народные мелодии, акустика, традиционные инструменты и ритм рок-группы.</p><p><strong>Инструменты:</strong> акустическая гитара, скрипка, мандолина, электрогитара, естественная перкуссия</p><p><strong>BPM:</strong> 85–145</p><p><strong>Исполнители:</strong> Bob Dylan, The Byrds, Fairport Convention, Jethro Tull</p><p><strong>Идеи:</strong></p><div class="v3-idea"><span><b>Дорога к реке</b> · Путешествие по знакомым местам спустя годы</span></div><div class="v3-idea"><span><b>Письмо домой</b> · Человек отправляет письмо из далёкого города</span></div><div class="v3-idea"><span><b>Северный ветер</b> · История долгого пути по горам</span></div><p><strong>Промпт для Suno:</strong></p><div class="v3-prompt">Фолк-рок, 115 BPM, warm acoustic guitar, folk violin, mandolin, steady live rock drums, warm harmonies, open-air atmosphere, expressive clean vocals, Russian lyrics, memorable chorus, polished studio production, no live audience.</div><p><a href="#view-studio" style="color:#f5add5">К Suno Studio ↓</a></p></div></details><details class="v3-genre" style="--accent:#f4b773"><summary><span><b>Рок-н-ролл</b><small>Рок · Ритм, который двигает</small></span></summary><div class="v3-body"><p>Драйвовый ранний рок на основе ритм-н-блюза, буги-вуги и кантри.</p><p><strong>Инструменты:</strong> ритмичные электрогитары, шаффл, контрабас, фортепиано, короткие соло</p><p><strong>BPM:</strong> 130–190</p><p><strong>Исполнители:</strong> Chuck Berry, Elvis Presley, Little Richard, Buddy Holly</p><p><strong>Идеи:</strong></p><div class="v3-idea"><span><b>Последний танец</b> · Два незнакомца встречаются на вечеринке</span></div><div class="v3-idea"><span><b>Восьмая передача</b> · Песня о приключениях на старом автомобиле</span></div><div class="v3-idea"><span><b>Соседи не спят</b> · Домашняя вечеринка превратилась в событие района</span></div><p><strong>Промпт для Suno:</strong></p><div class="v3-prompt">Рок-н-ролл, 160 BPM, 1950s rock and roll, swinging shuffle rhythm, bright electric guitar, upright bass, boogie piano, lively backbeat, expressive clean vocals, Russian lyrics, memorable chorus, polished studio production, no live audience.</div><p><a href="#view-studio" style="color:#f5add5">К Suno Studio ↓</a></p></div></details><details class="v3-genre" style="--accent:#70a8d5"><summary><span><b>Пост-панк</b><small>Рок · Холодный ритм города</small></span></summary><div class="v3-body"><p>Минимализм, ведущий бас, выразительные гитарные текстуры и часто мрачная городская атмосфера.</p><p><strong>Инструменты:</strong> выделенный бас, угловатые гитары, сухие ударные, тёмные синтезаторы</p><p><strong>BPM:</strong> 95–155</p><p><strong>Исполнители:</strong> Joy Division, The Cure, Siouxsie and the Banshees, Interpol</p><p><strong>Идеи:</strong></p><div class="v3-idea"><span><b>Пустой перрон</b> · Встреча, которая так и не состоялась</span></div><div class="v3-idea"><span><b>Светофоры</b> · Монолог человека в бесконечном ночном городе</span></div><div class="v3-idea"><span><b>Радиоволна</b> · Чужой голос звучит из старого радиоприёмника</span></div><p><strong>Промпт для Suno:</strong></p><div class="v3-prompt">Пост-панк, 125 BPM, driving melodic bassline, angular clean guitars, tight motorik drums, cold synth textures, introspective vocals, expressive clean vocals, Russian lyrics, memorable chorus, polished studio production, no live audience.</div><p><a href="#view-studio" style="color:#f5add5">К Suno Studio ↓</a></p></div></details><details class="v3-genre" style="--accent:#a58cdb"><summary><span><b>Шугейз</b><small>Рок · Гитары как облака</small></span></summary><div class="v3-body"><p>Слои эффектов, размытие гитар, тихий вокал и плотная атмосферная звуковая стена.</p><p><strong>Инструменты:</strong> многослойные гитары, реверберация, дилей, мечтательная вокальная подача</p><p><strong>BPM:</strong> 75–135</p><p><strong>Исполнители:</strong> My Bloody Valentine, Slowdive, Ride</p><p><strong>Идеи:</strong></p><div class="v3-idea"><span><b>За стеклом</b> · Воспоминание о разговоре в летнем автобусе</span></div><div class="v3-idea"><span><b>Туман исчезает</b> · Герой отпускает старую историю</span></div><div class="v3-idea"><span><b>Невидимый город</b> · Место существует только в чьей-то памяти</span></div><p><strong>Промпт для Suno:</strong></p><div class="v3-prompt">Шугейз, 105 BPM, lush layered guitars, dreamy reverb, shimmering delay, soft vocals, dense wall of sound, enveloping textures, expressive clean vocals, Russian lyrics, memorable chorus, polished studio production, no live audience.</div><p><a href="#view-studio" style="color:#f5add5">К Suno Studio ↓</a></p></div></details><details class="v3-genre" style="--accent:#e99d6f"><summary><span><b>Блюз-рок</b><small>Рок · Электрический блюз</small></span></summary><div class="v3-body"><p>Блюзовые гармонии, электрогитарные соло, импровизация и роковый грув.</p><p><strong>Инструменты:</strong> блюзовые гитарные фразы, орган, тёплый бас, неторопливый шаффл</p><p><strong>BPM:</strong> 75–135</p><p><strong>Исполнители:</strong> Cream, ZZ Top, Stevie Ray Vaughan, Gary Moore</p><p><strong>Идеи:</strong></p><div class="v3-idea"><span><b>Полуночный поезд</b> · Музыкант возвращается в родной город</span></div><div class="v3-idea"><span><b>Третий кофе</b> · Примирение после долгой ночной беседы</span></div><div class="v3-idea"><span><b>Пыль на ботинках</b> · Истории старого путешественника</span></div><p><strong>Промпт для Suno:</strong></p><div class="v3-prompt">Блюз-рок, 105 BPM, electric blues guitar licks, warm tube amp, soulful groove, organ, swinging drums, expressive guitar solo, expressive clean vocals, Russian lyrics, memorable chorus, polished studio production, no live audience.</div><p><a href="#view-studio" style="color:#f5add5">К Suno Studio ↓</a></p></div></details><details class="v3-genre" style="--accent:#8aaad1"><summary><span><b>Пост-рок</b><small>Рок · Когда инструменты говорят</small></span></summary><div class="v3-body"><p>Атмосферные инструментальные композиции, постепенное нарастание и кинематографические кульминации.</p><p><strong>Инструменты:</strong> чистые гитары, дилей, постепенное нарастание, оркестровые текстуры</p><p><strong>BPM:</strong> 65–125</p><p><strong>Исполнители:</strong> Sigur Rós, Mogwai, Explosions in the Sky</p><p><strong>Идеи:</strong></p><div class="v3-idea"><span><b>Тихий океан</b> · Инструментальная история морского путешествия</span></div><div class="v3-idea"><span><b>Последний снег</b> · Постепенное возвращение весны</span></div><div class="v3-idea"><span><b>Восход</b> · Музыкальная дуга от тишины к большому светлому финалу</span></div><p><strong>Промпт для Suno:</strong></p><div class="v3-prompt">Пост-рок, 95 BPM, cinematic instrumental post-rock, clean delay guitars, spacious drums, gradual crescendo, wide ambient layers, expressive clean vocals, Russian lyrics, memorable chorus, polished studio production, no live audience.</div><p><a href="#view-studio" style="color:#f5add5">К Suno Studio ↓</a></p></div></details><details class="v3-genre" style="--accent:#9385a5"><summary><span><b>Готик-рок</b><small>Рок · Темнота и романтика</small></span></summary><div class="v3-body"><p>Тёмная атмосфера, глубокие басовые линии и драматический образный вокал.</p><p><strong>Инструменты:</strong> холодные гитары, бас на переднем плане, реверберация, глубокий вокал</p><p><strong>BPM:</strong> 80–135</p><p><strong>Исполнители:</strong> Bauhaus, The Cure, Sisters of Mercy</p><p><strong>Идеи:</strong></p><div class="v3-idea"><span><b>Сад без имени</b> · Герой приходит туда, где когда-то был его дом</span></div><div class="v3-idea"><span><b>Письма в полночь</b> · Незавершённая история любви</span></div><div class="v3-idea"><span><b>Зеркала</b> · Притча о человеке и его отражениях</span></div><p><strong>Промпт для Suno:</strong></p><div class="v3-prompt">Готик-рок, 108 BPM, dark guitar arpeggios, prominent melodic bass, reverberant drums, deep dramatic vocals, nocturnal atmosphere, expressive clean vocals, Russian lyrics, memorable chorus, polished studio production, no live audience.</div><p><a href="#view-studio" style="color:#f5add5">К Suno Studio ↓</a></p></div></details><details class="v3-genre" style="--accent:#e7a58b"><summary><span><b>Гаражный рок</b><small>Рок · Громко и без полировки</small></span></summary><div class="v3-body"><p>Простой, сырой, прямолинейный рок с характером репетиционной комнаты.</p><p><strong>Инструменты:</strong> простые искажения гитар, грубые барабаны, насыщенный гаражный звук</p><p><strong>BPM:</strong> 110–170</p><p><strong>Исполнители:</strong> The Sonics, The White Stripes, The Hives</p><p><strong>Идеи:</strong></p><div class="v3-idea"><span><b>Шумный подъезд</b> · Подростки собирают первую группу</span></div><div class="v3-idea"><span><b>Вчера было громче</b> · Ностальгия по любимому клубу</span></div><div class="v3-idea"><span><b>Красная лампа</b> · История музыкального эксперимента в подвале</span></div><p><strong>Промпт для Suno:</strong></p><div class="v3-prompt">Гаражный рок, 140 BPM, raw garage rock guitars, gritty fuzz, dry punchy drums, live-in-the-room energy, unpolished vocals, expressive clean vocals, Russian lyrics, memorable chorus, polished studio production, no live audience.</div><p><a href="#view-studio" style="color:#f5add5">К Suno Studio ↓</a></p></div></details><details class="v3-genre" style="--accent:#c18ee6"><summary><span><b>Психоделический рок</b><small>Рок · Звук за горизонтом</small></span></summary><div class="v3-body"><p>Психоделические эффекты, необычные структуры, пространственные текстуры и свободные эксперименты.</p><p><strong>Инструменты:</strong> фейзер, орган, реверберация, мягкие гитарные соло, атмосферные синтезаторы</p><p><strong>BPM:</strong> 75–145</p><p><strong>Исполнители:</strong> Pink Floyd, The Doors, Tame Impala</p><p><strong>Идеи:</strong></p><div class="v3-idea"><span><b>Четвёртая дверь</b> · Герой попадает в город из собственных снов</span></div><div class="v3-idea"><span><b>Медленный свет</b> · История летнего заката, который длится бесконечно</span></div><div class="v3-idea"><span><b>Круги на воде</b> · Размышление о выборе и памяти</span></div><p><strong>Промпт для Suno:</strong></p><div class="v3-prompt">Психоделический рок, 110 BPM, swirling psychedelic guitar effects, vintage organ, spacious reverb, hypnotic bass, exploratory solos, expressive clean vocals, Russian lyrics, memorable chorus, polished studio production, no live audience.</div><p><a href="#view-studio" style="color:#f5add5">К Suno Studio ↓</a></p></div></details><details class="v3-genre" style="--accent:#9ac6ca"><summary><span><b>Брит-поп</b><small>Рок · Гитарные гимны улиц</small></span></summary><div class="v3-body"><p>Британская мелодичная гитарная музыка с яркими припевами и повседневными историями.</p><p><strong>Инструменты:</strong> ритмичные гитары, уверенный вокал, мелодичные риффы, припев-гимн</p><p><strong>BPM:</strong> 95–150</p><p><strong>Исполнители:</strong> Oasis, Blur, Pulp, Suede</p><p><strong>Идеи:</strong></p><div class="v3-idea"><span><b>Суббота в городе</b> · Обычный день внезапно становится памятным</span></div><div class="v3-idea"><span><b>На другой стороне</b> · Двое общаются через окна соседних домов</span></div><div class="v3-idea"><span><b>Плохие новости</b> · Герой решает начать сначала</span></div><p><strong>Промпт для Suno:</strong></p><div class="v3-prompt">Брит-поп, 122 BPM, bright British guitar pop, driving bass, tight drums, singalong chorus, conversational vocals, expressive clean vocals, Russian lyrics, memorable chorus, polished studio production, no live audience.</div><p><a href="#view-studio" style="color:#f5add5">К Suno Studio ↓</a></p></div></details><details class="v3-genre" style="--accent:#a6b2c3"><summary><span><b>Индастриал-рок</b><small>Рок · Машинный пульс</small></span></summary><div class="v3-body"><p>Механические ритмы, тяжёлые гитары и экспериментальные электронные фактуры.</p><p><strong>Инструменты:</strong> дисторшн-гитары, синтетические ударные, шумовые текстуры, мощный бас</p><p><strong>BPM:</strong> 100–155</p><p><strong>Исполнители:</strong> Nine Inch Nails, Ministry, Rammstein</p><p><strong>Идеи:</strong></p><div class="v3-idea"><span><b>Машинное сердце</b> · Будущее, в котором люди теряют способность мечтать</span></div><div class="v3-idea"><span><b>Последний сигнал</b> · Жизнь в городе без электричества</span></div><div class="v3-idea"><span><b>Железный дождь</b> · Урбанистическая история о свободе выбора</span></div><p><strong>Промпт для Suno:</strong></p><div class="v3-prompt">Индастриал-рок, 128 BPM, industrial rock, mechanical drums, distorted guitars, metallic percussion, dark synth bass, aggressive textures, expressive clean vocals, Russian lyrics, memorable chorus, polished studio production, no live audience.</div><p><a href="#view-studio" style="color:#f5add5">К Suno Studio ↓</a></p></div></details><details class="v3-genre" style="--accent:#f3a04f"><summary><span><b>Афро-поп</b><small>Афро · Мелодия и солнечный грув</small></span></summary><div class="v3-body"><p>Широкое поле современной африканской популярной музыки с танцевальными ритмами и запоминающимися мелодиями.</p><p><strong>Инструменты:</strong> синкопированная перкуссия, тёплый бас, короткие гитарные фразы, мелодичный вокал</p><p><strong>BPM:</strong> 90–120</p><p><strong>Исполнители:</strong> Yemi Alade, Wizkid, Burna Boy, Rema</p><p><strong>Идеи:</strong></p><div class="v3-idea"><span><b>Она опять опаздывает</b> · Лёгкая история о девушке, которая всегда задерживается</span></div><div class="v3-idea"><span><b>Пусть идёт дождь</b> · Вечеринка закончилась, но двое продолжают танцевать</span></div><div class="v3-idea"><span><b>За себя заплачу</b> · Она выбирает независимость и чувства вместо показухи</span></div><p><strong>Промпт для Suno:</strong></p><div class="v3-prompt">Афро-поп, 105 BPM, warm afropop groove, syncopated African percussion, bouncy bass, clean guitar plucks, catchy melodic chorus, expressive clean vocals, Russian lyrics, memorable chorus, polished studio production, no live audience.</div><p><a href="#view-studio" style="color:#f5add5">К Suno Studio ↓</a></p></div></details><details class="v3-genre" style="--accent:#eec56b"><summary><span><b>Амапиано</b><small>Афро · Тёплые аккорды и лог-драм</small></span></summary><div class="v3-body"><p>Южноафриканский танцевальный стиль с глубокой басовой перкуссией, клавишными и просторным грувом.</p><p><strong>Инструменты:</strong> лог-драм, воздушные клавиши, мягкий грув, атмосферные синтезаторы</p><p><strong>BPM:</strong> 108–115</p><p><strong>Исполнители:</strong> Kabza De Small, DJ Maphorisa, Focalistic</p><p><strong>Идеи:</strong></p><div class="v3-idea"><span><b>Последняя станция</b> · Ночное путешествие через огни города</span></div><div class="v3-idea"><span><b>До рассвета</b> · Компания друзей танцует без повода</span></div><div class="v3-idea"><span><b>Голос из такси</b> · Небольшая романтическая история в дороге</span></div><p><strong>Промпт для Suno:</strong></p><div class="v3-prompt">Амапиано, 112 BPM, amapiano groove, deep log drum bass, airy piano chords, soft percussion, spacious dance production, expressive clean vocals, Russian lyrics, memorable chorus, polished studio production, no live audience.</div><p><a href="#view-studio" style="color:#f5add5">К Suno Studio ↓</a></p></div></details><details class="v3-genre" style="--accent:#7bca9f"><summary><span><b>Регги</b><small>Мировая музыка · Ритм на слабой доле</small></span></summary><div class="v3-body"><p>Расслабленный ритм, бас на переднем плане и характерная синкопированная гитара.</p><p><strong>Инструменты:</strong> басовая линия, гитара на слабую долю, орган, мягкие ударные</p><p><strong>BPM:</strong> 65–100</p><p><strong>Исполнители:</strong> Bob Marley, Peter Tosh, Burning Spear</p><p><strong>Идеи:</strong></p><div class="v3-idea"><span><b>Песок на кедах</b> · Уютная прогулка по набережной</span></div><div class="v3-idea"><span><b>Не торопись</b> · Герой учится радоваться простым вещам</span></div><div class="v3-idea"><span><b>Небо свободно</b> · Песня о свободе и единстве</span></div><p><strong>Промпт для Suno:</strong></p><div class="v3-prompt">Регги, 82 BPM, laid-back reggae groove, offbeat skank guitar, deep melodic bass, warm organ, relaxed drums, expressive clean vocals, Russian lyrics, memorable chorus, polished studio production, no live audience.</div><p><a href="#view-studio" style="color:#f5add5">К Suno Studio ↓</a></p></div></details><details class="v3-genre" style="--accent:#7da2ef"><summary><span><b>Синти-поп</b><small>Электроника · Сердце синтезатора</small></span></summary><div class="v3-body"><p>Мелодичный поп с электронными барабанами и ведущими синтезаторами.</p><p><strong>Инструменты:</strong> аналоговые синтезаторы, драм-машины, синт-бас, яркие мелодии</p><p><strong>BPM:</strong> 95–135</p><p><strong>Исполнители:</strong> Depeche Mode, a-ha, Pet Shop Boys</p><p><strong>Идеи:</strong></p><div class="v3-idea"><span><b>02:17</b> · Случайное сообщение меняет планы на ночь</span></div><div class="v3-idea"><span><b>Пиксели</b> · Двое знакомятся через старую игру</span></div><div class="v3-idea"><span><b>Светофор</b> · Ночная поездка без определённой цели</span></div><p><strong>Промпт для Suno:</strong></p><div class="v3-prompt">Синти-поп, 115 BPM, lush analog synths, electronic drum machine, synth bass, crisp arpeggios, catchy electronic pop hook, expressive clean vocals, Russian lyrics, memorable chorus, polished studio production, no live audience.</div><p><a href="#view-studio" style="color:#f5add5">К Suno Studio ↓</a></p></div></details><details class="v3-genre" style="--accent:#60aacf"><summary><span><b>Техно</b><small>Электроника · Гипноз четырёх долей</small></span></summary><div class="v3-body"><p>Повторяющийся электронный ритм, текстуры синтезаторов и постепенные изменения.</p><p><strong>Инструменты:</strong> четырёхдольная бочка, драм-машина, секвенсоры, синт-бас</p><p><strong>BPM:</strong> 120–145</p><p><strong>Исполнители:</strong> Jeff Mills, Carl Cox, Charlotte de Witte</p><p><strong>Идеи:</strong></p><div class="v3-idea"><span><b>Под землёй</b> · Ночной клуб в старом промышленном здании</span></div><div class="v3-idea"><span><b>Пульс метро</b> · Инструментальная поездка по линиям мегаполиса</span></div><div class="v3-idea"><span><b>Тоннель</b> · Постепенное движение от тишины к мощному дропу</span></div><p><strong>Промпт для Suno:</strong></p><div class="v3-prompt">Техно, 132 BPM, driving four-on-the-floor techno kick, hypnotic sequenced synths, deep sub bass, evolving electronic textures, expressive clean vocals, Russian lyrics, memorable chorus, polished studio production, no live audience.</div><p><a href="#view-studio" style="color:#f5add5">К Suno Studio ↓</a></p></div></details><details class="v3-genre" style="--accent:#73b6e9"><summary><span><b>Драм-н-бейс</b><small>Электроника · Брейкбит и глубокий бас</small></span></summary><div class="v3-body"><p>Быстрые ломаные барабаны, насыщенный суббас и атмосферные слои.</p><p><strong>Инструменты:</strong> быстрые брейкбиты, саббас, атмосферные пэды, синтезаторные хуки</p><p><strong>BPM:</strong> 160–180</p><p><strong>Исполнители:</strong> Goldie, Roni Size, Pendulum</p><p><strong>Идеи:</strong></p><div class="v3-idea"><span><b>Маршрут 174</b> · Ночной поезд ускоряется за городом</span></div><div class="v3-idea"><span><b>Выше крыш</b> · Герой побеждает страх высоты</span></div><div class="v3-idea"><span><b>Не сохранять</b> · История сообщения, которое лучше не отправлять</span></div><p><strong>Промпт для Suno:</strong></p><div class="v3-prompt">Драм-н-бейс, 170 BPM, fast rolling breakbeats, deep sub bass, crisp snares, spacious pads, energetic drum and bass groove, expressive clean vocals, Russian lyrics, memorable chorus, polished studio production, no live audience.</div><p><a href="#view-studio" style="color:#f5add5">К Suno Studio ↓</a></p></div></details><details class="v3-genre" style="--accent:#d4af83"><summary><span><b>Джаз</b><small>Джаз и блюз · Импровизация и характер</small></span></summary><div class="v3-body"><p>Музыка с богатой гармонией, свингом и живым диалогом инструментов.</p><p><strong>Инструменты:</strong> фортепиано, контрабас, щётки на барабанах, саксофон</p><p><strong>BPM:</strong> 75–150</p><p><strong>Исполнители:</strong> Miles Davis, Ella Fitzgerald, John Coltrane</p><p><strong>Идеи:</strong></p><div class="v3-idea"><span><b>Кофе на двоих</b> · Разговор в маленьком кафе на углу</span></div><div class="v3-idea"><span><b>Третий столик</b> · История постоянных посетителей клуба</span></div><div class="v3-idea"><span><b>Последний трамвай</b> · Ночная городская баллада</span></div><p><strong>Промпт для Suno:</strong></p><div class="v3-prompt">Джаз, 112 BPM, warm acoustic jazz ensemble, swinging upright bass, brushed drums, expressive piano, melodic saxophone improvisation, expressive clean vocals, Russian lyrics, memorable chorus, polished studio production, no live audience.</div><p><a href="#view-studio" style="color:#f5add5">К Suno Studio ↓</a></p></div></details><details class="v3-genre" style="--accent:#c69d88"><summary><span><b>Современный шансон</b><small>Авторская песня · Истории простых людей</small></span></summary><div class="v3-body"><p>Повествовательные песни о жизни, памяти, отношениях и человеческом выборе.</p><p><strong>Инструменты:</strong> акустическая гитара, фортепиано, мягкие барабаны, выразительный голос</p><p><strong>BPM:</strong> 75–115</p><p><strong>Исполнители:</strong> Михаил Круг, Александр Розенбаум, Любовь Успенская</p><p><strong>Идеи:</strong></p><div class="v3-idea"><span><b>Последнее письмо</b> · Сын пишет письмо отцу спустя много лет</span></div><div class="v3-idea"><span><b>Окно на третьем</b> · Герой возвращается в родной двор</span></div><div class="v3-idea"><span><b>Старый вокзал</b> · Встреча друзей через десятилетия</span></div><p><strong>Промпт для Suno:</strong></p><div class="v3-prompt">Современный шансон, 95 BPM, melodic Russian chanson, acoustic guitar, warm piano, measured drums, narrative male vocals, intimate studio mix, expressive clean vocals, Russian lyrics, memorable chorus, polished studio production, no live audience.</div><p><a href="#view-studio" style="color:#f5add5">К Suno Studio ↓</a></p></div></details></div></section>
+<section class="v3-section" id="view-generator"><h2>✦ Генератор идей для песен</h2><p class="v3-sub">В обычном браузере генератор работает офлайн: выбирай жанр, настроение, тему, вокал, язык и получай новые идеи. Если просмотрщик не запускает JavaScript, здесь доступны примеры будущих историй.</p><div class="v3-grid"><article class="v3-card"><h3>Не отправлять</h3><p>Тема: любовь · письмо, которое осталось в черновиках. Хук: «Не набирай — просто скажи».</p></article><article class="v3-card"><h3>Последнее метро</h3><p>Тема: город · двое опаздывают на поезд и гуляют всю ночь. Хук: «Последнее метро — первый разговор».</p></article><article class="v3-card"><h3>Старая кассета</h3><p>Тема: дружба · участники школьной группы собираются спустя двадцать лет. Хук: «Нам снова по семнадцать».</p></article><article class="v3-card"><h3>После дождя</h3><p>Тема: надежда · соседи вместе восстанавливают сад. Хук: «После дождя всё снова растёт».</p></article></div><p class="v3-sub">Для интерактивной генерации открой HTML-файл в Chrome или Safari с включённым JavaScript.</p></section>
+<section class="v3-section" id="view-ideas"><h2>💡 Идеи песен</h2><p class="v3-sub">81 идеи. Выбирай интересную историю, сохраняй текст вручную или открой полную версию с кнопками «В студию» и «Сохранить».</p><div class="v3-idea-grid"><article class="v3-card"><small>Альтернативный рок · hopeful</small><h3>Открытые окна</h3><p>Город просыпается, но герой впервые не боится перемен</p><details><summary>Как использовать в Suno</summary><p>Тема: Город просыпается, но герой впервые не боится перемен. Выбери жанр «Альтернативный рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Альтернативный рок · melancholic</small><h3>Пока не погас свет</h3><p>Разговор о сложных чувствах на пустой ночной улице</p><details><summary>Как использовать в Suno</summary><p>Тема: Разговор о сложных чувствах на пустой ночной улице. Выбери жанр «Альтернативный рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Альтернативный рок · defiant</small><h3>Не по сценарию</h3><p>Отказ следовать навязанному плану жизни</p><details><summary>Как использовать в Suno</summary><p>Тема: Отказ следовать навязанному плану жизни. Выбери жанр «Альтернативный рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Инди-рок · nostalgic</small><h3>Лето не вернётся</h3><p>Ностальгия по последнему школьному лету</p><details><summary>Как использовать в Suno</summary><p>Тема: Ностальгия по последнему школьному лету. Выбери жанр «Инди-рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Инди-рок · dreamy</small><h3>Седьмой этаж</h3><p>История одного большого города и маленького признания</p><details><summary>Как использовать в Suno</summary><p>Тема: История одного большого города и маленького признания. Выбери жанр «Инди-рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Инди-рок · reflective</small><h3>Далеко от дома</h3><p>Молодой человек ищет своё место в новой жизни</p><details><summary>Как использовать в Suno</summary><p>Тема: Молодой человек ищет своё место в новой жизни. Выбери жанр «Инди-рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Гранж · raw</small><h3>После звонка</h3><p>Человек не может произнести главные слова</p><details><summary>Как использовать в Suno</summary><p>Тема: Человек не может произнести главные слова. Выбери жанр «Гранж» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Гранж · dark</small><h3>Стены тонкие</h3><p>Соседи слышат музыку, но не слышат друг друга</p><details><summary>Как использовать в Suno</summary><p>Тема: Соседи слышат музыку, но не слышат друг друга. Выбери жанр «Гранж» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Гранж · bittersweet</small><h3>Над нами дождь</h3><p>История уставших друзей, которые продолжают идти вперёд</p><details><summary>Как использовать в Suno</summary><p>Тема: История уставших друзей, которые продолжают идти вперёд. Выбери жанр «Гранж» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Панк-рок · rebellious</small><h3>Мой район</h3><p>Весёлый и дерзкий гимн родным дворам</p><details><summary>Как использовать в Suno</summary><p>Тема: Весёлый и дерзкий гимн родным дворам. Выбери жанр «Панк-рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Панк-рок · energetic</small><h3>Не звони завтра</h3><p>Ссора, которую лучше завершить сегодня</p><details><summary>Как использовать в Suno</summary><p>Тема: Ссора, которую лучше завершить сегодня. Выбери жанр «Панк-рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Панк-рок · playful</small><h3>Новая кассета</h3><p>Друзья начинают свою группу в гараже</p><details><summary>Как использовать в Suno</summary><p>Тема: Друзья начинают свою группу в гараже. Выбери жанр «Панк-рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Хеви-метал · epic</small><h3>Последний маяк</h3><p>Путник находит путь сквозь бурю</p><details><summary>Как использовать в Suno</summary><p>Тема: Путник находит путь сквозь бурю. Выбери жанр «Хеви-метал» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Хеви-метал · powerful</small><h3>Пепел и сталь</h3><p>Испытание, после которого герой становится сильнее</p><details><summary>Как использовать в Suno</summary><p>Тема: Испытание, после которого герой становится сильнее. Выбери жанр «Хеви-метал» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Хеви-метал · dramatic</small><h3>Голос веков</h3><p>Историческая легенда о забытом городе</p><details><summary>Как использовать в Suno</summary><p>Тема: Историческая легенда о забытом городе. Выбери жанр «Хеви-метал» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Прогрессивный рок · mysterious</small><h3>Часы из стекла</h3><p>История человека, который живёт в разных временных линиях</p><details><summary>Как использовать в Suno</summary><p>Тема: История человека, который живёт в разных временных линиях. Выбери жанр «Прогрессивный рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Прогрессивный рок · epic</small><h3>Третий горизонт</h3><p>Путешествие за пределы знакомого мира</p><details><summary>Как использовать в Suno</summary><p>Тема: Путешествие за пределы знакомого мира. Выбери жанр «Прогрессивный рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Прогрессивный рок · atmospheric</small><h3>Город под водой</h3><p>Философская фантазия о забытом городе</p><details><summary>Как использовать в Suno</summary><p>Тема: Философская фантазия о забытом городе. Выбери жанр «Прогрессивный рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Поп-рок · uplifting</small><h3>Новый маршрут</h3><p>Двое отправляются в спонтанное путешествие</p><details><summary>Как использовать в Suno</summary><p>Тема: Двое отправляются в спонтанное путешествие. Выбери жанр «Поп-рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Поп-рок · dreamy</small><h3>Город на ладони</h3><p>Песня о мечтах большого города</p><details><summary>Как использовать в Suno</summary><p>Тема: Песня о мечтах большого города. Выбери жанр «Поп-рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Поп-рок · romantic</small><h3>Кто-то ждёт</h3><p>Тёплая история о встрече после долгой разлуки</p><details><summary>Как использовать в Suno</summary><p>Тема: Тёплая история о встрече после долгой разлуки. Выбери жанр «Поп-рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Хард-рок · energetic</small><h3>Мотор и ветер</h3><p>Ощущение ночной дороги и свободы</p><details><summary>Как использовать в Suno</summary><p>Тема: Ощущение ночной дороги и свободы. Выбери жанр «Хард-рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Хард-рок · playful</small><h3>Стальная пятница</h3><p>История людей, которые ждут выходных</p><details><summary>Как использовать в Suno</summary><p>Тема: История людей, которые ждут выходных. Выбери жанр «Хард-рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Хард-рок · determined</small><h3>Не сдавай назад</h3><p>Песня о выборе и силе характера</p><details><summary>Как использовать в Suno</summary><p>Тема: Песня о выборе и силе характера. Выбери жанр «Хард-рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Фолк-рок · nostalgic</small><h3>Дорога к реке</h3><p>Путешествие по знакомым местам спустя годы</p><details><summary>Как использовать в Suno</summary><p>Тема: Путешествие по знакомым местам спустя годы. Выбери жанр «Фолк-рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Фолк-рок · warm</small><h3>Письмо домой</h3><p>Человек отправляет письмо из далёкого города</p><details><summary>Как использовать в Suno</summary><p>Тема: Человек отправляет письмо из далёкого города. Выбери жанр «Фолк-рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Фолк-рок · adventurous</small><h3>Северный ветер</h3><p>История долгого пути по горам</p><details><summary>Как использовать в Suno</summary><p>Тема: История долгого пути по горам. Выбери жанр «Фолк-рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Рок-н-ролл · playful</small><h3>Последний танец</h3><p>Два незнакомца встречаются на вечеринке</p><details><summary>Как использовать в Suno</summary><p>Тема: Два незнакомца встречаются на вечеринке. Выбери жанр «Рок-н-ролл» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Рок-н-ролл · upbeat</small><h3>Восьмая передача</h3><p>Песня о приключениях на старом автомобиле</p><details><summary>Как использовать в Suno</summary><p>Тема: Песня о приключениях на старом автомобиле. Выбери жанр «Рок-н-ролл» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Рок-н-ролл · fun</small><h3>Соседи не спят</h3><p>Домашняя вечеринка превратилась в событие района</p><details><summary>Как использовать в Suno</summary><p>Тема: Домашняя вечеринка превратилась в событие района. Выбери жанр «Рок-н-ролл» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Пост-панк · cold</small><h3>Пустой перрон</h3><p>Встреча, которая так и не состоялась</p><details><summary>Как использовать в Suno</summary><p>Тема: Встреча, которая так и не состоялась. Выбери жанр «Пост-панк» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Пост-панк · melancholic</small><h3>Светофоры</h3><p>Монолог человека в бесконечном ночном городе</p><details><summary>Как использовать в Suno</summary><p>Тема: Монолог человека в бесконечном ночном городе. Выбери жанр «Пост-панк» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Пост-панк · mysterious</small><h3>Радиоволна</h3><p>Чужой голос звучит из старого радиоприёмника</p><details><summary>Как использовать в Suno</summary><p>Тема: Чужой голос звучит из старого радиоприёмника. Выбери жанр «Пост-панк» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Шугейз · dreamy</small><h3>За стеклом</h3><p>Воспоминание о разговоре в летнем автобусе</p><details><summary>Как использовать в Suno</summary><p>Тема: Воспоминание о разговоре в летнем автобусе. Выбери жанр «Шугейз» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Шугейз · wistful</small><h3>Туман исчезает</h3><p>Герой отпускает старую историю</p><details><summary>Как использовать в Suno</summary><p>Тема: Герой отпускает старую историю. Выбери жанр «Шугейз» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Шугейз · ethereal</small><h3>Невидимый город</h3><p>Место существует только в чьей-то памяти</p><details><summary>Как использовать в Suno</summary><p>Тема: Место существует только в чьей-то памяти. Выбери жанр «Шугейз» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Блюз-рок · soulful</small><h3>Полуночный поезд</h3><p>Музыкант возвращается в родной город</p><details><summary>Как использовать в Suno</summary><p>Тема: Музыкант возвращается в родной город. Выбери жанр «Блюз-рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Блюз-рок · warm</small><h3>Третий кофе</h3><p>Примирение после долгой ночной беседы</p><details><summary>Как использовать в Suno</summary><p>Тема: Примирение после долгой ночной беседы. Выбери жанр «Блюз-рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Блюз-рок · gritty</small><h3>Пыль на ботинках</h3><p>Истории старого путешественника</p><details><summary>Как использовать в Suno</summary><p>Тема: Истории старого путешественника. Выбери жанр «Блюз-рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Пост-рок · cinematic</small><h3>Тихий океан</h3><p>Инструментальная история морского путешествия</p><details><summary>Как использовать в Suno</summary><p>Тема: Инструментальная история морского путешествия. Выбери жанр «Пост-рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Пост-рок · hopeful</small><h3>Последний снег</h3><p>Постепенное возвращение весны</p><details><summary>Как использовать в Suno</summary><p>Тема: Постепенное возвращение весны. Выбери жанр «Пост-рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Пост-рок · uplifting</small><h3>Восход</h3><p>Музыкальная дуга от тишины к большому светлому финалу</p><details><summary>Как использовать в Suno</summary><p>Тема: Музыкальная дуга от тишины к большому светлому финалу. Выбери жанр «Пост-рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Готик-рок · dark</small><h3>Сад без имени</h3><p>Герой приходит туда, где когда-то был его дом</p><details><summary>Как использовать в Suno</summary><p>Тема: Герой приходит туда, где когда-то был его дом. Выбери жанр «Готик-рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Готик-рок · romantic</small><h3>Письма в полночь</h3><p>Незавершённая история любви</p><details><summary>Как использовать в Suno</summary><p>Тема: Незавершённая история любви. Выбери жанр «Готик-рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Готик-рок · mysterious</small><h3>Зеркала</h3><p>Притча о человеке и его отражениях</p><details><summary>Как использовать в Suno</summary><p>Тема: Притча о человеке и его отражениях. Выбери жанр «Готик-рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Гаражный рок · energetic</small><h3>Шумный подъезд</h3><p>Подростки собирают первую группу</p><details><summary>Как использовать в Suno</summary><p>Тема: Подростки собирают первую группу. Выбери жанр «Гаражный рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Гаражный рок · gritty</small><h3>Вчера было громче</h3><p>Ностальгия по любимому клубу</p><details><summary>Как использовать в Suno</summary><p>Тема: Ностальгия по любимому клубу. Выбери жанр «Гаражный рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Гаражный рок · rebellious</small><h3>Красная лампа</h3><p>История музыкального эксперимента в подвале</p><details><summary>Как использовать в Suno</summary><p>Тема: История музыкального эксперимента в подвале. Выбери жанр «Гаражный рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Психоделический рок · surreal</small><h3>Четвёртая дверь</h3><p>Герой попадает в город из собственных снов</p><details><summary>Как использовать в Suno</summary><p>Тема: Герой попадает в город из собственных снов. Выбери жанр «Психоделический рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Психоделический рок · dreamy</small><h3>Медленный свет</h3><p>История летнего заката, который длится бесконечно</p><details><summary>Как использовать в Suno</summary><p>Тема: История летнего заката, который длится бесконечно. Выбери жанр «Психоделический рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Психоделический рок · hypnotic</small><h3>Круги на воде</h3><p>Размышление о выборе и памяти</p><details><summary>Как использовать в Suno</summary><p>Тема: Размышление о выборе и памяти. Выбери жанр «Психоделический рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Брит-поп · upbeat</small><h3>Суббота в городе</h3><p>Обычный день внезапно становится памятным</p><details><summary>Как использовать в Suno</summary><p>Тема: Обычный день внезапно становится памятным. Выбери жанр «Брит-поп» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Брит-поп · romantic</small><h3>На другой стороне</h3><p>Двое общаются через окна соседних домов</p><details><summary>Как использовать в Suno</summary><p>Тема: Двое общаются через окна соседних домов. Выбери жанр «Брит-поп» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Брит-поп · hopeful</small><h3>Плохие новости</h3><p>Герой решает начать сначала</p><details><summary>Как использовать в Suno</summary><p>Тема: Герой решает начать сначала. Выбери жанр «Брит-поп» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Индастриал-рок · dark</small><h3>Машинное сердце</h3><p>Будущее, в котором люди теряют способность мечтать</p><details><summary>Как использовать в Suno</summary><p>Тема: Будущее, в котором люди теряют способность мечтать. Выбери жанр «Индастриал-рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Индастриал-рок · intense</small><h3>Последний сигнал</h3><p>Жизнь в городе без электричества</p><details><summary>Как использовать в Suno</summary><p>Тема: Жизнь в городе без электричества. Выбери жанр «Индастриал-рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Индастриал-рок · dramatic</small><h3>Железный дождь</h3><p>Урбанистическая история о свободе выбора</p><details><summary>Как использовать в Suno</summary><p>Тема: Урбанистическая история о свободе выбора. Выбери жанр «Индастриал-рок» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Афро-поп · playful</small><h3>Она опять опаздывает</h3><p>Лёгкая история о девушке, которая всегда задерживается</p><details><summary>Как использовать в Suno</summary><p>Тема: Лёгкая история о девушке, которая всегда задерживается. Выбери жанр «Афро-поп» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Афро-поп · joyful</small><h3>Пусть идёт дождь</h3><p>Вечеринка закончилась, но двое продолжают танцевать</p><details><summary>Как использовать в Suno</summary><p>Тема: Вечеринка закончилась, но двое продолжают танцевать. Выбери жанр «Афро-поп» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Афро-поп · confident</small><h3>За себя заплачу</h3><p>Она выбирает независимость и чувства вместо показухи</p><details><summary>Как использовать в Suno</summary><p>Тема: Она выбирает независимость и чувства вместо показухи. Выбери жанр «Афро-поп» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Амапиано · hypnotic</small><h3>Последняя станция</h3><p>Ночное путешествие через огни города</p><details><summary>Как использовать в Suno</summary><p>Тема: Ночное путешествие через огни города. Выбери жанр «Амапиано» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Амапиано · joyful</small><h3>До рассвета</h3><p>Компания друзей танцует без повода</p><details><summary>Как использовать в Suno</summary><p>Тема: Компания друзей танцует без повода. Выбери жанр «Амапиано» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Амапиано · romantic</small><h3>Голос из такси</h3><p>Небольшая романтическая история в дороге</p><details><summary>Как использовать в Suno</summary><p>Тема: Небольшая романтическая история в дороге. Выбери жанр «Амапиано» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Регги · sunny</small><h3>Песок на кедах</h3><p>Уютная прогулка по набережной</p><details><summary>Как использовать в Suno</summary><p>Тема: Уютная прогулка по набережной. Выбери жанр «Регги» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Регги · laid-back</small><h3>Не торопись</h3><p>Герой учится радоваться простым вещам</p><details><summary>Как использовать в Suno</summary><p>Тема: Герой учится радоваться простым вещам. Выбери жанр «Регги» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Регги · hopeful</small><h3>Небо свободно</h3><p>Песня о свободе и единстве</p><details><summary>Как использовать в Suno</summary><p>Тема: Песня о свободе и единстве. Выбери жанр «Регги» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Синти-поп · neon</small><h3>02:17</h3><p>Случайное сообщение меняет планы на ночь</p><details><summary>Как использовать в Suno</summary><p>Тема: Случайное сообщение меняет планы на ночь. Выбери жанр «Синти-поп» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Синти-поп · playful</small><h3>Пиксели</h3><p>Двое знакомятся через старую игру</p><details><summary>Как использовать в Suno</summary><p>Тема: Двое знакомятся через старую игру. Выбери жанр «Синти-поп» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Синти-поп · dreamy</small><h3>Светофор</h3><p>Ночная поездка без определённой цели</p><details><summary>Как использовать в Suno</summary><p>Тема: Ночная поездка без определённой цели. Выбери жанр «Синти-поп» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Техно · dark</small><h3>Под землёй</h3><p>Ночной клуб в старом промышленном здании</p><details><summary>Как использовать в Suno</summary><p>Тема: Ночной клуб в старом промышленном здании. Выбери жанр «Техно» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Техно · hypnotic</small><h3>Пульс метро</h3><p>Инструментальная поездка по линиям мегаполиса</p><details><summary>Как использовать в Suno</summary><p>Тема: Инструментальная поездка по линиям мегаполиса. Выбери жанр «Техно» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Техно · intense</small><h3>Тоннель</h3><p>Постепенное движение от тишины к мощному дропу</p><details><summary>Как использовать в Suno</summary><p>Тема: Постепенное движение от тишины к мощному дропу. Выбери жанр «Техно» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Драм-н-бейс · energetic</small><h3>Маршрут 174</h3><p>Ночной поезд ускоряется за городом</p><details><summary>Как использовать в Suno</summary><p>Тема: Ночной поезд ускоряется за городом. Выбери жанр «Драм-н-бейс» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Драм-н-бейс · uplifting</small><h3>Выше крыш</h3><p>Герой побеждает страх высоты</p><details><summary>Как использовать в Suno</summary><p>Тема: Герой побеждает страх высоты. Выбери жанр «Драм-н-бейс» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Драм-н-бейс · dark</small><h3>Не сохранять</h3><p>История сообщения, которое лучше не отправлять</p><details><summary>Как использовать в Suno</summary><p>Тема: История сообщения, которое лучше не отправлять. Выбери жанр «Драм-н-бейс» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Джаз · warm</small><h3>Кофе на двоих</h3><p>Разговор в маленьком кафе на углу</p><details><summary>Как использовать в Suno</summary><p>Тема: Разговор в маленьком кафе на углу. Выбери жанр «Джаз» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Джаз · playful</small><h3>Третий столик</h3><p>История постоянных посетителей клуба</p><details><summary>Как использовать в Suno</summary><p>Тема: История постоянных посетителей клуба. Выбери жанр «Джаз» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Джаз · nostalgic</small><h3>Последний трамвай</h3><p>Ночная городская баллада</p><details><summary>Как использовать в Suno</summary><p>Тема: Ночная городская баллада. Выбери жанр «Джаз» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Современный шансон · emotional</small><h3>Последнее письмо</h3><p>Сын пишет письмо отцу спустя много лет</p><details><summary>Как использовать в Suno</summary><p>Тема: Сын пишет письмо отцу спустя много лет. Выбери жанр «Современный шансон» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Современный шансон · nostalgic</small><h3>Окно на третьем</h3><p>Герой возвращается в родной двор</p><details><summary>Как использовать в Suno</summary><p>Тема: Герой возвращается в родной двор. Выбери жанр «Современный шансон» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article><article class="v3-card"><small>Современный шансон · warm</small><h3>Старый вокзал</h3><p>Встреча друзей через десятилетия</p><details><summary>Как использовать в Suno</summary><p>Тема: Встреча друзей через десятилетия. Выбери жанр «Современный шансон» в полном конструкторе или используй стартовый промпт из карточки жанра.</p></details></article></div></section>
+<section class="v3-section" id="view-studio"><h2>🎛️ Suno Studio</h2><p class="v3-sub">Здесь — готовые базовые промпты. При открытии SUNOBOOM в браузере с JavaScript этот раздел превращается в живой конструктор: жанр, вокал, BPM, язык, настроение, ограничения и сохранение.</p><div class="v3-notice"><strong>Важно:</strong> в режиме просмотра без JavaScript параметры не пересчитываются автоматически. Ниже — готовые промпты для копирования. Для полноценной работы конструктора открой приложение в Safari по HTTPS-адресу.</div><div class="v3-grid"><article class="v3-card"><small>Рок · 115 BPM</small><h3>Альтернативный рок</h3><p>Готовая основа промпта — выдели текст и скопируй.</p><div class="v3-prompt">Альтернативный рок, 115 BPM, raw electric guitars, dynamic live drums, melodic bass, dramatic quiet-loud contrast, atmospheric textures, expressive clean male vocals, Russian language lyrics, catchy chorus, studio recording, no crowd, no live ambience, no whispering.</div></article><article class="v3-card"><small>Рок · 108 BPM</small><h3>Инди-рок</h3><p>Готовая основа промпта — выдели текст и скопируй.</p><div class="v3-prompt">Инди-рок, 108 BPM, jangly electric guitars, warm bass, organic drums, intimate indie production, nuanced guitar layers, expressive clean male vocals, Russian language lyrics, catchy chorus, studio recording, no crowd, no live ambience, no whispering.</div></article><article class="v3-card"><small>Рок · 108 BPM</small><h3>Гранж</h3><p>Готовая основа промпта — выдели текст и скопируй.</p><div class="v3-prompt">Гранж, 108 BPM, raw fuzzy distorted guitars, thick bass, heavy drums, explosive quiet-loud dynamics, unpolished studio sound, expressive clean male vocals, Russian language lyrics, catchy chorus, studio recording, no crowd, no live ambience, no whispering.</div></article><article class="v3-card"><small>Метал · 138 BPM</small><h3>Хеви-метал</h3><p>Готовая основа промпта — выдели текст и скопируй.</p><div class="v3-prompt">Хеви-метал, 138 BPM, classic heavy metal riffing, twin lead guitars, galloping bass, powerful drums, soaring clean male vocals, melodic guitar solo, expressive clean male vocals, Russian language lyrics, catchy chorus, studio recording, no crowd, no live ambience, no whispering.</div></article><article class="v3-card"><small>Рок · 115 BPM</small><h3>Фолк-рок</h3><p>Готовая основа промпта — выдели текст и скопируй.</p><div class="v3-prompt">Фолк-рок, 115 BPM, warm acoustic guitar, folk violin, mandolin, steady live rock drums, warm harmonies, open-air atmosphere, expressive clean male vocals, Russian language lyrics, catchy chorus, studio recording, no crowd, no live ambience, no whispering.</div></article><article class="v3-card"><small>Афро · 105 BPM</small><h3>Афро-поп</h3><p>Готовая основа промпта — выдели текст и скопируй.</p><div class="v3-prompt">Афро-поп, 105 BPM, warm afropop groove, syncopated African percussion, bouncy bass, clean guitar plucks, catchy melodic chorus, expressive clean male vocals, Russian language lyrics, catchy chorus, studio recording, no crowd, no live ambience, no whispering.</div></article></div></section>
+<section class="v3-section" id="view-projects"><h2>📁 Мои проекты</h2><p class="v3-sub">Раздел уже существует в полной версии: можно создавать артистов и EP, писать заметки и треклисты. В статическом режиме ниже есть черновик для ручного заполнения.</p><div class="v3-card"><h3>Новый музыкальный проект</h3><label class="v3-label" for="v3-title">Название</label><textarea class="v3-textarea" id="v3-title" rows="2" placeholder="Например: Дебютный EP — 5 песен" style="min-height:52px"></textarea><label class="v3-label" for="v3-notes">Концепция, треклист, задачи</label><textarea class="v3-textarea" id="v3-notes" rows="6" placeholder="Жанр, образ артиста, названия треков, промпты..."></textarea><p class="v3-sub">Это временный черновик — без JavaScript введённое здесь не сохраняется. В полной версии есть кнопка сохранения и экспорт данных.</p></div></section>
+<section class="v3-section" id="view-saved"><h2>♡ Избранное</h2><p class="v3-sub">В полной версии здесь находятся сохранённые жанры, сюжеты, промпты и резервное копирование. В режиме без JavaScript сохранение недоступно.</p><div class="v3-card"><h3>Что сохраняется при полноценном запуске</h3><p>Любимые жанры, избранные идеи и готовые промпты для Suno, а также проекты с заметками. Данные хранятся в браузере и могут экспортироваться в JSON.</p><div class="v3-notice">SUNOBOOM пока не подключён к серверу. Общих аккаунтов, приглашений и синхронизации между устройствами нет.</div></div></section><footer class="v3-foot">SUNOBOOM 0.3 · локальная музыкальная мастерская · не является официальным приложением Suno</footer></div></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script>
+'use strict';
+const GENRES = [
+  {
+    "id": "alternative-rock",
+    "name": "Альтернативный рок",
+    "family": "Рок",
+    "era": "1980-е → сегодня",
+    "bpm": [
+      85,
+      145
+    ],
+    "color": "#eb4ba6",
+    "tagline": "Гитары без правил",
+    "description": "Гибкое направление, соединяющее рок, эксперименты, электронные текстуры и личные истории.",
+    "instruments": "динамические электрогитары, плотный бас, живые ударные, контраст тихих куплетов и мощных припевов",
+    "style": "raw electric guitars, dynamic live drums, melodic bass, dramatic quiet-loud contrast, atmospheric textures",
+    "artists": [
+      "R.E.M.",
+      "Radiohead",
+      "Foo Fighters",
+      "Muse"
+    ],
+    "themes": "свобода, внутренний конфликт, поиск себя",
+    "ideas": [
+      {
+        "title": "Открытые окна",
+        "pitch": "Город просыпается, но герой впервые не боится перемен",
+        "mood": "hopeful"
+      },
+      {
+        "title": "Пока не погас свет",
+        "pitch": "Разговор о сложных чувствах на пустой ночной улице",
+        "mood": "melancholic"
+      },
+      {
+        "title": "Не по сценарию",
+        "pitch": "Отказ следовать навязанному плану жизни",
+        "mood": "defiant"
+      }
+    ]
+  },
+  {
+    "id": "indie-rock",
+    "name": "Инди-рок",
+    "family": "Рок",
+    "era": "1980-е → сегодня",
+    "bpm": [
+      80,
+      135
+    ],
+    "color": "#9b7dff",
+    "tagline": "Своя музыка, свои правила",
+    "description": "Рок из независимой сцены с личными текстами, характерными гитарами и свободой аранжировки.",
+    "instruments": "звонкие гитары, тёплый бас, органичные барабаны, камерный вокал",
+    "style": "jangly electric guitars, warm bass, organic drums, intimate indie production, nuanced guitar layers",
+    "artists": [
+      "The Strokes",
+      "Arctic Monkeys",
+      "The xx",
+      "Interpol"
+    ],
+    "themes": "взросление, ностальгия, города, отношения",
+    "ideas": [
+      {
+        "title": "Лето не вернётся",
+        "pitch": "Ностальгия по последнему школьному лету",
+        "mood": "nostalgic"
+      },
+      {
+        "title": "Седьмой этаж",
+        "pitch": "История одного большого города и маленького признания",
+        "mood": "dreamy"
+      },
+      {
+        "title": "Далеко от дома",
+        "pitch": "Молодой человек ищет своё место в новой жизни",
+        "mood": "reflective"
+      }
+    ]
+  },
+  {
+    "id": "grunge",
+    "name": "Гранж",
+    "family": "Рок",
+    "era": "Конец 1980-х → сегодня",
+    "bpm": [
+      75,
+      140
+    ],
+    "color": "#b77bf1",
+    "tagline": "Шум и честность",
+    "description": "Сырой рок Сиэтла с тяжёлыми гитарами, уязвимыми текстами и контрастной динамикой.",
+    "instruments": "гранжевые перегруженные гитары, тяжёлый бас, энергичные барабаны, резкая динамика",
+    "style": "raw fuzzy distorted guitars, thick bass, heavy drums, explosive quiet-loud dynamics, unpolished studio sound",
+    "artists": [
+      "Nirvana",
+      "Pearl Jam",
+      "Soundgarden",
+      "Alice in Chains"
+    ],
+    "themes": "одиночество, тревога, давление, честность",
+    "ideas": [
+      {
+        "title": "После звонка",
+        "pitch": "Человек не может произнести главные слова",
+        "mood": "raw"
+      },
+      {
+        "title": "Стены тонкие",
+        "pitch": "Соседи слышат музыку, но не слышат друг друга",
+        "mood": "dark"
+      },
+      {
+        "title": "Над нами дождь",
+        "pitch": "История уставших друзей, которые продолжают идти вперёд",
+        "mood": "bittersweet"
+      }
+    ]
+  },
+  {
+    "id": "punk-rock",
+    "name": "Панк-рок",
+    "family": "Рок",
+    "era": "1970-е → сегодня",
+    "bpm": [
+      145,
+      195
+    ],
+    "color": "#fe6893",
+    "tagline": "Три аккорда и свобода",
+    "description": "Быстрые песни, прямые тексты, простые энергичные риффы и DIY-эстетика.",
+    "instruments": "простые быстрые риффы, прямые барабаны, кричащий вокал, короткие формы",
+    "style": "fast downstroke power chords, punchy snare, driving bass, raw urgent vocal delivery, DIY edge",
+    "artists": [
+      "Ramones",
+      "The Clash",
+      "Sex Pistols",
+      "Green Day"
+    ],
+    "themes": "свобода, протест, дружба, улицы",
+    "ideas": [
+      {
+        "title": "Мой район",
+        "pitch": "Весёлый и дерзкий гимн родным дворам",
+        "mood": "rebellious"
+      },
+      {
+        "title": "Не звони завтра",
+        "pitch": "Ссора, которую лучше завершить сегодня",
+        "mood": "energetic"
+      },
+      {
+        "title": "Новая кассета",
+        "pitch": "Друзья начинают свою группу в гараже",
+        "mood": "playful"
+      }
+    ]
+  },
+  {
+    "id": "heavy-metal",
+    "name": "Хеви-метал",
+    "family": "Метал",
+    "era": "1970-е → сегодня",
+    "bpm": [
+      105,
+      170
+    ],
+    "color": "#fb708c",
+    "tagline": "Рифф, мощь и характер",
+    "description": "Классический метал с тяжёлыми риффами, развитым соло и мощным вокалом.",
+    "instruments": "перегруженные гитары, двойные гитарные гармонии, мощные барабаны, высокий чистый вокал",
+    "style": "classic heavy metal riffing, twin lead guitars, galloping bass, powerful drums, soaring clean male vocals, melodic guitar solo",
+    "artists": [
+      "Iron Maiden",
+      "Judas Priest",
+      "Dio",
+      "Ария"
+    ],
+    "themes": "легенды, борьба, честь, история",
+    "ideas": [
+      {
+        "title": "Последний маяк",
+        "pitch": "Путник находит путь сквозь бурю",
+        "mood": "epic"
+      },
+      {
+        "title": "Пепел и сталь",
+        "pitch": "Испытание, после которого герой становится сильнее",
+        "mood": "powerful"
+      },
+      {
+        "title": "Голос веков",
+        "pitch": "Историческая легенда о забытом городе",
+        "mood": "dramatic"
+      }
+    ]
+  },
+  {
+    "id": "progressive-rock",
+    "name": "Прогрессивный рок",
+    "family": "Рок",
+    "era": "Конец 1960-х → сегодня",
+    "bpm": [
+      75,
+      150
+    ],
+    "color": "#b18dff",
+    "tagline": "Музыка больших историй",
+    "description": "Сложные структуры, смены размеров, концептуальные альбомы и художественные эксперименты.",
+    "instruments": "синтезаторы, меллотрон, длинные гитарные соло, необычные размеры, динамические переходы",
+    "style": "evolving multi-part composition, odd time signatures, intricate guitars, mellotron, analog synths, expressive drums, cinematic dynamics",
+    "artists": [
+      "Pink Floyd",
+      "Yes",
+      "Genesis",
+      "King Crimson",
+      "Rush"
+    ],
+    "themes": "время, космос, смысл, память",
+    "ideas": [
+      {
+        "title": "Часы из стекла",
+        "pitch": "История человека, который живёт в разных временных линиях",
+        "mood": "mysterious"
+      },
+      {
+        "title": "Третий горизонт",
+        "pitch": "Путешествие за пределы знакомого мира",
+        "mood": "epic"
+      },
+      {
+        "title": "Город под водой",
+        "pitch": "Философская фантазия о забытом городе",
+        "mood": "atmospheric"
+      }
+    ]
+  },
+  {
+    "id": "pop-rock",
+    "name": "Поп-рок",
+    "family": "Рок",
+    "era": "1960-е → сегодня",
+    "bpm": [
+      95,
+      155
+    ],
+    "color": "#fe8ab4",
+    "tagline": "Мелодия с гитарным драйвом",
+    "description": "Мелодичность поп-музыки плюс живые рок-инструменты и цепкие припевы.",
+    "instruments": "яркие гитары, ровные ударные, мощный мелодичный припев, чистый вокал",
+    "style": "bright electric guitars, punchy drums, warm bass, accessible melodic hook, uplifting chorus",
+    "artists": [
+      "Coldplay",
+      "Maroon 5",
+      "OneRepublic",
+      "Imagine Dragons"
+    ],
+    "themes": "любовь, надежда, путешествия, перемены",
+    "ideas": [
+      {
+        "title": "Новый маршрут",
+        "pitch": "Двое отправляются в спонтанное путешествие",
+        "mood": "uplifting"
+      },
+      {
+        "title": "Город на ладони",
+        "pitch": "Песня о мечтах большого города",
+        "mood": "dreamy"
+      },
+      {
+        "title": "Кто-то ждёт",
+        "pitch": "Тёплая история о встрече после долгой разлуки",
+        "mood": "romantic"
+      }
+    ]
+  },
+  {
+    "id": "hard-rock",
+    "name": "Хард-рок",
+    "family": "Рок",
+    "era": "Конец 1960-х → сегодня",
+    "bpm": [
+      95,
+      155
+    ],
+    "color": "#fc8b64",
+    "tagline": "Риффы на полной громкости",
+    "description": "Мощная гитарная музыка с блюзовыми корнями, плотной ритм-секцией и сценической энергией.",
+    "instruments": "тяжёлые блюзовые гитарные риффы, овердрайв, сильный вокал, драйвовые барабаны",
+    "style": "crunchy blues-based electric guitar riffs, driving drums, punchy bass, expressive powerful vocals, blistering guitar solo",
+    "artists": [
+      "AC/DC",
+      "Deep Purple",
+      "Led Zeppelin",
+      "Aerosmith"
+    ],
+    "themes": "дорога, свобода, сила, борьба",
+    "ideas": [
+      {
+        "title": "Мотор и ветер",
+        "pitch": "Ощущение ночной дороги и свободы",
+        "mood": "energetic"
+      },
+      {
+        "title": "Стальная пятница",
+        "pitch": "История людей, которые ждут выходных",
+        "mood": "playful"
+      },
+      {
+        "title": "Не сдавай назад",
+        "pitch": "Песня о выборе и силе характера",
+        "mood": "determined"
+      }
+    ]
+  },
+  {
+    "id": "folk-rock",
+    "name": "Фолк-рок",
+    "family": "Рок",
+    "era": "1960-е → сегодня",
+    "bpm": [
+      85,
+      145
+    ],
+    "color": "#a5c787",
+    "tagline": "Корни и движение",
+    "description": "Народные мелодии, акустика, традиционные инструменты и ритм рок-группы.",
+    "instruments": "акустическая гитара, скрипка, мандолина, электрогитара, естественная перкуссия",
+    "style": "warm acoustic guitar, folk violin, mandolin, steady live rock drums, warm harmonies, open-air atmosphere",
+    "artists": [
+      "Bob Dylan",
+      "The Byrds",
+      "Fairport Convention",
+      "Jethro Tull"
+    ],
+    "themes": "дорога, дом, природа, память",
+    "ideas": [
+      {
+        "title": "Дорога к реке",
+        "pitch": "Путешествие по знакомым местам спустя годы",
+        "mood": "nostalgic"
+      },
+      {
+        "title": "Письмо домой",
+        "pitch": "Человек отправляет письмо из далёкого города",
+        "mood": "warm"
+      },
+      {
+        "title": "Северный ветер",
+        "pitch": "История долгого пути по горам",
+        "mood": "adventurous"
+      }
+    ]
+  },
+  {
+    "id": "rock-and-roll",
+    "name": "Рок-н-ролл",
+    "family": "Рок",
+    "era": "1950-е → сегодня",
+    "bpm": [
+      130,
+      190
+    ],
+    "color": "#f4b773",
+    "tagline": "Ритм, который двигает",
+    "description": "Драйвовый ранний рок на основе ритм-н-блюза, буги-вуги и кантри.",
+    "instruments": "ритмичные электрогитары, шаффл, контрабас, фортепиано, короткие соло",
+    "style": "1950s rock and roll, swinging shuffle rhythm, bright electric guitar, upright bass, boogie piano, lively backbeat",
+    "artists": [
+      "Chuck Berry",
+      "Elvis Presley",
+      "Little Richard",
+      "Buddy Holly"
+    ],
+    "themes": "танцы, встречи, молодость, приключения",
+    "ideas": [
+      {
+        "title": "Последний танец",
+        "pitch": "Два незнакомца встречаются на вечеринке",
+        "mood": "playful"
+      },
+      {
+        "title": "Восьмая передача",
+        "pitch": "Песня о приключениях на старом автомобиле",
+        "mood": "upbeat"
+      },
+      {
+        "title": "Соседи не спят",
+        "pitch": "Домашняя вечеринка превратилась в событие района",
+        "mood": "fun"
+      }
+    ]
+  },
+  {
+    "id": "post-punk",
+    "name": "Пост-панк",
+    "family": "Рок",
+    "era": "Конец 1970-х → сегодня",
+    "bpm": [
+      95,
+      155
+    ],
+    "color": "#70a8d5",
+    "tagline": "Холодный ритм города",
+    "description": "Минимализм, ведущий бас, выразительные гитарные текстуры и часто мрачная городская атмосфера.",
+    "instruments": "выделенный бас, угловатые гитары, сухие ударные, тёмные синтезаторы",
+    "style": "driving melodic bassline, angular clean guitars, tight motorik drums, cold synth textures, introspective vocals",
+    "artists": [
+      "Joy Division",
+      "The Cure",
+      "Siouxsie and the Banshees",
+      "Interpol"
+    ],
+    "themes": "ночь, отчуждение, память, город",
+    "ideas": [
+      {
+        "title": "Пустой перрон",
+        "pitch": "Встреча, которая так и не состоялась",
+        "mood": "cold"
+      },
+      {
+        "title": "Светофоры",
+        "pitch": "Монолог человека в бесконечном ночном городе",
+        "mood": "melancholic"
+      },
+      {
+        "title": "Радиоволна",
+        "pitch": "Чужой голос звучит из старого радиоприёмника",
+        "mood": "mysterious"
+      }
+    ]
+  },
+  {
+    "id": "shoegaze",
+    "name": "Шугейз",
+    "family": "Рок",
+    "era": "Конец 1980-х → сегодня",
+    "bpm": [
+      75,
+      135
+    ],
+    "color": "#a58cdb",
+    "tagline": "Гитары как облака",
+    "description": "Слои эффектов, размытие гитар, тихий вокал и плотная атмосферная звуковая стена.",
+    "instruments": "многослойные гитары, реверберация, дилей, мечтательная вокальная подача",
+    "style": "lush layered guitars, dreamy reverb, shimmering delay, soft vocals, dense wall of sound, enveloping textures",
+    "artists": [
+      "My Bloody Valentine",
+      "Slowdive",
+      "Ride"
+    ],
+    "themes": "сны, воспоминания, расстояние",
+    "ideas": [
+      {
+        "title": "За стеклом",
+        "pitch": "Воспоминание о разговоре в летнем автобусе",
+        "mood": "dreamy"
+      },
+      {
+        "title": "Туман исчезает",
+        "pitch": "Герой отпускает старую историю",
+        "mood": "wistful"
+      },
+      {
+        "title": "Невидимый город",
+        "pitch": "Место существует только в чьей-то памяти",
+        "mood": "ethereal"
+      }
+    ]
+  },
+  {
+    "id": "blues-rock",
+    "name": "Блюз-рок",
+    "family": "Рок",
+    "era": "1960-е → сегодня",
+    "bpm": [
+      75,
+      135
+    ],
+    "color": "#e99d6f",
+    "tagline": "Электрический блюз",
+    "description": "Блюзовые гармонии, электрогитарные соло, импровизация и роковый грув.",
+    "instruments": "блюзовые гитарные фразы, орган, тёплый бас, неторопливый шаффл",
+    "style": "electric blues guitar licks, warm tube amp, soulful groove, organ, swinging drums, expressive guitar solo",
+    "artists": [
+      "Cream",
+      "ZZ Top",
+      "Stevie Ray Vaughan",
+      "Gary Moore"
+    ],
+    "themes": "жизнь, любовь, дорога, ошибки",
+    "ideas": [
+      {
+        "title": "Полуночный поезд",
+        "pitch": "Музыкант возвращается в родной город",
+        "mood": "soulful"
+      },
+      {
+        "title": "Третий кофе",
+        "pitch": "Примирение после долгой ночной беседы",
+        "mood": "warm"
+      },
+      {
+        "title": "Пыль на ботинках",
+        "pitch": "Истории старого путешественника",
+        "mood": "gritty"
+      }
+    ]
+  },
+  {
+    "id": "post-rock",
+    "name": "Пост-рок",
+    "family": "Рок",
+    "era": "1990-е → сегодня",
+    "bpm": [
+      65,
+      125
+    ],
+    "color": "#8aaad1",
+    "tagline": "Когда инструменты говорят",
+    "description": "Атмосферные инструментальные композиции, постепенное нарастание и кинематографические кульминации.",
+    "instruments": "чистые гитары, дилей, постепенное нарастание, оркестровые текстуры",
+    "style": "cinematic instrumental post-rock, clean delay guitars, spacious drums, gradual crescendo, wide ambient layers",
+    "artists": [
+      "Sigur Rós",
+      "Mogwai",
+      "Explosions in the Sky"
+    ],
+    "themes": "путешествие, природа, память",
+    "ideas": [
+      {
+        "title": "Тихий океан",
+        "pitch": "Инструментальная история морского путешествия",
+        "mood": "cinematic"
+      },
+      {
+        "title": "Последний снег",
+        "pitch": "Постепенное возвращение весны",
+        "mood": "hopeful"
+      },
+      {
+        "title": "Восход",
+        "pitch": "Музыкальная дуга от тишины к большому светлому финалу",
+        "mood": "uplifting"
+      }
+    ]
+  },
+  {
+    "id": "gothic-rock",
+    "name": "Готик-рок",
+    "family": "Рок",
+    "era": "Конец 1970-х → сегодня",
+    "bpm": [
+      80,
+      135
+    ],
+    "color": "#9385a5",
+    "tagline": "Темнота и романтика",
+    "description": "Тёмная атмосфера, глубокие басовые линии и драматический образный вокал.",
+    "instruments": "холодные гитары, бас на переднем плане, реверберация, глубокий вокал",
+    "style": "dark guitar arpeggios, prominent melodic bass, reverberant drums, deep dramatic vocals, nocturnal atmosphere",
+    "artists": [
+      "Bauhaus",
+      "The Cure",
+      "Sisters of Mercy"
+    ],
+    "themes": "ночь, тайны, тоска, романтика",
+    "ideas": [
+      {
+        "title": "Сад без имени",
+        "pitch": "Герой приходит туда, где когда-то был его дом",
+        "mood": "dark"
+      },
+      {
+        "title": "Письма в полночь",
+        "pitch": "Незавершённая история любви",
+        "mood": "romantic"
+      },
+      {
+        "title": "Зеркала",
+        "pitch": "Притча о человеке и его отражениях",
+        "mood": "mysterious"
+      }
+    ]
+  },
+  {
+    "id": "garage-rock",
+    "name": "Гаражный рок",
+    "family": "Рок",
+    "era": "1960-е → сегодня",
+    "bpm": [
+      110,
+      170
+    ],
+    "color": "#e7a58b",
+    "tagline": "Громко и без полировки",
+    "description": "Простой, сырой, прямолинейный рок с характером репетиционной комнаты.",
+    "instruments": "простые искажения гитар, грубые барабаны, насыщенный гаражный звук",
+    "style": "raw garage rock guitars, gritty fuzz, dry punchy drums, live-in-the-room energy, unpolished vocals",
+    "artists": [
+      "The Sonics",
+      "The White Stripes",
+      "The Hives"
+    ],
+    "themes": "бунт, молодость, вечеринка",
+    "ideas": [
+      {
+        "title": "Шумный подъезд",
+        "pitch": "Подростки собирают первую группу",
+        "mood": "energetic"
+      },
+      {
+        "title": "Вчера было громче",
+        "pitch": "Ностальгия по любимому клубу",
+        "mood": "gritty"
+      },
+      {
+        "title": "Красная лампа",
+        "pitch": "История музыкального эксперимента в подвале",
+        "mood": "rebellious"
+      }
+    ]
+  },
+  {
+    "id": "psychedelic-rock",
+    "name": "Психоделический рок",
+    "family": "Рок",
+    "era": "1960-е → сегодня",
+    "bpm": [
+      75,
+      145
+    ],
+    "color": "#c18ee6",
+    "tagline": "Звук за горизонтом",
+    "description": "Психоделические эффекты, необычные структуры, пространственные текстуры и свободные эксперименты.",
+    "instruments": "фейзер, орган, реверберация, мягкие гитарные соло, атмосферные синтезаторы",
+    "style": "swirling psychedelic guitar effects, vintage organ, spacious reverb, hypnotic bass, exploratory solos",
+    "artists": [
+      "Pink Floyd",
+      "The Doors",
+      "Tame Impala"
+    ],
+    "themes": "сны, космос, ощущение времени",
+    "ideas": [
+      {
+        "title": "Четвёртая дверь",
+        "pitch": "Герой попадает в город из собственных снов",
+        "mood": "surreal"
+      },
+      {
+        "title": "Медленный свет",
+        "pitch": "История летнего заката, который длится бесконечно",
+        "mood": "dreamy"
+      },
+      {
+        "title": "Круги на воде",
+        "pitch": "Размышление о выборе и памяти",
+        "mood": "hypnotic"
+      }
+    ]
+  },
+  {
+    "id": "britpop",
+    "name": "Брит-поп",
+    "family": "Рок",
+    "era": "1990-е → сегодня",
+    "bpm": [
+      95,
+      150
+    ],
+    "color": "#9ac6ca",
+    "tagline": "Гитарные гимны улиц",
+    "description": "Британская мелодичная гитарная музыка с яркими припевами и повседневными историями.",
+    "instruments": "ритмичные гитары, уверенный вокал, мелодичные риффы, припев-гимн",
+    "style": "bright British guitar pop, driving bass, tight drums, singalong chorus, conversational vocals",
+    "artists": [
+      "Oasis",
+      "Blur",
+      "Pulp",
+      "Suede"
+    ],
+    "themes": "молодость, любовь, повседневность",
+    "ideas": [
+      {
+        "title": "Суббота в городе",
+        "pitch": "Обычный день внезапно становится памятным",
+        "mood": "upbeat"
+      },
+      {
+        "title": "На другой стороне",
+        "pitch": "Двое общаются через окна соседних домов",
+        "mood": "romantic"
+      },
+      {
+        "title": "Плохие новости",
+        "pitch": "Герой решает начать сначала",
+        "mood": "hopeful"
+      }
+    ]
+  },
+  {
+    "id": "industrial-rock",
+    "name": "Индастриал-рок",
+    "family": "Рок",
+    "era": "1980-е → сегодня",
+    "bpm": [
+      100,
+      155
+    ],
+    "color": "#a6b2c3",
+    "tagline": "Машинный пульс",
+    "description": "Механические ритмы, тяжёлые гитары и экспериментальные электронные фактуры.",
+    "instruments": "дисторшн-гитары, синтетические ударные, шумовые текстуры, мощный бас",
+    "style": "industrial rock, mechanical drums, distorted guitars, metallic percussion, dark synth bass, aggressive textures",
+    "artists": [
+      "Nine Inch Nails",
+      "Ministry",
+      "Rammstein"
+    ],
+    "themes": "технологии, контроль, отчуждение",
+    "ideas": [
+      {
+        "title": "Машинное сердце",
+        "pitch": "Будущее, в котором люди теряют способность мечтать",
+        "mood": "dark"
+      },
+      {
+        "title": "Последний сигнал",
+        "pitch": "Жизнь в городе без электричества",
+        "mood": "intense"
+      },
+      {
+        "title": "Железный дождь",
+        "pitch": "Урбанистическая история о свободе выбора",
+        "mood": "dramatic"
+      }
+    ]
+  },
+  {
+    "id": "afropop",
+    "name": "Афро-поп",
+    "family": "Афро",
+    "era": "1960-е → сегодня",
+    "bpm": [
+      90,
+      120
+    ],
+    "color": "#f3a04f",
+    "tagline": "Мелодия и солнечный грув",
+    "description": "Широкое поле современной африканской популярной музыки с танцевальными ритмами и запоминающимися мелодиями.",
+    "instruments": "синкопированная перкуссия, тёплый бас, короткие гитарные фразы, мелодичный вокал",
+    "style": "warm afropop groove, syncopated African percussion, bouncy bass, clean guitar plucks, catchy melodic chorus",
+    "artists": [
+      "Yemi Alade",
+      "Wizkid",
+      "Burna Boy",
+      "Rema"
+    ],
+    "themes": "флирт, отношения, солнце, свобода",
+    "ideas": [
+      {
+        "title": "Она опять опаздывает",
+        "pitch": "Лёгкая история о девушке, которая всегда задерживается",
+        "mood": "playful"
+      },
+      {
+        "title": "Пусть идёт дождь",
+        "pitch": "Вечеринка закончилась, но двое продолжают танцевать",
+        "mood": "joyful"
+      },
+      {
+        "title": "За себя заплачу",
+        "pitch": "Она выбирает независимость и чувства вместо показухи",
+        "mood": "confident"
+      }
+    ]
+  },
+  {
+    "id": "amapiano",
+    "name": "Амапиано",
+    "family": "Афро",
+    "era": "2010-е → сегодня",
+    "bpm": [
+      108,
+      115
+    ],
+    "color": "#eec56b",
+    "tagline": "Тёплые аккорды и лог-драм",
+    "description": "Южноафриканский танцевальный стиль с глубокой басовой перкуссией, клавишными и просторным грувом.",
+    "instruments": "лог-драм, воздушные клавиши, мягкий грув, атмосферные синтезаторы",
+    "style": "amapiano groove, deep log drum bass, airy piano chords, soft percussion, spacious dance production",
+    "artists": [
+      "Kabza De Small",
+      "DJ Maphorisa",
+      "Focalistic"
+    ],
+    "themes": "вечеринки, города, танец",
+    "ideas": [
+      {
+        "title": "Последняя станция",
+        "pitch": "Ночное путешествие через огни города",
+        "mood": "hypnotic"
+      },
+      {
+        "title": "До рассвета",
+        "pitch": "Компания друзей танцует без повода",
+        "mood": "joyful"
+      },
+      {
+        "title": "Голос из такси",
+        "pitch": "Небольшая романтическая история в дороге",
+        "mood": "romantic"
+      }
+    ]
+  },
+  {
+    "id": "reggae",
+    "name": "Регги",
+    "family": "Мировая музыка",
+    "era": "Конец 1960-х → сегодня",
+    "bpm": [
+      65,
+      100
+    ],
+    "color": "#7bca9f",
+    "tagline": "Ритм на слабой доле",
+    "description": "Расслабленный ритм, бас на переднем плане и характерная синкопированная гитара.",
+    "instruments": "басовая линия, гитара на слабую долю, орган, мягкие ударные",
+    "style": "laid-back reggae groove, offbeat skank guitar, deep melodic bass, warm organ, relaxed drums",
+    "artists": [
+      "Bob Marley",
+      "Peter Tosh",
+      "Burning Spear"
+    ],
+    "themes": "мир, солнце, дружба, свобода",
+    "ideas": [
+      {
+        "title": "Песок на кедах",
+        "pitch": "Уютная прогулка по набережной",
+        "mood": "sunny"
+      },
+      {
+        "title": "Не торопись",
+        "pitch": "Герой учится радоваться простым вещам",
+        "mood": "laid-back"
+      },
+      {
+        "title": "Небо свободно",
+        "pitch": "Песня о свободе и единстве",
+        "mood": "hopeful"
+      }
+    ]
+  },
+  {
+    "id": "synthpop",
+    "name": "Синти-поп",
+    "family": "Электроника",
+    "era": "Конец 1970-х → сегодня",
+    "bpm": [
+      95,
+      135
+    ],
+    "color": "#7da2ef",
+    "tagline": "Сердце синтезатора",
+    "description": "Мелодичный поп с электронными барабанами и ведущими синтезаторами.",
+    "instruments": "аналоговые синтезаторы, драм-машины, синт-бас, яркие мелодии",
+    "style": "lush analog synths, electronic drum machine, synth bass, crisp arpeggios, catchy electronic pop hook",
+    "artists": [
+      "Depeche Mode",
+      "a-ha",
+      "Pet Shop Boys"
+    ],
+    "themes": "ночь, романтика, технологии",
+    "ideas": [
+      {
+        "title": "02:17",
+        "pitch": "Случайное сообщение меняет планы на ночь",
+        "mood": "neon"
+      },
+      {
+        "title": "Пиксели",
+        "pitch": "Двое знакомятся через старую игру",
+        "mood": "playful"
+      },
+      {
+        "title": "Светофор",
+        "pitch": "Ночная поездка без определённой цели",
+        "mood": "dreamy"
+      }
+    ]
+  },
+  {
+    "id": "techno",
+    "name": "Техно",
+    "family": "Электроника",
+    "era": "1980-е → сегодня",
+    "bpm": [
+      120,
+      145
+    ],
+    "color": "#60aacf",
+    "tagline": "Гипноз четырёх долей",
+    "description": "Повторяющийся электронный ритм, текстуры синтезаторов и постепенные изменения.",
+    "instruments": "четырёхдольная бочка, драм-машина, секвенсоры, синт-бас",
+    "style": "driving four-on-the-floor techno kick, hypnotic sequenced synths, deep sub bass, evolving electronic textures",
+    "artists": [
+      "Jeff Mills",
+      "Carl Cox",
+      "Charlotte de Witte"
+    ],
+    "themes": "ночь, движение, город",
+    "ideas": [
+      {
+        "title": "Под землёй",
+        "pitch": "Ночной клуб в старом промышленном здании",
+        "mood": "dark"
+      },
+      {
+        "title": "Пульс метро",
+        "pitch": "Инструментальная поездка по линиям мегаполиса",
+        "mood": "hypnotic"
+      },
+      {
+        "title": "Тоннель",
+        "pitch": "Постепенное движение от тишины к мощному дропу",
+        "mood": "intense"
+      }
+    ]
+  },
+  {
+    "id": "drum-and-bass",
+    "name": "Драм-н-бейс",
+    "family": "Электроника",
+    "era": "1990-е → сегодня",
+    "bpm": [
+      160,
+      180
+    ],
+    "color": "#73b6e9",
+    "tagline": "Брейкбит и глубокий бас",
+    "description": "Быстрые ломаные барабаны, насыщенный суббас и атмосферные слои.",
+    "instruments": "быстрые брейкбиты, саббас, атмосферные пэды, синтезаторные хуки",
+    "style": "fast rolling breakbeats, deep sub bass, crisp snares, spacious pads, energetic drum and bass groove",
+    "artists": [
+      "Goldie",
+      "Roni Size",
+      "Pendulum"
+    ],
+    "themes": "скорость, ночной город, полёт",
+    "ideas": [
+      {
+        "title": "Маршрут 174",
+        "pitch": "Ночной поезд ускоряется за городом",
+        "mood": "energetic"
+      },
+      {
+        "title": "Выше крыш",
+        "pitch": "Герой побеждает страх высоты",
+        "mood": "uplifting"
+      },
+      {
+        "title": "Не сохранять",
+        "pitch": "История сообщения, которое лучше не отправлять",
+        "mood": "dark"
+      }
+    ]
+  },
+  {
+    "id": "jazz",
+    "name": "Джаз",
+    "family": "Джаз и блюз",
+    "era": "Начало XX века → сегодня",
+    "bpm": [
+      75,
+      150
+    ],
+    "color": "#d4af83",
+    "tagline": "Импровизация и характер",
+    "description": "Музыка с богатой гармонией, свингом и живым диалогом инструментов.",
+    "instruments": "фортепиано, контрабас, щётки на барабанах, саксофон",
+    "style": "warm acoustic jazz ensemble, swinging upright bass, brushed drums, expressive piano, melodic saxophone improvisation",
+    "artists": [
+      "Miles Davis",
+      "Ella Fitzgerald",
+      "John Coltrane"
+    ],
+    "themes": "город, воспоминания, отношения",
+    "ideas": [
+      {
+        "title": "Кофе на двоих",
+        "pitch": "Разговор в маленьком кафе на углу",
+        "mood": "warm"
+      },
+      {
+        "title": "Третий столик",
+        "pitch": "История постоянных посетителей клуба",
+        "mood": "playful"
+      },
+      {
+        "title": "Последний трамвай",
+        "pitch": "Ночная городская баллада",
+        "mood": "nostalgic"
+      }
+    ]
+  },
+  {
+    "id": "chanson",
+    "name": "Современный шансон",
+    "family": "Авторская песня",
+    "era": "1990-е → сегодня",
+    "bpm": [
+      75,
+      115
+    ],
+    "color": "#c69d88",
+    "tagline": "Истории простых людей",
+    "description": "Повествовательные песни о жизни, памяти, отношениях и человеческом выборе.",
+    "instruments": "акустическая гитара, фортепиано, мягкие барабаны, выразительный голос",
+    "style": "melodic Russian chanson, acoustic guitar, warm piano, measured drums, narrative male vocals, intimate studio mix",
+    "artists": [
+      "Михаил Круг",
+      "Александр Розенбаум",
+      "Любовь Успенская"
+    ],
+    "themes": "дом, выбор, семья, дорога",
+    "ideas": [
+      {
+        "title": "Последнее письмо",
+        "pitch": "Сын пишет письмо отцу спустя много лет",
+        "mood": "emotional"
+      },
+      {
+        "title": "Окно на третьем",
+        "pitch": "Герой возвращается в родной двор",
+        "mood": "nostalgic"
+      },
+      {
+        "title": "Старый вокзал",
+        "pitch": "Встреча друзей через десятилетия",
+        "mood": "warm"
+      }
+    ]
+  }
+];
+const familyOrder = ['Рок','Метал','Афро','Электроника','Мировая музыка','Джаз и блюз','Авторская песня'];
+const icons={home:'<path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/>',library:'<rect x="3" y="4" width="6" height="17" rx="1"/><rect x="10" y="4" width="5" height="17" rx="1"/><path d="m17 5 4 15"/>',ideas:'<path d="M9 18h6m-5 3h4M8.2 14.7A7 7 0 1 1 16 15a5 5 0 0 0-1 2H9a5 5 0 0 0-.8-2.3Z"/>',studio:'<path d="M4 5h16M4 12h16M4 19h16"/><circle cx="9" cy="5" r="2" fill="#151827"/><circle cx="16" cy="12" r="2" fill="#151827"/><circle cx="11" cy="19" r="2" fill="#151827"/>',projects:'<path d="M3 7h7l2 2h9v11H3z"/><path d="M3 7V4h8l2 3"/>',saved:'<path d="M5 4h14v17l-7-5-7 5z"/>',search:'<circle cx="11" cy="11" r="7"/><path d="m16 16 5 5"/>',arrow:'<path d="m5 12 14 0m-6-6 6 6-6 6"/>',back:'<path d="m19 12-14 0m6 6-6-6 6-6"/>',heart:'<path d="M20.8 4.6a5.7 5.7 0 0 0-8.1 0l-.7.7-.7-.7a5.7 5.7 0 0 0-8.1 8.1 8.1 0 0 0 0 11.4L12 22l8.8-6a8.1 8.1 0 0 0 0-11.4z"/>',copy:'<rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h3"/>',plus:'<path d="M12 5v14M5 12h14"/>',download:'<path d="M12 3v12m-5-5 5 5 5-5M4 17v4h16v-4"/>',trash:'<path d="M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15M10 10v7m4-7v7"/>',check:'<path d="m5 12 4 4 10-10"/>',music:'<path d="M9 18V5l12-2v13M9 8l12-2"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',settings:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3M5 5l2.2 2.2m9.6 9.6L19 19M19 5l-2.2 2.2m-9.6 9.6L5 19"/>'};
+const I=n=>`<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[n]||icons.music}</svg>`;
+const escapeHTML=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const findGenre=id=>GENRES.find(g=>g.id===id)||GENRES[0];
+const IDEA_BANK={"Любовь":[["Не тот поезд","Они каждый вечер едут в одном вагоне, но знакомятся только в день, когда поезд меняет маршрут.","«Я искал не станцию — тебя»"],["Пять минут","Она всегда опаздывает на пять минут, а он начинает ценить эти пять минут ожидания.","«Пять минут — и целая жизнь»"],["Мимо окон","Он разносит утренний кофе и узнаёт её по рисункам на запотевшем стекле.","«Среди тысяч окон — одно моё»"],["Не отправлять","Двое год переписываются, но важные слова остаются в черновиках. Однажды они встречаются без телефонов.","«Не набирай — просто скажи»"],["Неправильный адрес","Посылка попадает не туда, и случайная встреча постепенно становится главным событием года.","«Ошиблись адресом, но не сердцем»"]],"Расставание":[["Чужие ключи","После расставания он находит её старый ключ и понимает, что давно живёт в другом доме — и в другой жизни.","«Верни не ключ — верни мне покой»"],["Пустая полка","Она замечает, что отсутствие одной книги в шкафу напоминает ей о человеке сильнее любых фотографий.","«На полке пусто, а внутри светло»"],["Три остановки","Бывшие случайно встречаются в автобусе; у них есть три остановки, чтобы наконец честно поговорить.","«Три остановки — целая весна»"],["После последней точки","Он перечитывает старые сообщения и впервые не отвечает прошлому.","«Я не стираю — отпускаю»"],["Окна напротив","Два человека живут в домах напротив, но постепенно учатся не искать друг друга в окнах.","«Пусть свет горит, но не для нас»"]],"Город":[["Маршрут номер семь","Ночной водитель знает истории пассажиров, а собственную историю начинает в пустом автобусе.","«Мой город не спит, и я с ним»"],["Одиннадцатый этаж","Она впервые снимает квартиру одна; за стеной кто-то учится играть на гитаре, и чужая мелодия становится её гимном.","«Над крышами я начинаю снова»"],["Последнее метро","Одна опоздавшая на поезд пара прохожих устраивает себе пешую экскурсию по пустому городу.","«Последнее метро — первый разговор»"],["Светофоры","Парень мечется между работой и чужими ожиданиями, пока однажды не решает пойти пешком вместо привычной гонки.","«На красный свет я выбираю жизнь»"],["Чей-то свет","Во время отключения электричества соседи впервые знакомятся друг с другом.","«Город темнеет — люди светят»"]],"Дорога":[["Без обратного билета","Она отправляется в короткую поездку, чтобы всё обдумать, и неожиданно решает не возвращаться к прежней работе.","«Пока дорога впереди — я жив»"],["Старый навигатор","Друзья отправляются на море, полагаясь на старый навигатор, который приводит их в маленький город детства.","«Нас занесло туда, где мы свои»"],["За поворотом","Водитель подбирает пожилого попутчика и обнаруживает, что они едут к одному и тому же человеку.","«За поворотом нас ждёт ответ»"],["Пыль на стекле","После долгого отсутствия герой возвращается в родной город, узнавая улицы по мельчайшим деталям.","«Дороги помнят наши имена»"],["На рассвете","Двое едут ночью и решают не включать музыку, чтобы впервые услышать друг друга.","«С рассветом не кончается путь»"]],"Свобода":[["Без чужих слов","Она перестаёт согласовывать каждое решение с окружающими и впервые выбирает сама.","«Это мой голос, мой маршрут»"],["Не по инструкции","Обычный офисный день заканчивается неожиданным решением открыть маленькую мастерскую.","«Не по инструкции, а по любви»"],["Открытый балкон","Он перестаёт бояться соседских взглядов и начинает петь на балконе песни собственного сочинения.","«Пускай услышат — это я»"],["Снять ярлыки","Человек устал быть чьей-то удобной версией и возвращает себе право ошибаться.","«Я не роль в чужом кино»"],["В первый раз","Взрослая женщина впервые идёт на концерт одна и понимает, что ей не требуется ничьё разрешение радоваться.","«В первый раз мне можно всё»"]],"Дружба":[["Вторая кружка","Друзья годами встречаются за одним столом, пока однажды один из них не приезжает из другого города без предупреждения.","«Для тебя всегда есть место»"],["Один фонарик","В походе гаснут телефоны, а старый фонарь заставляет друзей доверять друг другу.","«Пока мы рядом — свет не гаснет»"],["Старая кассета","Трое друзей находят запись школьной группы и решают сыграть её спустя двадцать лет.","«Нам снова по семнадцать»"],["Не пропадай","Он постоянно пишет друзьям короткое «как ты?» и однажды понимает, что эти сообщения спасают дружбу от расстояния.","«Где бы ты ни был — не пропадай»"],["Секретный берег","Два товарища каждый год встречаются у реки, чтобы рассказать друг другу то, что не скажут никому.","«Наш берег ждёт нас снова»"]],"Семья":[["Папин свитер","Дочь находит старый свитер и вместе с ним — записку, спрятанную много лет назад.","«Дом живёт в простых вещах»"],["Суп по воскресеньям","Семья живёт в разных городах, но сохраняет традицию созваниваться за воскресным обедом.","«Пока мы вместе — это дом»"],["Незнакомый голос","Сын, давно не звонивший матери, узнаёт её усталость по короткому разговору и покупает билет домой.","«Скажи мне просто: как ты там?»"],["День рождения","Герой забывает важный день, но вместо дорогого подарка организует вечер воспоминаний.","«Не вещи помнят — помним мы»"],["Открытая дверь","Брат и сестра годами спорили о наследстве, пока случайная встреча не вернула им главное — детство.","«Пусть дверь останется открытой»"]],"Поиск себя":[["Не мой размер","Герой всю жизнь примеряет чужие мечты и внезапно понимает, что ни одна ему не подходит.","«Я вырос из чужих ролей»"],["Точка старта","Она поступает не туда, куда советовали, и впервые ощущает, что страх может быть знаком роста.","«Мой первый шаг — не назад»"],["Без названия","Музыкант не может назвать собственную песню, пока не понимает, о чём на самом деле хочет сказать.","«Слова придут, когда я приду»"],["На своём языке","В шумной компании все говорят как принято, а герой учится говорить так, как чувствует.","«Мой голос — не чужое эхо»"],["Заново","После переезда она знакомится с собой через маленькие привычки нового города.","«Я собираю себя заново»"]],"Ностальгия":[["Жёлтая плёнка","Компания друзей находит старый фотоаппарат с непроявленной плёнкой из последнего школьного лета.","«Нам не вернуть — но можно помнить»"],["Лавочка во дворе","После многих лет герой приезжает к дому детства и встречает соседа, который помнит всё.","«Во дворе ещё звучит наш смех»"],["Песни на магнитоле","Ночная поездка возвращает человека к первой любви через кассету, которую давно считал потерянной.","«Поставь на паузу тот июль»"],["До первого снега","Двое вспоминают осень, когда всё было возможно, но признают, что сегодня тоже можно начать сначала.","«Пока не выпал первый снег»"],["Тот самый подъезд","Он стоит у знакомого подъезда и понимает, что скучал не по месту, а по себе прежнему.","«Я здесь был счастлив и живой»"]],"Надежда":[["После дождя","В маленьком городке после долгих ливней соседи вместе восстанавливают разрушенный сад.","«После дождя всё снова растёт»"],["Ещё одна попытка","Музыкант проваливает выступление, но случайное доброе слово заставляет его вернуться к музыке.","«Я снова выйду на свет»"],["Фонарь в окне","Каждую ночь пожилая женщина оставляет свет соседу, который поздно возвращается с работы.","«Один огонь виден издалека»"],["Белая полоса","После череды неудач героиня замечает маленькие перемены и постепенно собирает силы для нового старта.","«Белая полоса начинается здесь»"],["Утро придёт","Два человека встречают рассвет после трудного разговора и впервые не боятся будущего.","«Даже долгая ночь пройдёт»"]],"Юмор":[["Чужой плейлист","Парень пытается понравиться девушке, выдавая её любимые песни за свои, но случайно включает детские хиты.","«Поймай меня на первом треке»"],["Снова опоздал","Она рассказывает историю десятка невероятных причин опоздания, а в конце признаётся: просто долго выбирала платье.","«Пять минут — почти легенда»"],["Кто съел пирог","Вечеринка превращается в детектив, когда исчезает главный десерт; виновник оказывается самым серьёзным гостем.","«Это точно был не я!»"],["Не тот чат","Герой отправляет признание в общий рабочий чат и теперь вынужден отвечать на вопросы всего офиса.","«Кому я это написал?»"],["Танцы с соседями","Соседи приходят жаловаться на шум, но остаются танцевать и приносят свою колонку.","«Снизу стучат — зовут на танец»"]],"Вера и свет":[["Тихий ответ","Герой ждёт громкого знака, но находит поддержку в простом добром поступке незнакомца.","«Ответ бывает тише слов»"],["Сквозь шум","В большом городе человек ищет минуты тишины, чтобы вспомнить, что для него по-настоящему важно.","«Внутри меня осталось небо»"],["Один огонёк","На тёмной улице горит окно, которое напоминает путнику, что его ждут.","«Один огонёк сильнее тьмы»"],["Руки рядом","Когда герой устаёт, друзья помогают ему продолжить путь, не требуя объяснений.","«Я не один на этой дороге»"],["Новый день","Человек перестаёт измерять жизнь только ошибками и решается встретить утро с благодарностью.","«Дай мне увидеть этот свет»"]]};
+
+// SUNOBOOM Idea Lab: local combinatorial generator, no network, no external AI.
+const GEN_MOODS=[['energetic','Энергично'],['romantic','Романтично'],['melancholic','Меланхолично'],['uplifting','Воодушевляюще'],['playful','Игриво'],['dreamy','Мечтательно'],['dark','Мрачно'],['nostalgic','Ностальгично']];
+const GEN_STORIES=[['twist','История с поворотом'],['first','От первого лица'],['dialogue','Диалог'],['anthem','Гимн с сильным припевом'],['cinematic','Кинематографичная сцена']];
+const GEN_LANG=[['Russian','Русский'],['English','Английский'],['Kazakh','Казахский'],['Spanish','Испанский']];
+const GEN_VOCALS=[['male','Мужской'],['female','Женский'],['duet','Дуэт']];
+const ideaGen={genre:'afropop',mood:'energetic',topic:'Любовь',story:'twist',language:'Russian',vocal:'female',count:3,detail:''};
+let generatedIdeas=[];
+let generatedSeq=0;
+let generatedCycle=0;
+const GEN_MOOD_LINES={energetic:'Упор на движение, решительность и танцевальный импульс.',romantic:'Оставь пространство для нежности, симпатии и тёплой улыбки.',melancholic:'Важны паузы, недосказанность и ощущение тихой грусти.',uplifting:'Финал должен дать свет и ощущение нового начала.',playful:'Добавь иронию, лёгкое поддразнивание и улыбку в куплетах.',dreamy:'Подчеркни образы, атмосферу и детали, как в воспоминании.',dark:'Контрастируй внешнее спокойствие и внутреннее напряжение.',nostalgic:'Пусть маленькая деталь запускает воспоминания.'};
+const GEN_STORY_LINES={twist:'Поворот: в последнем куплете привычная ситуация раскрывается с другой стороны.',first:'Подача: от первого лица — конкретные признания вместо абстрактных лозунгов.',dialogue:'Подача: первый куплет — один голос, второй — ответ, припев — общая фраза.',anthem:'Подача: куплеты рассказывают историю, а припев превращает её в ясный девиз.',cinematic:'Подача: начни с видимой детали, затем расширяй сцену и покажи развязку.'};
+function generatedIdeaText(x){return `${x.title}\nЖанр: ${findGenre(x.genre).name}\nНастроение: ${GEN_MOODS.find(m=>m[0]===x.mood)?.[1]||x.mood}\nИстория: ${x.pitch}\nСюжетная подача: ${x.storyLine}\nХук припева: ${x.hook}\n${x.detail?'Своя деталь: '+x.detail+'\n':''}Язык: ${x.language}. Вокал: ${GEN_VOCALS.find(v=>v[0]===x.vocal)?.[1]||x.vocal}.`}
+function runIdeaGenerator(){
+ const pool=[...IDEA_BANK[ideaGen.topic]];
+ for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]]}
+ generatedCycle++;
+ const angle=(generatedCycle-1)%4;
+ const variants=[
+  ['', '', ''],
+  [' — год спустя', 'История показана спустя год, когда последствия неожиданной встречи меняют взгляд на прошлое. ', 'Новый взгляд: '],
+  [' — другая сторона', 'Покажи те же события глазами другого участника истории: ', 'Ответ в припеве: '],
+  [' — неотправленное письмо', 'Построй рассказ как письмо, которое герой долго не решался отправить. ', 'Признание: ']
+ ];
+ const result=[];
+ for(let i=0;i<ideaGen.count;i++){
+  const seed=pool[i%pool.length];
+  const suffix=variants[angle][0];
+  result.push({id:'gen'+Date.now().toString(36)+'-'+(++generatedSeq),title:seed[0]+suffix,
+   genre:ideaGen.genre, mood:ideaGen.mood,topic:ideaGen.topic,language:ideaGen.language,vocal:ideaGen.vocal,
+   pitch:variants[angle][1]+seed[1]+' '+GEN_MOOD_LINES[ideaGen.mood],storyLine:GEN_STORY_LINES[ideaGen.story],
+   hook:variants[angle][2]+seed[2],detail:ideaGen.detail.slice(0,220),createdAt:new Date().toLocaleDateString('ru-RU')});
+ }
+ generatedIdeas=result;
+}
+function generatedCard(x,stored=false){const isSaved=(data.savedGeneratedIdeas||[]).some(a=>a.id===x.id);return `<article class="idea generated-card"><div class="idea-badge">${escapeHTML(findGenre(x.genre).name)} · ${escapeHTML(x.topic)}</div><h3>${escapeHTML(x.title)}</h3><p>${escapeHTML(x.pitch)}</p><p class="generator-story">${escapeHTML(x.storyLine)}</p><div class="generator-hook"><span>ХУК ПРИПЕВА</span><strong>${escapeHTML(x.hook)}</strong></div>${x.detail?`<p class="generator-detail">Твоя деталь: ${escapeHTML(x.detail)}</p>`:''}<div class="actions"><button class="btn primary small" data-action="generated-use" data-id="${escapeHTML(x.id)}">${I('studio')} В Suno Studio</button><button class="btn ghost small" data-action="generated-copy" data-id="${escapeHTML(x.id)}">${I('copy')} Копировать</button>${stored?`<button class="btn danger small" data-action="generated-delete" data-id="${escapeHTML(x.id)}">${I('trash')} Удалить</button>`:`<button class="btn ghost small" data-action="generated-save" data-id="${escapeHTML(x.id)}">${I('heart')} ${isSaved?'Сохранено':'Сохранить'}</button>`}</div></article>`}
+function ideaGeneratorPanel(){return `<section class="generator-panel"><div class="generator-panel-top"><div><div class="eyebrow">SUNOBOOM · IDEA LAB</div><h2>Создай новую идею <span>✦</span></h2><p>Подбери жанр, тему, настроение и сюжетную подачу. Получи несколько свежих концепций с названием, историей и хуком припева.</p></div><span class="generator-orb">💡</span></div><div class="generator-form">
+<div class="field"><label for="gen-genre">Жанр / поджанр</label><select id="gen-genre" data-idea-generator="genre">${options(GENRES.map(g=>[g.id,g.name]),ideaGen.genre)}</select></div>
+<div class="field"><label for="gen-topic">Тема песни</label><select id="gen-topic" data-idea-generator="topic">${options(Object.keys(IDEA_BANK).map(s=>[s,s]),ideaGen.topic)}</select></div>
+<div class="field"><label for="gen-mood">Настроение</label><select id="gen-mood" data-idea-generator="mood">${options(GEN_MOODS,ideaGen.mood)}</select></div>
+<div class="field"><label for="gen-story">Подача истории</label><select id="gen-story" data-idea-generator="story">${options(GEN_STORIES,ideaGen.story)}</select></div>
+<div class="field"><label for="gen-voice">Вокал</label><select id="gen-voice" data-idea-generator="vocal">${options(GEN_VOCALS,ideaGen.vocal)}</select></div>
+<div class="field"><label for="gen-language">Язык песни</label><select id="gen-language" data-idea-generator="language">${options(GEN_LANG,ideaGen.language)}</select></div>
+<div class="field"><label for="gen-count">Сколько вариантов</label><select id="gen-count" data-idea-generator="count">${options([[3,'3 идеи'],[5,'5 идей']],ideaGen.count)}</select></div>
+<div class="field generator-detail-field"><label for="gen-detail">Своя деталь (необязательно)</label><input id="gen-detail" data-idea-generator="detail" value="${escapeHTML(ideaGen.detail)}" maxlength="220" placeholder="Например: ночной Алматы, поезд, летний дождь"></div>
+</div><div class="generator-bar"><button class="btn primary" data-action="generate-ideas">${I('ideas')} Сгенерировать идеи</button><button class="btn ghost" data-action="surprise-ideas">🎲 Удиви меня</button><span class="generator-note">Работает офлайн · без внешнего ИИ</span></div></section>${generatedIdeas.length?`<div class="section-title" id="generated-results"><h2>Твои новые идеи · ${generatedIdeas.length}</h2><button class="btn ghost small" data-action="generate-ideas">${I('arrow')} Ещё варианты</button></div><div class="idea-grid">${generatedIdeas.map(x=>generatedCard(x)).join('')}</div>`:''}`}
+function fetchGenerated(id){return generatedIdeas.find(x=>x.id===id)||(data.savedGeneratedIdeas||[]).find(x=>x.id===id)}
+
+const initData={favorites:['afropop','alternative-rock','indie-rock'],savedPrompts:[],savedIdeas:[],savedGeneratedIdeas:[],projects:[],recent:['alternative-rock','afropop']};
+let data;
+try {data={...initData,...JSON.parse(localStorage.getItem('sunoboom-v1')||'{}')}}catch(e){data=structuredClone(initData)}
+const persist=()=>{try{localStorage.setItem('sunoboom-v1',JSON.stringify(data))}catch(e){}};
+const view={nav:'home', selected:'alternative-rock',tab:'overview',filter:'Все',search:'',selectedProject:null,ideaFamily:'Все'};
+let builder={genre:'alternative-rock',mood:'melancholic',vocal:'male',language:'Russian',tempo:115,energy:'medium',theme:'Поиск себя в большом городе',extra:'',studio:true,noWhisper:true,noChoir:true,noIntro:false};
+const navs=[['home','Главная','home'],['catalog','Энциклопедия','library'],['ideas','Идеи песен','ideas'],['studio','Suno Studio','studio'],['projects','Мои проекты','projects'],['saved','Избранное','saved']];
+const toast=(t)=>{const a=document.getElementById('toast');a.textContent=t;a.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>a.classList.remove('show'),2400)};
+function go(nav){view.nav=nav;view.search='';render();window.scrollTo({top:0,behavior:'instant'})}
+function openGenre(id,tab='overview'){view.nav='detail';view.selected=id;view.tab=tab;data.recent=[id,...(data.recent||[]).filter(x=>x!==id)].slice(0,8);persist();render();window.scrollTo({top:0,behavior:'instant'})}
+function home(){const featured=['alternative-rock','afropop','indie-rock','heavy-metal','folk-rock','synthpop'];const bars=[15,36,56,30,83,100,66,36,109,73,43,88,130,96,40,75,110,50,93,55,22,63,92,32,55,23];return `<section class="hero"><div class="hero-text"><div class="eyebrow">Частная музыкальная мастерская</div><h2>От жанра до<br><span style="color:#ff82c4">своего звучания.</span></h2><p>Исследуй музыкальные направления, находи истории для песен и собирай точные промпты для Suno.</p><button class="btn primary" data-action="nav" data-nav="catalog">Исследовать жанры ${I('arrow')}</button></div><div class="soundwave" aria-hidden="true">${bars.map(n=>`<span class="bar" style="height:${n}px"></span>`).join('')}</div></section><div class="stats"><div class="stat"><div><strong>${GENRES.length}</strong><span>жанров в каталоге</span></div><span class="em">🎸</span></div><div class="stat"><div><strong>${GENRES.reduce((s,g)=>s+g.ideas.length,0)}</strong><span>сюжетных идей</span></div><span class="em">💡</span></div><div class="stat"><div><strong>${data.savedPrompts.length}</strong><span>сохранённых промптов</span></div><span class="em">🎛️</span></div></div><div class="section-title"><h2>Направления для старта</h2><button class="link-action" data-action="nav" data-nav="catalog">Весь каталог ${I('arrow')}</button></div><div class="genre-grid">${featured.map(id=>genreCard(findGenre(id))).join('')}</div><div class="section-title"><h2>Продолжить изучение</h2></div><div class="list-pills">${data.recent.map(id=>`<button class="filter" data-action="genre" data-id="${id}">${escapeHTML(findGenre(id).name)} →</button>`).join('')}</div><div class="section-title"><h2>Быстрый старт</h2></div><div class="two-col"><div class="panel"><h3>🎛️ Конструктор промпта</h3><p>Выбери характер звучания, вокал и настроение — получи готовое описание до 1000 символов.</p><button class="btn ghost" data-action="nav" data-nav="studio">Открыть студию ${I('arrow')}</button></div><div class="panel"><h3>💡 Идеи и сюжеты</h3><p>Готовые концепции песен по жанрам. Можно сохранить или сразу перенести идею в Suno Studio.</p><button class="btn ghost" data-action="nav" data-nav="ideas">Открыть генератор ${I('arrow')}</button></div></div>`}
+function genreCard(g){return `<button class="genre-card" style="--accent:${g.color}" data-action="genre" data-id="${g.id}"><div class="art"></div><div class="genre-content"><div><div class="kicker">${escapeHTML(g.family)} · ${g.bpm[0]}–${g.bpm[1]} BPM</div><h3>${escapeHTML(g.name)}</h3><p>${escapeHTML(g.tagline)}</p></div><div class="foot"><span>${escapeHTML(g.era)}</span><span style="color:#ffacd9">Открыть →</span></div></div></button>`}
+function catalog(){const families=['Все',...familyOrder.filter(x=>GENRES.some(g=>g.family===x))];return `<header class="heading"><h1>Энциклопедия жанров</h1><p>От афро-попа до прогрессивного рока. У каждого направления есть история, инструменты, артисты, идеи и стилистика для Suno.</p></header><div class="search-box">${I('search')}<input id="genre-search" aria-label="Поиск жанров" placeholder="Поиск жанра, исполнителя, звучания..." value="${escapeHTML(view.search)}"></div><div class="filters">${families.map(f=>`<button class="filter ${view.filter===f?'on':''}" data-action="filter" data-filter="${escapeHTML(f)}">${escapeHTML(f)}</button>`).join('')}</div><div class="section-title"><h2 id="catalog-count">Каталог</h2><span class="hint">Выбери жанр для просмотра</span></div><div id="catalog-cards" class="genre-grid">${GENRES.map(genreCard).join('')}</div>`}
+function filterCatalog(){const q=view.search.toLocaleLowerCase('ru').trim();const arr=GENRES.filter(g=>(view.filter==='Все'||g.family===view.filter)&&(`${g.name} ${g.family} ${g.artists.join(' ')} ${g.description} ${g.tagline}`).toLocaleLowerCase('ru').includes(q));const cards=document.getElementById('catalog-cards');if(cards)cards.innerHTML=arr.length?arr.map(genreCard).join(''):'<div class="empty">Ничего не найдено. Попробуй другой запрос.</div>';const count=document.getElementById('catalog-count');if(count)count.textContent=`Каталог · ${arr.length}`}
+function detail(){const g=findGenre(view.selected);const fav=data.favorites.includes(g.id);return `<div class="detail-head" style="--accent:${g.color}"><button class="back" data-action="nav" data-nav="catalog">← К каталогу</button><div class="eyebrow">${escapeHTML(g.family)} · ${escapeHTML(g.era)}</div><h1>${escapeHTML(g.name)}</h1><p>${escapeHTML(g.description)}</p><div class="detail-tags"><span>${escapeHTML(g.tagline)}</span><span>${g.bpm[0]}–${g.bpm[1]} BPM</span><span>3 идеи</span></div><div class="spacer"></div><div class="detail-actions"><button class="btn primary small" data-action="use-genre" data-id="${g.id}">${I('studio')} Открыть в студии</button><button class="btn ghost small" data-action="favorite" data-id="${g.id}">${I('heart')} ${fav?'В избранном':'В избранное'}</button></div></div><div class="tabs"><button class="tab ${view.tab==='overview'?'active':''}" data-action="tab" data-tab="overview">Обзор</button><button class="tab ${view.tab==='ideas'?'active':''}" data-action="tab" data-tab="ideas">Идеи песен</button><button class="tab ${view.tab==='prompts'?'active':''}" data-action="tab" data-tab="prompts">Промпты Suno</button></div>${view.tab==='overview'?overview(g):view.tab==='ideas'?`<div class="idea-grid">${g.ideas.map((x,i)=>ideaCard(g,x,i)).join('')}</div>`:genrePrompts(g)}`}
+function overview(g){return `<div class="overview-grid"><div class="panel"><h3>Суть и звучание</h3><p class="tagline">${escapeHTML(g.tagline)}</p><p>${escapeHTML(g.description)}</p><div class="info-label">Инструменты и фактура</div><p>${escapeHTML(g.instruments)}.</p><div class="info-label">О чём петь</div><p>${escapeHTML(g.themes)}.</p><button class="btn ghost small" data-action="tab" data-tab="ideas">Посмотреть идеи ${I('arrow')}</button></div><div class="panel"><h3>Паспорт направления</h3><div class="info-label">История и эпоха</div><div class="timeline">◉ ${escapeHTML(g.era)}</div><div class="info-label">Ориентир темпа</div><p>${g.bpm[0]}–${g.bpm[1]} BPM</p><div class="info-label">Исполнители для изучения</div><div class="list-pills">${g.artists.map(n=>`<span>${escapeHTML(n)}</span>`).join('')}</div><div class="spacer"></div><div class="notice">Поджанры пересекаются. Темп и инструменты здесь — ориентиры, не строгие правила жанра.</div></div></div>`}
+function ideaCard(g,x,i){const key=g.id+':'+i, saved=data.savedIdeas.includes(key);return `<div class="idea"><div class="idea-badge">${escapeHTML(g.name)} · ${escapeHTML(x.mood)}</div><h3>${escapeHTML(x.title)}</h3><p>${escapeHTML(x.pitch)}</p><div class="actions"><button class="btn primary small" data-action="idea-use" data-id="${g.id}" data-i="${i}">${I('studio')} В студию</button><button class="btn ghost small" data-action="idea-save" data-id="${g.id}" data-i="${i}">${I('heart')} ${saved?'Сохранено':'Сохранить'}</button></div></div>`}
+function genrePrompts(g){return `<div class="panel"><h3>Шаблоны звучания</h3><p>Начни с одного из вариантов. Он перенесёт настройки жанра в конструктор — там можно выбрать вокал, настроение и язык.</p><div class="idea-grid"><div class="idea"><div class="idea-badge">Оригинальное звучание</div><h3>${escapeHTML(g.name)}</h3><p>${escapeHTML(g.style)}.</p><button class="btn primary small" data-action="use-genre" data-id="${g.id}">Настроить в студии ${I('arrow')}</button></div><div class="idea"><div class="idea-badge">Альтернативная версия</div><h3>Мягкая атмосфера</h3><p>${escapeHTML(g.style)}, restrained dynamics, warm intimate production, emotional melodies.</p><button class="btn ghost small" data-action="use-soft" data-id="${g.id}">Настроить в студии ${I('arrow')}</button></div></div></div>`}
+function ideasView(){const all=GENRES.flatMap(g=>g.ideas.map((x,i)=>({g,x,i})));const filtered=all.filter(r=>view.ideaFamily==='Все'||r.g.family===view.ideaFamily);return `<header class="heading"><h1>Идеи песен <span style="color:#fb7bbd">✦</span></h1><p>Создавай новые истории в генераторе или выбирай готовые идеи из каталога.</p></header>${ideaGeneratorPanel()}<div class="section-title"><h2>Библиотека готовых сюжетов · ${filtered.length}</h2></div><div class="filters">${['Все',...familyOrder.filter(f=>GENRES.some(g=>g.family===f))].map(f=>`<button class="filter ${view.ideaFamily===f?'on':''}" data-action="idea-filter" data-filter="${escapeHTML(f)}">${escapeHTML(f)}</button>`).join('')}</div><div class="section-title"><h2>Идеи · ${filtered.length}</h2><button class="btn ghost small" data-action="random-idea">🎲 Случайная идея</button></div><div class="idea-grid">${filtered.map(r=>ideaCard(r.g,r.x,r.i)).join('')}</div>`}
+function promptValue(){const g=findGenre(builder.genre),voice=({male:'expressive clean male vocals',female:'expressive clean female vocals',duet:'expressive male and female duet'})[builder.vocal],energy=({soft:'restrained intimate energy',medium:'dynamic balanced energy',high:'powerful high energy'})[builder.energy];let parts=[g.name+' music',`${builder.tempo} BPM`,`${builder.mood} mood`,g.style,energy,voice,`${builder.language} lyrics`];if(builder.theme.trim())parts.push('song about '+builder.theme.trim());if(builder.extra.trim())parts.push(builder.extra.trim());if(builder.studio)parts.push('clean studio production, no live ambience, no crowd noise');if(builder.noWhisper)parts.push('no whispering');if(builder.noChoir)parts.push('no choir');if(builder.noIntro)parts.push('start immediately with lead vocals, no long intro');let s=parts.join(', ')+'.';if(s.length>1000){s=parts.slice(0,7).join(', ')+'.'}return s}
+function options(list,selected){return list.map(([v,label])=>`<option value="${escapeHTML(v)}" ${selected===v?'selected':''}>${escapeHTML(label)}</option>`).join('')}
+function studio(){const g=findGenre(builder.genre),p=promptValue();return `<header class="heading"><h1>Suno Studio <span style="color:#fd83c3">✦</span></h1><p>Управляй звуком и получай английский промпт для генерации. Каждый параметр меняет текст в реальном времени.</p></header><div class="studio-grid"><div class="panel"><h3>Параметры трека</h3><div class="field"><label for="b-genre">Жанр</label><select id="b-genre" data-builder="genre">${options(GENRES.map(g=>[g.id,g.name]),builder.genre)}</select></div><div class="form-grid"><div class="field"><label for="b-mood">Настроение</label><select id="b-mood" data-builder="mood">${options([['melancholic','Меланхоличное'],['energetic','Энергичное'],['romantic','Романтичное'],['dark','Мрачное'],['uplifting','Воодушевляющее'],['dreamy','Мечтательное'],['playful','Игривое'],['epic','Эпическое'],['nostalgic','Ностальгическое']],builder.mood)}</select></div><div class="field"><label for="b-vocal">Вокал</label><select id="b-vocal" data-builder="vocal">${options([['male','Мужской'],['female','Женский'],['duet','Дуэт']],builder.vocal)}</select></div><div class="field"><label for="b-lang">Язык текста</label><select id="b-lang" data-builder="language">${options([['Russian','Русский'],['English','Английский'],['Spanish','Испанский'],['Kazakh','Казахский']],builder.language)}</select></div><div class="field"><label for="b-energy">Энергия</label><select id="b-energy" data-builder="energy">${options([['soft','Мягкая'],['medium','Средняя'],['high','Мощная']],builder.energy)}</select></div></div><div class="field"><label for="b-tempo">Темп · <span style="color:#ffa8d5" id="tempo-num">${builder.tempo}</span> BPM</label><div class="range"><input type="range" min="65" max="200" step="1" id="b-tempo" data-builder="tempo" value="${builder.tempo}"><output id="bpm-output">${builder.tempo} BPM</output></div><span class="muted" style="font-size:11px">Обычно для «${escapeHTML(g.name)}»: ${g.bpm[0]}–${g.bpm[1]} BPM</span></div><div class="field"><label for="b-theme">Тема / история трека</label><textarea id="b-theme" rows="2" data-builder="theme" placeholder="О чём будет песня?">${escapeHTML(builder.theme)}</textarea></div><div class="field"><label for="b-extra">Дополнительные инструкции (необязательно)</label><textarea id="b-extra" rows="2" data-builder="extra" placeholder="Например: memorable chorus, short guitar solo">${escapeHTML(builder.extra)}</textarea></div><div class="checkrow"><label><input type="checkbox" data-builder="studio" ${builder.studio?'checked':''}>Без публики и live-атмосферы</label><label><input type="checkbox" data-builder="noWhisper" ${builder.noWhisper?'checked':''}>Без шёпота</label><label><input type="checkbox" data-builder="noChoir" ${builder.noChoir?'checked':''}>Без хора</label><label><input type="checkbox" data-builder="noIntro" ${builder.noIntro?'checked':''}>Без длинного интро</label></div></div><div class="panel" style="position:sticky;top:20px"><div class="eyebrow">Готово к Suno</div><h3>Твой промпт</h3><div class="output" id="prompt-output">${escapeHTML(p)}</div><div class="counter"><span>Максимум 1000 символов</span><b id="prompt-count">${p.length} / 1000</b></div><div class="two-col"><button class="btn primary" data-action="copy-prompt">${I('copy')} Копировать</button><button class="btn ghost" data-action="save-prompt">${I('saved')} Сохранить</button></div><div class="spacer"></div><div class="notice"><strong>Подсказка:</strong> промпт задаёт стиль, а текст песни можно вводить отдельно в Suno. Результат генерации может отличаться от запроса.</div><div class="spacer"></div><div class="info-label">Музыкальный профиль</div><div class="list-pills"><span>${escapeHTML(g.name)}</span><span>${escapeHTML(g.family)}</span><span>${g.bpm[0]}–${g.bpm[1]} BPM</span></div></div></div>`}
+function updateOutput(){const el=document.getElementById('prompt-output');if(el){let p=promptValue();el.textContent=p;document.getElementById('prompt-count').textContent=p.length+' / 1000';const n=document.getElementById('tempo-num'),out=document.getElementById('bpm-output');if(n)n.textContent=builder.tempo;if(out)out.textContent=builder.tempo+' BPM'}}
+function saved(){const genSaved=(data.savedGeneratedIdeas||[]).slice().reverse();const favs=data.favorites.map(id=>findGenre(id));const list=data.savedPrompts.slice().reverse();const allIdeas=(data.savedIdeas||[]).map(key=>{const [id,i]=key.split(':');const g=GENRES.find(x=>x.id===id);return g&&g.ideas[Number(i)]?{g,x:g.ideas[Number(i)],i:Number(i)}:null}).filter(Boolean);return `<header class="heading"><h1>Моя библиотека</h1><p>Любимые жанры, идеи и промпты. Сохраняются локально в этом браузере.</p></header><div class="section-title"><h2>Избранные жанры (${favs.length})</h2></div>${favs.length?`<div class="genre-grid">${favs.map(genreCard).join('')}</div>`:empty('Пока нет избранных жанров','Добавляй их в карточках энциклопедии.')}<div class="section-title"><h2>Сохранённые идеи (${allIdeas.length})</h2></div>${allIdeas.length?`<div class="idea-grid">${allIdeas.map(r=>ideaCard(r.g,r.x,r.i)).join('')}</div>`:empty('Нет сохранённых идей','Найди интересный сюжет и нажми «Сохранить».')}<div class="section-title"><h2>Идеи из генератора (${genSaved.length})</h2><button class="btn ghost small" data-action="nav" data-nav="ideas">${I('plus')} Создать ещё</button></div>${genSaved.length?`<div class="idea-grid">${genSaved.map(x=>generatedCard(x,true)).join('')}</div>`:empty('Сохранённых новых идей нет','Создай идеи в генераторе и нажми «Сохранить».')}<div class="section-title"><h2>Мои промпты (${list.length})</h2></div>${list.length?`<div class="saved-list">${list.map(p=>`<div class="saved-item"><div class="row"><h3>${escapeHTML(p.genre)} · ${escapeHTML(p.mood)}</h3><div class="actions"><button class="btn ghost small" data-action="copy-saved" data-id="${p.id}">${I('copy')} Копировать</button><button class="btn danger small" data-action="delete-saved" data-id="${p.id}">${I('trash')}</button></div></div><p>${escapeHTML(p.text)}</p><span class="sub">${escapeHTML(p.date)}</span></div>`).join('')}</div>`:empty('Промптов пока нет','Создай первый в Suno Studio и сохрани в библиотеке.')}<div class="section-title"><h2>Резервное копирование</h2></div><div class="panel"><p>Экспортируй личную библиотеку, чтобы перенести её на другое устройство. Импортируй ранее экспортированные данные при переносе на другое устройство.</p><div class="detail-actions"><button class="btn ghost" data-action="export">${I('download')} Экспорт (.json)</button><button class="btn ghost" data-action="import">${I('plus')} Импорт (.json)</button><input type="file" id="import-file" accept=".json,application/json" style="display:none"></div></div>`}
+function empty(title,desc){return `<div class="empty">${I('music')}<strong>${escapeHTML(title)}</strong>${escapeHTML(desc)}</div>`}
+function projects(){const selected=data.projects.find(p=>p.id===view.selectedProject)||data.projects[0];const list=data.projects;return `<header class="heading"><h1>Мои проекты</h1><p>Храни замыслы исполнителей, EP и будущих песен. Эта версия работает локально: участники пока не видят проекты друг друга.</p></header><div class="projects-layout"><div class="panel"><h3>Новый проект</h3><div class="field"><label for="p-title">Название</label><input id="p-title" placeholder="Например, дебютный EP"></div><div class="field"><label for="p-genre">Основной жанр</label><select id="p-genre">${options(GENRES.map(g=>[g.id,g.name]),'alternative-rock')}</select></div><button class="btn primary" data-action="create-project">${I('plus')} Создать проект</button><div class="section-title"><h2>Мои проекты (${list.length})</h2></div>${list.length?list.map(p=>`<div class="project-card ${selected?.id===p.id?'selected':''}" data-action="select-project" data-id="${p.id}" role="button" tabindex="0"><h3>${escapeHTML(p.title)}</h3><p>${escapeHTML(findGenre(p.genre).name)} · ${escapeHTML(p.date)}</p></div>`).join(''):empty('Проектов пока нет','Создай первый проект выше.')}</div><div class="panel">${selected?`<div class="eyebrow">Рабочая карточка</div><h3>${escapeHTML(selected.title)}</h3><p>${escapeHTML(findGenre(selected.genre).name)} · создан ${escapeHTML(selected.date)}</p><div class="field"><label for="project-notes">Заметки, треклист, идеи и задачи</label><textarea id="project-notes" rows="12">${escapeHTML(selected.notes||'')}</textarea></div><div class="detail-actions"><button class="btn primary" data-action="save-project" data-id="${selected.id}">${I('check')} Сохранить заметки</button><button class="btn ghost" data-action="use-genre" data-id="${selected.genre}">${I('studio')} В студию</button><button class="btn danger" data-action="delete-project" data-id="${selected.id}">${I('trash')} Удалить</button></div>`:`<div class="empty"><strong>Начни со своего проекта</strong>Здесь появятся заметки и рабочая карточка выбранного проекта.</div>`}</div></div>`}
+function chrome(body){const nav=view.nav==='detail'?'catalog':view.nav;return `<div class="app"><aside class="side"><div class="brand"><span class="brand-mark">${I('music')}</span><div><div class="brand-name">SUNO<span style="color:#f662ad">BOOM</span></div><div class="brand-sub">MUSIC WORKSPACE</div></div></div><div class="side-heading">РАБОЧЕЕ ПРОСТРАНСТВО</div>${navs.map(([id,label,ic])=>`<button class="nav-button ${nav===id?'active':''}" data-action="nav" data-nav="${id}">${I(ic)} ${label}</button>`).join('')}<div class="side-bottom"><strong><i class="mini-dot"></i> Локальная мастерская</strong><p>Прототип без сервера. Данные хранятся на твоём устройстве.</p></div></aside><main class="main"><div class="top"><div class="breadcrumbs">Рабочее пространство / <b>${navs.find(n=>n[0]===nav)?.[1]||'Главная'}</b></div><div class="brand-mobile" style="display:none"><span style="color:#fa62ad">◉</span> SUNOBOOM</div><div class="top-right"><span class="pill">🔒 Локальный прототип</span><span class="avatar">S</span></div></div>${body}<div class="footer">SUNOBOOM · независимый прототип музыкальной мастерской · не является продуктом Suno</div></main><nav class="mobile-nav">${navs.filter(n=>n[0]!=='saved').map(([id,label,ic])=>`<button class="${nav===id?'active':''}" data-action="nav" data-nav="${id}">${I(ic)}<span>${label.replace('Энциклопедия','Жанры').replace('Идеи песен','Идеи').replace('Мои проекты','Проекты').replace('Suno Studio','Студия')}</span></button>`).join('')}<button class="${nav==='saved'?'active':''}" data-action="nav" data-nav="saved">${I('saved')}<span>Избранное</span></button></nav></div>`}
+function render(){document.getElementById('app').innerHTML=chrome(({home:home,catalog:catalog,detail:detail,ideas:ideasView,studio:studio,projects:projects,saved:saved}[view.nav]||home)());if(view.nav==='catalog')filterCatalog()}
+async function copyText(t){try{await navigator.clipboard.writeText(t);toast('Скопировано в буфер обмена')}catch(e){const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.top='-1000px';document.body.appendChild(ta);ta.select();const ok=document.execCommand('copy');ta.remove();toast(ok?'Скопировано':'Не удалось скопировать — выдели текст вручную')}}
+function updateBuilder(key,value){builder[key]=value;if(key==='genre'){const g=findGenre(value);builder.tempo=Math.round((g.bpm[0]+g.bpm[1])/2);builder.theme=''}updateOutput()}
+function handleAction(b){const act=b.dataset.action,id=b.dataset.id;
+switch(act){case 'nav':go(b.dataset.nav);break;case 'genre':openGenre(id);break;case 'filter':view.filter=b.dataset.filter;render();break;case 'tab':view.tab=b.dataset.tab;render();break;
+case 'favorite':data.favorites=data.favorites.includes(id)?data.favorites.filter(x=>x!==id):[...data.favorites,id];persist();render();toast('Избранное обновлено');break;
+case 'use-genre':builder.genre=id;builder.tempo=Math.round((findGenre(id).bpm[0]+findGenre(id).bpm[1])/2);go('studio');break;
+case 'use-soft':builder.genre=id;builder.energy='soft';builder.mood='melancholic';builder.tempo=Math.round((findGenre(id).bpm[0]+findGenre(id).bpm[1])/2);go('studio');break;
+case 'idea-filter':view.ideaFamily=b.dataset.filter;render();break;
+
+case 'generate-ideas':runIdeaGenerator();render();document.getElementById('generated-results')?.scrollIntoView({block:'start',behavior:'smooth'});break;
+case 'surprise-ideas':{const topics=Object.keys(IDEA_BANK);ideaGen.topic=topics[Math.floor(Math.random()*topics.length)];ideaGen.genre=GENRES[Math.floor(Math.random()*GENRES.length)].id;ideaGen.mood=GEN_MOODS[Math.floor(Math.random()*GEN_MOODS.length)][0];ideaGen.story=GEN_STORIES[Math.floor(Math.random()*GEN_STORIES.length)][0];runIdeaGenerator();render();document.getElementById('generated-results')?.scrollIntoView({block:'start',behavior:'smooth'});break}
+case 'generated-save':{const x=fetchGenerated(id);if(x){data.savedGeneratedIdeas=data.savedGeneratedIdeas||[];if(!data.savedGeneratedIdeas.some(y=>y.id===id))data.savedGeneratedIdeas.unshift({...x});persist();render();toast('Идея сохранена в избранном')}break}
+case 'generated-delete':data.savedGeneratedIdeas=(data.savedGeneratedIdeas||[]).filter(x=>x.id!==id);persist();render();toast('Идея удалена из избранного');break;
+case 'generated-copy':{const x=fetchGenerated(id);if(x)copyText(generatedIdeaText(x));break}
+case 'generated-use':{const x=fetchGenerated(id);if(x){const g=findGenre(x.genre);builder.genre=g.id;builder.tempo=Math.round((g.bpm[0]+g.bpm[1])/2);builder.mood=x.mood;builder.vocal=x.vocal;builder.language=x.language;builder.energy=x.mood==='energetic'?'high':(x.mood==='melancholic'?'soft':'medium');builder.theme=[x.title+': '+x.pitch,x.detail?'Деталь: '+x.detail:'', 'Хук: '+x.hook].filter(Boolean).join(' ').slice(0,400);go('studio');toast('Идея перенесена в Suno Studio')}break}
+case 'random-idea':{const g=GENRES[Math.floor(Math.random()*GENRES.length)],i=Math.floor(Math.random()*g.ideas.length);builder.genre=g.id;builder.theme=g.ideas[i].pitch;builder.mood=['dark','romantic','uplifting','dreamy','nostalgic','melancholic','energetic'].includes(g.ideas[i].mood)?g.ideas[i].mood:'energetic';go('studio');toast('Случайная идея загружена');break}
+case 'idea-use':{const g=findGenre(id),x=g.ideas[Number(b.dataset.i)];builder.genre=id;builder.tempo=Math.round((g.bpm[0]+g.bpm[1])/2);builder.theme=x.title+': '+x.pitch;builder.mood=['dark','romantic','uplifting','dreamy','nostalgic','melancholic','energetic'].includes(x.mood)?x.mood:'energetic';go('studio');toast('Идея перенесена в конструктор');break}
+case 'idea-save':{const key=id+':'+b.dataset.i;data.savedIdeas=data.savedIdeas.includes(key)?data.savedIdeas.filter(x=>x!==key):[...data.savedIdeas,key];persist();render();toast('Библиотека идей обновлена');break}
+case 'copy-prompt':copyText(promptValue());break;
+case 'save-prompt':{const g=findGenre(builder.genre),p=promptValue();data.savedPrompts.push({id:String(Date.now())+'-'+Math.random().toString(36).slice(2,6),genre:g.name,mood:builder.mood,date:new Date().toLocaleDateString('ru-RU'),text:p});persist();toast('Промпт добавлен в библиотеку');break}
+case 'copy-saved':{const p=data.savedPrompts.find(x=>x.id===id);if(p)copyText(p.text);break}
+case 'delete-saved':data.savedPrompts=data.savedPrompts.filter(x=>x.id!==id);persist();render();toast('Промпт удалён');break;
+case 'create-project':{const title=document.getElementById('p-title')?.value.trim(),genre=document.getElementById('p-genre')?.value;if(!title){toast('Введи название проекта');break}const id='p'+Date.now();data.projects.unshift({id,title:title.slice(0,80),genre,date:new Date().toLocaleDateString('ru-RU'),notes:''});view.selectedProject=id;persist();render();toast('Проект создан');break}
+case 'select-project':view.selectedProject=id;render();break;
+case 'save-project':{const p=data.projects.find(x=>x.id===id);if(p){p.notes=document.getElementById('project-notes').value;persist();toast('Заметки сохранены')}break}
+case 'delete-project':if(confirm('Удалить выбранный проект?')){data.projects=data.projects.filter(x=>x.id!==id);view.selectedProject=null;persist();render();toast('Проект удалён')}break;
+case 'import':document.getElementById('import-file')?.click();break;
+case 'export':{const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),app:'SUNOBOOM',data},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='sunoboom-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Резервная копия экспортирована');break}
+}}
+document.addEventListener('click',e=>{const el=e.target.closest('[data-action]');if(!el)return;handleAction(el)});
+document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.classList.contains('project-card')){e.preventDefault();handleAction(e.target)}});
+document.addEventListener('input',e=>{if(e.target.dataset.ideaGenerator){const k=e.target.dataset.ideaGenerator;ideaGen[k]=k==='count'?Number(e.target.value):e.target.value;return}if(e.target.id==='genre-search'){view.search=e.target.value;filterCatalog();return}const k=e.target.dataset.builder;if(k){let v=e.target.type==='checkbox'?e.target.checked:e.target.value;if(k==='tempo')v=Number(v);if(k==='genre'){updateBuilder(k,v);render()}else updateBuilder(k,v)}});
+document.addEventListener('change',e=>{const genKey=e.target.dataset.ideaGenerator;if(genKey){ideaGen[genKey]=genKey==='count'?Number(e.target.value):e.target.value;return}const k=e.target.dataset.builder;if(k&&e.target.tagName==='SELECT'&&k!=='genre')updateBuilder(k,e.target.value)});
+document.addEventListener('change',async e=>{if(e.target.id!=='import-file')return;const f=e.target.files?.[0];if(!f)return;try{const parsed=JSON.parse(await f.text());const d=parsed?.data;if(parsed?.app!=='SUNOBOOM'||!d||!Array.isArray(d.favorites)||!Array.isArray(d.savedPrompts)||!Array.isArray(d.savedIdeas)||!Array.isArray(d.projects))throw Error('Неверный формат');if(!confirm('Заменить локальную библиотеку данными из резервной копии?'))return;data={...initData, ...d,savedGeneratedIdeas:Array.isArray(d.savedGeneratedIdeas)?d.savedGeneratedIdeas:[]};persist();render();toast('Данные восстановлены')}catch(err){toast('Не удалось импортировать файл')}});
+render();
+</script></body></html>
