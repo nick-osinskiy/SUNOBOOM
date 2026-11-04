@@ -2828,7 +2828,7 @@ function sbN37ReminderSummary(event){
  return days.length?'🔔 '+days.map(sbN37ReminderPeriod).join(' · '):'🔕 Без уведомлений';
 }
 function sbN37ReminderForm(editing){
- const selected=editing?sbN37SelectedDays(editing):[1];
+ const selected=editing?sbN37SelectedDays(editing):[];
  const custom=selected.find(x=>!SB_N37_PRESETS.some(p=>p[0]===x));
  const presetOptions=SB_N37_PRESETS.map(([days,label])=>'<label class="sb-reminder-choice"><input type="checkbox" name="event-reminder-preset" value="'+days+'" '+(selected.includes(days)?'checked':'')+'> <span>'+label+'</span></label>').join('');
  return '<fieldset class="sb-reminder-picker"><legend>🔔 Когда напомнить?</legend><p class="sb-reminder-help">Выбери один или несколько сроков. Убери все галочки, чтобы отключить уведомления.</p><div class="sb-reminder-choices">'+presetOptions+'</div><label class="sb-reminder-custom-label"><input type="checkbox" id="event-reminder-custom" '+(custom!==undefined?'checked':'')+'> Свой срок до события</label><div class="sb-reminder-custom-input" id="event-reminder-custom-wrap" '+(custom===undefined?'hidden':'')+'><label for="event-reminder-custom-days">За сколько дней?</label><input type="number" id="event-reminder-custom-days" min="1" max="365" step="1" inputmode="numeric" value="'+(custom??10)+'"><span>дней до события</span></div></fieldset>';
