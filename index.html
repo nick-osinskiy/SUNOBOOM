@@ -2169,7 +2169,7 @@ const classicChanson=GENRES.find(g=>g.id==="chanson");
 if(classicChanson)classicChanson.family="Шансон";
 const existingPopBallad=GENRES.find(g=>g.id==="pop-ballad");
 if(existingPopBallad)existingPopBallad.family="Баллады";
-for(const key of ["Шансон","Баллады"]){if(!familyOrder.includes(key)){const pos=familyOrder.indexOf("Поп");familyOrder.splice(pos<0?familyOrder.length:pos+1,0,key)}}
+for(const key of ["Баллады","Шансон"]){if(!familyOrder.includes(key)){const pos=familyOrder.indexOf("Поп");familyOrder.splice(pos<0?familyOrder.length:pos+1,0,key)}}
 const obsoleteAuthor=familyOrder.indexOf("Авторская песня");
 if(obsoleteAuthor!==-1&&!GENRES.some(g=>g.family==="Авторская песня"))familyOrder.splice(obsoleteAuthor,1);
 CATALOG_GROUP_META["Шансон"]={icon:"🎙️",desc:"Русский шансон, городской романс, французская и бардовская традиции",accent:"#d89a76"};
