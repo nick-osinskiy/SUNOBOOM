@@ -2668,7 +2668,7 @@ function sbN35ReminderCandidates(){
 }
 
 function sbN35Unread(){
- return sbN35ReminderCandidates().filter(e=>!data.notificationRead[e.key]);
+ return sbN35ReminderCandidates().filter(e=>!(data.notificationRead||{})[e.key]);
 }
 
 function sbN35Label(item){
@@ -2687,8 +2687,8 @@ function sbN35Bell(){
 function sbN35Panel(){
  if(!view.sbNoticeOpen)return "";
  const reminders=sbN35ReminderCandidates();
- const unread=reminders.filter(e=>!data.notificationRead[e.key]);
- return `<button type="button" class="sb-notice-overlay" data-action="sb-notice-close" aria-label="Закрыть уведомления"></button><aside class="sb-notice-panel" role="dialog" aria-label="Напоминания о событиях" aria-modal="true"><div class="sb-notice-panel-head"><div><div class="sb-notice-eyebrow">🔔 SUNOBOOM</div><h2>Уведомления</h2><p>Напоминания о твоих событиях</p></div><button class="sb-notice-close" type="button" data-action="sb-notice-close" aria-label="Закрыть">✕</button></div><div class="sb-notice-scroll">${reminders.length?reminders.map(e=>`<article class="sb-notice-item ${data.notificationRead[e.key]?"sb-notice-read":""}"><div class="sb-notice-item-meta"><span class="sb-notice-when ${e.phase==="today"?"sb-notice-today":""}">${sbN35Label(e)}${sbN35Time(e)}</span><span>${escapeHTML(dashboardEventType(e.type))}</span></div><h3>${escapeHTML(e.title)}</h3>${e.notes?`<p>${escapeHTML(String(e.notes).slice(0,210))}</p>`:""}<div class="sb-notice-item-actions"><button type="button" data-action="sb-notice-event" data-id="${escapeHTML(String(e.id))}" data-key="${escapeHTML(e.key)}">Открыть событие →</button>${data.notificationRead[e.key]?'<span class="sb-notice-seen">✓ Прочитано</span>':`<button type="button" data-action="sb-notice-read" data-key="${escapeHTML(e.key)}">Прочитано</button>`}</div></article>`).join(""):`<div class="sb-notice-none"><span>🔔</span><h3>На сегодня и завтра напоминаний нет</h3><p>Создай событие, и приложение напомнит о нём за день и в нужную дату.</p><button type="button" class="btn ghost small" data-action="sb-notice-create">Создать событие →</button></div>`}</div>${unread.length>1?'<div class="sb-notice-panel-foot"><button type="button" data-action="sb-notice-read-all">Отметить все прочитанными</button></div>':""}<div class="sb-notice-disclaimer">Напоминания показываются, когда SUNOBOOM открыт. При закрытом сайте push-уведомления пока не отправляются.</div></aside>`;
+ const unread=reminders.filter(e=>!(data.notificationRead||{})[e.key]);
+ return `<button type="button" class="sb-notice-overlay" data-action="sb-notice-close" aria-label="Закрыть уведомления"></button><aside class="sb-notice-panel" role="dialog" aria-label="Напоминания о событиях" aria-modal="true"><div class="sb-notice-panel-head"><div><div class="sb-notice-eyebrow">🔔 SUNOBOOM</div><h2>Уведомления</h2><p>Напоминания о твоих событиях</p></div><button class="sb-notice-close" type="button" data-action="sb-notice-close" aria-label="Закрыть">✕</button></div><div class="sb-notice-scroll">${reminders.length?reminders.map(e=>`<article class="sb-notice-item ${(data.notificationRead||{})[e.key]?"sb-notice-read":""}"><div class="sb-notice-item-meta"><span class="sb-notice-when ${e.phase==="today"?"sb-notice-today":""}">${sbN35Label(e)}${sbN35Time(e)}</span><span>${escapeHTML(dashboardEventType(e.type))}</span></div><h3>${escapeHTML(e.title)}</h3>${e.notes?`<p>${escapeHTML(String(e.notes).slice(0,210))}</p>`:""}<div class="sb-notice-item-actions"><button type="button" data-action="sb-notice-event" data-id="${escapeHTML(String(e.id))}" data-key="${escapeHTML(e.key)}">Открыть событие →</button>${(data.notificationRead||{})[e.key]?'<span class="sb-notice-seen">✓ Прочитано</span>':`<button type="button" data-action="sb-notice-read" data-key="${escapeHTML(e.key)}">Прочитано</button>`}</div></article>`).join(""):`<div class="sb-notice-none"><span>🔔</span><h3>На сегодня и завтра напоминаний нет</h3><p>Создай событие, и приложение напомнит о нём за день и в нужную дату.</p><button type="button" class="btn ghost small" data-action="sb-notice-create">Создать событие →</button></div>`}</div>${unread.length>1?'<div class="sb-notice-panel-foot"><button type="button" data-action="sb-notice-read-all">Отметить все прочитанными</button></div>':""}<div class="sb-notice-disclaimer">Напоминания показываются, когда SUNOBOOM открыт. При закрытом сайте push-уведомления пока не отправляются.</div></aside>`;
 }
 
 function sbN35Banner(){
@@ -2707,10 +2707,10 @@ function sbN35HandleAction(el){
  if(action==="sb-notice-toggle"){view.sbNoticeOpen=!view.sbNoticeOpen;render();return true}
  if(action==="sb-notice-close"){view.sbNoticeOpen=false;render();return true}
  if(action==="sb-notice-read"){
-   data.notificationRead[el.dataset.key]=true;persist();render();return true;
+   (data.notificationRead||(data.notificationRead={}))[el.dataset.key]=true;persist();render();return true;
  }
  if(action==="sb-notice-read-all"){
-   sbN35Unread().forEach(e=>{data.notificationRead[e.key]=true});
+   sbN35Unread().forEach(e=>{(data.notificationRead||{})[e.key]=true});
    persist();render();return true;
  }
  if(action==="sb-notice-create"){
@@ -2719,7 +2719,7 @@ function sbN35HandleAction(el){
  if(action==="sb-notice-event"){
    const key=el.dataset.key;
    const id=el.dataset.id;
-   if(key)data.notificationRead[key]=true;
+   if(key)(data.notificationRead||(data.notificationRead={}))[key]=true;
    persist();
    view.sbNoticeOpen=false;
    if(view.nav!=="events")go("events");else render();
