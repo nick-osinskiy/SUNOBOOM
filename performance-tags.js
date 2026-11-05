@@ -251,6 +251,7 @@
  function showNotice(t,kind='info'){const box=el('sb-vt-notice');if(box){box.className='sb-vt-notice '+kind;box.textContent=t}}
  function draftValid(){
   if(!draft)return false;
+  if(draft.settingsSnapshot!==JSON.stringify(prefs())){showNotice('Настройки исполнения изменились. Создай новый предпросмотр, чтобы учесть их.','warning');return false}
   if(get(draft.sourceId)!==draft.source || get(taggedId)!==draft.targetSnapshot){
    showNotice('Текст или поле Lyrics изменились после генерации. Создай новый предпросмотр — старый применять нельзя.','warning');
    return false;
@@ -335,7 +336,7 @@
   const lyricOriginal=baselineLyrics(text);
   const output=compose(parsed,tags,p);
   if(baselineLyrics(output)!==lyricOriginal){showNotice('Ошибка сверки исходных слов. Применение отменено.','warning');return}
-  draft={source:text,sourceId,targetSnapshot,sections:parsed.sections,tags,method,preview:output,previewEdited:false};
+  draft={source:text,sourceId,targetSnapshot,sections:parsed.sections,tags,method,preview:output,previewEdited:false,settingsSnapshot:JSON.stringify(p)};
   const region=el('sb-vt-result');if(region)region.innerHTML=renderDraft();
   showNotice(method==='Gemini'?'Теги предложены Gemini. Проверь и подтверди применение.':method.includes('Gemini')||method.includes('согласия')?'Предпросмотр создан локально: Gemini не вызывался.':'Предпросмотр готов. Проверь теги и нажми «Применить к Lyrics».',method==='Gemini'?'success':'info');
   el('sb-vt-result')?.scrollIntoView({behavior:'smooth',block:'nearest'});
