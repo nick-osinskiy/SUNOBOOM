@@ -12,7 +12,7 @@ function artistRecord(a){
  const local=/(?:русск|российск|отечеств|казах|белорус|совет)/i.test(note);
  const label=/(?:смежн|жанровый сосед|не традицион|не чист|влияни|близк|не представитель|сосед)/i.test(note)?'Смежный ориентир':local?'Отечественная сцена':'Для знакомства';
  const period=label;
- return [name,period,note,track||''];
+ return [name,period,note,track||'',label==='Смежный ориентир'?'adjacent':'core'];
 }
 for(const [id,profiles] of Object.entries(NEW_RU)){
  if(!GENRES.some(g=>g.id===id))continue;
@@ -30,49 +30,7 @@ for(const [id,profiles] of Object.entries(NEW_RU)){
 }
 // Fill selected historical music genres from existing world lists only when a true domestic relation is known.
 // No indiscriminate translation of global artist names into a purported Russian-language category.
-const existingView=artistView;
-function artistDetails(g,scene){
- const groups=scene==='ru'?RU_ARTISTS[g.id]:ARTIST_PAGES[g.id];
- const selected=(groups||[[],[]]).flat().filter(x=>x&&x[0]);
- const artists=[...new Map(selected.map(x=>[String(x[0]).toLocaleLowerCase('ru'),x])).values()];
- const head=scene==='ru'?'Русскоязычная и отечественная сцена':'Мировая сцена';
- const caveat=scene==='ru'?'Для инструментальных жанров приведены отечественные композиторы и ансамбли; для редких стилей — честно помеченные близкие ориентиры. У некоторых артистов песни не на русском языке.':'Классики, современная сцена и соседние музыкальные направления — с пояснением жанрового влияния.';
- const n=artists.length;
- return '<div class="sb-art-explorer" data-sb-art-scene="'+scene+'">'+
-   '<header class="sb-art-explorer-head"><div><h2>'+head+'</h2><p>'+safe(caveat)+'</p></div><strong class="sb-art-count">'+n+' артист'+(n===1?'':n<5?'а':'ов')+'</strong></header>'+
-   (n?'<label class="sb-art-search"><span>Поиск исполнителя или произведения</span><input data-sb-art-search type="search" autocomplete="off" placeholder="Имя, жанр или композиция…"></label>':'')+
-   (n?'<div class="sb-art-expanded-grid">'+artists.map(([name,period,bio,track])=>{
-     const n=String(name).trim(),subtitle=String(period||'Музыкальный ориентир'),desc=String(bio||'Представитель направления'),song=String(track||'');
-     const initials=n.replace(/[^A-Za-zА-Яа-яЁё0-9 ]/g,'').split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase().slice(0,2);
-     const query=[n,song].filter(Boolean).join(' ');
-     return '<article class="sb-art-person" data-sb-art-text="'+safe([n,subtitle,desc,song].join(' ').toLocaleLowerCase('ru'))+'">'+
-      '<div class="sb-art-person-top"><span class="sb-art-avatar" aria-hidden="true">'+safe(initials)+'</span><div><h3>'+safe(n)+'</h3><span class="sb-art-period">'+safe(subtitle)+'</span></div></div>'+
-      '<p>'+safe(desc)+'</p>'+(song?'<div class="sb-art-track">♫ '+safe(song)+'</div>':'')+
-      '<div class="sb-art-links"><a href="https://www.youtube.com/results?search_query='+encodeURIComponent(query)+'" target="_blank" rel="noopener noreferrer" aria-label="Найти записи '+safe(n)+'">Послушать записи ↗</a></div></article>';
-   }).join('')+'</div><p class="sb-art-none" hidden>По этому запросу исполнителей не найдено.</p>':
-   '<div class="sb-art-empty"><h3>Надёжная подборка пока не заполнена</h3><p>Для этого специфического направления пока нет достаточно уверенных отечественных примеров. Международные ориентиры доступны через переключатель выше.</p></div>')+
-   '<div class="sb-art-bottom">Стилевые границы условны. Если исполнитель приведён как смежный ориентир, об этом прямо сказано в описании.</div></div>';
-}
-artistView=function(g){
- if(g.family==='Религиозная музыка' && g.id==='sacred-music') return existingView(g);
- const scene=view.artistLocale==='ru'?'ru':'world';
- return '<div class="ah-scene-switch" role="group" aria-label="Выбор сцены исполнителей">'+
-  '<button type="button" data-action="artist-locale" data-locale="world" aria-pressed="'+(scene==='world')+'">🌍 Мировая сцена</button>'+
-  '<button type="button" data-action="artist-locale" data-locale="ru" aria-pressed="'+(scene==='ru')+'">🎤 Русскоязычные</button></div>'+
-  artistDetails(g,scene);
-};
-document.addEventListener('input',event=>{
- const input=event.target;
- if(!input?.matches?.('[data-sb-art-search]'))return;
- const panel=input.closest('.sb-art-explorer');if(!panel)return;
- const term=String(input.value||'').toLocaleLowerCase('ru').trim();
- let shown=0;
- panel.querySelectorAll('[data-sb-art-text]').forEach(card=>{
-  const ok=!term||card.dataset.sbArtText.includes(term);
-  card.hidden=!ok;if(ok)shown++;
- });
- const empty=panel.querySelector('.sb-art-none');
- if(empty)empty.hidden=shown>0;
-});
+// Additional domestic candidates are attached to the existing artist groups.
+// The final visual artist explorer is provided by artists-expanded.js.
 render();
 })();
