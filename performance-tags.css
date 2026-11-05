@@ -1,0 +1,47 @@
+
+/* SUNOBOOM 0.51 — Performance tags, scoped to existing Poetry Editor */
+.sb-vt-panel{--vt-border:#514c6c;--vt-muted:#abb4cb;background:linear-gradient(135deg,#26213d,#1b2339 70%,#1a2035);border:1px solid #605178;border-radius:18px;padding:20px;margin:20px 0 8px;color:#f7f3ff}
+.sb-vt-header{display:flex;gap:13px;align-items:start;margin-bottom:17px}
+.sb-vt-symbol{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:#4c304e;font-size:23px;flex-shrink:0}
+.sb-vt-header h3{font-size:18px;margin:0 0 4px;color:#fff;line-height:1.35}
+.sb-vt-header p{font-size:12px;line-height:1.55;margin:0;color:#b4bbd2}
+.sb-vt-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.sb-vt-field{display:flex;flex-direction:column;gap:5px;margin:11px 0;min-width:0}
+.sb-vt-field label,.sb-vt-intensity label{font-size:12px;font-weight:700;color:#dce0f0}
+.sb-vt-field select,.sb-vt-field textarea,.sb-vt-field input[type=text],.sb-vt-section input,.sb-vt-section select{width:100%;min-width:0;border:1px solid #646180;border-radius:10px;background:#171b2d;color:#f9f4ff;font:inherit;font-size:13px;padding:10px 11px;outline:0}
+.sb-vt-field select:focus,.sb-vt-field textarea:focus,.sb-vt-section input:focus,.sb-vt-section select:focus{border-color:#f58cce;box-shadow:0 0 0 2px #e270ba35}
+.sb-vt-field textarea{resize:vertical;line-height:1.6;white-space:pre-wrap}
+.sb-vt-hint{color:#b9bbd8;margin:3px 0 12px;font-size:12px;background:#242743;border-left:3px solid #bb7acb;padding:9px 12px;border-radius:7px;line-height:1.55}
+.sb-vt-intensity{margin:17px 0 12px}
+.sb-vt-intensity input{width:100%;accent-color:#f07fbd;margin:12px 0 3px;cursor:pointer}
+.sb-vt-between{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.sb-vt-between strong{color:#ffbce1;font-size:13px;font-variant-numeric:tabular-nums}
+.sb-vt-scale span{font-size:11px;color:#a6aec8}
+.sb-vt-options{display:flex;flex-wrap:wrap;gap:10px 18px;background:#252740;border-radius:12px;border:1px solid #4b4a67;padding:14px;margin:17px 0}
+.sb-vt-options label,.sb-vt-consent{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:#e5e4f5;cursor:pointer}
+.sb-vt-options input[type=checkbox],.sb-vt-consent input[type=checkbox]{accent-color:#e87fba}
+.sb-vt-consent{padding:10px 12px;background:#24263f;border-radius:10px;border:1px solid #544864;margin-bottom:12px;line-height:1.4}
+.sb-vt-buttons,.sb-vt-draft-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+.sb-vt-buttons .btn{flex:0 1 auto}
+.sb-vt-note{font-size:11px;line-height:1.45;color:#adb7d0}
+.sb-vt-notice{min-height:0;font-size:12px;line-height:1.5;margin:11px 0 0}
+.sb-vt-notice:empty{display:none}
+.sb-vt-notice.info{color:#cfcef8}
+.sb-vt-notice.success{color:#7be1b7}
+.sb-vt-notice.warning{color:#ffd09d}
+.sb-vt-draft{margin-top:18px;border-top:1px solid #5a4a6e;padding-top:17px}
+.sb-vt-draft-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:5px}
+.sb-vt-draft-head h4{font-size:16px;margin:0}
+.sb-vt-method{font-size:11px;color:#e9b6e2;padding:5px 8px;border-radius:99px;background:#432b4e}
+.sb-vt-small{font-size:11px;color:#b3bcd0;line-height:1.5;margin:7px 0 12px}
+.sb-vt-section-list{display:grid;gap:9px;margin-bottom:16px;max-height:470px;overflow:auto}
+.sb-vt-section{background:#1e2238;border:1px solid #484b68;border-radius:12px;padding:12px}
+.sb-vt-section-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.sb-vt-section-heading strong{font-size:13px;color:#fac2e3}
+.sb-vt-section-heading span{font-size:11px;color:#9eabc7}
+.sb-vt-section-controls{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:8px}
+.sb-vt-section-controls input{width:100%;min-width:0}
+.sb-vt-field #sb-vt-preview{min-height:235px}
+.sb-vt-draft-actions{margin:12px 0 4px}
+@media(max-width:720px){.sb-vt-panel{padding:14px}.sb-vt-grid{grid-template-columns:1fr;gap:2px}.sb-vt-section-controls{grid-template-columns:1fr}.sb-vt-draft-actions .btn{flex:1 1 auto}.sb-vt-buttons .btn{flex:1 1 auto}.sb-vt-options{gap:12px}}
+@media(max-width:400px){.sb-vt-panel{padding:12px}.sb-vt-header{gap:9px}.sb-vt-symbol{width:36px;height:36px}.sb-vt-header h3{font-size:16px}}
