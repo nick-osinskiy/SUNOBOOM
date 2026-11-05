@@ -3657,6 +3657,10 @@ function sbDnaStyle(a){
  else if(a.vocal==='duet')append('expressive male and female duet');
  append(a.timbre);
  append(a.delivery);
+ if(a.noWhisper)append('no whispering');
+ if(a.noRasp)append('no hoarse or raspy vocals');
+ if(a.noLive)append('studio recording, no crowd, no live ambience');
+ if(a.noChoir)append('no choir');
  if(a.tempoMin&&a.tempoMax)append(a.tempoMin+'-'+a.tempoMax+' BPM');
  else if(a.tempoMin)append(a.tempoMin+' BPM');
  append(a.mood);
@@ -3664,10 +3668,6 @@ function sbDnaStyle(a){
  append(a.production);
  append(a.signature);
  append(a.extra);
- if(a.noWhisper)append('no whispering');
- if(a.noRasp)append('no hoarse or raspy vocals');
- if(a.noLive)append('studio recording, no crowd, no live ambience');
- if(a.noChoir)append('no choir');
  const out=[];
  for(const chunk of add){
   const next=[...out,chunk].join(', ')+'.';
@@ -3849,9 +3849,13 @@ const sbDnaPrevTrackAction=sbTrackAction;
 sbTrackAction=function(button){
  if(button.dataset.action!=='tp-save')return sbDnaPrevTrackAction(button);
  const selectedId=document.getElementById('tp-dna')?.value||'';
+ const editingBefore=view.sbTrackEdit;
  const result=sbDnaPrevTrackAction(button);
+ // Only attach the artist DNA after a successful passport save.
+ // Validation failures leave the editor open and must not modify existing links.
+ if(!editingBefore||view.sbTrackEdit!==null)return result;
  const saved=sbTrackById(view.sbTrackSelected);
- if(saved&&selectedId===saved.artistDnaId)return result;
+ if(saved&&selectedId===(saved.artistDnaId||''))return result;
  if(saved){
   saved.artistDnaId=sbDnaGet(selectedId)?selectedId:'';
   persist();render();
