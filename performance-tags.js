@@ -385,7 +385,12 @@
   return original.includes(marker)?original.replace(marker,panel()+'\n'+marker):original;
  };
  const priorAction=handleAction;
- handleAction=function(button){if(onAction(button))return;return priorAction(button)};
+ handleAction=function(button){
+  if(onAction(button))return;
+  if(button.dataset.action==='format-idea-lyrics' && /Vocal delivery:/i.test(get(taggedId)) &&
+    !confirm('В поле Lyrics уже есть теги исполнения. Повторное создание общих тегов заменит текущую разметку. Продолжить?'))return;
+  return priorAction(button);
+ };
  document.addEventListener('input',event=>{
   const t=event.target;
   if(!t)return;
