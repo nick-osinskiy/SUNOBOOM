@@ -2284,18 +2284,22 @@ function sbPoetryAnalyze(raw){
   let approxPairs=0;
   for(const block of stanzas){
     const anchors=[],letters='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let nextLetter=0;
     for(const row of block.rows){
       const repeated=anchors.find(a=>a.word===row.last && row.last);
-      const paired=anchors.find(a=>sbPoetryRhymeScore(a.word,row.last)>=1);
-      if(paired){
+      const paired=repeated?null:anchors.find(a=>sbPoetryRhymeScore(a.word,row.last)>=1);
+      if(repeated){
+        row.mark=repeated.label;
+        row.repeat=true;
+      }else if(paired){
         row.mark=paired.label;
         row.rhyme=sbPoetryRhymeScore(paired.word,row.last);
         approxPairs++;
       }else{
-        row.mark=letters[anchors.length%letters.length];
-        if(repeated)row.repeat=true;
-        anchors.push({word:row.last,label:row.mark});
+        row.mark=letters[nextLetter%letters.length];
+        nextLetter++;
       }
+      anchors.push({word:row.last,label:row.mark});
     }
     block.scheme=block.rows.length>1?block.rows.map(r=>r.mark).join(''):'—';
   }
