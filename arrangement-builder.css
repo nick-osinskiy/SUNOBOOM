@@ -162,3 +162,49 @@
  .sba-add-row label{flex:1 1 100%}
  .sba-between-add{min-height:39px}
 }
+
+
+/* SUNOBOOM 0.69 · Catalog-driven instrument / technique suggestions. */
+.sba-instrument-field{grid-column:2/-1;min-width:0;display:grid;align-content:start;gap:6px}
+.sba-instrument-field>label{font-size:10px;font-weight:750;color:#afbcd1}
+.sba-instrument-row{display:flex;align-items:stretch;min-width:0;gap:7px}
+.sba-instrument-row input[type=text]{flex:1 1 auto;width:100%;min-width:0;border:1px solid #4d5372;color:#f4f0fc;background:#1b2235;border-radius:8px;min-height:39px;padding:7px 10px;font:inherit;font-size:12px}
+.sba-instrument-pick{flex:0 0 auto;min-height:39px;border:1px solid #8b679e;border-radius:9px;background:linear-gradient(115deg,#5f3569,#3e416f);color:#fce5f4;font:inherit;font-weight:790;font-size:11px;padding:7px 11px;white-space:nowrap;cursor:pointer}
+.sba-instrument-pick[aria-expanded=true]{border-color:#69d5e9;background:linear-gradient(115deg,#854781,#394d78)}
+.sba-instrument-pick:hover{border-color:#efa1d0;filter:brightness(1.08)}
+.sba-sound-panel{min-width:0;max-width:100%;border:1px solid #695c83;border-radius:13px;background:#20263c;padding:12px;margin-top:5px;box-shadow:0 10px 24px #070b1d4a}
+.sba-sound-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.sba-sound-head strong{color:#f7c6e9;font-weight:820;font-size:12px;line-height:1.3}
+.sba-sound-head button{display:grid;place-items:center;flex:none;width:30px;height:30px;background:#37344e;border:1px solid #65617f;border-radius:8px;color:#e8daf5;font-size:22px;cursor:pointer}
+.sba-sound-genre-trigger{display:flex;align-items:center;gap:6px;width:100%;min-width:0;min-height:38px;background:#303451;border:1px solid #646b97;border-radius:9px;color:#bfc4e6;padding:8px 11px;font:inherit;font-weight:680;font-size:11px;text-align:left;cursor:pointer}
+.sba-sound-genre-trigger b{color:#fff;font-size:12px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sba-sound-genre-trigger span{margin-left:auto;color:#e5b8e7;font-size:20px;line-height:1}
+.sba-sound-genre-trigger:hover{border-color:#80dce9}
+.sba-sound-search{display:block;width:100%;min-width:0;margin:10px 0 8px;min-height:41px;background:#121e30;border:1px solid #5e648a;border-radius:9px;padding:9px 12px;color:#f0f5ff;font:inherit;font-size:16px;-webkit-appearance:none;appearance:none}
+.sba-sound-search:focus{outline:2px solid #72d8e9;outline-offset:1px}
+.sba-sound-list{min-height:50px;max-height:245px;overflow-y:auto;overscroll-behavior:contain;scrollbar-color:#765f96 #1b2439;border:1px solid #3e4564;border-radius:9px;background:#1b2439;padding:5px}
+.sba-sound-group{color:#f0b7dd;border-bottom:1px solid #43405b;font-size:10px;font-weight:850;padding:9px 7px 6px;margin-top:2px}
+.sba-sound-option,.sba-sound-genre-row{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-width:0;min-height:40px;text-align:left;color:#e9ecfa;border:1px solid transparent;background:transparent;border-radius:8px;padding:8px 9px;font:inherit;font-size:11px;cursor:pointer}
+.sba-sound-option>span,.sba-sound-genre-row>span{overflow-wrap:anywhere;min-width:0}
+.sba-sound-option>small,.sba-sound-genre-row>small{flex:0 0 auto;color:#89cfe2;font-size:10px;white-space:nowrap}
+.sba-sound-option:hover:not(:disabled),.sba-sound-genre-row:hover{background:#393653;border-color:#796f9e;color:#fff}
+.sba-sound-option:disabled{opacity:.67;cursor:default;background:#283849}
+.sba-sound-option:disabled small{color:#7ce3bc}
+.sba-sound-none,.sba-sound-info{margin:0;padding:9px;color:#b0bcd1;font-size:11px}
+.sba-sound-foot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-top:10px;color:#98acc5;font-size:10px;line-height:1.5}
+.sba-sound-foot span{flex:1 1 190px}
+.sba-sound-foot button,.sba-sound-back button{border:1px solid #625d7c;border-radius:8px;background:#34334e;padding:8px 10px;color:#e6d8ef;font:inherit;font-size:11px;font-weight:760;cursor:pointer}
+.sba-sound-back{margin-top:8px}
+.sba-sound-back button{width:100%;text-align:left}
+@media(max-width:720px){
+ .sba-instrument-field{grid-column:1/-1}
+ .sba-instrument-row{flex-wrap:wrap}
+ .sba-instrument-row input[type=text]{flex:1 1 100%;min-height:43px;font-size:14px}
+ .sba-instrument-pick{flex:1 1 100%;min-height:42px;font-size:12px}
+ .sba-sound-panel{padding:10px}
+ .sba-sound-list{max-height:min(34vh,260px)}
+}
+@media(min-width:721px) and (max-width:1050px){
+ .sba-instrument-row{flex-wrap:wrap}
+ .sba-instrument-pick{flex:1 1 100%}
+}
