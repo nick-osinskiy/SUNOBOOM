@@ -150,7 +150,7 @@
     if(!card)return null;
     return {genre:view.selected,locale:view.artistLocale,
       period:card.querySelector(".ahx-era,.ah-period")?.textContent?.trim()||"",
-      bio:card.querySelector(".ahx-card-top+p,.ah-bio")?.textContent?.trim()||"",
+      bio:card.querySelector(".ahx-card > p,.ah-bio")?.textContent?.trim()||"",
       track:card.querySelector(".ahx-track strong,.ah-listen strong")?.textContent?.trim()||""};
   }
   function profileHTML(rec){
