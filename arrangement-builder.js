@@ -49,7 +49,7 @@
       ["intro",1,8,"none","atmospheric pads"],["verse",2,16,"female","pulsing bass"],["build",4,8,"backing","riser, snare rolls"],["drop",5,16,"none","driving kick, bass synth"],["breakdown",1,8,"female","minimal keys"],["build",4,8,"harmonies","rising synth arpeggio"],["drop",5,16,"none","wide synth hook"],["outro",2,8,"none","filtered bass"]]},
     epic:{ru:"Эпик — кинематографический подъём",sections:[
       ["intro",1,8,"none","solo strings"],["build",2,16,"none","low strings, pulse"],["verse",3,16,"none","cello ostinato"],["build",4,8,"none","brass rise, timpani"],["chorus",5,16,"none","full orchestra, big drums"],["breakdown",2,8,"none","soft piano, strings"],["finalchorus",5,16,"none","brass, choir-like synth pads"],["outro",2,8,"none","strings fading"]]},
-    blank:{ru:"Пустая структура",sections:[["intro",2,4,"none",""],["verse",3,16,"lead",""],["chorus",5,16,"harmonies",""],["outro",2,4,"none",""]]}
+    blank:{ru:"Базовый каркас",sections:[["intro",2,4,"none",""],["verse",3,16,"lead",""],["chorus",5,16,"harmonies",""],["outro",2,4,"none",""]]}
   };
   const esc=x=>escapeHTML(String(x??""));
   const safeStr=s=>String(s||"").replace(/[\[\]\r\n<>]/g," ").replace(/\s+/g," ").trim().slice(0,120);
@@ -67,7 +67,7 @@
   function load(){
     try{
       const raw=JSON.parse(localStorage.getItem(KEY)||"{}");
-      if(!raw||!Array.isArray(raw.blocks)||raw.blocks.length>MAX_BLOCKS||!raw.blocks.length)return;
+      if(!raw||!Array.isArray(raw.blocks)||raw.blocks.length>MAX_BLOCKS)return;
       state.blocks=raw.blocks.map(b=>makeBlock(b.type,b.energy,b.bars,b.vocal,b.instruments));
       if(PRESETS[raw.activePreset])state.activePreset=raw.activePreset;
     }catch(e){}
