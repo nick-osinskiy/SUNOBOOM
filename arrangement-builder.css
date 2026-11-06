@@ -98,3 +98,39 @@
 @media(max-width:720px){.sba-hero{padding:17px;display:block}.sba-hero h2{font-size:22px}.sba-hero-label{display:inline-block;margin-top:13px}.sba-body{padding:11px}.sba-toolbar{padding:12px}.sba-draft-saved{margin-left:0}.sba-block-fields{grid-template-columns:minmax(0,1fr) minmax(70px,.6fr)}.sba-block-fields label:nth-child(3){grid-column:1 / -1}.sba-energy-field{grid-column:1 / -1}.sba-instrument-field{grid-column:1 / -1}.sba-result{padding:13px}.sba-block-head{flex-wrap:wrap}.sba-head-energy{margin-left:0}.sba-block-actions{margin-left:auto}.sba-add-row{flex-wrap:wrap}.sba-add-row select{flex:1 1 130px}.sba-add-btn{flex:1 1 135px}.sba-jump small{display:none}.sba-panel-title{flex-wrap:wrap}}
 @media(max-width:395px){.sba-block-head{gap:5px;padding:8px 9px}.sba-head-energy{display:none}.sba-block-fields{padding:3px 9px 11px}.sba-block-actions button{width:27px;height:27px}.sba-hero-label{font-size:9px}}
 @media(prefers-reduced-motion:reduce){.sba-block{transition:none}}
+
+
+/* SUNOBOOM 0.67 · Searchable Academy genre / composition template popover */
+.sba-preset-picker{position:relative;flex:1 1 235px;min-width:0;max-width:440px}
+.sba-preset-caption{display:block;font-size:11px;font-weight:780;color:#b9c7dd;margin:0 0 7px}
+.sba-preset-trigger{display:flex;align-items:center;justify-content:space-between;gap:14px;min-height:44px;width:100%;padding:10px 13px;border:1px solid #675779;border-radius:11px;text-align:left;background:#282b43;color:#f5ecff;font:inherit;font-size:13px;font-weight:730;cursor:pointer}
+.sba-preset-trigger:hover,.sba-preset-trigger[aria-expanded=true]{border-color:#75dcea;box-shadow:0 0 0 2px #6ae5ef44}
+.sba-preset-trigger span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.sba-preset-chevron{font-size:20px;color:#d9c5f3;line-height:1;transition:transform .15s}
+.sba-preset-trigger[aria-expanded=true] .sba-preset-chevron{transform:rotate(180deg)}
+.sba-preset-menu{position:absolute;z-index:65;left:0;top:calc(100% + 7px);width:min(520px,calc(100vw - 42px));max-width:calc(100vw - 28px);background:#20243b;border:1px solid #806b9c;border-radius:15px;box-shadow:0 18px 48px #050917b8,0 0 0 1px #ac7baf3b;overflow:hidden}
+.sba-preset-menu[hidden]{display:none}
+.sba-preset-search-row{display:flex;gap:7px;align-items:center;padding:12px;background:#252a42;border-bottom:1px solid #45435c}
+.sba-preset-search-row input[type=search]{min-width:0;flex:1;min-height:43px;padding:9px 12px;font:inherit;font-size:16px;color:#faf0ff;background:#151b2e;border:1px solid #756785;border-radius:9px;outline:0;-webkit-appearance:none;appearance:none}
+.sba-preset-search-row input[type=search]:focus{border-color:#72d5ed;box-shadow:0 0 0 2px #65cae53b}
+.sba-preset-search-row>button{width:39px;height:39px;flex:none;border:1px solid #5c5572;border-radius:9px;background:#37324e;color:#f9e0f1;font-size:24px;cursor:pointer}
+.sba-preset-filters{display:flex;flex-wrap:wrap;gap:5px;padding:10px 12px;border-bottom:1px solid #3e415c}
+.sba-preset-filters button{font:inherit;font-size:11px;font-weight:760;min-height:31px;padding:6px 9px;border-radius:9px;border:1px solid #4c5271;background:#2a3049;color:#bbc9df;cursor:pointer}
+.sba-preset-filters button[aria-pressed=true]{color:#fff;background:linear-gradient(110deg,#a94493,#6855b9);border-color:#b78bd2}
+.sba-preset-results{max-height:min(46vh,360px);min-height:70px;overflow:auto;overscroll-behavior:contain;scrollbar-color:#836ca6 #22243b;padding:6px 9px 10px}
+.sba-preset-group-title{position:sticky;top:-6px;z-index:1;margin-top:7px;padding:8px 9px;background:#20243bee;color:#f0a9d8;font-size:11px;font-weight:900;letter-spacing:.3px;border-bottom:1px solid #403852}
+.sba-preset-group-title small{font-size:10px;color:#8cbdd5;margin-left:6px}
+.sba-preset-results [role=option]{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:41px;padding:9px 10px;width:100%;border:1px solid transparent;border-radius:8px;background:transparent;font:inherit;font-size:12px;color:#f5effb;text-align:left;cursor:pointer}
+.sba-preset-results [role=option] span{min-width:0;overflow-wrap:anywhere}
+.sba-preset-results [role=option] small{flex:none;color:#97a9c8;font-size:10px;text-align:right;max-width:38%}
+.sba-preset-results [role=option]:hover,.sba-preset-results [role=option]:focus-visible{background:#393451;border-color:#8a7bae;outline:none}
+.sba-preset-results [role=option][aria-selected=true]{background:#493353;border-color:#b769b0}
+.sba-preset-results [role=option][aria-selected=true] span:before{content:"✓ ";color:#85e6d9}
+.sba-preset-no-results{font-size:12px;color:#b9bfd4;padding:16px 12px;line-height:1.5}
+@media(max-width:720px){
+ .sba-preset-picker{flex:1 1 100%;max-width:none;width:100%}
+ .sba-preset-menu{width:100%;max-width:100%;left:0}
+ .sba-preset-results{max-height:min(44vh,340px)}
+ .sba-preset-results [role=option] small{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){.sba-preset-chevron{transition:none}}
