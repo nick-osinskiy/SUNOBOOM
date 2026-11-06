@@ -134,3 +134,31 @@
  .sba-preset-results [role=option] small{font-size:10px}
 }
 @media(prefers-reduced-motion:reduce){.sba-preset-chevron{transition:none}}
+
+
+/* SUNOBOOM 0.68 · Quick creation of built-in and custom arrangement blocks. */
+.sba-add{margin:0 0 16px;padding:14px 15px;border:1px solid #785783;background:linear-gradient(125deg,#29223f,#202d44);border-radius:13px}
+.sba-add-title{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+.sba-add-title strong{font-size:14px;color:#ffd5ec}
+.sba-add-title span{color:#b1c8df;font-size:11px}
+.sba-add .sba-add-row{display:flex;flex-wrap:wrap;align-items:end;gap:9px}
+.sba-add-row label{display:grid;align-items:start;gap:5px;min-width:0;flex:1 1 175px;font-size:11px;font-weight:800;color:#c8bdd9}
+.sba-add-row label[hidden],.sba-add [hidden]{display:none!important}
+.sba-add-row label select,.sba-add-row label input[type=text]{min-height:44px;max-width:100%;width:100%;border-radius:9px;border:1px solid #6a6287;background:#1a2338;color:#f8eeff;padding:10px 11px;font:inherit;font-size:14px}
+.sba-add-row label input::placeholder{color:#94a2be}
+.sba-add .sba-add-controls{margin-top:11px}
+.sba-add .sba-add-controls .sba-btn{min-height:44px}
+.sba-add .sba-add-btn{flex:1 1 145px}
+.sba-placement-reset{background:#282e46;border-color:#585d82;color:#d4e3f4}
+.sba-add-hint{margin:11px 0 0;font-size:11px;line-height:1.5;color:#aab8d0}
+.sba-custom-label{grid-column:1/-1}
+.sba-between-add{display:flex;align-items:center;justify-content:center;gap:6px;min-height:34px;min-width:144px;margin:0 auto 3px;padding:5px 14px;color:#b2bde1;border:1px dashed #52516e;border-radius:30px;background:#1b2437;font:inherit;font-size:11px;cursor:pointer}
+.sba-between-add span{font-size:18px;line-height:1;color:#f7b5de}
+.sba-between-add:hover,.sba-between-add:focus-visible{color:#fff;background:#49315c;border-color:#cb80bc}
+.sba-end-add{display:block;width:100%;min-height:44px;padding:10px 14px;background:linear-gradient(115deg,#4c345e,#2c4466);border:1px dashed #a075bd;border-radius:11px;color:#f9e2f3;font:inherit;font-size:12px;font-weight:820;cursor:pointer;margin:5px 0 0}
+.sba-end-add:hover,.sba-end-add:focus-visible{background:linear-gradient(115deg,#784073,#375a81);border-color:#f3b0d6}
+@media(max-width:720px){
+ .sba-add{padding:12px}
+ .sba-add-row label{flex:1 1 100%}
+ .sba-between-add{min-height:39px}
+}
