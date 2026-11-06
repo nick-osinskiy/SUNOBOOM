@@ -96,3 +96,16 @@
 .sb-gt-search-empty{margin:0;font-size:12px;color:#f0b4c9}
 .sb-gt-node.sb-gt-search-dim{opacity:.28}
 @media(max-width:700px){.sb-gt-extra{display:grid;grid-template-columns:1fr;padding:11px}.sb-gt-search-label{min-width:0;max-width:none}.sb-gt-zoom{justify-content:space-between}}
+
+/* Full collection: live genre-family hierarchy, accessible on mobile via horizontal scroll. */
+.sb-gt-canvas-all{min-width:max(870px,calc(var(--sb-gt-family-count) * 230px))}
+.sb-gt-columns-all{grid-template-columns:repeat(var(--sb-gt-family-count),minmax(190px,1fr));gap:22px}
+.sb-gt-column-all .sb-gt-family-heading{min-height:66px;display:flex;align-items:flex-start;justify-content:space-between;gap:8px;white-space:normal;line-height:1.3;border:1px solid var(--sb-gt-family-accent);border-radius:12px;background:#22263b;padding:12px;color:#f5effc}
+.sb-gt-family-heading strong{font-size:13px;overflow-wrap:anywhere}
+.sb-gt-family-heading span{background:var(--sb-gt-family-accent);color:#151827;border-radius:20px;min-width:25px;text-align:center;font-size:11px;padding:3px 5px}
+.sb-gt-column-all .sb-gt-node-list{position:relative;border-left:2px solid #565375;margin-left:9px;padding-left:13px;gap:9px}
+.sb-gt-column-all .sb-gt-node{min-height:58px;padding:9px 10px}
+.sb-gt-column-all .sb-gt-node:before{content:"";position:absolute;top:50%;left:-15px;width:14px;border-top:2px solid #565375}
+.sb-gt-column-all .sb-gt-node-name{font-size:12px}
+.sb-gt-column-all .sb-gt-node-era{font-size:9px}
+@media(max-width:760px){.sb-gt-canvas-all{min-width:max(870px,calc(var(--sb-gt-family-count) * 208px))}.sb-gt-columns-all{grid-template-columns:repeat(var(--sb-gt-family-count),minmax(176px,1fr));gap:16px}}
