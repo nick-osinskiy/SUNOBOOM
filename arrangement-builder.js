@@ -51,6 +51,51 @@
       ["intro",1,8,"none","solo strings"],["build",2,16,"none","low strings, pulse"],["verse",3,16,"none","cello ostinato"],["build",4,8,"none","brass rise, timpani"],["chorus",5,16,"none","full orchestra, big drums"],["breakdown",2,8,"none","soft piano, strings"],["finalchorus",5,16,"none","brass, choir-like synth pads"],["outro",2,8,"none","strings fading"]]},
     blank:{ru:"Базовый каркас",sections:[["intro",2,4,"none",""],["verse",3,16,"lead",""],["chorus",5,16,"harmonies",""],["outro",2,4,"none",""]]}
   };
+
+  // Genre-aware choices are sourced from the existing Academy collection, not duplicated here.
+  const GENRE_CHOICE_PREFIX="genre:";
+  function genreChoices(){
+    if(typeof GENRES==="undefined"||!Array.isArray(GENRES))return [];
+    const seen=new Set();
+    return GENRES.filter(g=>{
+      if(!g||!g.id||!g.name||seen.has(g.id))return false;
+      seen.add(g.id);return true;
+    }).map(g=>({key:GENRE_CHOICE_PREFIX+g.id,ru:g.name,family:g.family||"Другие направления",genre:g}));
+  }
+  function choiceMeta(key){
+    if(PRESETS[key])return {key,ru:PRESETS[key].ru,family:"Готовые шаблоны"};
+    return genreChoices().find(c=>c.key===key)||null;
+  }
+  function genreArchetype(g){
+    const name=(g.name+" "+g.family+" "+g.id).toLocaleLowerCase("ru");
+    if(/ска|ska/.test(name))return "ska";
+    if(/эпик|эпичес|кинематограф|саундтрек|оркестр|симфон|classical|cinematic|epic|orchestra/.test(name))return "epic";
+    if(/электро|хаус|техно|транс|синти|драм-н-бейс|драм энд бейс|дабстеп|эмбиент|электрон|electro|techno|house|ambient|dubstep|trance|synth/.test(name))return "electronic";
+    if(/рок|панк|метал|гранж|хардкор|rock|punk|metal|grunge/.test(name))return "rock";
+    return "pop";
+  }
+  function genreSoundCues(g){
+    const blocked=/^(no (crowd|stage|whisper|audience)|without |clean studio|polished studio|studio sound)/i;
+    return String(g.style||"").split(",").map(x=>x.trim()).filter(x=>x&&!blocked.test(x)).slice(0,6);
+  }
+  function genrePresetBlocks(g){
+    const base=PRESETS[genreArchetype(g)];
+    const cues=genreSoundCues(g);
+    return base.sections.map((row,i)=>{
+      const block=makeBlock(...row);
+      if(cues.length){
+        const isBig=["chorus","finalchorus","drop"].includes(block.type);
+        const selected=isBig?cues.slice(0,3):cues.slice(i%2, i%2+2);
+        block.instruments=safeStr(selected.join(", ")||cues[0]);
+      }
+      return block;
+    });
+  }
+  function choicePresetBlocks(name){
+    if(PRESETS[name])return PRESETS[name].sections.map(row=>makeBlock(...row));
+    const choice=choiceMeta(name);
+    return choice&&choice.genre?genrePresetBlocks(choice.genre):PRESETS.pop.sections.map(row=>makeBlock(...row));
+  }
   const esc=x=>escapeHTML(String(x??""));
   const safeStr=s=>String(s||"").replace(/[\[\]\r\n<>]/g," ").replace(/\s+/g," ").trim().slice(0,120);
   let serial=0;
@@ -60,16 +105,15 @@
       bars:[2,4,8,12,16,24,32].includes(Number(bars))?Number(bars):8,
       vocal:VOICES[vocal]?vocal:"lead",instruments:safeStr(instruments)};
   }
-  function presetBlocks(name){
-    return (PRESETS[name]||PRESETS.pop).sections.map(row=>makeBlock(...row));
-  }
-  const state={blocks:presetBlocks("pop"),activePreset:"pop",presetPending:null,transfer:null,applied:null,message:"",tab:"lyrics",expanded:true,dragId:null};
+  function presetBlocks(name){return choicePresetBlocks(name);}
+  const state={blocks:presetBlocks("pop"),activePreset:"pop",selectedPreset:"pop",presetFilter:"all",presetPending:null,transfer:null,applied:null,message:"",tab:"lyrics",expanded:true,dragId:null};
   function load(){
     try{
       const raw=JSON.parse(localStorage.getItem(KEY)||"{}");
       if(!raw||!Array.isArray(raw.blocks)||raw.blocks.length>MAX_BLOCKS)return;
       state.blocks=raw.blocks.map(b=>makeBlock(b.type,b.energy,b.bars,b.vocal,b.instruments));
-      if(PRESETS[raw.activePreset])state.activePreset=raw.activePreset;
+      if(choiceMeta(raw.activePreset))state.activePreset=raw.activePreset;
+      state.selectedPreset=state.activePreset;
     }catch(e){}
   }
   function save(){try{localStorage.setItem(KEY,JSON.stringify({version:1,blocks:state.blocks,activePreset:state.activePreset}));return true}catch(e){return false}}
@@ -97,7 +141,8 @@
   }
   function stageName(b){return SECTION[b.type].en.toLowerCase().replace("instrumental ","");}
   function shortDynamics(){
-    return "Arrangement: "+state.blocks.map(b=>stageName(b)+" "+b.energy+"/5").join(" > ")+".";
+    const genre=choiceMeta(state.activePreset)?.genre;
+    return (genre?"Genre: "+genre.name+". ":"")+"Arrangement: "+state.blocks.map(b=>stageName(b)+" "+b.energy+"/5").join(" > ")+".";
   }
   function fullDynamics(){
     const base=shortDynamics();
@@ -106,11 +151,17 @@
     return base+" "+arc+(names.length?" Instruments: "+names.join("; ")+".":"");
   }
   function panel(){
-    const presetOptions=Object.entries(PRESETS).map(([k,v])=>'<option value="'+k+'"'+(k===state.activePreset?' selected':'')+'>'+esc(v.ru)+'</option>').join("");
+    const choice=choiceMeta(state.selectedPreset)||choiceMeta("pop");
+    const genreCount=genreChoices().length;
     return '<section id="sba-arranger" class="sba-shell" aria-labelledby="sba-heading">'+
       '<header class="sba-hero"><div class="sba-hero-copy"><span class="sba-eyebrow">SUNO STUDIO · КОНСТРУКТОР</span><h2 id="sba-heading">Визуальная аранжировка <span>✦</span></h2>'+
       '<p>Собери структуру трека, настрой энергию каждого фрагмента и подготовь теги исполнения для Suno. Стандартные инструменты Studio останутся без изменений.</p></div><span class="sba-hero-label">ARRANGEMENT LAB</span></header>'+
-      '<div class="sba-toolbar"><label for="sba-presets">Шаблон композиции<select id="sba-presets">'+presetOptions+'</select></label>'+
+      '<div class="sba-toolbar"><div class="sba-preset-picker"><span class="sba-preset-caption">Шаблон композиции / жанр</span>'+
+      '<button type="button" id="sba-presets" class="sba-preset-trigger" data-sba-action="menu-toggle" aria-haspopup="dialog" aria-expanded="false" aria-controls="sba-preset-menu"><span id="sba-picked-label">'+esc(choice.ru)+'</span><span class="sba-preset-chevron" aria-hidden="true">⌄</span></button>'+
+      '<div id="sba-preset-menu" class="sba-preset-menu" role="dialog" aria-label="Поиск шаблона или жанра" hidden>'+
+      '<div class="sba-preset-search-row"><input type="search" id="sba-preset-search" autocomplete="off" placeholder="Найти жанр или шаблон..." aria-label="Поиск жанра"/><button type="button" data-sba-action="menu-close" aria-label="Закрыть меню">×</button></div>'+
+      '<div class="sba-preset-filters" role="group" aria-label="Тип вариантов"><button type="button" data-sba-action="menu-filter" data-filter="all">Все</button><button type="button" data-sba-action="menu-filter" data-filter="templates">Шаблоны</button><button type="button" data-sba-action="menu-filter" data-filter="genres">Жанры Академии ('+genreCount+')</button></div>'+
+      '<div class="sba-preset-results" id="sba-preset-results" role="listbox" aria-label="Доступные шаблоны и жанры"></div></div></div>'+
       '<button type="button" data-sba-action="request-preset" class="sba-btn sba-preset-btn">Применить шаблон</button>'+
       '<span class="sba-draft-saved" id="sba-saved">Черновик сохраняется в браузере</span></div>'+
       '<div id="sba-preset-confirm" aria-live="polite"></div>'+
@@ -131,6 +182,48 @@
         '<div class="sba-help"><strong>Как применять</strong><p>Теги секций вставляй в поле <b>Lyrics</b> в Suno рядом с текстом песни. Краткую динамику можно добавить в <b>Style</b> через Suno Studio после подтверждения.</p><p>Ориентир длительности рассчитан по 4/4 и BPM Studio, это не гарантия точной длины аудио.</p></div>'+
       '</aside>'+
       '</div></section>';
+  }
+  function menuItem(key,title,subtitle){
+    return '<button type="button" role="option" aria-selected="'+(key===state.selectedPreset)+'" data-sba-action="menu-choose" data-choice="'+esc(key)+'"><span>'+esc(title)+'</span><small>'+esc(subtitle)+'</small></button>';
+  }
+  function normalizeQuery(text){return String(text||"").toLocaleLowerCase("ru").replace(/ё/g,"е").trim();}
+  function renderPresetMenu(){
+    const target=document.getElementById("sba-preset-results");if(!target)return;
+    const q=normalizeQuery(document.getElementById("sba-preset-search")?.value);
+    const matches=(name,group,id)=>normalizeQuery(name+" "+group+" "+id).includes(q);
+    const output=[];
+    let total=0;
+    if(state.presetFilter!=="genres"){
+      const entries=Object.entries(PRESETS).filter(([key,v])=>matches(v.ru,"Готовые шаблоны",key));
+      if(entries.length){output.push('<div class="sba-preset-group-title">Готовые структуры</div>');
+        entries.forEach(([key,v])=>{output.push(menuItem(key,v.ru,"Готовый шаблон"));total++;});}
+    }
+    if(state.presetFilter!=="templates"){
+      const groups=new Map();
+      genreChoices().filter(c=>matches(c.ru,c.family,c.key)).forEach(c=>{
+        if(!groups.has(c.family))groups.set(c.family,[]);
+        groups.get(c.family).push(c);
+      });
+      const order=typeof familyOrder!=="undefined"&&Array.isArray(familyOrder)?familyOrder:[];
+      const sorted=[...groups.entries()].sort((a,b)=>{
+        const ai=order.indexOf(a[0]),bi=order.indexOf(b[0]);
+        if(ai>=0&&bi>=0)return ai-bi;
+        if(ai>=0)return -1;if(bi>=0)return 1;
+        return a[0].localeCompare(b[0],"ru");
+      });
+      sorted.forEach(([family,items])=>{
+        output.push('<div class="sba-preset-group-title">'+esc(family)+' <small>'+items.length+'</small></div>');
+        items.forEach(c=>{output.push(menuItem(c.key,c.ru,c.family));total++;});
+      });
+    }
+    target.innerHTML=total?output.join(""):'<p class="sba-preset-no-results">Ничего не найдено. Попробуй другое название или направление.</p>';
+    document.querySelectorAll("[data-sba-action=menu-filter]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.filter===state.presetFilter)));
+  }
+  function togglePresetMenu(open){
+    const menu=document.getElementById("sba-preset-menu"),button=document.getElementById("sba-presets");
+    if(!menu||!button)return;
+    menu.hidden=!open;button.setAttribute("aria-expanded",String(open));
+    if(open){renderPresetMenu();document.getElementById("sba-preset-search")?.focus();}
   }
   function options(obj,current){
     return Object.entries(obj).map(([key,item])=>'<option value="'+key+'"'+(key===current?' selected':'')+'>'+esc(item.ru)+'</option>').join("");
@@ -175,7 +268,7 @@
   }
   function drawPresetPrompt(){
     const el=document.getElementById("sba-preset-confirm");if(!el)return;
-    el.innerHTML=state.presetPending?'<div class="sba-confirm"><span>Заменить текущую структуру шаблоном «'+esc(PRESETS[state.presetPending].ru)+'»? Текущие блоки будут заменены.</span><button type="button" data-sba-action="preset-accept">Заменить</button><button type="button" data-sba-action="preset-cancel">Отмена</button></div>':"";
+    el.innerHTML=state.presetPending?'<div class="sba-confirm"><span>Заменить текущую структуру шаблоном «'+esc(choiceMeta(state.presetPending)?.ru||"")+'»? Текущие блоки будут заменены.</span><button type="button" data-sba-action="preset-accept">Заменить</button><button type="button" data-sba-action="preset-cancel">Отмена</button></div>':"";
   }
   function drawTransfer(){
     const el=document.getElementById("sba-transfer-confirm");if(!el)return;
@@ -251,6 +344,17 @@
     const control=event.target?.closest?.("[data-sba-action]");
     if(!control||view.nav!=="studio")return;
     const action=control.dataset.sbaAction;
+    if(action==="menu-toggle"){togglePresetMenu(document.getElementById("sba-preset-menu")?.hidden);return;}
+    if(action==="menu-close"){togglePresetMenu(false);document.getElementById("sba-presets")?.focus();return;}
+    if(action==="menu-filter"){state.presetFilter=control.dataset.filter||"all";renderPresetMenu();return;}
+    if(action==="menu-choose"){
+      const selected=control.dataset.choice;
+      if(!choiceMeta(selected))return;
+      state.selectedPreset=selected;state.presetPending=null;
+      const label=document.getElementById("sba-picked-label");
+      if(label)label.textContent=choiceMeta(selected).ru;
+      togglePresetMenu(false);drawPresetPrompt();return;
+    }
     if(action==="jump"){document.getElementById("sba-arranger")?.scrollIntoView({block:"start",behavior:"smooth"});return;}
     if(action==="add"){
       if(state.blocks.length>=MAX_BLOCKS){show("Ограничение: "+MAX_BLOCKS+" блоков в одной композиции.");return;}
@@ -259,13 +363,13 @@
       changed();return;
     }
     if(action==="request-preset"){
-      const name=document.getElementById("sba-presets")?.value;
-      if(!PRESETS[name])return;
+      const name=state.selectedPreset;
+      if(!choiceMeta(name))return;
       state.presetPending=name;drawPresetPrompt();return;
     }
     if(action==="preset-cancel"){state.presetPending=null;drawPresetPrompt();return;}
     if(action==="preset-accept"){
-      if(!PRESETS[state.presetPending])return;
+      if(!choiceMeta(state.presetPending))return;
       const name=state.presetPending;
       state.blocks=presetBlocks(name);state.activePreset=name;state.presetPending=null;
       drawPresetPrompt();changed();show("Шаблон загружен. Теперь можно изменять блоки.");return;
@@ -308,6 +412,7 @@
   document.addEventListener("input",event=>{
     if(view.nav!=="studio")return;
     const el=event.target;
+    if(el?.id==="sba-preset-search"){renderPresetMenu();return;}
     const key=el?.dataset?.sbaField;
     if(!key){
       if(el?.dataset?.builder==="tempo")updateDerived();
@@ -323,6 +428,22 @@
     }else if(key==="instruments")b.instruments=safeStr(el.value);
     else return;
     changed(false);
+  });
+  document.addEventListener("click",event=>{
+    if(view.nav!=="studio"||event.target?.closest?.(".sba-preset-picker"))return;
+    togglePresetMenu(false);
+  });
+  document.addEventListener("keydown",event=>{
+    if(view.nav!=="studio")return;
+    const menu=document.getElementById("sba-preset-menu");
+    if(!menu||menu.hidden)return;
+    if(event.key==="Escape"){event.preventDefault();togglePresetMenu(false);document.getElementById("sba-presets")?.focus();}
+    if(event.key==="Enter"&&event.target?.id==="sba-preset-search"){
+      event.preventDefault();document.querySelector("#sba-preset-results [data-sba-action=menu-choose]")?.click();
+    }
+    if(event.key==="ArrowDown"&&event.target?.id==="sba-preset-search"){
+      event.preventDefault();document.querySelector("#sba-preset-results [data-sba-action=menu-choose]")?.focus();
+    }
   });
   document.addEventListener("dragstart",event=>{
     if(view.nav!=="studio")return;
@@ -354,6 +475,6 @@
     document.querySelectorAll(".sba-dragging,.sba-drop-target").forEach(el=>el.classList.remove("sba-dragging","sba-drop-target"));
   });
   load();
-  window.SUNOBOOM_ARRANGER=Object.freeze({version:"0.66",getBlockCount:()=>state.blocks.length,getLyrics:generatedLyrics,getStyle:fullDynamics,getDurationEstimate:()=>lengthString()});
+  window.SUNOBOOM_ARRANGER=Object.freeze({version:"0.67",getBlockCount:()=>state.blocks.length,getLyrics:generatedLyrics,getStyle:fullDynamics,getDurationEstimate:()=>lengthString()});
   if(view.nav==="studio")render();
 })();
