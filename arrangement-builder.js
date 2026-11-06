@@ -5,7 +5,7 @@
   "use strict";
   if(typeof studio!=="function"||typeof builder==="undefined"||typeof promptValue!=="function"||typeof updateOutput!=="function")return;
   const KEY="sunoboom-arrangement-v066";
-  const MAX_BLOCKS=24;
+  const MAX_BLOCKS=64;
   const SECTION={
     intro:{ru:"Вступление",en:"Intro",icon:"◌"},
     verse:{ru:"Куплет",en:"Verse",icon:"≋"},
@@ -19,7 +19,8 @@
     solo:{ru:"Соло",en:"Instrumental Solo",icon:"♬"},
     instrumental:{ru:"Инструментал",en:"Instrumental",icon:"♫"},
     finalchorus:{ru:"Финальный припев",en:"Final Chorus",icon:"★"},
-    outro:{ru:"Завершение",en:"Outro",icon:"◦"}
+    outro:{ru:"Завершение",en:"Outro",icon:"◦"},
+    custom:{ru:"Свой блок",en:"Custom Section",icon:"✎"}
   };
   const VOICES={
     lead:{ru:"Основной вокал",en:"clear lead vocal"},
@@ -98,26 +99,28 @@
   }
   const esc=x=>escapeHTML(String(x??""));
   const safeStr=s=>String(s||"").replace(/[\[\]\r\n<>]/g," ").replace(/\s+/g," ").trim().slice(0,120);
+  const safeTitle=s=>String(s||"").replace(/[\[\]<>\r\n:]/g," ").replace(/\s+/g," ").trim().slice(0,48);
   let serial=0;
-  function makeBlock(type,energy,bars,vocal,instruments){
+  function makeBlock(type,energy,bars,vocal,instruments,customName=""){
     return {id:"sba-"+(++serial),type:SECTION[type]?type:"verse",
       energy:Math.max(1,Math.min(5,Number(energy)||3)),
       bars:[2,4,8,12,16,24,32].includes(Number(bars))?Number(bars):8,
-      vocal:VOICES[vocal]?vocal:"lead",instruments:safeStr(instruments)};
+      vocal:VOICES[vocal]?vocal:"lead",instruments:safeStr(instruments),customName:safeTitle(customName)};
   }
   function presetBlocks(name){return choicePresetBlocks(name);}
-  const state={blocks:presetBlocks("pop"),activePreset:"pop",selectedPreset:"pop",presetFilter:"all",presetPending:null,transfer:null,applied:null,message:"",tab:"lyrics",expanded:true,dragId:null};
+  const state={blocks:presetBlocks("pop"),activePreset:"pop",selectedPreset:"pop",presetFilter:"all",presetPending:null,insertAfter:null,transfer:null,applied:null,message:"",tab:"lyrics",expanded:true,dragId:null};
   function load(){
     try{
       const raw=JSON.parse(localStorage.getItem(KEY)||"{}");
       if(!raw||!Array.isArray(raw.blocks)||raw.blocks.length>MAX_BLOCKS)return;
-      state.blocks=raw.blocks.map(b=>makeBlock(b.type,b.energy,b.bars,b.vocal,b.instruments));
+      state.blocks=raw.blocks.map(b=>makeBlock(b.type,b.energy,b.bars,b.vocal,b.instruments,b.customName));
       if(choiceMeta(raw.activePreset))state.activePreset=raw.activePreset;
       state.selectedPreset=state.activePreset;
     }catch(e){}
   }
   function save(){try{localStorage.setItem(KEY,JSON.stringify({version:1,blocks:state.blocks,activePreset:state.activePreset}));return true}catch(e){return false}}
   function nameFor(b,index){
+    if(b.type==="custom")return safeTitle(b.customName)||"Custom Section";
     const en=SECTION[b.type].en;
     if(b.type!=="verse")return en;
     const count=state.blocks.slice(0,index+1).filter(x=>x.type==="verse").length;
@@ -139,7 +142,7 @@
     const seconds=lengthSeconds();
     return Math.floor(seconds/60)+":"+String(seconds%60).padStart(2,"0");
   }
-  function stageName(b){return SECTION[b.type].en.toLowerCase().replace("instrumental ","");}
+  function stageName(b){return (b.type==="custom"?safeTitle(b.customName)||"custom section":SECTION[b.type].en).toLowerCase().replace("instrumental ","");}
   function shortDynamics(){
     const genre=choiceMeta(state.activePreset)?.genre;
     return (genre?"Genre: "+genre.name+". ":"")+"Arrangement: "+state.blocks.map(b=>stageName(b)+" "+b.energy+"/5").join(" > ")+".";
@@ -168,8 +171,14 @@
       '<div class="sba-body">'+
       '<div class="sba-editor">'+
         '<div class="sba-panel-title"><div><h3>Структура песни</h3><p>Перетаскивай блоки на компьютере или используй ↑ ↓ на телефоне.</p></div><span id="sba-section-count" class="sba-count"></span></div>'+
+        '<div class="sba-add" id="sba-add-editor"><div class="sba-add-title"><strong>+ Новый блок</strong><span id="sba-add-placement" role="status">Добавится в конец композиции</span></div>'+
+          '<div class="sba-add-row"><label for="sba-add-type">Тип фрагмента<select id="sba-add-type">'+Object.entries(SECTION).map(([k,v])=>'<option value="'+k+'">'+esc(v.ru)+'</option>').join("")+'</select></label>'+
+          '<label id="sba-custom-name-wrap" for="sba-new-block-title" hidden>Название своего блока<input id="sba-new-block-title" type="text" maxlength="48" placeholder="Например: Разговорный переход" autocomplete="off"/></label></div>'+
+          '<div class="sba-add-row sba-add-controls"><button class="sba-btn sba-add-btn" data-sba-action="add" type="button">+ Добавить блок</button><button class="sba-btn sba-placement-reset" data-sba-action="reset-insert" type="button" hidden>Добавлять в конец</button></div>'+
+          '<p class="sba-add-hint">Выбери куплет, припев, дроп или свой фрагмент. После добавления можно настроить такты, энергию, вокал и инструменты.</p>'+
+        '</div>'+
         '<div id="sba-cards" class="sba-block-list"></div>'+
-        '<div class="sba-add"><label for="sba-add-type">Добавить фрагмент</label><div class="sba-add-row"><select id="sba-add-type">'+Object.entries(SECTION).map(([k,v])=>'<option value="'+k+'">'+esc(v.ru)+'</option>').join("")+'</select><button class="sba-btn sba-add-btn" data-sba-action="add" type="button">+ Добавить блок</button></div></div>'+
+        '<button type="button" class="sba-end-add" data-sba-action="insert-end">+ Добавить блок в конец</button>'+
         '<div class="sba-chart-panel"><div class="sba-panel-title"><div><h3>Кривая энергии</h3><p>Схематичная динамика от тихого вступления до кульминации.</p></div></div><div id="sba-energy-chart" class="sba-chart" role="img"></div></div>'+
       '</div>'+
       '<aside class="sba-result">'+
@@ -242,7 +251,9 @@
      '<label>Тактов<select data-sba-field="bars" data-id="'+b.id+'">'+[2,4,8,12,16,24,32].map(n=>'<option value="'+n+'"'+(n===b.bars?' selected':'')+'>'+n+'</option>').join("")+'</select></label>'+
      '<label>Вокал<select data-sba-field="vocal" data-id="'+b.id+'">'+options(VOICES,b.vocal)+'</select></label>'+
      '<label class="sba-energy-field">Энергия <output data-sba-output="'+b.id+'">'+b.energy+'/5 · '+ENERGY[b.energy].ru+'</output><input type="range" min="1" max="5" step="1" value="'+b.energy+'" data-sba-field="energy" data-id="'+b.id+'"></label>'+
-     '<label class="sba-instrument-field">Инструменты / приём<input type="text" maxlength="120" data-sba-field="instruments" data-id="'+b.id+'" value="'+esc(b.instruments)+'" placeholder="Например: brass, bass, punchy drums"></label></div></article>';
+     '<label class="sba-instrument-field">Инструменты / приём<input type="text" maxlength="120" data-sba-field="instruments" data-id="'+b.id+'" value="'+esc(b.instruments)+'" placeholder="Например: brass, bass, punchy drums"></label>'+
+     (b.type==="custom"?'<label class="sba-custom-label">Своё название<input type="text" maxlength="48" data-sba-field="customName" data-id="'+b.id+'" value="'+esc(b.customName)+'" placeholder="Название для тега Suno"></label>':"")+
+     '</div></article><button type="button" class="sba-between-add" data-sba-action="insert-after" data-id="'+b.id+'" aria-label="Добавить блок после '+esc(nameFor(b,i))+'"><span aria-hidden="true">＋</span> Добавить после</button>';
   }
   function energyHTML(){
     const n=state.blocks.length;
@@ -261,10 +272,24 @@
     document.querySelectorAll(".sba-preview-tabs button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.tab===state.tab)));
     const message=document.getElementById("sba-message");if(message){message.textContent=state.message;message.hidden=!state.message;}
   }
+  function updateAddComposer(){
+    const afterIndex=state.insertAfter===null?-1:findIndex(state.insertAfter);
+    if(state.insertAfter!==null&&afterIndex<0)state.insertAfter=null;
+    const placement=document.getElementById("sba-add-placement");
+    if(placement)placement.textContent=state.insertAfter===null?"Добавится в конец композиции":"После блока "+(afterIndex+1)+" — "+SECTION[state.blocks[afterIndex].type].ru;
+    const reset=document.querySelector(".sba-placement-reset");if(reset)reset.hidden=state.insertAfter===null;
+    const title=document.getElementById("sba-custom-name-wrap");
+    if(title)title.hidden=document.getElementById("sba-add-type")?.value!=="custom";
+  }
+  function openAddComposer(afterId=null){
+    state.insertAfter=afterId;updateAddComposer();
+    document.getElementById("sba-add-editor")?.scrollIntoView({behavior:"smooth",block:"center"});
+    document.getElementById("sba-add-type")?.focus({preventScroll:true});
+  }
   function drawBlocks(){
     const root=document.getElementById("sba-cards");
     if(root)root.innerHTML=state.blocks.length?state.blocks.map(blockHTML).join(""):'<div class="sba-empty">Пока нет блоков. Добавь первый фрагмент снизу.</div>';
-    updateDerived();
+    updateDerived();updateAddComposer();
   }
   function drawPresetPrompt(){
     const el=document.getElementById("sba-preset-confirm");if(!el)return;
@@ -356,11 +381,23 @@
       togglePresetMenu(false);drawPresetPrompt();return;
     }
     if(action==="jump"){document.getElementById("sba-arranger")?.scrollIntoView({block:"start",behavior:"smooth"});return;}
+    if(action==="insert-after"){openAddComposer(control.dataset.id);return;}
+    if(action==="insert-end"||action==="reset-insert"){openAddComposer(null);return;}
     if(action==="add"){
       if(state.blocks.length>=MAX_BLOCKS){show("Ограничение: "+MAX_BLOCKS+" блоков в одной композиции.");return;}
       const value=document.getElementById("sba-add-type")?.value||"verse";
-      state.blocks.push(makeBlock(value,3,8,value==="intro"||value==="outro"?"none":"lead",""));
-      changed();return;
+      if(!SECTION[value])return;
+      const title=document.getElementById("sba-new-block-title");
+      const name=value==="custom"?safeTitle(title?.value):"";
+      if(value==="custom"&&!name){show("Напиши название нового блока.");title?.focus();return;}
+      const block=makeBlock(value,3,8,value==="intro"||value==="outro"?"none":"lead","",name);
+      const target=state.insertAfter===null?-1:findIndex(state.insertAfter);
+      const index=target<0?state.blocks.length:target+1;
+      state.blocks.splice(index,0,block);state.insertAfter=null;
+      if(title)title.value="";
+      changed();show("Блок добавлен. Можно настроить его параметры и положение.");
+      document.querySelector('.sba-block[data-sba-id="'+block.id+'"]')?.scrollIntoView({behavior:"smooth",block:"center"});
+      return;
     }
     if(action==="request-preset"){
       const name=state.selectedPreset;
@@ -371,7 +408,7 @@
     if(action==="preset-accept"){
       if(!choiceMeta(state.presetPending))return;
       const name=state.presetPending;
-      state.blocks=presetBlocks(name);state.activePreset=name;state.presetPending=null;
+      state.blocks=presetBlocks(name);state.activePreset=name;state.presetPending=null;state.insertAfter=null;
       drawPresetPrompt();changed();show("Шаблон загружен. Теперь можно изменять блоки.");return;
     }
     if(action==="tab"){state.tab=control.dataset.tab==="style"?"style":"lyrics";updateDerived();return;}
@@ -393,18 +430,22 @@
     if(action==="duplicate"){
       if(state.blocks.length>=MAX_BLOCKS){show("Ограничение: "+MAX_BLOCKS+" блоков.");return;}
       const b=state.blocks[index];
-      state.blocks.splice(index+1,0,makeBlock(b.type,b.energy,b.bars,b.vocal,b.instruments));
+      state.blocks.splice(index+1,0,makeBlock(b.type,b.energy,b.bars,b.vocal,b.instruments,b.customName));
       changed();return;
     }
   });
   document.addEventListener("change",event=>{
     if(view.nav!=="studio")return;
     const el=event.target;
+    if(el?.id==="sba-add-type"){updateAddComposer();return;}
     const key=el?.dataset?.sbaField;
     if(!key)return;
     const index=findIndex(el.dataset.id);if(index<0)return;
     const b=state.blocks[index];
-    if(key==="type"&&SECTION[el.value])b.type=el.value;
+    if(key==="type"&&SECTION[el.value]){
+      b.type=el.value;
+      if(b.type==="custom"&&!b.customName)b.customName="Custom Section";
+    }
     if(key==="vocal"&&VOICES[el.value])b.vocal=el.value;
     if(key==="bars"){const bars=Number(el.value);if([2,4,8,12,16,24,32].includes(bars))b.bars=bars;}
     changed();
@@ -420,7 +461,11 @@
     }
     const index=findIndex(el.dataset.id);if(index<0)return;
     const b=state.blocks[index];
-    if(key==="energy"){
+    if(key==="customName"){
+      b.customName=safeTitle(el.value);
+      const box=el.closest(".sba-block"),head=box?.querySelector(".sba-block-head strong");
+      if(head)head.textContent=nameFor(b,index);
+    }else if(key==="energy"){
       const energy=Number(el.value);if(energy<1||energy>5)return;
       b.energy=energy;
       const box=el.closest(".sba-block");
@@ -475,6 +520,6 @@
     document.querySelectorAll(".sba-dragging,.sba-drop-target").forEach(el=>el.classList.remove("sba-dragging","sba-drop-target"));
   });
   load();
-  window.SUNOBOOM_ARRANGER=Object.freeze({version:"0.67",getBlockCount:()=>state.blocks.length,getLyrics:generatedLyrics,getStyle:fullDynamics,getDurationEstimate:()=>lengthString()});
+  window.SUNOBOOM_ARRANGER=Object.freeze({version:"0.68",getBlockCount:()=>state.blocks.length,getLyrics:generatedLyrics,getStyle:fullDynamics,getDurationEstimate:()=>lengthString()});
   if(view.nav==="studio")render();
 })();
