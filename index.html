@@ -4324,6 +4324,91 @@ document.addEventListener('input',e=>{if(e.target?.id?.startsWith('dna-')&&view.
 document.addEventListener('change',e=>{if(e.target?.id?.startsWith('dna-')&&view.nav==='artists'&&view.sbDnaEdit)sbDnaPreview()});
 render();
 
+
+/* SUNOBOOM — Ska is a standalone Academy family, without replacing the original genre card. */
+(function(){
+ const title='Ска';
+ const originalSka=GENRES.find(g=>g.id==='reggae-ska');
+ if(originalSka)originalSka.family=title; // preserve the ID, saved links, ideas and artist material
+ if(!familyOrder.includes(title)){
+   const reggaeIndex=familyOrder.indexOf('Регги и карибская музыка');
+   familyOrder.splice(reggaeIndex<0?familyOrder.length:reggaeIndex,0,title);
+ }
+ const reggaeMeta=CATALOG_GROUP_META['Регги и карибская музыка'];
+ if(reggaeMeta)reggaeMeta.desc='Регги, рокстеди, даб, дэнсхолл, рагга и lovers rock';
+ const skaRows=[
+  {
+   id:'ska-jamaican',name:'Ямайское ска (первая волна)',era:'конец 1950-х — 1960-е',bpm:[115,160],
+   tag:'Пружинящий ямайский ритм и живые духовые',
+   desc:'Историческая первая волна ска родилась на Ямайке из менто, ритм-энд-блюза и джаза. Упругий шагающий бас, короткие гитарные акценты на слабые доли и яркая секция духовых создали основу последующих волн.',
+   inst:'шагающий бас, чистая гитара с акцентами на слабые доли, орган, фортепиано, саксофон, труба, тромбон, живая ударная установка',
+   prompt:'early Jamaican ska, first-wave 1960s rhythm, bright offbeat guitar chops, walking bass, buoyant live drums, warm vintage organ, jubilant trumpet and saxophone melody, playful clean lead vocals, vintage tape warmth',
+   themes:['Улица и городской праздник','Танцы после работы','Любовь и повседневность','Летняя свобода'],
+   art:[['The Skatalites','Guns of Navarone','1960-е','Ямайский коллектив, сформировавший узнаваемый инструментальный язык раннего ска.'],['Prince Buster','Al Capone','1960-е','Один из главных пионеров ямайского ска и вокальной манеры ранней сцены.'],['Laurel Aitken','Boogie in My Bones','1950–1960-е','Певец ранней ямайской танцевальной музыки, связанный с истоками ска.'],['Desmond Dekker','007 (Shanty Town)','1960–1970-е','Певец, благодаря которому ямайская музыка стала известна широкой международной аудитории.']],
+   ideas:[['Пять минут до рассвета','Двор уже пустеет, но у старого магазина ещё танцуют двое друзей.','joyful'],['Синяя рубашка','Она узнаёт его в толпе по синей рубашке и знакомой мелодии духовых.','playful'],['Последний автобус','Автобус ушёл, но друзья решают пройти весь город под музыку.','upbeat']]
+  },
+  {
+   id:'ska-two-tone',name:'2 Tone (вторая волна)',era:'конец 1970-х — 1980-е',bpm:[125,175],
+   tag:'Британское ска с панк-энергией и новой волной',
+   desc:'Британское возрождение ска конца 1970-х сочетало ямайские ритмы с панком и new wave. Для 2 Tone характерны нервная ритм-гитара, орган, духовые, танцевальные припевы и социально наблюдательные тексты.',
+   inst:'гитара на слабые доли, плотный бас, ускоренные живые барабаны, орган, труба, тромбон, саксофон',
+   prompt:'British 2 Tone ska revival, late 1970s upbeat offbeat rhythm guitar, punchy bass, crisp live drums, bright brass stabs, vintage organ, catchy conversational lead vocal, energetic new wave punk edge',
+   themes:['Город и люди','Дружба вопреки различиям','Ирония и социальные истории','Танцы на пустой улице'],
+   art:[['The Specials','A Message to You Rudy','1970–1980-е','Ключевые участники британского возрождения 2 Tone, соединившие ска и панк.'],['The Selecter','On My Radio','1970–1980-е','Британская группа с выразительной ритм-секцией и энергичным вокалом.'],['Madness','One Step Beyond','1970–1980-е','Сделали ска частью массовой британской поп-культуры.'],['Bad Manners','Lip Up Fatty','1980-е','Представители весёлого, быстрого и театрального 2 Tone звучания.']],
+   ideas:[['Ночной район','В старом районе музыканты собираются после смены, чтобы сыграть одну песню для друзей.','energetic'],['Чёрное и белое','Два непохожих человека находят общий язык на танцполе.','hopeful'],['Радио на кухне','Радиоприёмник будит соседей, но никто уже не хочет выключать музыку.','playful']]
+  },
+  {
+   id:'ska-third-wave',name:'Ска третьей волны',era:'1980–2000-е → сегодня',bpm:[125,185],
+   tag:'Международное ска с ярким современным звучанием',
+   desc:'Третья волна распространила ска далеко за пределы Ямайки и Британии. Одни группы сохранили традиционную ритмику, другие добавили панк, поп, рок и фанковую секцию духовых.',
+   inst:'упругий электрический бас, чёткие удары малого барабана, акцентная ритм-гитара, духовые риффы, орган, клавиши',
+   prompt:'third-wave ska, punchy offbeat guitar upstrokes, fast bouncy bass groove, tight snare and kick, bold trumpet trombone sax horn section, melodic bright lead vocals, infectious upbeat chorus, polished energetic band sound',
+   themes:['Дорога с друзьями','Юмор и неловкие свидания','Планы на лето','Городская молодость'],
+   art:[['The Toasters','Two Tone Army','1980–2000-е','Одна из заметных групп американской третьей волны ска.'],['The Slackers','Have the Time','1990–2010-е','Сочетают традиционное ска, рокстеди и соул с современным городским звучанием.'],['Hepcat','No Worries','1990–2000-е','Коллектив третьей волны с уважением к ямайскому традиционному ска.'],['Save Ferris','Come On Eileen','1990–2000-е','Привнесли в третью волну яркий поп-вокал и энергичную духовую секцию.']],
+   ideas:[['Кеды у двери','Герои едут за город без чёткого маршрута, но с лучшей кассетой.','carefree'],['Понедельник отменяется','Будни наконец заканчиваются шумной музыкальной прогулкой.','joyful'],['Подмигни светофору','Пара танцует на перекрёстке, пока город застрял в пробке.','playful']]
+  },
+  {
+   id:'ska-punk',name:'Ска-панк',era:'1980-е → сегодня',bpm:[145,210],
+   tag:'Панк-гитары, стремительный ритм и взрывные духовые',
+   desc:'Ска-панк соединяет танцевальную синкопу ска с быстрыми барабанами, мощными гитарами и прямым вокалом панк-рока. Важны резкий контраст куплета и припева, короткие духовые риффы и энергия без концертного шума.',
+   inst:'перегруженные гитары в припеве, чистая гитара на слабые доли в куплете, ускоренная ударная установка, бас, труба, тромбон, саксофон',
+   prompt:'ska punk, high energy brisk tempo, fast crisp punk rock drums, crunchy power-chord guitars alternating with sharp offbeat ska guitar, pumping electric bass, punchy trumpet trombone sax riffs, clean assertive energetic male vocals, huge catchy chorus, tight studio production',
+   themes:['Свобода и независимость','Планы наперекор обстоятельствам','Дружба и верность','Весёлая городская дерзость'],
+   art:[['Operation Ivy','Sound System','1980-е','Один из ключевых мостов между панк-роком и ска.'],['Reel Big Fish','Sell Out','1990–2000-е','Сочетают быстрый ска-панк, сильную духовую секцию и ироничные припевы.'],['Less Than Jake','All My Best Friends Are Metalheads','1990–2010-е','Мелодичный американский ска-панк с яркими гитарами и духовыми.'],['The Mighty Mighty Bosstones','The Impression That I Get','1980–2000-е','Важные популяризаторы ска-панка и плотного звучания духовых.']],
+   ideas:[['Не отключай музыку','Он теряет работу, но находит друзей и решает начать новую группу.','defiant'],['До конца квартала','Компания едет через весь город, чтобы поддержать приятеля на важном событии.','uplifting'],['Не по правилам','Героиня отказывается жить по чужому расписанию и устраивает свой праздник.','energetic']]
+  },
+  {
+   id:'ska-jazz',name:'Ска-джаз',era:'1960-е → сегодня',bpm:[105,165],
+   tag:'Ска-ритм, джазовая импровизация и ведущие духовые',
+   desc:'Ска-джаз опирается на ритмику ска и джазовую свободу аранжировок. Духовые берут на себя мелодию и импровизацию, а бас и гитара поддерживают упругий оффбит.',
+   inst:'тенор-саксофон, труба, тромбон, джазовое фортепиано, контрабас или бас-гитара, гитара, живая ударная установка',
+   prompt:'ska jazz, swinging Jamaican offbeat groove, nimble walking bass, warm piano comping, clean rhythm guitar, lively live drums, expressive improvised saxophone trumpet and trombone solos, infectious syncopation, refined instrumental studio arrangement',
+   themes:['Ночной джаз-бар','Танцы без слов','Джазовый диалог','Город на рассвете'],
+   art:[['New York Ska-Jazz Ensemble','Ska Jazz','1990–2010-е','Сочетают ямайское ска и джазовые соло духовых.'],['Tokyo Ska Paradise Orchestra','Down Beat Stomp','1990–2020-е','Японский инструментальный оркестр ска с виртуозными духовым аранжировками.'],['Jazz Jamaica','Skaville UK','1990–2000-е','Объединяют джазовую аранжировку и карибскую ритмику.'],['Western Standard Time Ska Orchestra','Ska Ba','2010–2020-е','Большой ансамбль с танцевальным ска-грувом и оркестровыми духовыми.']],
+   ideas:[['Вечерний трамвай','Инструментальная импровизация о ночном путешествии по городу.','relaxed'],['Саксофон напротив','Два духовых инструмента ведут задорный музыкальный разговор.','playful'],['Город просыпается','От спокойного фортепиано к полноценному танцевальному ска-ансамблю.','optimistic']]
+  },
+  {
+   id:'ska-core',name:'Ска-кор',era:'конец 1980-х → сегодня',bpm:[165,225],
+   tag:'Хардкор-панк с жёсткими риффами и ска-синкопами',
+   desc:'Ска-кор — более тяжёлое ответвление ска-панка с влиянием хардкор-панка: жёсткие риффы, резкие динамические переключения, очень быстрый ритм и узнаваемые ска-акценты.',
+   inst:'жёсткие перегруженные гитары, быстрые ударные, бас с плотной атакой, труба, тромбон, саксофон',
+   prompt:'skacore ska hardcore punk fusion, ultra tight fast drums, intense distorted guitar riffs, abrupt transitions into syncopated offbeat ska rhythm, heavy bass, fierce energetic clean shouted group-free lead vocals, sharp horn accents, raw forceful studio mix',
+   themes:['Не сдаваться','Разрыв с привычками','Ночной город и борьба за свободу','Сильная дружба'],
+   art:[['Voodoo Glow Skulls','Shoot the Moon','1990–2000-е','Соединяют ска, латиноамериканские влияния и агрессию хардкор-панка.'],['The Suicide Machines','New Girl','1990–2000-е','Американская группа с быстрым чередованием ска и хардкор-панка.'],['Choking Victim','500 Channels','1990-е','Радикальный американский ска-кор на стыке панка и ска.'],['Against All Authority','All Fall Down','1990–2000-е','Сочетают ска-ритм и прямолинейную агрессию панк-рока.']],
+   ideas:[['Три секунды до старта','Момент перед решением бросить старую жизнь и начать новую.','intense'],['Все мосты за спиной','Быстрый трек о свободе после тяжёлого выбора.','defiant'],['Наш шум','Друзья превращают шум и разногласия в одну мощную мелодию.','bold']]
+  }
+ ];
+ sunoAddFamilyV40({family:title,icon:'🎺',desc:'Ямайское ска, 2 Tone, третья волна, ска-панк, ска-джаз и ска-кор',accent:'#ffc56e',rows:skaRows});
+ // Curated Russian-language examples for a genre with a substantial domestic scene.
+ RU_ARTISTS['ska-punk']=[
+  [['Distemper','1990–2020-е','Заметная российская группа ска-панка с мощными гитарами и духовой секцией.','Ska Punk шпионы'],['Spitfire','1990–2000-е','Санкт-петербургская группа на пересечении ска, панка и джаза.','']],
+  [['Элизиум','2000–2020-е','Русскоязычная группа, объединяющая мелодичный панк-рок и ска-элементы.',''],['Ландыши','1990–2000-е','Российская группа, использующая ска-панковую ритмику и юмористическую подачу.','']]
+ ];
+ if(!RU_ARTISTS['ska-core'])RU_ARTISTS['ska-core']=[[],[]];
+ // The Academy accordion remains collapsed until the visitor opens it.
+ view.catalogExpanded[title]=false;
+ render();
+})();
 </script><script src="epic-music.js?v=053"></script><script src="genre-mixer.js?v=050"></script><script src="performance-tags.js?v=051"></script><script src="artist-expansion.js?v=055"></script><script src="artists-expanded.js?v=0542"></script><script>
 /* SUNOBOOM — direct link to existing Ska card, no duplicate genre. */
 (function(){
