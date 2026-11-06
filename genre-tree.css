@@ -77,3 +77,22 @@
  .sb-gt-related{grid-template-columns:1fr}
 }
 @media(prefers-reduced-motion:reduce){.sb-gt-node,.sb-gt-path,.sb-gt-chevron{transition:none}}
+
+/* SUNOBOOM genre genealogy search + scalable map controls. */
+.sb-gt-extra{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:13px;background:#1a1f34;border:1px solid #393f5b;border-radius:13px;padding:13px 15px}
+.sb-gt-search-label{min-width:220px;max-width:425px;flex:1;display:grid;gap:6px;font-size:12px;font-weight:760;color:#cdd1e6}
+.sb-gt-search-label input{border:1px solid #585471;background:#111a2d;color:#f5f1ff;border-radius:10px;padding:10px 12px;min-height:42px;outline:0}
+.sb-gt-search-label input:focus{border-color:#e691c8;box-shadow:0 0 0 2px #e691c82e}
+.sb-gt-zoom{display:flex;align-items:center;flex-wrap:wrap;gap:7px;font-size:12px;color:#b9c5dd}
+.sb-gt-zoom button{cursor:pointer;min-width:36px;min-height:36px;padding:6px 10px;border:1px solid #5b5278;border-radius:9px;background:#292640;color:#f5eefc;font-size:15px;font-weight:780}
+.sb-gt-zoom button:hover{background:#3d3457}
+.sb-gt-zoom output{font-variant-numeric:tabular-nums;min-width:41px;text-align:center;font-size:12px;color:#f7e5fc}
+.sb-gt-search-results:empty{display:none}
+.sb-gt-search-title{margin:3px 0 8px;font-size:11px;color:#b2bed7}
+.sb-gt-search-links{display:flex;gap:7px;flex-wrap:wrap}
+.sb-gt-search-links button{background:#26314a;border:1px solid #485e86;border-radius:9px;padding:8px 11px;color:#d8edff;cursor:pointer;font-size:12px}
+.sb-gt-search-links button:hover{background:#344665}
+.sb-gt-search-links small{color:#9bbbd2}
+.sb-gt-search-empty{margin:0;font-size:12px;color:#f0b4c9}
+.sb-gt-node.sb-gt-search-dim{opacity:.28}
+@media(max-width:700px){.sb-gt-extra{display:grid;grid-template-columns:1fr;padding:11px}.sb-gt-search-label{min-width:0;max-width:none}.sb-gt-zoom{justify-content:space-between}}
