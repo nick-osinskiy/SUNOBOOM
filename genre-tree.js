@@ -131,6 +131,29 @@
       ]
     }
   ];
+  // This view is generated from the live Academy catalog: no duplicated or frozen genre list.
+  const ALL_TREE_OPTION = {id:"all",label:"Все жанры коллекции",icon:"🌐"};
+  function fullCatalogTree(){
+    const families=[...new Set([...familyOrder,...GENRES.map(g=>g.family||"Другое")])];
+    const groups=families.map(name=>{
+      const genres=GENRES.filter(g=>(g.family||"Другое")===name);
+      const meta=typeof CATALOG_GROUP_META!=="undefined"&&CATALOG_GROUP_META[name]||{};
+      return {name,icon:meta.icon||"🎵",accent:meta.accent||"#ac96d6",ids:genres.map(g=>g.id)};
+    }).filter(group=>group.ids.length);
+    const genreIds=new Set(GENRES.map(g=>g.id));
+    const edges=new Map();
+    TREES.forEach(tree=>tree.edges.forEach(edge=>{
+      if(!genreIds.has(edge[0])||!genreIds.has(edge[1]))return;
+      const key=edge[0]+"|"+edge[1]+"|"+edge[2];
+      if(!edges.has(key))edges.set(key,edge);
+    }));
+    return {
+      ...ALL_TREE_OPTION,
+      focus:byId(state.selected)?state.selected:(GENRES[0]&&GENRES[0].id),
+      intro:"Полная карта Академии: все жанры распределены по большим музыкальным направлениям. Ветви показывают принадлежность к разделам, а цветные стрелки при выборе жанра — только уже описанные исторические связи.",
+      groups,columns:groups.map(group=>group.ids),edges:[...edges.values()]
+    };
+  }
   const RELATIONS = {
     evolution: {label:"развитие",color:"#62d8dc"},
     influence: {label:"влияние",color:"#ab91fb"},
@@ -140,7 +163,7 @@
   const stageLabels=["Истоки","Продолжение","Новые направления","Ответвления"];
   const state={open:false,tree:"ska",selected:"ska-jamaican",query:"",zoom:1};
   const byId=id=>GENRES.find(g=>g.id===id);
-  const current=()=>TREES.find(t=>t.id===state.tree)||TREES[0];
+  const current=()=>state.tree==="all"?fullCatalogTree():(TREES.find(t=>t.id===state.tree)||TREES[0]);
   const esc=s=>escapeHTML(String(s??""));
   const childSelector='[data-sb-gt-action]';
   const tile=`<button type="button" class="encyclopedia-section sb-gt-entry" data-sb-gt-action="reveal"><span class="encyclopedia-section-icon" aria-hidden="true">🕸️</span><span><strong>Музыкальное древо</strong><small>Истоки, связи и влияние жанров</small></span><span class="encyclopedia-section-status">Открыть</span></button>`;
@@ -176,16 +199,27 @@
     element.innerHTML=
       `<div class="sb-gt-detail-top"><div><div class="sb-gt-kicker">ВЫБРАННОЕ НАПРАВЛЕНИЕ</div><h3>${esc(g.name)}</h3><p class="sb-gt-sub">${esc(g.era||"")} · ${esc(g.family||"")}</p></div><button type="button" class="btn primary sb-gt-open" data-sb-gt-action="open" data-id="${esc(g.id)}">Открыть карточку ↗</button></div>`+
       `<p class="sb-gt-description">${esc(g.description||g.tagline||"Описание в карточке жанра.")}</p>`+
-      (links.length?`<h4>Связанные жанры</h4><div class="sb-gt-related">${links.map(x=>`<button type="button" class="sb-gt-related-btn" data-sb-gt-action="select" data-id="${esc(x.other)}"><span class="sb-gt-related-mark sb-gt-${x.relation}">${x.direction}</span><span><strong>${esc(byId(x.other).name)}</strong><small>${esc(x.note)}</small></span></button>`).join("")}</div>`:`<p class="sb-gt-note">У этого узла пока нет нарисованных связей в выбранной схеме.</p>`);
+      (links.length?`<h4>Исторические связи</h4><div class="sb-gt-related">${links.map(x=>`<button type="button" class="sb-gt-related-btn" data-sb-gt-action="select" data-id="${esc(x.other)}"><span class="sb-gt-related-mark sb-gt-${x.relation}">${x.direction}</span><span><strong>${esc(byId(x.other).name)}</strong><small>${esc(x.note)}</small></span></button>`).join("")}</div>`:(t.id==="all"?"":`<p class="sb-gt-note">У этого узла пока нет нарисованных связей в выбранной схеме.</p>`))+
+      (t.id==="all"?(()=>{
+        const sameFamily=GENRES.filter(x=>x.id!==g.id&&x.family===g.family).slice(0,8);
+        return sameFamily.length?`<h4>Другие жанры раздела «${esc(g.family)}»</h4><div class="sb-gt-related">${sameFamily.map(x=>`<button type="button" class="sb-gt-related-btn" data-sb-gt-action="select" data-id="${esc(x.id)}"><span class="sb-gt-related-mark">♫</span><span><strong>${esc(x.name)}</strong></span></button>`).join("")}</div>`:"";
+      })():"");
   }
 
   function graphHtml(t){
-    const columns=t.columns.map((col,j)=>
-      `<div class="sb-gt-column"><div class="sb-gt-stage"><span>0${j+1}</span>${stageLabels[j]}</div><div class="sb-gt-node-list">${col.filter(id=>byId(id)).map(id=>{
+    const all=t.id==="all";
+    const columns=t.columns.map((col,j)=>{
+      const group=all?t.groups[j]:null;
+      const heading=all
+        ?`<div class="sb-gt-stage sb-gt-family-heading" style="--sb-gt-family-accent:${esc(group.accent)}"><strong>${group.icon} ${esc(group.name)}</strong><span>${col.length}</span></div>`
+        :`<div class="sb-gt-stage"><span>0${j+1}</span>${stageLabels[j]}</div>`;
+      return `<div class="sb-gt-column${all?" sb-gt-column-all":""}"${all?' data-sb-gt-family="'+j+'"':""}>${heading}<div class="sb-gt-node-list">${col.filter(id=>byId(id)).map(id=>{
         const g=byId(id);
         return `<button type="button" class="sb-gt-node${state.selected===id?" is-selected":""}" data-sb-gt-action="select" data-id="${esc(id)}" aria-pressed="${state.selected===id?"true":"false"}"><span class="sb-gt-node-name">${esc(g.name)}</span><span class="sb-gt-node-era">${esc(g.era||g.family||"")}</span></button>`;
-      }).join("")}</div></div>`).join("");
-    return `<div class="sb-gt-viewport" tabindex="0" aria-label="Схема связей: горизонтально прокручиваемая карта жанров"><div class="sb-gt-canvas"><svg class="sb-gt-lines" aria-hidden="true"></svg><div class="sb-gt-columns">${columns}</div></div></div>`;
+      }).join("")}</div></div>`;
+    }).join("");
+    const extra=all?' style="--sb-gt-family-count:'+t.columns.length+'"':"";
+    return `<div class="sb-gt-viewport" tabindex="0" aria-label="${all?"Все жанры Академии по музыкальным направлениям, горизонтальная прокрутка":"Схема связей: горизонтально прокручиваемая карта жанров"}"><div class="sb-gt-canvas${all?" sb-gt-canvas-all":""}"${extra}><svg class="sb-gt-lines" aria-hidden="true"></svg><div class="sb-gt-columns${all?" sb-gt-columns-all":""}">${columns}</div></div></div>`;
   }
 
   function renderTree(){
@@ -195,9 +229,10 @@
     const t=current();
     if(!t.columns.some(col=>col.includes(state.selected)))state.selected=t.focus;
     const available=t.columns.flat().filter(id=>byId(id));
+    const all=t.id==="all";
     host.innerHTML=
-      `<div class="sb-gt-head"><div><span class="sb-gt-kicker">SUNOBOOM · ИСТОРИЯ МУЗЫКИ</span><h2>От истоков к новым жанрам</h2><p>Нажми на жанр в схеме, чтобы увидеть его историю и связи. Затем открой его существующую карточку в Академии.</p></div><div class="sb-gt-count">${available.length} жанров в схеме</div></div>`+
-      `<div class="sb-gt-controls"><label for="sb-gt-tree-choice">Линия развития</label><select id="sb-gt-tree-choice" aria-label="Выберите музыкальное древо">${TREES.map(item=>`<option value="${item.id}" ${item.id===state.tree?"selected":""}>${item.icon} ${esc(item.label)}</option>`).join("")}</select></div>`+
+      `<div class="sb-gt-head"><div><span class="sb-gt-kicker">SUNOBOOM · ИСТОРИЯ МУЗЫКИ</span><h2>От истоков к новым жанрам</h2><p>Нажми на жанр в схеме, чтобы увидеть его историю и связи. Затем открой его существующую карточку в Академии.</p></div><div class="sb-gt-count">${available.length} жанров${all?" · "+t.groups.length+" направлений":" в схеме"}</div></div>`+
+      `<div class="sb-gt-controls"><label for="sb-gt-tree-choice">Карта жанров</label><select id="sb-gt-tree-choice" aria-label="Выберите музыкальное древо">${[ALL_TREE_OPTION,...TREES].map(item=>`<option value="${item.id}" ${item.id===state.tree?"selected":""}>${item.icon} ${esc(item.label)}</option>`).join("")}</select>${all?`<label for="sb-gt-group-jump">Перейти к направлению</label><select id="sb-gt-group-jump" aria-label="Перейти к музыкальному направлению"><option value="">Выберите раздел…</option>${t.groups.map((g,i)=>`<option value="${i}">${g.icon} ${esc(g.name)} (${g.ids.length})</option>`).join("")}</select>`:""}</div>`+
       '<div class="sb-gt-extra"><label class="sb-gt-search-label" for="sb-gt-search">Поиск жанра по древу<input id="sb-gt-search" type="search" placeholder="Например: ска-панк" autocomplete="off" value="'+esc(state.query)+'"></label><div class="sb-gt-zoom"><span>Масштаб карты</span><button type="button" data-sb-gt-action="zoom-out" aria-label="Уменьшить масштаб">−</button><output id="sb-gt-zoom-label">'+Math.round(state.zoom*100)+'%</output><button type="button" data-sb-gt-action="zoom-in" aria-label="Увеличить масштаб">+</button><button type="button" data-sb-gt-action="zoom-reset">Сброс</button></div></div><div class="sb-gt-search-results" id="sb-gt-search-results" aria-live="polite"></div>'+
       `<p class="sb-gt-intro">${esc(t.intro)}</p>`+
       `<div class="sb-gt-legend">${Object.entries(RELATIONS).map(([key,obj])=>`<span><i style="--rel-color:${obj.color}"></i>${obj.label}</span>`).join("")}</div>`+
@@ -226,14 +261,25 @@
     });
     if(!q){box.innerHTML="";return;}
     const found=[],seen=new Set();
-    TREES.forEach(tree=>{
-      tree.columns.flat().forEach(id=>{
+    if(state.tree==="all"){
+      GENRES.forEach(genre=>{
+        if(!genre||seen.has(genre.id)||!genre.name.toLocaleLowerCase("ru").includes(q))return;
+        seen.add(genre.id);found.push({tree:"all",id:genre.id,name:genre.name,family:genre.family});
+      });
+    }else{
+      TREES.forEach(tree=>tree.columns.flat().forEach(id=>{
         const genre=byId(id);
         if(!genre||seen.has(id)||!genre.name.toLocaleLowerCase("ru").includes(q))return;
-        seen.add(id);found.push({tree:tree.id,id:id,name:genre.name,family:genre.family});
+        seen.add(id);found.push({tree:tree.id,id,name:genre.name,family:genre.family});
+      }));
+      // Even if no curated genealogy contains it, the full catalog can find the genre.
+      GENRES.forEach(genre=>{
+        if(seen.has(genre.id)||!genre.name.toLocaleLowerCase("ru").includes(q))return;
+        seen.add(genre.id);found.push({tree:"all",id:genre.id,name:genre.name,family:genre.family});
       });
-    });
-    box.innerHTML=found.length?'<div class="sb-gt-search-title">Найдено в схемах: '+found.length+'</div><div class="sb-gt-search-links">'+found.slice(0,15).map(item=>'<button type="button" data-sb-gt-action="search-jump" data-id="'+esc(item.id)+'" data-tree="'+esc(item.tree)+'">'+esc(item.name)+' <small>('+esc(item.family)+')</small></button>').join("")+'</div>':'<p class="sb-gt-search-empty">В схемах пока нет такого жанра. Все жанры доступны ниже в обычном каталоге Академии.</p>';
+    }
+    const limit=30;
+    box.innerHTML=found.length?'<div class="sb-gt-search-title">Найдено в коллекции: '+found.length+(found.length>limit?' · показаны первые '+limit:'')+'</div><div class="sb-gt-search-links">'+found.slice(0,limit).map(item=>'<button type="button" data-sb-gt-action="search-jump" data-id="'+esc(item.id)+'" data-tree="'+esc(item.tree)+'">'+esc(item.name)+' <small>('+esc(item.family)+')</small></button>').join("")+'</div>':'<p class="sb-gt-search-empty">Жанр не найден в коллекции Академии.</p>';
   }
 
   function drawLines(){
@@ -248,9 +294,12 @@
     svg.setAttribute("width",width);svg.setAttribute("height",height);
     const palette=Object.entries(RELATIONS);
     const defs=`<defs>${palette.map(([k,v])=>`<marker id="sb-gt-arrow-${k}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M1 1 L9 5 L1 9 Z" fill="${v.color}"/></marker>`).join("")}</defs>`;
-    const paths=t.edges.map(([from,to,kind,note])=>{
-      const a=[...canvas.querySelectorAll(".sb-gt-node")].find(el=>el.dataset.id===from);
-      const b=[...canvas.querySelectorAll(".sb-gt-node")].find(el=>el.dataset.id===to);
+    const nodes=new Map([...canvas.querySelectorAll(".sb-gt-node")].map(el=>[el.dataset.id,el]));
+    // Full-map view keeps only the selected genre's curated links to avoid a web of crossing arrows.
+    const visibleEdges=t.id==="all"?t.edges.filter(e=>e[0]===state.selected||e[1]===state.selected):t.edges;
+    const paths=visibleEdges.map(([from,to,kind,note])=>{
+      const a=nodes.get(from);
+      const b=nodes.get(to);
       if(!a||!b)return "";
       const ra=a.getBoundingClientRect(),rb=b.getBoundingClientRect();
       const forward=(rb.left+rb.width/2)>(ra.left+ra.width/2);
@@ -294,7 +343,7 @@
       applyZoom();requestAnimationFrame(drawLines);return;
     }
     if(action==="search-jump"){
-      const target=TREES.find(t=>t.id===button.dataset.tree);
+      const target=button.dataset.tree==="all"?fullCatalogTree():TREES.find(t=>t.id===button.dataset.tree);
       const id=button.dataset.id;
       if(!target||!target.columns.some(col=>col.includes(id))||!byId(id))return;
       state.tree=target.id;state.selected=id;state.query="";
@@ -312,8 +361,14 @@
     refreshSearch();
   });
   document.addEventListener("change",event=>{
+    if(event.target.id==="sb-gt-group-jump"){
+      const index=Number(event.target.value);
+      const target=event.target.value!==""&&document.querySelector('[data-sb-gt-family="'+index+'"]');
+      if(target)target.scrollIntoView({behavior:"smooth",block:"nearest",inline:"start"});
+      return;
+    }
     if(event.target.id!=="sb-gt-tree-choice")return;
-    if(!TREES.some(t=>t.id===event.target.value))return;
+    if(event.target.value!=="all"&&!TREES.some(t=>t.id===event.target.value))return;
     state.tree=event.target.value;
     state.selected=current().focus;
     state.query="";
