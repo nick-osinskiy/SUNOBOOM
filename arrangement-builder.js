@@ -98,22 +98,23 @@
     return choice&&choice.genre?genrePresetBlocks(choice.genre):PRESETS.pop.sections.map(row=>makeBlock(...row));
   }
   const esc=x=>escapeHTML(String(x??""));
-  const safeStr=s=>String(s||"").replace(/[\[\]\r\n<>]/g," ").replace(/\s+/g," ").trim().slice(0,120);
+  const safeStr=s=>String(s||"").replace(/[\[\]\r\n<>]/g," ").replace(/\s+/g," ").trim().slice(0,300);
   const safeTitle=s=>String(s||"").replace(/[\[\]<>\r\n:]/g," ").replace(/\s+/g," ").trim().slice(0,48);
   let serial=0;
-  function makeBlock(type,energy,bars,vocal,instruments,customName=""){
+  function makeBlock(type,energy,bars,vocal,instruments,customName="",instrumentsGenreId=""){
     return {id:"sba-"+(++serial),type:SECTION[type]?type:"verse",
       energy:Math.max(1,Math.min(5,Number(energy)||3)),
       bars:[2,4,8,12,16,24,32].includes(Number(bars))?Number(bars):8,
-      vocal:VOICES[vocal]?vocal:"lead",instruments:safeStr(instruments),customName:safeTitle(customName)};
+      vocal:VOICES[vocal]?vocal:"lead",instruments:safeStr(instruments),customName:safeTitle(customName),instrumentsGenreId:String(instrumentsGenreId||"").slice(0,90)};
   }
   function presetBlocks(name){return choicePresetBlocks(name);}
   const state={blocks:presetBlocks("pop"),activePreset:"pop",selectedPreset:"pop",presetFilter:"all",presetPending:null,insertAfter:null,transfer:null,applied:null,message:"",tab:"lyrics",expanded:true,dragId:null};
+  const soundPicker={blockId:null,mode:"sounds",soundQuery:"",genreQuery:""};
   function load(){
     try{
       const raw=JSON.parse(localStorage.getItem(KEY)||"{}");
       if(!raw||!Array.isArray(raw.blocks)||raw.blocks.length>MAX_BLOCKS)return;
-      state.blocks=raw.blocks.map(b=>makeBlock(b.type,b.energy,b.bars,b.vocal,b.instruments,b.customName));
+      state.blocks=raw.blocks.map(b=>makeBlock(b.type,b.energy,b.bars,b.vocal,b.instruments,b.customName,b.instrumentsGenreId));
       if(choiceMeta(raw.activePreset))state.activePreset=raw.activePreset;
       state.selectedPreset=state.activePreset;
     }catch(e){}
@@ -237,6 +238,94 @@
   function options(obj,current){
     return Object.entries(obj).map(([key,item])=>'<option value="'+key+'"'+(key===current?' selected':'')+'>'+esc(item.ru)+'</option>').join("");
   }
+
+  // Every Academy genre supplies its own instruments / production techniques.
+  // The list is derived from the canonical GENRES data, never a second hard-coded genre catalog.
+  function soundGenreForBlock(block){
+    if(typeof GENRES==="undefined"||!Array.isArray(GENRES)||!GENRES.length)return null;
+    const activeId=state.activePreset.startsWith(GENRE_CHOICE_PREFIX)?state.activePreset.slice(GENRE_CHOICE_PREFIX.length):"";
+    const preferred=[block.instrumentsGenreId,activeId,builder.genre].filter(Boolean);
+    for(const id of preferred){
+      const match=GENRES.find(g=>g?.id===id);
+      if(match)return match;
+    }
+    const family=PRESETS[state.activePreset]?state.activePreset:"pop";
+    return GENRES.find(g=>genreArchetype(g)===family)||GENRES[0];
+  }
+  function soundSuggestions(genre,block){
+    const groups=[],all=new Set();
+    const exclusions=/^(?:no |without |clean studio|polished studio|studio recording|studio sound|high-quality|high quality|professional production|not |avoid |no crowd|no stage|no whisper)/i;
+    const clean=(value)=>String(value||"").split(/[,;]+/).map(x=>safeStr(x).trim()).filter(x=>x&&!exclusions.test(x));
+    const addGroup=(title,entries)=>{
+      const items=[];
+      for(const label of entries){
+        const key=normalizeQuery(label);
+        if(!key||all.has(key))continue;
+        all.add(key);items.push(label);
+      }
+      if(items.length)groups.push({title,items});
+    };
+    if(genre){
+      addGroup("Инструменты · "+genre.name,clean(genre.instruments));
+      addGroup("Приёмы и звучание · "+genre.name,clean(genre.style));
+    }
+    const base=PRESETS[genre?genreArchetype(genre):"pop"]||PRESETS.pop;
+    const row=base.sections.find(x=>x[0]===block.type)||base.sections.find(x=>x[0]==="verse");
+    if(row)addGroup("Для раздела «"+SECTION[block.type].ru+"»",clean(row[4]));
+    if(!groups.length)addGroup("Подсказки",["piano","bass","drums","acoustic guitar"]);
+    return groups;
+  }
+  function soundGenreOptions(){
+    const q=normalizeQuery(soundPicker.genreQuery);
+    const all=genreChoices().filter(g=>normalizeQuery(g.ru+" "+g.family+" "+g.key).includes(q));
+    all.sort((a,b)=>a.family.localeCompare(b.family,"ru")||a.ru.localeCompare(b.ru,"ru"));
+    const shown=all.slice(0,55);
+    return '<div class="sba-sound-info">Найдено жанров: '+all.length+(all.length>shown.length?" · уточни запрос":"")+'</div>'+
+      (shown.length?shown.map(c=>
+        '<button type="button" class="sba-sound-genre-row" data-sba-action="sound-set-genre" data-id="'+esc(soundPicker.blockId)+'" data-genre-id="'+esc(c.genre.id)+'"><span>'+esc(c.ru)+'</span><small>'+esc(c.family)+'</small></button>'
+      ).join(""):'<p class="sba-sound-none">Жанр не найден</p>');
+  }
+  function soundChoiceOptions(block){
+    const genre=soundGenreForBlock(block),q=normalizeQuery(soundPicker.soundQuery);
+    const existing=new Set(String(block.instruments||"").split(",").map(x=>normalizeQuery(x.trim())));
+    const groups=soundSuggestions(genre,block);
+    let found=0;
+    const result=groups.map(group=>{
+      const items=group.items.filter(item=>normalizeQuery(item).includes(q));
+      if(!items.length)return "";
+      found+=items.length;
+      return '<div class="sba-sound-group">'+esc(group.title)+'</div>'+items.map(item=>{
+        const added=existing.has(normalizeQuery(item));
+        return '<button type="button" class="sba-sound-option" data-sba-action="sound-add" data-id="'+esc(block.id)+'" data-sound-value="'+esc(item)+'"'+(added?' disabled aria-disabled="true"':'')+'><span>'+esc(item)+'</span><small>'+(added?'✓ Добавлено':'+ Добавить')+'</small></button>';
+      }).join("");
+    }).join("");
+    return result||'<p class="sba-sound-none">Совпадений нет. Можно ввести инструмент вручную.</p>';
+  }
+  function soundPanelHTML(block){
+    const genre=soundGenreForBlock(block);
+    return '<div class="sba-sound-panel" id="sba-sound-panel-'+esc(block.id)+'" aria-label="Выбор инструментов и приёмов">'+
+      '<div class="sba-sound-head"><strong>Библиотека инструментов и приёмов</strong><button type="button" data-sba-action="sound-close" data-id="'+esc(block.id)+'" aria-label="Закрыть подбор">×</button></div>'+
+      '<button type="button" class="sba-sound-genre-trigger" data-sba-action="sound-switch-mode" data-id="'+esc(block.id)+'">Жанр: <b>'+esc(genre?.name||"Выбери жанр")+'</b><span>⌄</span></button>'+
+      '<div id="sba-sound-body-'+esc(block.id)+'">'+soundPanelBody(block)+'</div>'+
+      '</div>';
+  }
+  function soundPanelBody(block){
+    const genres=soundPicker.mode==="genres",placeholder=genres?"Поиск по всей Академии...":"Поиск инструмента или приёма...";
+    const query=genres?soundPicker.genreQuery:soundPicker.soundQuery;
+    return (genres?'<div class="sba-sound-back"><button type="button" data-sba-action="sound-switch-mode" data-id="'+esc(block.id)+'">← К инструментам</button></div>':'')+
+      '<input type="search" class="sba-sound-search" data-sba-sound-search="'+(genres?'genres':'sounds')+'" data-id="'+esc(block.id)+'" value="'+esc(query)+'" placeholder="'+placeholder+'" autocomplete="off" aria-label="'+placeholder+'">'+
+      '<div class="sba-sound-list" id="sba-sound-results-'+esc(block.id)+'">'+(genres?soundGenreOptions():soundChoiceOptions(block))+'</div>'+
+      (genres?'':'<div class="sba-sound-foot"><span>Нажми «Добавить», чтобы дополнить поле. Свой текст сохраняется.</span><button type="button" data-sba-action="sound-clear" data-id="'+esc(block.id)+'">Очистить поле</button></div>');
+  }
+  function redrawSoundPanel(block){
+    const root=document.getElementById("sba-sound-body-"+block.id);
+    if(root)root.innerHTML=soundPanelBody(block);
+  }
+  function redrawSoundOptions(block){
+    const root=document.getElementById("sba-sound-results-"+block.id);
+    if(root)root.innerHTML=soundPicker.mode==="genres"?soundGenreOptions():soundChoiceOptions(block);
+  }
+
   function blockHTML(b,i){
     const n=state.blocks.length;
     return '<article class="sba-block" data-sba-id="'+b.id+'" data-sba-energy="'+b.energy+'">'+
@@ -251,7 +340,10 @@
      '<label>Тактов<select data-sba-field="bars" data-id="'+b.id+'">'+[2,4,8,12,16,24,32].map(n=>'<option value="'+n+'"'+(n===b.bars?' selected':'')+'>'+n+'</option>').join("")+'</select></label>'+
      '<label>Вокал<select data-sba-field="vocal" data-id="'+b.id+'">'+options(VOICES,b.vocal)+'</select></label>'+
      '<label class="sba-energy-field">Энергия <output data-sba-output="'+b.id+'">'+b.energy+'/5 · '+ENERGY[b.energy].ru+'</output><input type="range" min="1" max="5" step="1" value="'+b.energy+'" data-sba-field="energy" data-id="'+b.id+'"></label>'+
-     '<label class="sba-instrument-field">Инструменты / приём<input type="text" maxlength="120" data-sba-field="instruments" data-id="'+b.id+'" value="'+esc(b.instruments)+'" placeholder="Например: brass, bass, punchy drums"></label>'+
+     '<div class="sba-instrument-field"><label for="sba-instruments-'+b.id+'">Инструменты / приём</label>'+
+       '<div class="sba-instrument-row"><input id="sba-instruments-'+b.id+'" type="text" maxlength="300" data-sba-field="instruments" data-id="'+b.id+'" value="'+esc(b.instruments)+'" placeholder="Введи вручную или выбери из списка">'+
+       '<button type="button" data-sba-action="sound-toggle" data-id="'+b.id+'" class="sba-instrument-pick" aria-expanded="'+(soundPicker.blockId===b.id)+'" aria-controls="sba-sound-panel-'+b.id+'">🎛 Выбрать</button></div>'+
+       (soundPicker.blockId===b.id?soundPanelHTML(b):"")+'</div>'+
      (b.type==="custom"?'<label class="sba-custom-label">Своё название<input type="text" maxlength="48" data-sba-field="customName" data-id="'+b.id+'" value="'+esc(b.customName)+'" placeholder="Название для тега Suno"></label>':"")+
      '</div></article><button type="button" class="sba-between-add" data-sba-action="insert-after" data-id="'+b.id+'" aria-label="Добавить блок после '+esc(nameFor(b,i))+'"><span aria-hidden="true">＋</span> Добавить после</button>';
   }
@@ -369,6 +461,45 @@
     const control=event.target?.closest?.("[data-sba-action]");
     if(!control||view.nav!=="studio")return;
     const action=control.dataset.sbaAction;
+
+    if(action==="sound-toggle"||action==="sound-close"){
+      const id=control.dataset.id;
+      soundPicker.blockId=action==="sound-close"||soundPicker.blockId===id?null:id;
+      soundPicker.mode="sounds";soundPicker.soundQuery="";soundPicker.genreQuery="";
+      drawBlocks();return;
+    }
+    if(action==="sound-switch-mode"){
+      const id=control.dataset.id;
+      if(soundPicker.blockId!==id)return;
+      soundPicker.mode=soundPicker.mode==="sounds"?"genres":"sounds";
+      redrawSoundPanel(state.blocks[findIndex(id)]);
+      document.querySelector("#sba-sound-body-"+id+" .sba-sound-search")?.focus();return;
+    }
+    if(action==="sound-set-genre"){
+      const id=control.dataset.id,idx=findIndex(id);
+      const genreId=control.dataset.genreId;
+      if(idx<0||!GENRES.some(g=>g?.id===genreId))return;
+      state.blocks[idx].instrumentsGenreId=genreId;
+      soundPicker.mode="sounds";soundPicker.soundQuery="";soundPicker.genreQuery="";
+      // Changes the suggestions only; never silently overwrites a manually edited instrument field.
+      save();drawBlocks();return;
+    }
+    if(action==="sound-add"||action==="sound-clear"){
+      const id=control.dataset.id,idx=findIndex(id);
+      if(idx<0)return;
+      const block=state.blocks[idx];
+      if(action==="sound-clear")block.instruments="";
+      else{
+        const cue=safeStr(control.dataset.soundValue);
+        const current=block.instruments.trim();
+        if(!cue||current.split(",").some(x=>normalizeQuery(x.trim())===normalizeQuery(cue)))return;
+        const combined=[current,cue].filter(Boolean).join(", ");
+        if(combined.length>300){show("В поле помещается до 300 символов. Удали часть текста перед добавлением.");return;}
+        block.instruments=combined;
+      }
+      const input=document.getElementById("sba-instruments-"+id);if(input)input.value=block.instruments;
+      changed(false);redrawSoundOptions(block);return;
+    }
     if(action==="menu-toggle"){togglePresetMenu(document.getElementById("sba-preset-menu")?.hidden);return;}
     if(action==="menu-close"){togglePresetMenu(false);document.getElementById("sba-presets")?.focus();return;}
     if(action==="menu-filter"){state.presetFilter=control.dataset.filter||"all";renderPresetMenu();return;}
@@ -430,7 +561,7 @@
     if(action==="duplicate"){
       if(state.blocks.length>=MAX_BLOCKS){show("Ограничение: "+MAX_BLOCKS+" блоков.");return;}
       const b=state.blocks[index];
-      state.blocks.splice(index+1,0,makeBlock(b.type,b.energy,b.bars,b.vocal,b.instruments,b.customName));
+      state.blocks.splice(index+1,0,makeBlock(b.type,b.energy,b.bars,b.vocal,b.instruments,b.customName,b.instrumentsGenreId));
       changed();return;
     }
   });
@@ -454,6 +585,12 @@
     if(view.nav!=="studio")return;
     const el=event.target;
     if(el?.id==="sba-preset-search"){renderPresetMenu();return;}
+    if(el?.dataset?.sbaSoundSearch){
+      if(el.dataset.sbaSoundSearch==="genres")soundPicker.genreQuery=el.value;
+      else soundPicker.soundQuery=el.value;
+      const idx=findIndex(el.dataset.id);if(idx>=0)redrawSoundOptions(state.blocks[idx]);
+      return;
+    }
     const key=el?.dataset?.sbaField;
     if(!key){
       if(el?.dataset?.builder==="tempo")updateDerived();
@@ -470,7 +607,10 @@
       b.energy=energy;
       const box=el.closest(".sba-block");
       if(box){box.dataset.sbaEnergy=String(energy);const output=box.querySelector('[data-sba-output="'+b.id+'"]');if(output)output.textContent=energy+"/5 · "+ENERGY[energy].ru;const title=box.querySelector(".sba-head-energy");if(title)title.textContent="Энергия "+energy+"/5";}
-    }else if(key==="instruments")b.instruments=safeStr(el.value);
+    }else if(key==="instruments"){
+      b.instruments=safeStr(el.value);
+      if(soundPicker.blockId===b.id)redrawSoundOptions(b);
+    }
     else return;
     changed(false);
   });
@@ -480,6 +620,7 @@
   });
   document.addEventListener("keydown",event=>{
     if(view.nav!=="studio")return;
+    if(event.key==="Escape"&&soundPicker.blockId){soundPicker.blockId=null;drawBlocks();return;}
     const menu=document.getElementById("sba-preset-menu");
     if(!menu||menu.hidden)return;
     if(event.key==="Escape"){event.preventDefault();togglePresetMenu(false);document.getElementById("sba-presets")?.focus();}
@@ -520,6 +661,6 @@
     document.querySelectorAll(".sba-dragging,.sba-drop-target").forEach(el=>el.classList.remove("sba-dragging","sba-drop-target"));
   });
   load();
-  window.SUNOBOOM_ARRANGER=Object.freeze({version:"0.68",getBlockCount:()=>state.blocks.length,getLyrics:generatedLyrics,getStyle:fullDynamics,getDurationEstimate:()=>lengthString()});
+  window.SUNOBOOM_ARRANGER=Object.freeze({version:"0.69",getBlockCount:()=>state.blocks.length,getLyrics:generatedLyrics,getStyle:fullDynamics,getDurationEstimate:()=>lengthString()});
   if(view.nav==="studio")render();
 })();
