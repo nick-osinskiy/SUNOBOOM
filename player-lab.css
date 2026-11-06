@@ -88,3 +88,6 @@
 @media(max-width:700px){.sbp-hero{display:block;padding:19px}.sbp-test-badge{display:inline-block;margin-top:15px}.sbp-hero h1{font-size:31px}.sbp-bottom{grid-template-columns:1fr}.sbp-layout{gap:13px}.sbp-art{height:210px}.sbp-transport{gap:12px}.sbp-extras{flex-wrap:wrap}.sbp-volume{flex:1 1 180px}.sbp-main,.sbp-side{padding:15px}.sbp-demo-box{flex-wrap:wrap}.sbp-demo-box button{width:100%}.mobile-nav button[data-nav="player"]{min-width:42px}}
 @media(max-width:390px){.sbp-transport{gap:6px}.sbp-secondary{height:36px;width:36px}.sbp-play{width:58px;height:58px}.sbp-hero p{font-size:12px}.sbp-extras{gap:10px}.sbp-title-area{align-items:flex-start}}
 @media(prefers-reduced-motion:reduce){.sbp-art.is-playing .sbp-bars i{animation:none;transform:scaleY(.8)}.sbp-transport button{transition:none}}
+
+/* On iPhone/iPad Safari, output volume is controlled by the device hardware. */
+.sbp-ios-volume{font-size:12px;line-height:1.5;color:#bcd8eb;border:1px solid #486176;background:#25364a;border-radius:9px;padding:9px 11px;display:block}
