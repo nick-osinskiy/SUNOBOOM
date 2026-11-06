@@ -289,7 +289,7 @@
     const all=candidateGroups.flatMap(group=>group.items.map(item=>({...group,item})));
     const filtered=query.length>=2?all.filter(x=>normalizeQuery(x.item).includes(query)):[];
     const matching=filtered.length>0;
-    const display=matching?filtered:candidateGroups.flatMap(group=>group.items.map(item=>({...group,item})));
+    const display=matching?[...filtered,...all.filter(x=>!filtered.some(y=>normalizeQuery(y.item)===normalizeQuery(x.item)))]:all;
     const limited=display.slice(0,matching?8:9);
     const buttons=limited.map(({item,title})=>{
       const added=existing.has(normalizeQuery(item));
