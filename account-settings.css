@@ -1,0 +1,63 @@
+/* SUNOBOOM · Личный кабинет → Настройки (v0.64) */
+.sbs-tile .sbs-tile-icon{display:grid;place-items:center;width:38px;height:38px;background:linear-gradient(125deg,#65325e,#304e81);border:1px solid #9865a8;border-radius:11px;color:#f6a4db}
+.sbs-tile .sbs-tile-icon svg{height:27px;width:27px}
+.sbs-page{color:#f6f3ff;min-width:0;padding:0 0 20px}
+.sbs-page *{box-sizing:border-box}
+.sbs-heading{border:1px solid #544768;background:radial-gradient(circle at 88% 0%,#55356878,transparent 40%),linear-gradient(125deg,#241e3b,#1b2a40);border-radius:19px;margin-bottom:16px;padding:22px 25px}
+.sbs-back{display:inline-flex;align-items:center;gap:7px;padding:8px 12px;color:#f0c3e0;background:#31243f;border:1px solid #685075;border-radius:9px;font-size:12px;font-weight:750;cursor:pointer;margin-bottom:22px}
+.sbs-back:hover{background:#453051;border-color:#d37cae}
+.sbs-back svg{width:16px;height:16px}
+.sbs-eyebrow{color:#dca7d5;font-weight:800;letter-spacing:1.8px;font-size:10px;margin-bottom:9px}
+.sbs-heading-row{display:flex;justify-content:space-between;align-items:center;gap:18px}
+.sbs-heading h1{font-size:clamp(26px,3vw,36px);margin:0 0 6px;line-height:1.2}
+.sbs-heading p{font-size:13px;max-width:670px;line-height:1.6;color:#b9c7dd;margin:0}
+.sbs-badge{font-size:10px;letter-spacing:.5px;font-weight:850;border:1px solid #8c658a;border-radius:20px;background:#503154;color:#ffd4ef;padding:9px 13px;white-space:nowrap}
+.sbs-layout{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(260px,.8fr);gap:15px;align-items:start}
+.sbs-main-column,.sbs-side-column{display:grid;gap:15px;min-width:0}
+.sbs-panel{border:1px solid #41435f;background:linear-gradient(155deg,#1c2135,#171c2d);padding:21px 22px;border-radius:17px;min-width:0}
+.sbs-panel-head{display:flex;align-items:center;gap:12px;margin-bottom:17px}
+.sbs-panel-head h2{font-size:17px;margin:0 0 4px;line-height:1.22;color:#f9eefb}
+.sbs-panel-head p{font-size:11px;color:#a6b4ce;margin:0}
+.sbs-symbol{width:40px;height:40px;display:grid;place-items:center;border-radius:11px;background:#3d2f4b;border:1px solid #67516c;font-size:22px;flex:none}
+.sbs-option{padding:15px 0;border-top:1px solid #353c53;display:flex;align-items:center;justify-content:space-between;gap:18px;cursor:pointer}
+.sbs-option-text{display:grid;gap:4px;min-width:0}
+.sbs-option strong{font-size:13px;color:#edeafd}
+.sbs-option small{font-size:11px;color:#aab8ce;line-height:1.55;max-width:540px}
+.sbs-switch{position:relative;display:block;flex:0 0 49px;width:49px;height:28px}
+.sbs-switch input{position:absolute;inset:0;opacity:0;width:100%;height:100%;z-index:2;cursor:pointer;margin:0}
+.sbs-switch-track{display:block;height:28px;width:49px;border-radius:22px;background:#424961;border:1px solid #616785;transition:background .18s,border-color .18s}
+.sbs-switch-track:before{content:"";display:block;position:absolute;top:4px;left:4px;width:20px;height:20px;background:#e3e5f2;border-radius:50%;box-shadow:0 1px 4px #0007;transition:transform .18s}
+.sbs-switch input:checked+.sbs-switch-track{background:linear-gradient(130deg,#e65baf,#8665df);border-color:#dfa8ee}
+.sbs-switch input:checked+.sbs-switch-track:before{transform:translateX(20px);background:#fff}
+.sbs-switch input:focus-visible+.sbs-switch-track{outline:2px solid #70d3df;outline-offset:4px}
+.sbs-field{display:grid;gap:8px}
+.sbs-field span{color:#c8d4e8;font-weight:750;font-size:12px}
+.sbs-field input,.sbs-field select{background:#23293f;color:#f7f2ff;min-height:43px;width:100%;border:1px solid #55516d;border-radius:10px;padding:9px 11px;font-size:13px;font-family:inherit}
+.sbs-field input:focus,.sbs-field select:focus{outline:2px solid #9b77d6;outline-offset:2px}
+.sbs-help{font-size:11px;color:#a8b8cf;line-height:1.55;margin:11px 0 0}
+.sbs-info{font-size:12px;color:#b5c4d7;line-height:1.7;margin:0 0 12px}
+.sbs-primary,.sbs-secondary,.sbs-confirm-button{font:inherit;font-size:12px;font-weight:790;display:inline-flex;align-items:center;gap:7px;justify-content:center;min-height:41px;padding:9px 14px;border-radius:10px;cursor:pointer;margin-top:13px}
+.sbs-primary{color:#fff;border:1px solid #b970ba;background:linear-gradient(120deg,#db479f,#8362d6)}
+.sbs-primary:hover{filter:brightness(1.12)}
+.sbs-secondary{background:#292c46;color:#e7d3ee;border:1px solid #65557b}
+.sbs-secondary:hover{background:#3a3152}
+.sbs-secondary svg{width:17px;height:17px}
+.sbs-reset-panel{background:linear-gradient(135deg,#242036,#192237)}
+.sbs-confirm{border:1px solid #a3758e;background:#342a42;border-radius:11px;padding:12px}
+.sbs-confirm strong{font-size:12px}
+.sbs-confirm>div{display:flex;gap:10px;flex-wrap:wrap;margin-top:7px}
+.sbs-confirm-button{background:#814361;border:1px solid #cb83a8;color:#fff}
+.sbs-message{font-size:12px;margin:15px 0 0;padding:10px 13px;border:1px solid #4c7777;border-radius:10px;background:#1c3c41;color:#bdeeee}
+.sbs-message[hidden]{display:none}
+.sbs-page button:focus-visible{outline:2px solid #73ddeb;outline-offset:3px}
+html.sb-ui-compact .account-tile{min-height:127px;padding:15px;gap:8px}
+html.sb-ui-compact .genre-card .genre-content{padding:11px 13px}
+html.sb-ui-compact .genre-card .art{height:98px}
+html.sb-ui-compact .ahx-card,html.sb-ui-compact .sb-ap-index-card{padding:11px}
+html.sb-ui-compact .sbs-panel{padding:16px}
+html.sb-ui-larger .main p,html.sb-ui-larger .genre-content p,html.sb-ui-larger .ahx-card p,html.sb-ui-larger .sb-ap-profile-section p,html.sb-ui-larger .sb-gt-description{font-size:clamp(14px,1.04rem,16px);line-height:1.72}
+html.sb-ui-larger .account-tile>span:not(.account-tile-arrow):not(.sbs-tile-icon){font-size:14px}
+html.sb-ui-reduce-motion *,html.sb-ui-reduce-motion *:before,html.sb-ui-reduce-motion *:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+@media(max-width:1000px){.sbs-layout{grid-template-columns:1fr}.sbs-side-column{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.sbs-heading{padding:18px}.sbs-heading-row{display:block}.sbs-badge{display:inline-block;margin-top:13px}.sbs-panel{padding:17px}.sbs-side-column{grid-template-columns:1fr}.sbs-option{gap:13px}.sbs-symbol{width:36px;height:36px;font-size:19px}.sbs-panel-head h2{font-size:16px}}
+@media(prefers-reduced-motion:reduce){.sbs-switch-track,.sbs-switch-track:before{transition:none}}
