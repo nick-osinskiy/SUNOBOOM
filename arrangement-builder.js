@@ -157,7 +157,7 @@
       vocal:VOICES[vocal]?vocal:"lead",instruments:safeStr(instruments),customName:safeTitle(customName),instrumentsGenreId:String(instrumentsGenreId||"").slice(0,90),transitionOut:makeTransition(transitionOut)};
   }
   function presetBlocks(name){return choicePresetBlocks(name);}
-  const state={blocks:presetBlocks("pop"),activePreset:"pop",selectedPreset:"pop",presetFilter:"all",presetPending:null,insertAfter:null,transfer:null,applied:null,message:"",tab:"lyrics",expanded:true,snakeExpanded:false,transitionOpenId:null,dragId:null};
+  const state={blocks:presetBlocks("pop"),activePreset:"pop",selectedPreset:"pop",presetFilter:"all",presetPending:null,insertAfter:null,transfer:null,applied:null,message:"",tab:"lyrics",expanded:true,snakeExpanded:false,transitionOpenId:null,transitionHubExpanded:false,dragId:null};
   const soundPicker={blockId:null,mode:"sounds",soundQuery:"",genreQuery:"",typingId:null,typingQuery:""};
   function load(){
     try{
@@ -208,7 +208,7 @@
     const genreCount=genreChoices().length;
     return '<section id="sba-arranger" class="sba-shell" aria-labelledby="sba-heading">'+
       '<header class="sba-hero"><div class="sba-hero-copy"><span class="sba-eyebrow">SUNO STUDIO · КОНСТРУКТОР</span><h2 id="sba-heading">Визуальная аранжировка <span>✦</span></h2>'+
-      '<p>Собери структуру трека, настрой энергию каждого фрагмента и подготовь теги исполнения для Suno. Стандартные инструменты Studio останутся без изменений.</p></div><span class="sba-hero-label">ARRANGEMENT LAB</span></header>'+
+      '<p>Собери структуру трека, настрой энергию каждого фрагмента и подготовь теги исполнения для Suno. Стандартные инструменты Studio останутся без изменений.</p></div><span class="sba-hero-label">ARRANGEMENT LAB · v0.75</span></header>'+
       '<div class="sba-toolbar"><div class="sba-preset-picker"><span class="sba-preset-caption">Шаблон композиции / жанр</span>'+
       '<button type="button" id="sba-presets" class="sba-preset-trigger" data-sba-action="menu-toggle" aria-haspopup="dialog" aria-expanded="false" aria-controls="sba-preset-menu"><span id="sba-picked-label">'+esc(choice.ru)+'</span><span class="sba-preset-chevron" aria-hidden="true">⌄</span></button>'+
       '<div id="sba-preset-menu" class="sba-preset-menu" role="dialog" aria-label="Поиск шаблона или жанра" hidden>'+
@@ -224,6 +224,15 @@
         '<div id="sba-snake-track" class="sba-snake-track" aria-live="polite"></div>'+
         '<p class="sba-snake-footnote">Перетаскивай блоки в змейке мышью или пальцем. Порядок и черновик обновятся автоматически.</p>'+
         '<span id="sba-snake-status" class="sba-sr-only" role="status" aria-live="polite"></span>'+
+      '</section>'+
+      '<section class="sba-transition-hub" aria-labelledby="sba-transition-hub-title">'+
+        '<div class="sba-transition-hub-heading"><div class="sba-transition-hub-heading-copy">'+
+          '<span class="sba-transition-hub-kicker">НОВОЕ · v0.75</span>'+
+          '<h3 id="sba-transition-hub-title">✦ Конструктор музыкальных переходов</h3>'+
+          '<p>Соедини соседние блоки сбивкой, нарастанием, паузой, плавным переходом, затуханием или акцентом. Выбирай здесь — эффект появится в тегах Suno.</p>'+
+        '</div><span id="sba-transition-hub-meta" class="sba-transition-hub-meta"></span></div>'+
+        '<div id="sba-transition-hub-list" class="sba-transition-hub-list"></div>'+
+        '<button type="button" id="sba-transition-hub-expand" class="sba-transition-hub-expand" data-sba-action="transition-hub-expand" hidden>Показать все переходы</button>'+
       '</section>'+
       '<div class="sba-body">'+
       '<div class="sba-editor">'+
@@ -844,12 +853,55 @@
     }
   }
 
+
+  // Discoverable transition controls immediately below the snake.
+  // Mirrors per-block editors and shares the same source-of-truth block data.
+  function transitionHubHTML(){
+    const count=state.blocks.length-1;
+    if(count<1)return '<p class="sba-transition-hub-empty">Добавь второй блок, и здесь можно будет настроить переходы.</p>';
+    const limit=state.transitionHubExpanded?count:Math.min(count,3);
+    return state.blocks.slice(0,limit).map((block,i)=>{
+      const next=state.blocks[i+1],current=makeTransition(block.transitionOut),active=current.type!=="none";
+      const advice=transitionTip(block,next);
+      return '<div class="sba-transition-hub-row'+(active?' sba-transition-hub-active':'')+'" data-sba-hub-from="'+esc(block.id)+'">'+
+        '<div class="sba-transition-hub-route"><span class="sba-transition-hub-number">'+(i+1)+' → '+(i+2)+'</span>'+
+          '<span class="sba-transition-hub-names">'+esc(snakeName(block,i))+' <b>→</b> '+esc(snakeName(next,i+1))+'</span>'+
+        '</div>'+
+        '<div class="sba-transition-hub-controls">'+
+          '<label>Эффект<select data-sba-transition="type" data-id="'+esc(block.id)+'" aria-label="'+esc("Переход "+(i+1)+" к "+(i+2))+'">'+options(TRANSITIONS,current.type)+'</select></label>'+
+          '<label>Длина<select data-sba-transition="length" data-id="'+esc(block.id)+'" aria-label="'+esc("Длительность перехода "+(i+1))+'">'+options(TRANSITION_LENGTH,current.length)+'</select></label>'+
+          '<label>Сила<select data-sba-transition="strength" data-id="'+esc(block.id)+'" aria-label="'+esc("Выраженность перехода "+(i+1))+'">'+options(TRANSITION_STRENGTH,current.strength)+'</select></label>'+
+        '</div>'+
+        '<div class="sba-transition-hub-actions">'+
+          '<button type="button" data-sba-action="transition-suggest" data-id="'+esc(block.id)+'" title="'+esc("Совет: "+TRANSITIONS[advice.type].ru)+'">✧ Совет</button>'+
+          '<button type="button" data-sba-action="transition-hub-jump" data-id="'+esc(block.id)+'">Подробнее ↓</button>'+
+        '</div>'+
+      '</div>';
+    }).join("");
+  }
+  function updateTransitionHub(){
+    const root=document.getElementById("sba-transition-hub-list");
+    if(!root)return;
+    const count=Math.max(0,state.blocks.length-1);
+    const active=state.blocks.slice(0,-1).filter(b=>makeTransition(b.transitionOut).type!=="none").length;
+    root.innerHTML=transitionHubHTML();
+    const meta=document.getElementById("sba-transition-hub-meta");
+    if(meta)meta.textContent=count+" переходов · "+active+" настроено";
+    const expand=document.getElementById("sba-transition-hub-expand");
+    if(expand){
+      expand.hidden=count<=3;
+      expand.textContent=state.transitionHubExpanded?"Свернуть список":"Показать все ("+count+")";
+      expand.setAttribute("aria-expanded",String(state.transitionHubExpanded));
+    }
+  }
+
   function updateDerived(){
     const text=state.tab==="lyrics"?generatedLyrics():fullDynamics();
     const preview=document.getElementById("sba-preview");if(preview)preview.value=text;
     const count=document.getElementById("sba-preview-count");
     if(count)count.textContent=state.tab==="lyrics"?state.blocks.length+" секций · "+text.length+" символов":"Style · "+text.length+" символов · проверка лимита при переносе";
     updateSnakeOverview();
+    updateTransitionHub();
     const stats=document.getElementById("sba-section-count");
     if(stats)stats.textContent=state.blocks.length+" секций · ≈ "+lengthString();
     const chart=document.getElementById("sba-energy-chart");
@@ -986,6 +1038,17 @@
     if(!control||view.nav!=="studio")return;
     const action=control.dataset.sbaAction;
     if(action==="snake-toggle"){state.snakeExpanded=!state.snakeExpanded;updateSnakeOverview();return;}
+    if(action==="transition-hub-expand"){
+      state.transitionHubExpanded=!state.transitionHubExpanded;updateTransitionHub();return;
+    }
+    if(action==="transition-hub-jump"){
+      const id=control.dataset.id,index=findIndex(id);
+      if(index<0||index>=state.blocks.length-1)return;
+      state.transitionOpenId=id;
+      drawBlocks();
+      document.querySelector('.sba-transition-wrap[data-sba-from="'+id+'"]')?.scrollIntoView({behavior:"smooth",block:"center"});
+      return;
+    }
     if(action==="transition-toggle"){
       const id=control.dataset.id,index=findIndex(id);
       if(index<0||index>=state.blocks.length-1)return;
@@ -1297,6 +1360,6 @@
     }
   });
   load();
-  window.SUNOBOOM_ARRANGER=Object.freeze({version:"0.74",getBlockCount:()=>state.blocks.length,getLyrics:generatedLyrics,getStyle:fullDynamics,getDurationEstimate:()=>lengthString()});
+  window.SUNOBOOM_ARRANGER=Object.freeze({version:"0.75",getBlockCount:()=>state.blocks.length,getLyrics:generatedLyrics,getStyle:fullDynamics,getDurationEstimate:()=>lengthString()});
   if(view.nav==="studio")render();
 })();
