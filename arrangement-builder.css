@@ -463,3 +463,55 @@
   .sba-transition-suggestion button{width:100%;min-height:40px}
   .sba-snake-transition{bottom:-5px;font-size:9px}
 }
+
+
+/* SUNOBOOM 0.75 · Prominent inline transition console, just below snake */
+.sba-transition-hub{margin:0;padding:16px 18px 18px;color:#f3eefa;
+  border:1px solid #825393;background:linear-gradient(125deg,#30213c,#202d46);
+  box-shadow:inset 0 1px #b972bd42}
+.sba-transition-hub-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:13px}
+.sba-transition-hub-heading-copy{flex:1 1 auto;min-width:0}
+.sba-transition-hub-kicker{display:inline-block;color:#8ef1e7;font-size:10px;font-weight:900;letter-spacing:1.15px;margin-bottom:4px}
+.sba-transition-hub-heading h3{font-size:16px;color:#f9c2e6;font-weight:900;line-height:1.3;margin:0 0 5px}
+.sba-transition-hub-heading p{color:#c2bfd9;font-size:11px;line-height:1.5;max-width:740px;margin:0}
+.sba-transition-hub-meta{flex:none;border:1px solid #755d92;background:#382a52;border-radius:9px;padding:7px 10px;color:#d9d2ec;font-size:10px;font-weight:750;white-space:nowrap}
+.sba-transition-hub-list{display:grid;gap:7px}
+.sba-transition-hub-row{display:flex;align-items:center;flex-wrap:wrap;gap:9px 12px;min-width:0;padding:10px;border-radius:11px;
+  border:1px solid #585879;background:#26293f}
+.sba-transition-hub-active{border-color:#ae70ae;background:linear-gradient(105deg,#352945,#2c344c)}
+.sba-transition-hub-route{display:flex;align-items:center;flex-wrap:wrap;gap:7px;min-width:190px;flex:1 1 190px}
+.sba-transition-hub-number{font-size:10px;font-weight:870;border:1px solid #716287;border-radius:6px;padding:5px 7px;background:#463650;color:#ffc3e6;white-space:nowrap}
+.sba-transition-hub-names{font-size:11px;font-weight:750;color:#eff0ff;line-height:1.35;overflow-wrap:anywhere}
+.sba-transition-hub-names b{color:#90e3e2}
+.sba-transition-hub-controls{display:flex;flex-wrap:wrap;align-items:end;gap:7px;flex:3 1 360px;min-width:0}
+.sba-transition-hub-controls label{display:grid;gap:4px;color:#adb9d8;font-size:10px;font-weight:800;min-width:0;flex:1 1 87px}
+.sba-transition-hub-controls label:first-child{flex:2 1 145px}
+.sba-transition-hub-controls select{min-width:0;width:100%;min-height:39px;border:1px solid #65688a;border-radius:8px;background:#1d2439;color:#f4f0ff;padding:8px 8px;font:inherit;font-size:11px}
+.sba-transition-hub-controls select:focus-visible{outline:2px solid #75e3e6;outline-offset:2px}
+.sba-transition-hub-actions{flex:0 1 auto;display:flex;align-items:center;gap:6px}
+.sba-transition-hub-actions button{min-height:39px;border-radius:8px;border:1px solid #8e709c;background:#463458;color:#f4d0e9;font:inherit;font-size:11px;font-weight:820;padding:8px 9px;cursor:pointer}
+.sba-transition-hub-actions button:first-child{background:linear-gradient(115deg,#775084,#4c5c93);border-color:#b78dc9;color:#fff}
+.sba-transition-hub-actions button:hover{filter:brightness(1.14)}
+.sba-transition-hub-expand{display:block;width:100%;min-height:39px;margin:11px 0 0;background:#342d4d;
+  border:1px dashed #9276a7;border-radius:8px;color:#eacbe9;font:inherit;font-size:11px;font-weight:800;cursor:pointer}
+.sba-transition-hub-expand:hover{border-color:#e2a2d5;background:#4b355b}
+.sba-transition-hub-expand[hidden]{display:none}
+.sba-transition-hub-empty{padding:11px;border:1px dashed #696284;border-radius:9px;color:#c7c3da;background:#28283e;margin:0;font-size:12px}
+@media(max-width:720px){
+ .sba-transition-hub{padding:13px 11px 14px}
+ .sba-transition-hub-heading{flex-wrap:wrap;gap:8px}
+ .sba-transition-hub-heading h3{font-size:15px}
+ .sba-transition-hub-heading p{font-size:11px}
+ .sba-transition-hub-meta{font-size:10px}
+ .sba-transition-hub-row{display:grid;gap:10px;padding:10px}
+ .sba-transition-hub-route{min-width:0}
+ .sba-transition-hub-controls{min-width:0;flex:1 1 100%;display:grid;grid-template-columns:minmax(0,1.6fr) repeat(2,minmax(0,1fr));gap:6px}
+ .sba-transition-hub-controls label{min-width:0;font-size:10px}
+ .sba-transition-hub-controls select{min-height:43px;font-size:12px;padding:7px 5px}
+ .sba-transition-hub-actions{display:grid;grid-template-columns:1fr 1fr}
+ .sba-transition-hub-actions button{min-height:42px}
+}
+@media(max-width:370px){
+ .sba-transition-hub-controls{grid-template-columns:1fr 1fr}
+ .sba-transition-hub-controls label:first-child{grid-column:1/-1}
+}
