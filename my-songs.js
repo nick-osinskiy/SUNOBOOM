@@ -1,4 +1,4 @@
-/* SUNOBOOM • My Songs v0.76: local song library and explicit sharing. */
+/* SUNOBOOM • My Songs v0.78: local library, embedded covers, personal artist picker. */
 (function installSunoboomSongs(){
  "use strict";
  if(typeof account!=="function"||typeof render!=="function"||typeof chrome!=="function"||typeof go!=="function")return;
@@ -6,7 +6,7 @@
  const esc=s=>escapeHTML(String(s??""));
  const clean=(s,max=120)=>String(s??"").replace(/[\u0000-\u001f]/g," ").trim().slice(0,max);
  const safeURL=value=>{try{const u=new URL(String(value||"").trim());return u.protocol==="https:"?u.href:"";}catch(e){return "";}};
- const state={editId:null,selectedId:null,showForm:false,search:"",notice:"",confirmDelete:null,shared:null,loading:false,coverScanToken:0,coverScanFile:null,coverScanPromise:null,autoCoverBlob:null,coverPreviewURL:""};
+ const state={editId:null,selectedId:null,showForm:false,search:"",notice:"",confirmDelete:null,shared:null,loading:false,coverScanToken:0,coverScanFile:null,coverScanPromise:null,autoCoverBlob:null,coverPreviewURL:"",showArtistManager:false,artistManagerFilter:"",artistPickerOpen:false,artistShowAll:false};
  const thumbs=new Map();
  let activeAudioURL="";
  let songs=[];
@@ -136,13 +136,96 @@
  function field(label,name,value,max,placeholder){
    return '<label class="sbsong-field"><span>'+label+'</span><input name="'+name+'" type="text" maxlength="'+max+'" value="'+escapeAttr(value)+'" placeholder="'+esc(placeholder)+'"></label>';
  }
+
+ // Keep the artist registry in the existing user-data object, so normal JSON backups include it.
+ // Names in saved songs are retained as strings for backward compatibility.
+ function customArtists(){
+   return Array.isArray(data.songArtists)?data.songArtists.filter(a=>a&&typeof a.name==="string"&&a.name.trim()):[];
+ }
+ const artistKey=name=>clean(name,120).normalize("NFKC").toLocaleLowerCase("ru");
+ function allArtistChoices(){
+   const found=new Map();
+   const add=(name,origin)=>{
+     const value=clean(name,120),key=artistKey(value);
+     if(value&&!found.has(key))found.set(key,{name:value,origin});
+   };
+   customArtists().forEach(a=>add(a.name,"Сохранённый артист"));
+   if(Array.isArray(data.artistDNAs))data.artistDNAs.forEach(a=>add(a?.name,"ДНК артиста"));
+   songs.forEach(song=>add(song.artist,"Из моих песен"));
+   return [...found.values()].sort((a,b)=>a.name.localeCompare(b.name,"ru",{sensitivity:"base"}));
+ }
+ function saveArtistName(value,silent=false){
+   const name=clean(value,120);
+   if(!name){if(!silent)notify("Введи имя артиста или название проекта.");return false;}
+   if(customArtists().some(a=>artistKey(a.name)===artistKey(name))){
+     if(!silent)notify("Этот артист уже сохранён в твоём списке.");
+     return false;
+   }
+   // A DNA profile is already a personal artist record; offer it directly, without cloning.
+   if(Array.isArray(data.artistDNAs)&&data.artistDNAs.some(a=>artistKey(a?.name)===artistKey(name))){
+     if(!silent)notify("Этот артист уже есть в «ДНК артиста» и доступен для выбора.");
+     return false;
+   }
+   const old=data.songArtists;
+   data.songArtists=[...customArtists(),{id:"sba-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,8),name,createdAt:Date.now()}].slice(-500);
+   try{persist();}
+   catch(e){data.songArtists=old;if(!silent)notify("Не удалось сохранить артиста.");return false;}
+   if(!silent)notify("Артист «"+name+"» добавлен в список.");
+   return true;
+ }
+ function artistField(value){
+   return '<div class="sbsong-artist-field">'+
+     '<label class="sbsong-field" for="sbsong-artist-input"><span>Исполнитель / проект</span>'+
+       '<input id="sbsong-artist-input" name="artist" type="text" maxlength="120" value="'+escapeAttr(value)+'" placeholder="Поиск или новое имя артиста" autocomplete="off" aria-autocomplete="list" aria-expanded="false" aria-controls="sbsong-artist-options"></label>'+
+     '<div class="sbsong-artist-shortcuts">'+
+       '<button type="button" data-sbsong-action="artist-list-toggle">▾ Выбрать из списка</button>'+
+       '<button type="button" data-sbsong-action="artist-save">+ Сохранить артиста</button>'+
+     '</div>'+
+     '<div class="sbsong-artist-options" id="sbsong-artist-options" role="listbox" aria-label="Список артистов" hidden></div>'+
+   '</div>';
+ }
+ function refreshArtistPicker(show){
+   const input=document.getElementById("sbsong-artist-input");
+   const holder=document.getElementById("sbsong-artist-options");
+   if(!input||!holder)return;
+   if(typeof show==="boolean")state.artistPickerOpen=show;
+   const list=allArtistChoices(),query=artistKey(input.value);
+   const filtered=state.artistShowAll?list:list.filter(a=>artistKey(a.name).includes(query));
+   const shown=filtered.slice(0,40);
+   holder.innerHTML=shown.length?shown.map(a=>
+     '<button type="button" role="option" class="sbsong-artist-option" data-sbsong-action="artist-pick" data-name="'+escapeAttr(a.name)+'">'+
+       '<strong>'+esc(a.name)+'</strong><small>'+esc(a.origin)+'</small></button>'
+   ).join("")+(filtered.length>40?'<p class="sbsong-artist-hint">Уточни поиск, чтобы увидеть остальные варианты.</p>':""):
+     '<p class="sbsong-artist-hint">'+(list.length?"Совпадений нет. Нового артиста можно сохранить кнопкой выше.":"Список пуст. Введи имя и сохрани первого артиста.")+'</p>';
+   holder.hidden=!state.artistPickerOpen;
+   input.setAttribute("aria-expanded",String(state.artistPickerOpen));
+ }
+ function artistManagerEntries(){
+   const q=artistKey(state.artistManagerFilter);
+   const artists=[...customArtists()].sort((a,b)=>a.name.localeCompare(b.name,"ru",{sensitivity:"base"}))
+     .filter(a=>artistKey(a.name).includes(q));
+   return artists.length?artists.map(a=>'<div class="sbsong-artist-entry"><span>'+esc(a.name)+'</span>'+
+     '<button type="button" data-sbsong-action="artist-remove" data-id="'+esc(a.id)+'" aria-label="Удалить артиста '+esc(a.name)+'">Удалить</button></div>').join(""):
+     '<p class="sbsong-artist-hint">'+(customArtists().length?"Ничего не найдено.":"Пока нет добавленных вручную артистов.")+'</p>';
+ }
+ function artistManager(){
+   return '<section class="sbsong-artist-manager" id="sbsong-artist-manager">'+
+     '<div class="sbsong-subhead"><h2>Мои артисты</h2><button type="button" data-sbsong-action="artists-manage">Закрыть ×</button></div>'+
+     '<p>Создавай свой список исполнителей и музыкальных проектов. Артисты из «ДНК артиста» и сохранённых песен также доступны при выборе. Удаление из списка не меняет существующие песни.</p>'+
+     '<div class="sbsong-artist-manager-new"><input id="sbsong-artist-manager-add" type="text" maxlength="120" placeholder="Имя артиста или проекта" aria-label="Новый артист">'+
+       '<button type="button" class="sbsong-main-btn" data-sbsong-action="artist-manager-add">+ Добавить артиста</button></div>'+
+     '<input id="sbsong-artist-manager-filter" type="search" value="'+escapeAttr(state.artistManagerFilter)+'" placeholder="Фильтр по имени…" aria-label="Фильтр моих артистов">'+
+     '<div id="sbsong-artist-manager-results">'+artistManagerEntries()+'</div>'+
+   '</section>';
+ }
+
  function formPage(song){
    return '<section class="sbsong-form-panel" id="sbsong-form">'+
      '<div class="sbsong-subhead"><h2>'+(song?"Изменить песню":"Новая песня")+'</h2>'+
      '<button type="button" data-sbsong-action="cancel">Закрыть ×</button></div>'+
      '<form id="sbsong-save-form" class="sbsong-form">'+
        '<div class="sbsong-form-columns">'+field("Название *","title",song?.title||"",120,"Название песни")+
-       field("Исполнитель / проект","artist",song?.artist||data.profileName||"",120,"Автор или артист")+
+       artistField(song?.artist||"")+
        field("Жанр","genre",song?.genre||"",80,"Например: поп-рок")+
        field("Альбом / релиз","album",song?.album||"",120,"Название альбома")+'</div>'+
        '<label class="sbsong-field"><span>Описание</span><textarea name="description" maxlength="700" rows="3" placeholder="История, настроение или заметки">'+esc(song?.description||"")+'</textarea></label>'+
@@ -198,11 +281,13 @@
      '<button type="button" data-sbsong-action="back" class="sbsong-back">← В личный кабинет</button>'+
      '<div class="sbsong-hero-row"><div><h1>Мои песни</h1>'+
      '<p>Личная коллекция песен: карточки, обложки, MP3 и прослушивание прямо в SUNOBOOM.</p></div>'+
-     '<button type="button" class="sbsong-main-btn" data-sbsong-action="new">+ Добавить песню</button></div>'+
+     '<div class="sbsong-hero-tools"><button type="button" class="sbsong-artists-manage-btn" data-sbsong-action="artists-manage">♬ Мои артисты ('+customArtists().length+')</button>'+
+     '<button type="button" class="sbsong-main-btn" data-sbsong-action="new">+ Добавить песню</button></div></div>'+
      '<div class="sbsong-stats"><span>'+songs.length+' песен</span><span>'+songs.filter(s=>s.hasAudio).length+' аудиофайлов на устройстве</span>'+
      '<span>Хранение локально</span></div></header>'+
      '<div class="sbsong-privacy">🔒 Это локальная библиотека в браузере, а не защищённое облачное хранилище. Карточки не синхронизируются между устройствами. Ссылку на песню можно отправить отдельно — она откроет только выбранные для публикации сведения.</div>'+
      '<p class="sbsong-notice" id="sbsong-notice" role="status" aria-live="polite"'+(!state.notice?' hidden':'')+'>'+esc(state.notice)+'</p>'+
+     (!state.showForm&&state.showArtistManager?artistManager():"")+
      (state.showForm?formPage(get(state.editId)):"")+
      (selected&&!state.showForm?detail(selected):"")+
      '<div class="sbsong-collection-head"><h2>Коллекция</h2><input type="search" id="sbsong-search" placeholder="Найти песню или исполнителя…" value="'+esc(state.search)+'" aria-label="Поиск песен"></div>'+
@@ -341,7 +426,7 @@
  };
  function openLibrary(){
    history.replaceState(null,"",location.pathname+location.search+"#view-songs");
-   view.nav="songs";state.selectedId=null;state.showForm=false;state.notice="";state.editId=null;
+   view.nav="songs";state.selectedId=null;state.showForm=false;state.notice="";state.editId=null;state.showArtistManager=false;state.artistPickerOpen=false;
    render();window.scrollTo({top:0,behavior:"instant"});
  }
  function routeShare(){
@@ -380,6 +465,8 @@
      const previous=[...songs];
      songs=before?songs.map(x=>x.id===id?next:x):[next,...songs];
      if(!save()){songs=previous;throw new Error("Не удалось записать карточку в память браузера.");}
+     // A newly entered performer is reusable in every future song card.
+     if(next.artist)saveArtistName(next.artist,true);
      resetCoverPreview();
      state.editId=null;state.showForm=false;state.selectedId=id;
      state.notice=autoCover&&!inputCover?"Песня сохранена. Обложка взята из метаданных аудио.":"Песня сохранена в этом браузере.";
@@ -441,7 +528,16 @@
    }
  });
  document.addEventListener("input",event=>{
-   if(view.nav!=="songs"||event.target?.id!=="sbsong-search")return;
+   if(view.nav!=="songs")return;
+   if(event.target?.id==="sbsong-artist-input"){
+     state.artistShowAll=false;refreshArtistPicker(true);return;
+   }
+   if(event.target?.id==="sbsong-artist-manager-filter"){
+     state.artistManagerFilter=event.target.value;
+     const holder=document.getElementById("sbsong-artist-manager-results");if(holder)holder.innerHTML=artistManagerEntries();
+     return;
+   }
+   if(event.target?.id!=="sbsong-search")return;
    const el=event.target,selection=el.selectionStart;
    state.search=el.value;
    const grid=document.querySelector(".sbsong-grid");
@@ -449,6 +545,19 @@
    const holder=grid||document.querySelector(".sbsong-empty");
    if(holder&&holder.classList.contains("sbsong-grid")){holder.innerHTML=results.map(card).join("");hydrate();}
    else render();
+ });
+ document.addEventListener("focusin",event=>{
+   if(view.nav==="songs"&&event.target?.id==="sbsong-artist-input"){
+     state.artistShowAll=false;refreshArtistPicker(true);
+   }
+ });
+ document.addEventListener("keydown",event=>{
+   if(view.nav==="songs"&&event.target?.id==="sbsong-artist-manager-add"&&event.key==="Enter"){
+     event.preventDefault();document.querySelector('[data-sbsong-action="artist-manager-add"]')?.click();
+   }
+ });
+ document.addEventListener("pointerdown",event=>{
+   if(view.nav==="songs"&&state.artistPickerOpen&&!event.target.closest?.(".sbsong-artist-field"))refreshArtistPicker(false);
  });
  document.addEventListener("click",event=>{
    const b=event.target?.closest?.("[data-sbsong-action]");if(!b)return;
@@ -460,7 +569,33 @@
    }
    if(action==="back"){go("account");return;}
    if(view.nav!=="songs")return;
-   if(action==="new"){resetCoverPreview();state.editId=null;state.selectedId=null;state.showForm=true;state.notice="";render();return;}
+   if(action==="artist-list-toggle"){state.artistShowAll=true;refreshArtistPicker(!state.artistPickerOpen);return;}
+   if(action==="artist-pick"){
+     const input=document.getElementById("sbsong-artist-input");
+     if(input){input.value=clean(b.dataset.name,120);state.artistPickerOpen=false;refreshArtistPicker(false);}
+     return;
+   }
+   if(action==="artist-save"){
+     const input=document.getElementById("sbsong-artist-input");
+     if(input&&saveArtistName(input.value))refreshArtistPicker(false);
+     return;
+   }
+   if(action==="artists-manage"){
+     if(state.showForm){notify("Закрой редактор песни перед управлением списком артистов.");return;}
+     state.showArtistManager=!state.showArtistManager;state.artistManagerFilter="";render();return;
+   }
+   if(action==="artist-manager-add"){
+     const input=document.getElementById("sbsong-artist-manager-add");
+     if(input&&saveArtistName(input.value)){input.value="";render();}
+     return;
+   }
+   if(action==="artist-remove"){
+     const artist=customArtists().find(a=>a.id===id);
+     if(!artist||!confirm("Удалить «"+artist.name+"» из списка? Сохранённые песни не изменятся."))return;
+     data.songArtists=customArtists().filter(a=>a.id!==id);persist();
+     notify("Артист удалён из списка. Песни остались без изменений.");render();return;
+   }
+   if(action==="new"){resetCoverPreview();state.showArtistManager=false;state.editId=null;state.selectedId=null;state.showForm=true;state.notice="";render();return;}
    if(action==="cancel"){resetCoverPreview();state.showForm=false;state.editId=null;render();return;}
    if(action==="open"){state.selectedId=id;state.showForm=false;state.notice="";render();return;}
    if(action==="close-detail"){state.selectedId=null;state.confirmDelete=null;render();return;}
