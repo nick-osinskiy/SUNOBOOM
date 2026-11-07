@@ -254,3 +254,54 @@
   .sbsong-genre-results{max-height:min(33dvh,250px)}
   .sbsong-genre-option{min-height:44px;font-size:12px}
 }
+
+
+/* SUNOBOOM 0.89 · Audio versions inside the existing song card */
+.sbsong-versions{
+  margin:15px 0 14px;padding:14px;border:1px solid #6f638f;border-radius:13px;
+  background:linear-gradient(145deg,#262c47,#20283e);min-width:0
+}
+.sbsong-version-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.sbsong-version-heading h3{font-size:15px;color:#f5d2f3;margin:0;font-weight:850}
+.sbsong-version-heading small{font-size:11px;color:#a6dfea;overflow-wrap:anywhere}
+.sbsong-version-row{padding:11px;border:1px solid #555e83;border-radius:11px;background:#29334c;margin:0 0 9px;min-width:0}
+.sbsong-version-row-head{display:flex;justify-content:space-between;gap:8px;align-items:start;flex-wrap:wrap}
+.sbsong-version-row-head strong{font-size:13px;color:#f6efff;font-weight:860;overflow-wrap:anywhere}
+.sbsong-version-row-head small{display:block;font-size:10px;color:#b4c1da;margin:5px 0 0;line-height:1.5;overflow-wrap:anywhere}
+.sbsong-version-main-badge,.sbsong-version-play-badge{display:inline-block;vertical-align:middle;margin-left:8px;padding:3px 7px;border-radius:7px;font-size:9px;font-weight:850}
+.sbsong-version-main-badge{background:#5a465e;color:#ffd9ac}
+.sbsong-version-play-badge{background:#27545c;color:#b1f1e5}
+.sbsong-version-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.sbsong-version-actions button,.sbsong-version-notes button,.sbsong-compare-toggle{
+  border:1px solid #82749b;border-radius:8px;background:#3b3b63;color:#f3e8ff;
+  min-height:37px;padding:8px 10px;font-size:11px;font-weight:800;cursor:pointer
+}
+.sbsong-version-actions button:first-child{border-color:#a17ac1;background:linear-gradient(115deg,#765284,#4c598f)}
+.sbsong-version-actions button.sbsong-version-danger{border-color:#885c72;background:#503343;color:#ffd1df}
+.sbsong-version-actions button:hover,.sbsong-version-notes button:hover,.sbsong-compare-toggle:hover{filter:brightness(1.16)}
+.sbsong-versions button:focus-visible,.sbsong-versions input:focus-visible,.sbsong-versions select:focus-visible,.sbsong-versions textarea:focus-visible{outline:2px solid #81e4ef;outline-offset:2px}
+.sbsong-version-notes{margin-top:8px;border-top:1px solid #ffffff18;padding-top:8px}
+.sbsong-version-notes summary{font-size:11px;color:#c6b5e7;font-weight:810;cursor:pointer;list-style-position:inside;padding:4px 0}
+.sbsong-version-notes label,.sbsong-version-add label,.sbsong-compare-grid label{display:grid;gap:6px;font-size:11px;color:#bbc8df;font-weight:760;min-width:0}
+.sbsong-version-notes label{margin:10px 0}
+.sbsong-versions input:not([type=file]),.sbsong-versions textarea,.sbsong-versions select{
+  display:block;min-width:0;width:100%;box-sizing:border-box;
+  background:#18243a;border:1px solid #687497;color:#f8f1ff;border-radius:9px;
+  min-height:41px;padding:9px 10px;font-size:12px;resize:vertical
+}
+.sbsong-versions input[type=file]{min-width:0;width:100%;color:#e0d5f1;font-size:11px;padding:10px 0}
+.sbsong-compare-toggle{width:100%;margin:10px 0;background:linear-gradient(110deg,#653f7b,#39517f);border-color:#a080c3}
+.sbsong-compare-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:13px;background:#1e2c43;border:1px solid #526784;border-radius:11px;margin-bottom:12px}
+.sbsong-compare-grid audio{display:block;width:100%;max-width:100%;margin-top:6px}
+.sbsong-compare-grid p{grid-column:1/-1;color:#b1bdd5;font-size:10px;line-height:1.6;margin:0}
+.sbsong-version-add{margin-top:12px;padding:14px;border:1px dashed #8173a5;background:#222b43;border-radius:11px;display:grid;gap:10px}
+.sbsong-version-add h4{font-size:13px;color:#f5cee7;margin:0}
+.sbsong-version-add .sbsong-main-btn{justify-self:start;min-height:40px}
+.sbsong-version-add p{margin:0;font-size:10px;color:#afbdd7;line-height:1.6}
+@media(max-width:760px){
+  .sbsong-versions{padding:10px}
+  .sbsong-compare-grid{grid-template-columns:minmax(0,1fr)}
+  .sbsong-version-row{padding:10px}
+  .sbsong-version-actions button{flex:1 1 135px;min-height:43px}
+  .sbsong-version-add .sbsong-main-btn{width:100%}
+}
