@@ -1088,6 +1088,8 @@
     if(view.nav!=="studio")return;
     const snake=event.target?.closest?.("[data-sba-snake-id]");
     if(snake){
+      // Touch gesture takes precedence if mobile Safari also fires a native dragstart.
+      if(snakePointer){event.preventDefault();return;}
       state.snakeDragId=snake.dataset.sbaSnakeId;
       if(event.dataTransfer){
         event.dataTransfer.setData("text/plain",state.snakeDragId);
