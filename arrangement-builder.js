@@ -564,7 +564,7 @@
       if(items.length)groups.push({title,items});
     };
     // Role-first order, then actual genre instrumentation from the Academy.
-    addGroup("Для "+smartRoleInfo(block)[0],smartRoleCues(genre,block));
+    addGroup("Для блока «"+smartRoleInfo(block)[0]+"»",smartRoleCues(genre,block));
     addGroup("Энергия "+block.energy+"/5 и вокал",smartDynamicsCues(block));
     if(genre){
       addGroup("Инструменты · "+genre.name,clean(genre.instruments));
@@ -582,7 +582,7 @@
     const role=smartRoleInfo(block),roleName=block.type==="custom"&&block.customName?block.customName:role[0];
     const query=soundPicker.typingId===block.id?normalizeQuery(soundPicker.typingQuery):"";
     const groupItems=title=>groups.find(g=>g.title===title)?.items||[];
-    const roleItems=groupItems("Для "+role[0]).slice(0,3);
+    const roleItems=groupItems("Для блока «"+role[0]+"»").slice(0,3);
     const allDynamics=groupItems("Энергия "+block.energy+"/5 и вокал");
     const dynamicItems=[allDynamics[0],allDynamics.length>2?allDynamics[allDynamics.length-1]:allDynamics[1]].filter(Boolean);
     const acoustic=genre?groupItems("Инструменты · "+genre.name):[];
