@@ -421,5 +421,10 @@
  window.SUNOBOOM_PRODUCER=Object.freeze({version:"0.90",count:()=>items().length,
    open,openForSong:id=>create("song",id),openForPassport:id=>create("passport",id),
    openForIdea:id=>create("idea",id),getRecords:()=>items().map(w=>({id:w.id,title:w.title,done:completed(w),updatedAt:w.updatedAt}))});
- if(view.nav==="producer")render();
+ // The base page renders before this module registers its nav entry. Refresh
+ // the existing shell once at startup so both mobile and desktop menus show
+ // "Мастер" immediately, without requiring the user to click another tab.
+ if(view.nav==="producer" ||
+    !document.querySelector('.mobile-nav [data-nav="producer"]') ||
+    !document.querySelector('.side [data-nav="producer"]'))render();
 })();
