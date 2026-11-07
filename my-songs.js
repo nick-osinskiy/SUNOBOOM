@@ -8,11 +8,12 @@
  const safeURL=value=>{try{const u=new URL(String(value||"").trim());return u.protocol==="https:"?u.href:"";}catch(e){return "";}};
  const state={editId:null,selectedId:null,showForm:false,search:"",notice:"",confirmDelete:null,shared:null,loading:false};
  const thumbs=new Map();
+ let activeAudioURL="";
  let songs=[];
  try{const saved=JSON.parse(localStorage.getItem(KEY)||"[]");if(Array.isArray(saved))songs=saved.filter(x=>x&&typeof x==="object"&&typeof x.id==="string").slice(0,500).map(x=>({
-   id:clean(x.id,90),title:clean(x.title,120),artist:clean(x.artist,120),genre:clean(x.genre,80),
+   id:clean(x.id,90),passportId:clean(x.passportId,100),title:clean(x.title,120),artist:clean(x.artist,120),genre:clean(x.genre,80),
    album:clean(x.album,120),description:clean(x.description,700),createdAt:Number(x.createdAt)||Date.now(),
-   updatedAt:Number(x.updatedAt)||Date.now(),audioUrl:safeURL(x.audioUrl),listenUrl:safeURL(x.listenUrl),
+   updatedAt:Number(x.updatedAt)||Date.now(),audioUrl:safeURL(x.audioUrl),listenUrl:safeURL(x.listenUrl),coverUrl:safeURL(x.coverUrl),
    hasAudio:x.hasAudio===true,hasCover:x.hasCover===true
  }));}catch(e){}
  const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(songs));return true;}catch(e){return false;}};
@@ -40,15 +41,19 @@
      try{tx=db.transaction("files",mode==="get"?"readonly":"readwrite");}catch(e){reject(e);return;}
      const store=tx.objectStore("files");
      const req=mode==="get"?store.get(key):mode==="delete"?store.delete(key):store.put(value,key);
-     req.onsuccess=()=>resolve(req.result);
+     let result;
+     req.onsuccess=()=>{result=req.result;};
      req.onerror=()=>reject(req.error||new Error("Ошибка хранения файла"));
+     tx.oncomplete=()=>resolve(result);
      tx.onabort=()=>reject(tx.error||new Error("Запись прервана"));
+     tx.onerror=()=>reject(tx.error||new Error("Ошибка транзакции"));
    });
  }
  const getFile=key=>fileOperation("get",key);
  const putFile=(key,blob)=>fileOperation("put",key,blob);
  const delFile=key=>fileOperation("delete",key);
  function clearThumb(id){const url=thumbs.get(id);if(url)URL.revokeObjectURL(url);thumbs.delete(id);}
+ function releaseAudio(){if(activeAudioURL){URL.revokeObjectURL(activeAudioURL);activeAudioURL="";}}
  async function coverURL(id){
    if(thumbs.has(id))return thumbs.get(id);
    try{const blob=await getFile(id+":cover");if(!blob)return "";
@@ -60,7 +65,8 @@
  function card(song){
    return '<article class="sbsong-card">'+
       '<button type="button" class="sbsong-art-button" data-sbsong-action="open" data-id="'+esc(song.id)+'" aria-label="'+esc("Открыть "+song.title)+'">'+
-      (song.hasCover?'<img alt="" data-sbsong-cover="'+esc(song.id)+'" loading="lazy">'+iconCover:iconCover)+'</button>'+
+      (song.hasCover?'<img alt="" data-sbsong-cover="'+esc(song.id)+'" loading="lazy">'+iconCover:
+       song.coverUrl?'<img alt="" src="'+esc(song.coverUrl)+'" style="display:block" loading="lazy">'+iconCover:iconCover)+'</button>'+
       '<div class="sbsong-card-text"><small>'+esc(song.genre||"Моя музыка")+'</small>'+
       '<h3>'+esc(song.title||"Без названия")+'</h3><p>'+esc(song.artist||"Без исполнителя")+'</p>'+
       '<div class="sbsong-card-flags">'+(song.hasAudio?'<span>♪ Файл сохранён</span>':song.audioUrl?'<span>↗ Аудио по ссылке</span>':'<span>Нет аудио</span>')+'</div>'+
@@ -87,7 +93,8 @@
        '</div>'+
        '<div class="sbsong-form-columns">'+
          field("Прямая ссылка на MP3 (если есть)","audioUrl",song?.audioUrl||"",700,"https://.../song.mp3")+
-         field("Публичная страница песни","listenUrl",song?.listenUrl||"",700,"https://suno.com/...")+'</div>'+
+         field("Публичная страница песни","listenUrl",song?.listenUrl||"",700,"https://suno.com/...")+
+         field("Публичная обложка (по желанию)","coverUrl",song?.coverUrl||"",700,"https://.../cover.jpg")+'</div>'+
        '<p class="sbsong-form-help">Аудио и обложка сохраняются только на этом устройстве (IndexedDB). Для прослушивания песни по общей ссылке нужен публичный аудиоадрес или страница прослушивания. Обычный загруженный MP3 не публикуется автоматически.</p>'+
        '<div class="sbsong-form-actions"><button type="submit" class="sbsong-main-btn" id="sbsong-submit">Сохранить песню</button>'+
         '<button type="button" data-sbsong-action="cancel">Отмена</button></div>'+
@@ -97,7 +104,8 @@
    if(!song)return "";
    return '<section class="sbsong-detail">'+
       '<div class="sbsong-subhead"><h2>'+esc(song.title)+'</h2><button type="button" data-sbsong-action="close-detail">Закрыть ×</button></div>'+
-      '<div class="sbsong-detail-layout"><div class="sbsong-detail-cover">'+(song.hasCover?'<img data-sbsong-cover="'+esc(song.id)+'" alt="'+esc("Обложка песни "+song.title)+'">':iconCover)+'</div>'+
+      '<div class="sbsong-detail-layout"><div class="sbsong-detail-cover">'+(song.hasCover?'<img data-sbsong-cover="'+esc(song.id)+'" alt="'+esc("Обложка песни "+song.title)+'">':
+       song.coverUrl?'<img src="'+esc(song.coverUrl)+'" alt="'+esc("Обложка песни "+song.title)+'" style="display:block">':iconCover)+'</div>'+
       '<div><p class="sbsong-detail-artist">'+esc(song.artist||"Исполнитель не указан")+'</p>'+
       '<p class="sbsong-detail-tags">'+[song.genre,song.album].filter(Boolean).map(x=>'<span>'+esc(x)+'</span>').join("")+'</p>'+
       (song.description?'<p class="sbsong-detail-description">'+esc(song.description)+'</p>':"")+
@@ -145,13 +153,13 @@
      const x=JSON.parse(new TextDecoder().decode(bytes));
      if(!x||x.v!==1||!x.title)return null;
      return {title:clean(x.title,120),artist:clean(x.artist,120),genre:clean(x.genre,80),
-       album:clean(x.album,120),description:clean(x.description,700),audioUrl:safeURL(x.audioUrl),
+       album:clean(x.album,120),description:clean(x.description,700),coverUrl:safeURL(x.coverUrl),audioUrl:safeURL(x.audioUrl),
        listenUrl:safeURL(x.listenUrl)};
    }catch(e){return null;}
  }
  function encodeCard(song){
    const plain={v:1,title:song.title,artist:song.artist,genre:song.genre,album:song.album,
-     description:song.description,audioUrl:song.audioUrl,listenUrl:song.listenUrl};
+     description:song.description,coverUrl:song.coverUrl,audioUrl:song.audioUrl,listenUrl:song.listenUrl};
    const bytes=new TextEncoder().encode(JSON.stringify(plain));
    let text="";for(const b of bytes)text+=String.fromCharCode(b);
    return btoa(text).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
@@ -165,7 +173,8 @@
    return '<section class="sbsong-page sbsong-shared" id="sbsong-shared">'+
     '<header class="sbsong-hero"><span class="sbsong-eyebrow">SUNOBOOM · КАРТОЧКА ПЕСНИ</span>'+
     '<h1>'+esc(title)+'</h1><p>'+esc(song?.artist||"")+'</p></header>'+
-    (song?'<div class="sbsong-public-card"><div class="sbsong-public-art">♫</div>'+
+    (song?'<div class="sbsong-public-card">'+
+       (song.coverUrl?'<img class="sbsong-public-art" style="object-fit:cover;width:100%;max-width:300px" alt="Обложка" src="'+esc(song.coverUrl)+'">':'<div class="sbsong-public-art">♫</div>')+
        '<p class="sbsong-detail-tags">'+[song.genre,song.album].filter(Boolean).map(x=>'<span>'+esc(x)+'</span>').join("")+'</p>'+
        (song.description?'<p class="sbsong-detail-description">'+esc(song.description)+'</p>':"")+
        (song.audioUrl?'<audio controls preload="metadata" src="'+esc(song.audioUrl)+'"></audio>':"")+
@@ -185,11 +194,12 @@
    }
    const selected=get(state.selectedId),audio=document.getElementById("sbsong-audio-player");
    if(!audio||!selected)return;
+   releaseAudio();
    if(selected.hasAudio){
      try{const file=await getFile(selected.id+":audio");
        if(file&&view.nav==="songs"&&get(state.selectedId)?.id===selected.id){
-         audio.src=URL.createObjectURL(file);
-         audio.addEventListener("emptied",()=>{ /* object URL freed by track navigation */},{once:true});
+         activeAudioURL=URL.createObjectURL(file);
+         audio.src=activeAudioURL;
          return;
        }
      }catch(e){}
@@ -209,6 +219,7 @@
  };
  const oldRender=render;
  render=function(){
+   releaseAudio();
    if(view.nav==="songs"||view.nav==="sharedSong"){
      document.getElementById("app").innerHTML=chrome(view.nav==="songs"?libraryPage():sharedPage(state.shared));
      if(view.nav==="songs")hydrate();
@@ -241,13 +252,13 @@
    const inputCover=form.querySelector('[name="cover"]')?.files?.[0];
    if(inputAudio&&(!mimeAudio(inputAudio)||inputAudio.size>150*1024*1024)){notify("Аудиофайл должен быть музыкального формата и не больше 150 МБ.");return;}
    if(inputCover&&(!mimeImage(inputCover)||inputCover.size>10*1024*1024)){notify("Для обложки выбери JPG, PNG, WEBP или GIF до 10 МБ.");return;}
-   const rawAudio=clean(formdata.get("audioUrl"),700),rawListen=clean(formdata.get("listenUrl"),700);
-   const audioUrl=rawAudio?safeURL(rawAudio):"",listenUrl=rawListen?safeURL(rawListen):"";
-   if((rawAudio&&!audioUrl)||(rawListen&&!listenUrl)){notify("Внешние ссылки должны начинаться с https://");return;}
+   const rawAudio=clean(formdata.get("audioUrl"),700),rawListen=clean(formdata.get("listenUrl"),700),rawCover=clean(formdata.get("coverUrl"),700);
+   const audioUrl=rawAudio?safeURL(rawAudio):"",listenUrl=rawListen?safeURL(rawListen):"",coverUrl=rawCover?safeURL(rawCover):"";
+   if((rawAudio&&!audioUrl)||(rawListen&&!listenUrl)||(rawCover&&!coverUrl)){notify("Внешние ссылки должны начинаться с https://");return;}
    const before=get(state.editId),id=before?.id||("song-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,9));
-   const next={id,title,artist:clean(formdata.get("artist"),120),genre:clean(formdata.get("genre"),80),
+   const next={id,passportId:before?.passportId||"",title,artist:clean(formdata.get("artist"),120),genre:clean(formdata.get("genre"),80),
      album:clean(formdata.get("album"),120),description:clean(formdata.get("description"),700),
-     audioUrl,listenUrl,hasAudio:!!(before?.hasAudio||inputAudio),hasCover:!!(before?.hasCover||inputCover),
+     audioUrl,listenUrl,coverUrl,hasAudio:!!(before?.hasAudio||inputAudio),hasCover:!!(before?.hasCover||inputCover),
      createdAt:before?.createdAt||Date.now(),updatedAt:Date.now()};
    state.loading=true;const btn=document.getElementById("sbsong-submit");if(btn)btn.disabled=true;
    try{
@@ -329,7 +340,7 @@
    if(action==="share-file"){const song=get(id);if(song)shareAudio(song);return;}
  });
  window.addEventListener("hashchange",()=>{if(location.hash.startsWith(SHARE_PREFIX))routeShare();});
- window.addEventListener("pagehide",()=>{for(const url of thumbs.values())URL.revokeObjectURL(url);thumbs.clear();});
+ window.addEventListener("pagehide",()=>{releaseAudio();for(const url of thumbs.values())URL.revokeObjectURL(url);thumbs.clear();});
  window.SUNOBOOM_MY_SONGS=Object.freeze({version:"0.76",count:()=>songs.length,getCards:()=>songs.map(s=>({id:s.id,title:s.title,hasAudio:s.hasAudio})),decodeCard});
  if(!routeShare())render();
 })();
