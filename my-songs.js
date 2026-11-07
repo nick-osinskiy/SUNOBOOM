@@ -342,7 +342,55 @@
         '<button type="button" data-sbsong-action="cancel">Отмена</button></div>'+
      '</form></section>';
  }
- function detail(song){
+ function versionManager(song){
+    const versions=songVersions(song),main=activeVersion(song);
+    const playing=versions.find(v=>v.id===state.playVersionId)||main;
+    const rows=versions.map((v,i)=>'<article class="sbsong-version-row">'+
+      '<div class="sbsong-version-row-head"><div><strong>'+esc(v.label||"Версия "+(i+1))+'</strong>'+
+      (main?.id===v.id?'<span class="sbsong-version-main-badge">★ Основная</span>':'')+
+      (playing?.id===v.id?'<span class="sbsong-version-play-badge">♫ Выбрана</span>':'')+
+      '<small>'+esc(v.fileName||"Запись из предыдущей версии SUNOBOOM")+' · '+esc(audioSize(v.bytes))+
+      ' · '+new Date(v.addedAt||Date.now()).toLocaleDateString("ru-RU")+'</small></div></div>'+
+      '<div class="sbsong-version-actions">'+
+        '<button type="button" data-sbsong-action="version-play" data-version-id="'+esc(v.id)+'">▶ Слушать</button>'+
+        (main?.id!==v.id?'<button type="button" data-sbsong-action="version-main" data-version-id="'+esc(v.id)+'">★ Сделать основной</button>':'')+
+        '<button type="button" data-sbsong-action="share-file" data-id="'+esc(song.id)+'" data-version-id="'+esc(v.id)+'">Сохранить / отправить</button>'+
+        '<button type="button" class="sbsong-version-danger" data-sbsong-action="version-remove" data-version-id="'+esc(v.id)+'">Удалить дубль</button>'+
+      '</div>'+
+      '<details class="sbsong-version-notes"><summary>Название и заметки</summary>'+
+        '<label>Название версии<input type="text" maxlength="90" data-sbsong-version-title="'+esc(v.id)+'" value="'+esc(v.label)+'"></label>'+
+        '<label>Чем отличается этот дубль<textarea maxlength="800" rows="2" data-sbsong-version-note="'+esc(v.id)+'" placeholder="Например: более плотный припев, удачный вокал...">'+esc(v.notes)+'</textarea></label>'+
+        '<button type="button" data-sbsong-action="version-save" data-version-id="'+esc(v.id)+'">Сохранить заметки</button>'+
+      '</details>'+
+      '</article>').join("");
+    let compare="";
+    if(versions.length>1){
+      const left=versions.find(v=>v.id===state.compareAId)||versions[0];
+      const right=versions.find(v=>v.id===state.compareBId)||versions[1];
+      const options=chosen=>versions.map(v=>'<option value="'+esc(v.id)+'"'+(v.id===chosen?' selected':'')+'>'+esc(v.label)+'</option>').join("");
+      compare='<button type="button" class="sbsong-compare-toggle" data-sbsong-action="compare-toggle">'+
+        (state.compareOpen?'Скрыть сравнение A/B':'Сравнить версии A/B')+'</button>'+
+        (state.compareOpen?'<div class="sbsong-compare-grid">'+
+          '<label>Версия A<select id="sbsong-compare-a">'+options(left.id)+'</select><audio id="sbsong-ab-a" controls preload="metadata"></audio></label>'+
+          '<label>Версия B<select id="sbsong-compare-b">'+options(right.id)+'</select><audio id="sbsong-ab-b" controls preload="metadata"></audio></label>'+
+          '<p>Два независимых плеера для сравнения дублей. Воспроизведение запускается вручную.</p>'+
+        '</div>':'');
+    }
+    return '<section class="sbsong-versions" aria-label="Версии записи">'+
+      '<div class="sbsong-version-heading"><h3>Версии записи ('+versions.length+')</h3>'+
+      (playing?'<small>В основном плеере: '+esc(playing.label)+'</small>':'')+'</div>'+
+      (rows||'<p>Пока нет локальных версий. Загрузи первую запись в MP3, M4A или WAV.</p>')+
+      compare+
+      '<div class="sbsong-version-add">'+
+        '<h4>+ Добавить новую версию</h4>'+
+        '<label>Аудиофайл (MP3, M4A, WAV и другие)<input id="sbsong-version-file" type="file" accept="audio/*,.mp3,.m4a,.wav,.wave,.flac,.ogg,.opus,.aac"></label>'+
+        '<label>Название дубля<input id="sbsong-new-version-title" maxlength="90" type="text" placeholder="Например: Версия с новым припевом"></label>'+
+        '<label>Заметка<textarea id="sbsong-new-version-notes" maxlength="800" rows="2" placeholder="Что изменилось в этой записи?"></textarea></label>'+
+        '<button type="button" class="sbsong-main-btn" data-sbsong-action="version-add" id="sbsong-version-submit">Сохранить новую версию</button>'+
+        '<p>WAV — до 500 МБ, другие форматы — до 150 МБ. Каждая версия хранится отдельно в браузере этого устройства. Старые записи не перезаписываются.</p>'+
+      '</div></section>';
+  }
+  function detail(song){
    if(!song)return "";
    return '<section class="sbsong-detail">'+
       '<div class="sbsong-subhead"><h2>'+esc(song.title)+'</h2><button type="button" data-sbsong-action="close-detail">Закрыть ×</button></div>'+
