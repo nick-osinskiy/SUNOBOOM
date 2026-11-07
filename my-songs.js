@@ -1,4 +1,4 @@
-/* SUNOBOOM • My Songs v0.78: local library, embedded covers, personal artist picker. */
+/* SUNOBOOM • My Songs v0.79: Academy genre picker and personal artist library. */
 (function installSunoboomSongs(){
  "use strict";
  if(typeof account!=="function"||typeof render!=="function"||typeof chrome!=="function"||typeof go!=="function")return;
@@ -6,7 +6,7 @@
  const esc=s=>escapeHTML(String(s??""));
  const clean=(s,max=120)=>String(s??"").replace(/[\u0000-\u001f]/g," ").trim().slice(0,max);
  const safeURL=value=>{try{const u=new URL(String(value||"").trim());return u.protocol==="https:"?u.href:"";}catch(e){return "";}};
- const state={editId:null,selectedId:null,showForm:false,search:"",notice:"",confirmDelete:null,shared:null,loading:false,coverScanToken:0,coverScanFile:null,coverScanPromise:null,autoCoverBlob:null,coverPreviewURL:"",showArtistManager:false,artistManagerFilter:"",artistPickerOpen:false,artistShowAll:false};
+ const state={editId:null,selectedId:null,showForm:false,search:"",notice:"",confirmDelete:null,shared:null,loading:false,coverScanToken:0,coverScanFile:null,coverScanPromise:null,autoCoverBlob:null,coverPreviewURL:"",showArtistManager:false,artistManagerFilter:"",artistPickerOpen:false,artistShowAll:false,genrePickerOpen:false,genreShowAll:false,genreFamily:"Все"};
  const thumbs=new Map();
  let activeAudioURL="";
  let songs=[];
@@ -219,6 +219,73 @@
    '</section>';
  }
 
+
+ // The Academy GENRES array is the single source of truth. Its subgenres and
+ // dynamically added sections appear automatically here without duplicate data.
+ function academyGenreChoices(){
+   if(typeof GENRES==="undefined"||!Array.isArray(GENRES))return [];
+   const used=new Set();
+   return GENRES.filter(g=>g&&typeof g.name==="string"&&g.name.trim()&&typeof g.id==="string").map(g=>({
+     id:g.id,name:clean(g.name,80),family:clean(g.family||"Другие направления",100)
+   })).filter(g=>{
+     if(used.has(g.id))return false;
+     used.add(g.id);return true;
+   });
+ }
+ function academyGenreFamilies(genres){
+   const families=[...new Set(genres.map(g=>g.family))];
+   const order=typeof familyOrder!=="undefined"&&Array.isArray(familyOrder)?familyOrder:[];
+   return [...families].sort((a,b)=>{
+     const ai=order.indexOf(a),bi=order.indexOf(b);
+     if(ai>=0&&bi>=0)return ai-bi;
+     if(ai>=0)return -1;
+     if(bi>=0)return 1;
+     return a.localeCompare(b,"ru",{sensitivity:"base"});
+   });
+ }
+ function genreField(value){
+   return '<div class="sbsong-genre-field">'+
+     '<label class="sbsong-field" for="sbsong-genre-input"><span>Жанр</span>'+
+       '<input type="text" id="sbsong-genre-input" name="genre" maxlength="80" value="'+escapeAttr(value)+'" autocomplete="off" placeholder="Найти жанр или ввести свой" aria-autocomplete="list" aria-expanded="false" aria-controls="sbsong-genre-options"></label>'+
+     '<button type="button" class="sbsong-genre-toggle" data-sbsong-action="genre-toggle" aria-controls="sbsong-genre-options" aria-expanded="false">▾ Выбрать из Академии</button>'+
+     '<div class="sbsong-genre-options" id="sbsong-genre-options" role="listbox" aria-label="Жанры и поджанры Академии" hidden></div>'+
+   '</div>';
+ }
+ function refreshGenrePicker(show){
+   const input=document.getElementById("sbsong-genre-input");
+   const holder=document.getElementById("sbsong-genre-options");
+   const toggle=document.querySelector('.sbsong-genre-field [data-sbsong-action="genre-toggle"]');
+   if(!input||!holder)return;
+   if(typeof show==="boolean")state.genrePickerOpen=show;
+   const genres=academyGenreChoices(),families=academyGenreFamilies(genres);
+   if(state.genreFamily!=="Все"&&!families.includes(state.genreFamily))state.genreFamily="Все";
+   const q=state.genreShowAll?"":input.value.trim().normalize("NFKC").toLocaleLowerCase("ru");
+   const filtered=genres.filter(g=>
+     (state.genreFamily==="Все"||g.family===state.genreFamily)&&
+     (!q||(g.name+" "+g.family).normalize("NFKC").toLocaleLowerCase("ru").includes(q))
+   );
+   const filterSelect='<div class="sbsong-genre-picker-head">'+
+     '<label for="sbsong-genre-family">Направление</label>'+
+     '<select id="sbsong-genre-family" aria-label="Фильтр по направлению">'+
+       ['Все',...families].map(f=>'<option value="'+escapeAttr(f)+'"'+(f===state.genreFamily?' selected':'')+'>'+esc(f==="Все"?"Все направления":f)+'</option>').join("")+
+     '</select><small>'+filtered.length+' из '+genres.length+'</small></div>';
+   const ordered=academyGenreFamilies(filtered);
+   const content=filtered.length?ordered.map(f=>{
+     const list=filtered.filter(g=>g.family===f);
+     return '<div class="sbsong-genre-group" role="group" aria-label="'+escapeAttr(f)+'">'+
+       '<div class="sbsong-genre-group-title">'+esc(f)+' <span>'+list.length+'</span></div>'+
+       list.map(g=>'<button type="button" class="sbsong-genre-option" role="option" data-sbsong-action="genre-pick" data-genre-name="'+escapeAttr(g.name)+'" data-genre-id="'+escapeAttr(g.id)+'">'+
+         '<span>'+esc(g.name)+'</span></button>').join("")+
+     '</div>';
+   }).join(""):'<p class="sbsong-genre-hint">'+
+     (genres.length?"Не найдено. Можно ввести свой жанр вручную.":"Каталог Академии пока недоступен. Введи жанр вручную.")+
+     '</p>';
+   holder.innerHTML=filterSelect+'<div class="sbsong-genre-results">'+content+'</div>';
+   holder.hidden=!state.genrePickerOpen;
+   input.setAttribute("aria-expanded",String(state.genrePickerOpen));
+   if(toggle)toggle.setAttribute("aria-expanded",String(state.genrePickerOpen));
+ }
+
  function formPage(song){
    return '<section class="sbsong-form-panel" id="sbsong-form">'+
      '<div class="sbsong-subhead"><h2>'+(song?"Изменить песню":"Новая песня")+'</h2>'+
@@ -226,7 +293,7 @@
      '<form id="sbsong-save-form" class="sbsong-form">'+
        '<div class="sbsong-form-columns">'+field("Название *","title",song?.title||"",120,"Название песни")+
        artistField(song?.artist||data.profileName||"")+
-       field("Жанр","genre",song?.genre||"",80,"Например: поп-рок")+
+       genreField(song?.genre||"")+
        field("Альбом / релиз","album",song?.album||"",120,"Название альбома")+'</div>'+
        '<label class="sbsong-field"><span>Описание</span><textarea name="description" maxlength="700" rows="3" placeholder="История, настроение или заметки">'+esc(song?.description||"")+'</textarea></label>'+
        '<div class="sbsong-form-columns">'+
@@ -426,7 +493,7 @@
  };
  function openLibrary(){
    history.replaceState(null,"",location.pathname+location.search+"#view-songs");
-   view.nav="songs";state.selectedId=null;state.showForm=false;state.notice="";state.editId=null;state.showArtistManager=false;state.artistPickerOpen=false;
+   view.nav="songs";state.selectedId=null;state.showForm=false;state.notice="";state.editId=null;state.showArtistManager=false;state.artistPickerOpen=false;state.genrePickerOpen=false;
    render();window.scrollTo({top:0,behavior:"instant"});
  }
  function routeShare(){
@@ -532,6 +599,9 @@
    if(event.target?.id==="sbsong-artist-input"){
      state.artistShowAll=false;refreshArtistPicker(true);return;
    }
+   if(event.target?.id==="sbsong-genre-input"){
+     state.genreShowAll=false;state.genreFamily="Все";refreshGenrePicker(true);return;
+   }
    if(event.target?.id==="sbsong-artist-manager-filter"){
      state.artistManagerFilter=event.target.value;
      const holder=document.getElementById("sbsong-artist-manager-results");if(holder)holder.innerHTML=artistManagerEntries();
@@ -550,6 +620,9 @@
    if(view.nav==="songs"&&event.target?.id==="sbsong-artist-input"){
      state.artistShowAll=false;refreshArtistPicker(true);
    }
+   if(view.nav==="songs"&&event.target?.id==="sbsong-genre-input"){
+     state.genreShowAll=false;state.genreFamily="Все";refreshGenrePicker(true);
+   }
  });
  document.addEventListener("keydown",event=>{
    if(view.nav==="songs"&&event.target?.id==="sbsong-artist-manager-add"&&event.key==="Enter"){
@@ -557,7 +630,14 @@
    }
  });
  document.addEventListener("pointerdown",event=>{
-   if(view.nav==="songs"&&state.artistPickerOpen&&!event.target.closest?.(".sbsong-artist-field"))refreshArtistPicker(false);
+   if(view.nav!=="songs")return;
+   if(state.artistPickerOpen&&!event.target.closest?.(".sbsong-artist-field"))refreshArtistPicker(false);
+   if(state.genrePickerOpen&&!event.target.closest?.(".sbsong-genre-field"))refreshGenrePicker(false);
+ });
+ document.addEventListener("change",event=>{
+   if(view.nav==="songs"&&event.target?.id==="sbsong-genre-family"){
+     state.genreFamily=event.target.value;state.genreShowAll=true;refreshGenrePicker(true);
+   }
  });
  document.addEventListener("click",event=>{
    const b=event.target?.closest?.("[data-sbsong-action]");if(!b)return;
@@ -569,6 +649,22 @@
    }
    if(action==="back"){go("account");return;}
    if(view.nav!=="songs")return;
+   if(action==="genre-toggle"){
+     const opening=!(state.genrePickerOpen&&state.genreShowAll);
+     state.genreShowAll=true;
+     if(opening)state.genreFamily="Все";
+     refreshGenrePicker(opening);return;
+   }
+   if(action==="genre-pick"){
+     const input=document.getElementById("sbsong-genre-input");
+     const selected=academyGenreChoices().find(g=>g.id===b.dataset.genreId);
+     if(input&&selected){
+       input.value=selected.name;
+       state.genrePickerOpen=false;state.genreShowAll=false;state.genreFamily="Все";
+       refreshGenrePicker(false);
+     }
+     return;
+   }
    if(action==="artist-list-toggle"){const opening=!(state.artistPickerOpen&&state.artistShowAll);state.artistShowAll=true;refreshArtistPicker(opening);return;}
    if(action==="artist-pick"){
      const input=document.getElementById("sbsong-artist-input");
@@ -595,7 +691,7 @@
      data.songArtists=customArtists().filter(a=>a.id!==id);persist();
      notify("Артист удалён из списка. Песни остались без изменений.");render();return;
    }
-   if(action==="new"){resetCoverPreview();state.showArtistManager=false;state.editId=null;state.selectedId=null;state.showForm=true;state.notice="";render();return;}
+   if(action==="new"){resetCoverPreview();state.genrePickerOpen=false;state.showArtistManager=false;state.editId=null;state.selectedId=null;state.showForm=true;state.notice="";render();return;}
    if(action==="cancel"){resetCoverPreview();state.showForm=false;state.editId=null;render();return;}
    if(action==="open"){state.selectedId=id;state.showForm=false;state.notice="";render();return;}
    if(action==="close-detail"){state.selectedId=null;state.confirmDelete=null;render();return;}
@@ -608,6 +704,6 @@
  });
  window.addEventListener("hashchange",()=>{if(location.hash.startsWith(SHARE_PREFIX)||location.hash==="#view-songs")routeShare();});
  window.addEventListener("pagehide",()=>{resetCoverPreview();releaseAudio();for(const url of thumbs.values())URL.revokeObjectURL(url);thumbs.clear();});
- window.SUNOBOOM_MY_SONGS=Object.freeze({version:"0.78",count:()=>songs.length,getCards:()=>songs.map(s=>({id:s.id,title:s.title,hasAudio:s.hasAudio})),decodeCard});
+ window.SUNOBOOM_MY_SONGS=Object.freeze({version:"0.79",count:()=>songs.length,getCards:()=>songs.map(s=>({id:s.id,title:s.title,hasAudio:s.hasAudio})),decodeCard});
  if(!routeShare())render();
 })();
