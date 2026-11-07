@@ -549,10 +549,11 @@
     return role[1];
   }
 
+
   function soundSuggestions(genre,block){
     const groups=[],all=new Set();
     const exclusions=/^(?:no |without |clean studio|polished studio|studio recording|studio sound|high-quality|high quality|professional production|not |avoid |no crowd|no stage|no whisper)/i;
-    const clean=(value)=>String(value||"").split(/[,;]+/).map(x=>safeStr(x).trim()).filter(x=>x&&!exclusions.test(x));
+    const clean=value=>String(value||"").split(/[,;]+/).map(x=>safeStr(x).trim()).filter(x=>x&&!exclusions.test(x));
     const addGroup=(title,entries)=>{
       const items=[];
       for(const label of entries){
@@ -562,47 +563,57 @@
       }
       if(items.length)groups.push({title,items});
     };
+    // Role-first order, then actual genre instrumentation from the Academy.
+    addGroup("Для "+smartRoleInfo(block)[0],smartRoleCues(genre,block));
+    addGroup("Энергия "+block.energy+"/5 и вокал",smartDynamicsCues(block));
     if(genre){
       addGroup("Инструменты · "+genre.name,clean(genre.instruments));
       addGroup("Приёмы и звучание · "+genre.name,clean(genre.style));
     }
     const base=PRESETS[genre?genreArchetype(genre):"pop"]||PRESETS.pop;
     const row=base.sections.find(x=>x[0]===block.type)||base.sections.find(x=>x[0]==="verse");
-    if(row)addGroup("Для раздела «"+SECTION[block.type].ru+"»",clean(row[4]));
-    if(!groups.length)addGroup("Подсказки",["piano","bass","drums","acoustic guitar"]);
+    if(row)addGroup("Шаблон для «"+SECTION[block.type].ru+"»",clean(row[4]));
     return groups;
   }
-
-  // Inline, always-visible recommendations for each section. These use the same
-  // Academy genre cues as the full picker and do not replace user-written text.
+  // Always-visible role-specific suggestions (the full searchable catalog remains available).
   function quickSoundsHTML(block){
-    const genre=soundGenreForBlock(block), groups=soundSuggestions(genre,block);
-    const existing=new Set(String(block.instruments||"").split(",").map(v=>normalizeQuery(v.trim())));
-    const candidateGroups=groups.map((group,i)=>({
-      title:i===0?"Инструменты":i===1?"Звучание и приёмы":"Для этого блока",
-      items:group.items.slice(0,i===0?5:i===1?4:3)
-    }));
+    const genre=soundGenreForBlock(block),groups=soundSuggestions(genre,block);
+    const existing=new Set(String(block.instruments||"").split(",").map(x=>normalizeQuery(x.trim())));
+    const role=smartRoleInfo(block),roleName=block.type==="custom"&&block.customName?block.customName:role[0];
     const query=soundPicker.typingId===block.id?normalizeQuery(soundPicker.typingQuery):"";
-    const all=candidateGroups.flatMap(group=>group.items.map(item=>({...group,item})));
-    const filtered=query.length>=2?all.filter(x=>normalizeQuery(x.item).includes(query)):[];
-    const matching=filtered.length>0;
-    const display=matching?[...filtered,...all.filter(x=>!filtered.some(y=>normalizeQuery(y.item)===normalizeQuery(x.item)))]:all;
-    const limited=display.slice(0,matching?8:9);
-    const buttons=limited.map(({item,title})=>{
-      const added=existing.has(normalizeQuery(item));
+    const groupItems=title=>groups.find(g=>g.title===title)?.items||[];
+    const roleItems=groupItems("Для "+role[0]).slice(0,3);
+    const dynamicItems=groupItems("Энергия "+block.energy+"/5 и вокал").slice(0,2);
+    const acoustic=genre?groupItems("Инструменты · "+genre.name):[];
+    const styling=genre?groupItems("Приёмы и звучание · "+genre.name):[];
+    const genreItems=[...acoustic.slice(0,2),...styling.slice(0,2)].slice(0,3);
+    const chip=item=>{
+      const already=existing.has(normalizeQuery(item));
       return '<button type="button" class="sba-quick-chip" data-sba-action="sound-add" data-id="'+esc(block.id)+
-        '" data-sound-value="'+esc(item)+'" title="'+esc(title)+': '+esc(item)+'"'+
-        (added?' disabled aria-disabled="true"':'')+'><span aria-hidden="true">'+(added?'✓':'+')+
-        '</span> '+esc(item)+'</button>';
-    }).join("");
-    return '<div class="sba-quick-top"><span>Рекомендации · <b>'+esc(genre?.name||"Подборка")+'</b></span>'+
+        '" data-sound-value="'+esc(item)+'"'+(already?' disabled aria-disabled="true"':'')+
+        '><span aria-hidden="true">'+(already?'✓':'+')+'</span> '+esc(item)+'</button>';
+    };
+    const groupHTML=(label,items)=>items.length?
+      '<div class="sba-smart-group"><span class="sba-smart-group-title">'+esc(label)+'</span>'+
+      '<div class="sba-quick-list">'+items.map(chip).join("")+'</div></div>':"";
+    const qmatches=query.length>=2?
+      [...new Set(groups.flatMap(group=>group.items).filter(item=>normalizeQuery(item).includes(query)))].slice(0,5):[];
+    const header='<div class="sba-quick-top"><span>Умные рекомендации · <b>'+esc(genre?.name||"Академия")+'</b></span>'+
       '<button type="button" data-sba-action="sound-toggle" data-id="'+esc(block.id)+
       '" aria-expanded="'+(soundPicker.blockId===block.id)+'" aria-controls="sba-sound-panel-'+esc(block.id)+'">'+
-      (soundPicker.blockId===block.id?'Скрыть список':'Все варианты и поиск')+' →</button></div>'+
-      (matching?'<small class="sba-quick-match">По вашему вводу:</small>':'')+
-      '<div class="sba-quick-list">'+buttons+'</div>'+
-      (!matching&&query.length>=2?'<small class="sba-quick-hint">Точного совпадения нет — показаны основные подсказки. Для поиска по всей библиотеке открой список.</small>':'');
+      (soundPicker.blockId===block.id?"Скрыть список":"Все варианты и поиск")+' →</button></div>';
+    const purpose='<div class="sba-smart-purpose"><strong>'+esc(roleName)+' · '+esc(ENERGY[block.energy].ru)+
+      ' · '+block.energy+'/5</strong><span>'+esc(smartPurpose(block))+'</span>'+
+      '<small>Вокал: '+esc(VOICES[block.vocal].ru)+'</small></div>';
+    return header+purpose+
+      (qmatches.length?groupHTML("Подходит по вашему вводу",qmatches):"")+
+      groupHTML("Для этого фрагмента",roleItems)+
+      groupHTML("Характерное звучание жанра",genreItems)+
+      groupHTML("Динамика и исполнение",dynamicItems)+
+      (query.length>=2&&!qmatches.length?
+        '<small class="sba-quick-hint">Точных совпадений нет, показаны рекомендации для этого блока.</small>':"");
   }
+
   function redrawQuickSounds(block){
     const root=document.getElementById("sba-quick-"+block.id);
     if(root)root.innerHTML=quickSoundsHTML(block);
