@@ -108,7 +108,7 @@
       vocal:VOICES[vocal]?vocal:"lead",instruments:safeStr(instruments),customName:safeTitle(customName),instrumentsGenreId:String(instrumentsGenreId||"").slice(0,90)};
   }
   function presetBlocks(name){return choicePresetBlocks(name);}
-  const state={blocks:presetBlocks("pop"),activePreset:"pop",selectedPreset:"pop",presetFilter:"all",presetPending:null,insertAfter:null,transfer:null,applied:null,message:"",tab:"lyrics",expanded:true,dragId:null};
+  const state={blocks:presetBlocks("pop"),activePreset:"pop",selectedPreset:"pop",presetFilter:"all",presetPending:null,insertAfter:null,transfer:null,applied:null,message:"",tab:"lyrics",expanded:true,snakeExpanded:false,dragId:null};
   const soundPicker={blockId:null,mode:"sounds",soundQuery:"",genreQuery:"",typingId:null,typingQuery:""};
   function load(){
     try{
@@ -169,6 +169,12 @@
       '<button type="button" data-sba-action="request-preset" class="sba-btn sba-preset-btn">Применить шаблон</button>'+
       '<span class="sba-draft-saved" id="sba-saved">Черновик сохраняется в браузере</span></div>'+
       '<div id="sba-preset-confirm" aria-live="polite"></div>'+
+      '<section class="sba-snake-overview" aria-label="Краткая схема последовательности блоков">'+
+        '<div class="sba-snake-top"><div><span class="sba-snake-eyebrow">СХЕМА ПЕСНИ</span><h3>Змейка аранжировки <span aria-hidden="true">〰</span></h3></div>'+
+        '<div class="sba-snake-tools"><span id="sba-snake-meta" class="sba-snake-meta"></span><button type="button" id="sba-snake-toggle" data-sba-action="snake-toggle" hidden>Показать все</button></div></div>'+
+        '<div id="sba-snake-track" class="sba-snake-track" aria-live="polite"></div>'+
+        '<p class="sba-snake-footnote">Порядок фрагментов сверху вниз, по змейке. Цвет показывает энергию 1–5.</p>'+
+      '</section>'+
       '<div class="sba-body">'+
       '<div class="sba-editor">'+
         '<div class="sba-panel-title"><div><h3>Структура песни</h3><p>Перетаскивай блоки на компьютере или используй ↑ ↓ на телефоне.</p></div><span id="sba-section-count" class="sba-count"></span></div>'+
@@ -696,11 +702,72 @@
     return state.blocks.map((b,i)=>'<div class="sba-chart-step" title="'+esc(nameFor(b,i))+' · '+b.energy+'/5" style="--energy:'+b.energy+';--bar-width:'+(100/n)+'%">'+
       '<div class="sba-chart-column"><i style="--level:'+b.energy+'"></i></div><small>'+esc(SECTION[b.type].icon)+'</small></div>').join("");
   }
+
+  // Compact read-only arrangement snake: always follows actual block state and order.
+  const SNAKE_PREVIEW_COUNT=12;
+  const SNAKE_SHORT_LABEL={
+    intro:"Вступление",verse:"Куплет",prechorus:"Предприпев",
+    chorus:"Припев",postchorus:"Постприпев",bridge:"Бридж",
+    build:"Разгон",drop:"Дроп",breakdown:"Брейк",
+    solo:"Соло",instrumental:"Инструментал",finalchorus:"Финал",
+    outro:"Конец",custom:"Свой блок"
+  };
+  function snakeName(block,index){
+    if(block.type==="custom")return safeTitle(block.customName)||"Свой блок";
+    const base=SNAKE_SHORT_LABEL[block.type]||SECTION[block.type]?.ru||"Фрагмент";
+    if(block.type==="verse"){
+      const number=state.blocks.slice(0,index+1).filter(b=>b.type==="verse").length;
+      return base+" "+number;
+    }
+    return base;
+  }
+  function snakeRowsHTML(items,columns){
+    const result=[];
+    for(let start=0;start<items.length;start+=columns){
+      const reverse=Math.floor(start/columns)%2===1;
+      const continued=start+columns<items.length;
+      const row=items.slice(start,start+columns).map((block,offset)=>{
+        const index=start+offset,label=snakeName(block,index);
+        return '<span class="sba-snake-chip" data-sba-energy="'+block.energy+'" '+
+          'title="'+esc(String(index+1)+". "+label+" · энергия "+block.energy+"/5")+'">'+
+          '<span class="sba-snake-num">'+(index+1)+'</span>'+
+          '<span class="sba-snake-icon" aria-hidden="true">'+esc(SECTION[block.type].icon)+'</span>'+
+          '<span class="sba-snake-title">'+esc(label)+'</span>'+
+          '<span class="sba-snake-level">'+block.energy+'/5</span></span>';
+      }).join("");
+      result.push('<div class="sba-snake-row'+(reverse?' sba-snake-reverse':'')+
+        (continued?' sba-snake-continues':'')+'">'+row+'</div>');
+    }
+    return result.join("");
+  }
+  function updateSnakeOverview(){
+    const root=document.getElementById("sba-snake-track");
+    if(!root)return;
+    const total=state.blocks.length,shown=state.snakeExpanded?total:Math.min(total,SNAKE_PREVIEW_COUNT);
+    const visible=state.blocks.slice(0,shown);
+    const summary=visible.map((b,i)=>(i+1)+". "+snakeName(b,i)).join(" → ");
+    const desktop=snakeRowsHTML(visible,6),mobile=snakeRowsHTML(visible,3);
+    root.innerHTML=total?
+      '<div class="sba-snake-desktop" role="img" aria-label="'+esc(summary)+'">'+desktop+'</div>'+
+      '<div class="sba-snake-mobile" role="img" aria-label="'+esc(summary)+'">'+mobile+'</div>'+
+      (shown<total?'<p class="sba-snake-more">… и ещё '+(total-shown)+' блоков</p>':""):
+      '<p class="sba-snake-empty">Добавь первый блок, и здесь появится схема композиции.</p>';
+    const meta=document.getElementById("sba-snake-meta");
+    if(meta)meta.textContent=total+" блоков · ≈ "+lengthString();
+    const toggle=document.getElementById("sba-snake-toggle");
+    if(toggle){
+      toggle.hidden=total<=SNAKE_PREVIEW_COUNT;
+      toggle.textContent=state.snakeExpanded?"Свернуть":"Показать все ("+total+")";
+      toggle.setAttribute("aria-expanded",String(state.snakeExpanded));
+    }
+  }
+
   function updateDerived(){
     const text=state.tab==="lyrics"?generatedLyrics():fullDynamics();
     const preview=document.getElementById("sba-preview");if(preview)preview.value=text;
     const count=document.getElementById("sba-preview-count");
     if(count)count.textContent=state.tab==="lyrics"?state.blocks.length+" секций · "+text.length+" символов":"Style · "+text.length+" символов · проверка лимита при переносе";
+    updateSnakeOverview();
     const stats=document.getElementById("sba-section-count");
     if(stats)stats.textContent=state.blocks.length+" секций · ≈ "+lengthString();
     const chart=document.getElementById("sba-energy-chart");
@@ -805,6 +872,7 @@
     const control=event.target?.closest?.("[data-sba-action]");
     if(!control||view.nav!=="studio")return;
     const action=control.dataset.sbaAction;
+    if(action==="snake-toggle"){state.snakeExpanded=!state.snakeExpanded;updateSnakeOverview();return;}
 
     if(action==="sound-toggle"||action==="sound-close"){
       const id=control.dataset.id;
@@ -1013,6 +1081,6 @@
     document.querySelectorAll(".sba-dragging,.sba-drop-target").forEach(el=>el.classList.remove("sba-dragging","sba-drop-target"));
   });
   load();
-  window.SUNOBOOM_ARRANGER=Object.freeze({version:"0.71",getBlockCount:()=>state.blocks.length,getLyrics:generatedLyrics,getStyle:fullDynamics,getDurationEstimate:()=>lengthString()});
+  window.SUNOBOOM_ARRANGER=Object.freeze({version:"0.72",getBlockCount:()=>state.blocks.length,getLyrics:generatedLyrics,getStyle:fullDynamics,getDurationEstimate:()=>lengthString()});
   if(view.nav==="studio")render();
 })();
