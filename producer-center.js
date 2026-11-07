@@ -103,7 +103,7 @@
    const key={song:"songId",passport:"passportId",idea:"ideaId",generated:"generatedIdeaId",project:"projectId",prompt:"promptId"}[type];
    if(key&&id){
      const existing=items().find(w=>w[key]===id);
-     if(existing){open(existing.id);notice("Эта работа уже есть в Продюсерском центре.");return;}
+     if(existing){open(existing.id);notice("Эта работа уже есть в «Мастере».");return;}
    }
    const links=seedRecord(type,id);
    const alreadyLinked=items().find(w=>["songId","passportId"].some(k=>links[k]&&w[k]===links[k]));
@@ -245,7 +245,7 @@
    if(selected)state.selectedId=selected.id;
    return '<div class="sbpc-page">'+
      '<header class="sbpc-hero"><span class="sbpc-kicker">SUNOBOOM · РАБОЧЕЕ ПРОСТРАНСТВО</span>'+
-       '<h1>Продюсерский центр <span>✦</span></h1><p>От идеи до релиза — единая рабочая карточка песни. Материалы связаны с существующими инструментами SUNOBOOM.</p>'+
+       '<h1>Мастер <span>✦</span></h1><p>От идеи до релиза — единая рабочая карточка песни. Материалы связаны с существующими инструментами SUNOBOOM.</p>'+
        '<div class="sbpc-hero-stats"><span><strong>'+records.length+'</strong> песен в работе</span>'+
        '<span><strong>'+records.filter(x=>completed(x)===STEPS.length).length+'</strong> полностью пройдено</span>'+
        '<span>Хранение: этот браузер</span></div></header>'+
@@ -257,8 +257,8 @@
        '<input id="sbpc-search" type="search" value="'+e(state.query)+'" placeholder="Найти песню или артиста" aria-label="Поиск по песням"></div>'+
        '<div id="sbpc-list" class="sbpc-song-list">'+(records.length?cards():'<p class="sbpc-empty">Пока нет рабочих карточек. Начни с первой песни выше.</p>')+'</div></aside>'+
        (selected?detail(selected):'<div class="sbpc-empty-state"><strong>Пока нет песен в работе</strong>'+
-       '<p>Продюсерский центр объединяет уже созданные идеи, текст, аранжировку, генерации, прослушивание и релизы.</p></div>')+
-     '</div><p class="sbpc-privacy">🔒 Локальная работа: синхронизации между устройствами нет. Аудиофайлы остаются в «Мои песни»; сам Продюсерский центр хранит только ссылки, этапы, заметки, историю и снимок аранжировки.</p></div>';
+       '<p>Мастер объединяет уже созданные идеи, текст, аранжировку, генерации, прослушивание и релизы.</p></div>')+
+     '</div><p class="sbpc-privacy">🔒 Локальная работа: синхронизации между устройствами нет. Аудиофайлы остаются в «Мои песни»; сам раздел «Мастер» хранит только ссылки, этапы, заметки, историю и снимок аранжировки.</p></div>';
  }
  function backTo(type,id){
    if(type==="idea"&&resource(type,id)){view.editIdea=id;go("myideas");document.getElementById("idea-editor")?.scrollIntoView({block:"start"});return;}
@@ -338,14 +338,14 @@
  // Navigation: primary creative tool, also accessible as a tile in Account.
  if(Array.isArray(navs)&&!navs.some(x=>x[0]==="producer")){
    const pos=navs.findIndex(x=>x[0]==="account");
-   navs.splice(pos<0?navs.length:pos,0,["producer","Продюсерский центр","studio"]);
+   navs.splice(pos<0?navs.length:pos,0,["producer","Мастер","studio"]);
  }
  const previousAccount=account;
  account=function(){
    const html=previousAccount.apply(this,arguments),anchor='<div class="account-grid">';
    if(!html.includes(anchor))return html;
    const tile='<button type="button" class="account-tile sbpc-account-tile" data-action="nav" data-nav="producer">'+
-      '<span class="sbpc-account-icon">◉</span><strong>Продюсерский центр</strong>'+
+      '<span class="sbpc-account-icon">◉</span><strong>Мастер</strong>'+
       '<span>Все песни: от идеи до релиза</span><b class="tile-count">'+items().length+'</b>'+
       '<span class="account-tile-arrow" aria-hidden="true">↗</span></button>';
    return html.replace(anchor,anchor+tile);
@@ -356,7 +356,7 @@
    sbTrackDetail=function(t){
      const html=oldPassport.apply(this,arguments),anchor='<div class="sb-track-buttons">';
      return t?.id&&html.includes(anchor)?html.replace(anchor,anchor+
-       '<button type="button" class="btn ghost small" data-action="pc-from-passport" data-id="'+e(t.id)+'">🎛 Продюсерский центр</button>'):html;
+       '<button type="button" class="btn ghost small" data-action="pc-from-passport" data-id="'+e(t.id)+'">🎛 Мастер</button>'):html;
    };
  }
  if(typeof myideas==="function"){
@@ -364,7 +364,7 @@
    myideas=function(){
      const html=oldIdeas.apply(this,arguments);
      return html.replace(/(<button class="btn ghost small" data-action="edit-manual-idea" data-id="([^"]+)">Изменить<\/button>)/g,
-       (_all,button,id)=>button+'<button class="btn ghost small" data-action="pc-from-idea" data-id="'+e(id)+'">В продюсерский центр</button>');
+       (_all,button,id)=>button+'<button class="btn ghost small" data-action="pc-from-idea" data-id="'+e(id)+'">Открыть в «Мастере»</button>');
    };
  }
  const oldRender=render;
