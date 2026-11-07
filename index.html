@@ -3320,6 +3320,11 @@ function sbAcademySearchInName(text,query){
 function sbAcademySearchSelection(){
  const q=sbAcademyNormalizeSearch(view.search);
  if(!q)return {ids:null,mode:"all"};
+ const terms=q==="ска"?["ска","ska"]:q==="ska"?["ska","ска"]:[q];
+ const exactNames=GENRES.filter(g=>
+   sbAcademyNormalizeSearch(g.name).split(/[^\p{L}\p{N}]+/u).some(word=>terms.includes(word))
+ );
+ if(exactNames.length)return {ids:new Set(exactNames.map(g=>g.id)),mode:"name"};
  const byName=GENRES.filter(g=>sbAcademySearchInName(g.name,q));
  if(byName.length)return {ids:new Set(byName.map(g=>g.id)),mode:"name"};
  const byFamily=GENRES.filter(g=>sbAcademySearchInName(g.family,q));
