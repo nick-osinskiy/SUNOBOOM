@@ -207,6 +207,47 @@
    if(selected.audioUrl)audio.src=selected.audioUrl;
    else if(selected.hasAudio)notify("Не удалось найти аудиофайл в хранилище устройства.");
  }
+
+ // Existing Track Passport can create/update a library card without duplicating metadata entry.
+ if(typeof sbTrackDetail==="function"){
+   const previousTrackDetail=sbTrackDetail;
+   sbTrackDetail=function(t){
+     const original=previousTrackDetail.apply(this,arguments);
+     const anchor='<div class="sb-track-buttons">';
+     if(!original.includes(anchor)||!t?.id)return original;
+     const button='<button type="button" class="btn primary small" data-sbsong-action="from-passport" data-id="'+esc(t.id)+'">♪ Сохранить в «Мои песни»</button>';
+     return original.replace(anchor,anchor+button);
+   };
+ }
+ function importPassport(id){
+   const t=(data.tracks||[]).find(t=>t.id===id);
+   if(!t){notify("Паспорт трека не найден.");return;}
+   const found=songs.find(s=>s.passportId===id);
+   const url=safeURL(t.audioUrl);
+   const direct=/\.(mp3|wav|m4a|aac|ogg|flac)(?:[?#]|$)/i.test(url);
+   const project=(data.projects||[]).find(p=>p.id===t.projectId);
+   const title=clean(t.title,120);
+   if(!title){notify("Укажи название в Паспорте трека.");return;}
+   const now=Date.now();
+   const card={
+     id:found?.id||("song-"+now.toString(36)+"-"+Math.random().toString(36).slice(2,9)),
+     passportId:id,title,artist:clean(t.artist,120),
+     genre:clean(typeof GENRES!=="undefined"?GENRES.find(g=>g.id===t.genre)?.name||t.genre:t.genre,80),
+     album:clean(project?.title||"",120),
+     description:clean(t.notes||t.arrangement||"",700),
+     audioUrl:direct?url:found?.audioUrl||"",
+     listenUrl:direct?found?.listenUrl||"":url||found?.listenUrl||"",
+     coverUrl:safeURL(t.coverUrl)||found?.coverUrl||"",
+     hasAudio:found?.hasAudio||false,hasCover:found?.hasCover||false,
+     createdAt:found?.createdAt||now,updatedAt:now
+   };
+   const backup=[...songs];
+   songs=found?songs.map(x=>x.id===found.id?card:x):[card,...songs];
+   if(!save()){songs=backup;notify("Не удалось сохранить карточку.");return;}
+   state.editId=null;state.showForm=false;state.selectedId=card.id;
+   state.notice="Карточка создана из Паспорта трека. При необходимости добавь MP3 и обложку.";
+   view.nav="songs";render();window.scrollTo({top:0,behavior:"instant"});
+ }
  const previousAccount=account;
  account=function(){
    const html=previousAccount.apply(this,arguments);
@@ -322,6 +363,7 @@
  document.addEventListener("click",event=>{
    const b=event.target?.closest?.("[data-sbsong-action]");if(!b)return;
    const action=b.dataset.sbsongAction,id=b.dataset.id;
+   if(action==="from-passport"){importPassport(id);return;}
    if(action==="open-library"){openLibrary();return;}
    if(action==="shared-home"){
      history.replaceState(null,"",location.pathname+location.search);state.shared=null;go("home");return;
