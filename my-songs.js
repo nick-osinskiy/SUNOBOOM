@@ -759,6 +759,14 @@
    }catch(e){if(e.name!=="AbortError")notify("Не удалось отправить аудио: "+e.message);}
  }
  document.addEventListener("submit",event=>{if(event.target?.id==="sbsong-save-form")submitForm(event);});
+  document.addEventListener("change",event=>{
+    if(view.nav!=="songs"||!get(state.selectedId))return;
+    if(event.target?.id==="sbsong-compare-a"){
+      state.compareAId=event.target.value;render();
+    }else if(event.target?.id==="sbsong-compare-b"){
+      state.compareBId=event.target.value;render();
+    }
+  });
  document.addEventListener("change",event=>{
    if(view.nav!=="songs"||!state.showForm)return;
    const input=event.target;
@@ -830,6 +838,18 @@
    }
    if(action==="back"){go("account");return;}
    if(view.nav!=="songs")return;
+   if(action==="version-add"){void addTake();return;}
+   if(action==="version-play"){
+     const song=get(state.selectedId);
+     if(song&&songVersions(song).some(v=>v.id===b.dataset.versionId)){
+       state.playVersionId=b.dataset.versionId;render();
+     }
+     return;
+   }
+   if(action==="version-main"){markMainTake(b.dataset.versionId);return;}
+   if(action==="version-save"){editTakeDetails(b.dataset.versionId);return;}
+   if(action==="version-remove"){void removeTake(b.dataset.versionId);return;}
+   if(action==="compare-toggle"){state.compareOpen=!state.compareOpen;render();return;}
    if(action==="genre-toggle"){
      const opening=!(state.genrePickerOpen&&state.genreShowAll);
      state.genreShowAll=true;
@@ -872,16 +892,16 @@
      data.songArtists=customArtists().filter(a=>a.id!==id);persist();
      notify("Артист удалён из списка. Песни остались без изменений.");render();return;
    }
-   if(action==="new"){resetCoverPreview();state.genrePickerOpen=false;state.showArtistManager=false;state.editId=null;state.selectedId=null;state.showForm=true;state.notice="";render();return;}
+   if(action==="new"){resetCoverPreview();resetTakeView();state.genrePickerOpen=false;state.showArtistManager=false;state.editId=null;state.selectedId=null;state.showForm=true;state.notice="";render();return;}
    if(action==="cancel"){resetCoverPreview();state.showForm=false;state.editId=null;render();return;}
-   if(action==="open"){state.selectedId=id;state.showForm=false;state.notice="";render();return;}
-   if(action==="close-detail"){state.selectedId=null;state.confirmDelete=null;render();return;}
+   if(action==="open"){resetTakeView();state.selectedId=id;state.showForm=false;state.notice="";render();return;}
+   if(action==="close-detail"){resetTakeView();state.selectedId=null;state.confirmDelete=null;render();return;}
    if(action==="edit"){if(!get(id))return;resetCoverPreview();state.editId=id;state.selectedId=id;state.showForm=true;render();return;}
    if(action==="delete"){state.confirmDelete=id;render();return;}
    if(action==="delete-cancel"){state.confirmDelete=null;render();return;}
    if(action==="delete-confirm"){removeSong(id);return;}
    if(action==="share"){const song=get(id);if(song)shareCard(song);return;}
-   if(action==="share-file"){const song=get(id);if(song)shareAudio(song);return;}
+   if(action==="share-file"){const song=get(id);if(song)shareAudio(song,b.dataset.versionId);return;}
  });
  window.addEventListener("hashchange",()=>{if(location.hash.startsWith(SHARE_PREFIX)||location.hash==="#view-songs")routeShare();});
  window.addEventListener("pagehide",()=>{resetCoverPreview();releaseAudio();for(const url of thumbs.values())URL.revokeObjectURL(url);thumbs.clear();});
