@@ -1185,6 +1185,7 @@
     const to=at+(event.key==="ArrowLeft"?-1:1);
     if(to<0||to>=state.blocks.length)return;
     event.preventDefault();
+    if(to>=SNAKE_PREVIEW_COUNT&&!state.snakeExpanded)state.snakeExpanded=true;
     if(reorderSnake(id,state.blocks[to].id)){
       const matches=document.querySelectorAll("[data-sba-snake-id]");
       const active=[...matches].find(el=>el.dataset.sbaSnakeId===id&&el.getClientRects?.().length)||[...matches].find(el=>el.dataset.sbaSnakeId===id);
