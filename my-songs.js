@@ -246,9 +246,9 @@
  function genreField(value){
    return '<div class="sbsong-genre-field">'+
      '<label class="sbsong-field" for="sbsong-genre-input"><span>Жанр</span>'+
-       '<input type="text" id="sbsong-genre-input" name="genre" maxlength="80" value="'+escapeAttr(value)+'" autocomplete="off" placeholder="Найти жанр или ввести свой" aria-autocomplete="list" aria-expanded="false" aria-controls="sbsong-genre-options"></label>'+
+       '<input type="text" id="sbsong-genre-input" name="genre" maxlength="80" value="'+escapeAttr(value)+'" autocomplete="off" placeholder="Найти жанр или ввести свой" aria-autocomplete="list" aria-expanded="false" aria-controls="sbsong-genre-results"></label>'+
      '<button type="button" class="sbsong-genre-toggle" data-sbsong-action="genre-toggle" aria-controls="sbsong-genre-options" aria-expanded="false">▾ Выбрать из Академии</button>'+
-     '<div class="sbsong-genre-options" id="sbsong-genre-options" role="listbox" aria-label="Жанры и поджанры Академии" hidden></div>'+
+     '<div class="sbsong-genre-options" id="sbsong-genre-options" role="region" aria-label="Выбор жанра из Академии" hidden></div>'+
    '</div>';
  }
  function refreshGenrePicker(show){
@@ -280,7 +280,7 @@
    }).join(""):'<p class="sbsong-genre-hint">'+
      (genres.length?"Не найдено. Можно ввести свой жанр вручную.":"Каталог Академии пока недоступен. Введи жанр вручную.")+
      '</p>';
-   holder.innerHTML=filterSelect+'<div class="sbsong-genre-results">'+content+'</div>';
+   holder.innerHTML=filterSelect+'<div class="sbsong-genre-results" id="sbsong-genre-results" role="listbox" aria-label="Жанры и поджанры">'+content+'</div>';
    holder.hidden=!state.genrePickerOpen;
    input.setAttribute("aria-expanded",String(state.genrePickerOpen));
    if(toggle)toggle.setAttribute("aria-expanded",String(state.genrePickerOpen));
@@ -625,6 +625,9 @@
    }
  });
  document.addEventListener("keydown",event=>{
+   if(view.nav==="songs"&&event.target?.id==="sbsong-genre-input"&&event.key==="Escape"&&state.genrePickerOpen){
+     refreshGenrePicker(false);event.preventDefault();return;
+   }
    if(view.nav==="songs"&&event.target?.id==="sbsong-artist-manager-add"&&event.key==="Enter"){
      event.preventDefault();document.querySelector('[data-sbsong-action="artist-manager-add"]')?.click();
    }
