@@ -100,6 +100,21 @@
   const itemHTML=x=>'<li class="sbpa-item sbpa-'+x.kind+'"><div><strong>'+esc(x.title)+'</strong><p>'+esc(x.detail)+'</p><small>'+esc(x.fix)+'</small></div></li>';
   function resultMarkup(){
     const text=currentText(),report=inspect(text,genre());
+    if(state.mode==="studio"){
+      const missing=[];
+      if(builder.theme?.trim()&&!text.includes(builder.theme.trim()))missing.push("тема песни");
+      if(builder.extra?.trim()&&!text.includes(builder.extra.trim()))missing.push("дополнительные указания");
+      if(builder.studio&&!text.includes("no live ambience"))missing.push("без концертной атмосферы");
+      if(builder.noWhisper&&!text.includes("no whispering"))missing.push("без шёпота");
+      if(builder.noChoir&&!text.includes("no choir"))missing.push("без хора");
+      if(builder.noIntro&&!text.includes("no long intro"))missing.push("короткое интро");
+      if(missing.length){
+        report.issues.unshift(issue("warn","Важные настройки Studio не вошли в промпт",
+          "Не попали: "+missing.join(", ")+". Существующий конструктор может сокращать слишком длинный текст до базовых частей.",
+          "Укороти дополнительное описание в настройках Studio, затем проверь актуальный промпт заново."));
+        report.score=Math.max(0,report.score-14);
+      }
+    }
     const status=report.length>MAX?"Превышен лимит":report.score>=90?"Хорошая структура":report.score>=65?"Есть замечания":"Нужна проверка";
     const issues=report.issues.length?'<ul class="sbpa-issues">'+report.issues.map(itemHTML).join("")+'</ul>':
       '<p class="sbpa-clear">Явных противоречий и повторов по проверяемым правилам не найдено.</p>';
