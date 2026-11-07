@@ -947,11 +947,14 @@
       b.customName=safeTitle(el.value);
       const box=el.closest(".sba-block"),head=box?.querySelector(".sba-block-head strong");
       if(head)head.textContent=nameFor(b,index);
+      redrawQuickSounds(b);
     }else if(key==="energy"){
       const energy=Number(el.value);if(energy<1||energy>5)return;
       b.energy=energy;
       const box=el.closest(".sba-block");
       if(box){box.dataset.sbaEnergy=String(energy);const output=box.querySelector('[data-sba-output="'+b.id+'"]');if(output)output.textContent=energy+"/5 · "+ENERGY[energy].ru;const title=box.querySelector(".sba-head-energy");if(title)title.textContent="Энергия "+energy+"/5";}
+      redrawQuickSounds(b);
+      if(soundPicker.blockId===b.id)redrawSoundOptions(b);
     }else if(key==="instruments"){
       b.instruments=safeStr(el.value);
       soundPicker.typingId=b.id;
@@ -1009,6 +1012,6 @@
     document.querySelectorAll(".sba-dragging,.sba-drop-target").forEach(el=>el.classList.remove("sba-dragging","sba-drop-target"));
   });
   load();
-  window.SUNOBOOM_ARRANGER=Object.freeze({version:"0.70",getBlockCount:()=>state.blocks.length,getLyrics:generatedLyrics,getStyle:fullDynamics,getDurationEstimate:()=>lengthString()});
+  window.SUNOBOOM_ARRANGER=Object.freeze({version:"0.71",getBlockCount:()=>state.blocks.length,getLyrics:generatedLyrics,getStyle:fullDynamics,getDurationEstimate:()=>lengthString()});
   if(view.nav==="studio")render();
 })();
