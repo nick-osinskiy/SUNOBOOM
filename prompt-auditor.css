@@ -1,0 +1,55 @@
+/* SUNOBOOM 0.91 · Prompt Auditor; additive to Suno Studio and My Prompts */
+.sbpa-auditor{margin:20px 0 32px;border:1px solid #755883;background:linear-gradient(135deg,#282140,#1b2941 65%,#17283a);border-radius:19px;padding:clamp(16px,3vw,26px);min-width:0;color:#e9e9f8}
+.sbpa-head{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:16px}
+.sbpa-eyebrow{font-size:10px;letter-spacing:1.35px;font-weight:900;color:#f1a2d3}
+.sbpa-head h2{margin:4px 0 6px;font-size:clamp(19px,2vw,26px);font-weight:890;color:#fff}
+.sbpa-head p{font-size:12px;color:#c4c7df;line-height:1.6;margin:0;max-width:610px}
+.sbpa-local{font-size:10px;border:1px solid #6c7291;color:#c1d6e9;border-radius:20px;padding:6px 10px;background:#23334a;font-weight:800}
+.sbpa-tabs{display:flex;gap:8px;flex-wrap:wrap;border-bottom:1px solid #5e5177;padding:0 0 13px}
+.sbpa-tabs button{border:1px solid #655c82;border-radius:10px;background:#302e4d;color:#d9cde9;font-size:12px;font-weight:810;padding:10px 15px;min-height:42px;cursor:pointer}
+.sbpa-tabs button.active{background:linear-gradient(115deg,#7d437c,#475b93);border-color:#c484bc;color:#fff}
+.sbpa-tabs button:hover,.sbpa-actions button:hover,.sbpa-editor-entry button:hover{filter:brightness(1.13)}
+.sbpa-context{font-size:11px;color:#b6c4dc;margin:12px 0 0}
+.sbpa-manual{display:grid;grid-template-columns:1fr 1fr;gap:9px 14px;margin:15px 0}
+.sbpa-manual label:first-child,.sbpa-manual textarea{grid-column:1 / -1}
+.sbpa-manual label{font-size:11px;font-weight:800;color:#d6d2eb}
+.sbpa-manual textarea,.sbpa-manual select,.sbpa-proposal textarea{min-width:0;width:100%;background:#171f36;color:#f3edff;border:1px solid #696586;border-radius:10px;padding:12px;font-size:13px;line-height:1.6;outline:none}
+.sbpa-manual textarea{resize:vertical;min-height:130px}
+.sbpa-manual select{min-height:42px;grid-column:1 / -1}
+.sbpa-scoreline{display:flex;align-items:center;gap:16px;padding:16px 0 12px}
+.sbpa-score{display:grid;place-content:center;text-align:center;min-width:74px;height:74px;border-radius:18px;background:linear-gradient(135deg,#7e4c84,#435b90);font-size:27px;font-weight:940;color:#fff}
+.sbpa-score small{font-size:10px;font-weight:730;color:#e9dcec}
+.sbpa-score-info{flex:1;min-width:0;display:grid;gap:5px}
+.sbpa-score-info strong{font-size:14px;color:#f9e4fc}
+.sbpa-score-info span{font-size:11px;color:#b8c8da;line-height:1.6}
+.sbpa-meter{height:7px;border-radius:20px;overflow:hidden;background:#151c33}
+.sbpa-meter span{height:100%;display:block;background:linear-gradient(90deg,#bd5ad2,#66ced3)}
+.sbpa-limit{min-width:116px;text-align:right;font-size:12px;font-weight:870;color:#a7eadb}
+.sbpa-limit.over{color:#ffc0c3}
+.sbpa-issues{padding:0;margin:5px 0 15px;list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.sbpa-item{border:1px solid #56607e;border-left:3px solid #7eadd7;border-radius:11px;background:#222941;padding:12px}
+.sbpa-item.sbpa-error{border-left-color:#fc8e9f}
+.sbpa-item.sbpa-warn{border-left-color:#efbb74}
+.sbpa-item.sbpa-tip{border-left-color:#8bafe7}
+.sbpa-item strong{font-size:12px;color:#f7e9ff}
+.sbpa-item p{font-size:11px;color:#bfc8dd;line-height:1.6;margin:5px 0}
+.sbpa-item small{font-size:10px;color:#9edbe1;line-height:1.5;display:block}
+.sbpa-clear{border:1px solid #476975;background:#1d3846;color:#b0ebd7;border-radius:10px;padding:14px;margin:10px 0;font-size:12px}
+.sbpa-actions{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.sbpa-actions button,.sbpa-editor-entry button{cursor:pointer;padding:10px 14px;min-height:41px;border:1px solid #766995;border-radius:9px;background:#333753;color:#f3eaff;font-size:12px;font-weight:800}
+.sbpa-actions button.sbpa-primary,.sbpa-editor-entry button{background:linear-gradient(110deg,#8a4a8d,#4c5895);color:#fff;border-color:#bd8dc8}
+.sbpa-proposal{border:1px solid #6f658b;background:#1d293f;border-radius:13px;padding:16px;margin-top:12px;min-width:0}
+.sbpa-proposal h4{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 8px;font-size:14px;color:#f6d0f2}
+.sbpa-proposal h4 small{font-size:11px;color:#b5e7d8}
+.sbpa-proposal p,.sbpa-proposal details,.sbpa-proposal>small{font-size:11px;color:#bbc8de;line-height:1.6}
+.sbpa-proposal details{margin:9px 0}
+.sbpa-proposal details summary{cursor:pointer;font-weight:780}
+.sbpa-proposal details ul{max-height:150px;overflow:auto;padding-left:19px}
+.sbpa-proposal label{display:block;font-size:11px;font-weight:780;margin:10px 0 6px}
+.sbpa-proposal textarea{min-height:125px;resize:vertical}
+.sbpa-proposal .sbpa-alert{color:#ffc0c3}
+.sbpa-foot{font-size:10px;color:#98a9c4;line-height:1.7;margin:13px 0 0}
+.sbpa-auditor button:focus-visible,.sbpa-auditor select:focus-visible,.sbpa-auditor textarea:focus-visible,.sbpa-editor-entry button:focus-visible{outline:2px solid #8bdeee;outline-offset:3px}
+.sbpa-editor-entry{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:4px 0 12px}
+.sbpa-editor-entry span{font-size:11px;color:#aabdd8;line-height:1.5}
+@media(max-width:720px){.sbpa-auditor{padding:13px}.sbpa-scoreline{flex-wrap:wrap;gap:10px}.sbpa-score{width:63px;height:63px;min-width:63px;font-size:23px}.sbpa-limit{min-width:0;width:100%;text-align:left}.sbpa-issues{grid-template-columns:1fr}.sbpa-manual{grid-template-columns:1fr}.sbpa-proposal{padding:12px}.sbpa-actions button{width:100%}.sbpa-tabs button{flex:1 1 150px;font-size:11px}.sbpa-editor-entry button{width:100%}}
