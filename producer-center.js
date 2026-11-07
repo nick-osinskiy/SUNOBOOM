@@ -105,7 +105,10 @@
      const existing=items().find(w=>w[key]===id);
      if(existing){open(existing.id);notice("Эта работа уже есть в Продюсерском центре.");return;}
    }
-   const links=seedRecord(type,id),dup=conflict(links,null);
+   const links=seedRecord(type,id);
+   const alreadyLinked=items().find(w=>["songId","passportId"].some(k=>links[k]&&w[k]===links[k]));
+   if(alreadyLinked){open(alreadyLinked.id);notice("Открыта существующая рабочая карточка этой песни.");return;}
+   const dup=conflict(links,null);
    if(dup){notice(dup);return;}
    const title=trim(titleOverride||resourceName(src,type)||"",120);
    if(!title||(!src&&title==="Без названия")){notice("Укажи название будущей песни.");return;}
