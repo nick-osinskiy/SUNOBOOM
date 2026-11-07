@@ -22,6 +22,55 @@
     outro:{ru:"Завершение",en:"Outro",icon:"◦"},
     custom:{ru:"Свой блок",en:"Custom Section",icon:"✎"}
   };
+
+  // Transitions are anchored to the outgoing section (and move with it).
+  const TRANSITIONS={
+    none:{ru:"Без перехода",en:"",icon:"—"},
+    fill:{ru:"Барабанная сбивка",en:"drum fill",icon:"🥁"},
+    riser:{ru:"Нарастание / райзер",en:"rising sweep and snare build",icon:"↗"},
+    pause:{ru:"Резкая пауза",en:"brief silence then a clean entrance",icon:"Ⅱ"},
+    smooth:{ru:"Плавный переход",en:"smooth seamless instrumental transition",icon:"≈"},
+    fade:{ru:"Затухание",en:"gradual fade-out into the next part",icon:"◌"},
+    accent:{ru:"Инструментальный акцент",en:"strong instrumental accent before the next section",icon:"✦"}
+  };
+  const TRANSITION_LENGTH={short:{ru:"Короткий",en:"short"},medium:{ru:"Средний",en:"moderate"},long:{ru:"Длинный",en:"extended"}};
+  const TRANSITION_STRENGTH={soft:{ru:"Мягкий",en:"subtle"},medium:{ru:"Умеренный",en:"clear"},strong:{ru:"Выраженный",en:"pronounced"}};
+  function makeTransition(t){
+    const x=t&&typeof t==="object"?t:{};
+    return {type:TRANSITIONS[x.type]?x.type:"none",
+      length:TRANSITION_LENGTH[x.length]?x.length:"short",
+      strength:TRANSITION_STRENGTH[x.strength]?x.strength:"medium"};
+  }
+  function transitionTag(block){
+    const t=makeTransition(block.transitionOut);
+    return t.type==="none"?"":"[Transition: "+TRANSITION_LENGTH[t.length].en+", "+TRANSITION_STRENGTH[t.strength].en+" "+TRANSITIONS[t.type].en+"]";
+  }
+  function transitionTip(from,to){
+    if(!to)return makeTransition(null);
+    const delta=to.energy-from.energy;
+    let type="smooth";
+    if(to.type==="outro")type="fade";
+    else if(to.type==="breakdown"||delta<=-3)type="pause";
+    else if(to.type==="build"||to.type==="prechorus")type="riser";
+    else if(["chorus","finalchorus","drop"].includes(to.type)&&delta>0)type="riser";
+    else if(["chorus","finalchorus","drop"].includes(to.type))type="accent";
+    else if(["verse","chorus","finalchorus"].includes(from.type))type="fill";
+    else if(to.type==="solo")type="accent";
+    return {type,length:type==="riser"&&delta>=2?"medium":"short",
+      strength:Math.max(from.energy,to.energy)>=4?"strong":"medium"};
+  }
+  function transitionShortLabel(block){
+    const t=makeTransition(block.transitionOut);
+    return TRANSITIONS[t.type].ru;
+  }
+  function transitionStyleSummary(){
+    const list=state.blocks.slice(0,-1).map((b,i)=>{
+      const t=makeTransition(b.transitionOut);
+      return t.type==="none"?"":(i+1)+"→"+(i+2)+" "+TRANSITIONS[t.type].en;
+    }).filter(Boolean);
+    return list.length?" Transitions: "+list.slice(0,6).join("; ")+(list.length>6?"; +"+(list.length-6)+" more":"")+".":"";
+  }
+
   const VOICES={
     lead:{ru:"Основной вокал",en:"clear lead vocal"},
     female:{ru:"Женский вокал",en:"clear female lead vocal"},
@@ -101,20 +150,20 @@
   const safeStr=s=>String(s||"").replace(/[\[\]\r\n<>]/g," ").replace(/\s+/g," ").trim().slice(0,300);
   const safeTitle=s=>String(s||"").replace(/[\[\]<>\r\n:]/g," ").replace(/\s+/g," ").trim().slice(0,48);
   let serial=0;
-  function makeBlock(type,energy,bars,vocal,instruments,customName="",instrumentsGenreId=""){
+  function makeBlock(type,energy,bars,vocal,instruments,customName="",instrumentsGenreId="",transitionOut=null){
     return {id:"sba-"+(++serial),type:SECTION[type]?type:"verse",
       energy:Math.max(1,Math.min(5,Number(energy)||3)),
       bars:[2,4,8,12,16,24,32].includes(Number(bars))?Number(bars):8,
-      vocal:VOICES[vocal]?vocal:"lead",instruments:safeStr(instruments),customName:safeTitle(customName),instrumentsGenreId:String(instrumentsGenreId||"").slice(0,90)};
+      vocal:VOICES[vocal]?vocal:"lead",instruments:safeStr(instruments),customName:safeTitle(customName),instrumentsGenreId:String(instrumentsGenreId||"").slice(0,90),transitionOut:makeTransition(transitionOut)};
   }
   function presetBlocks(name){return choicePresetBlocks(name);}
-  const state={blocks:presetBlocks("pop"),activePreset:"pop",selectedPreset:"pop",presetFilter:"all",presetPending:null,insertAfter:null,transfer:null,applied:null,message:"",tab:"lyrics",expanded:true,snakeExpanded:false,dragId:null};
+  const state={blocks:presetBlocks("pop"),activePreset:"pop",selectedPreset:"pop",presetFilter:"all",presetPending:null,insertAfter:null,transfer:null,applied:null,message:"",tab:"lyrics",expanded:true,snakeExpanded:false,transitionOpenId:null,dragId:null};
   const soundPicker={blockId:null,mode:"sounds",soundQuery:"",genreQuery:"",typingId:null,typingQuery:""};
   function load(){
     try{
       const raw=JSON.parse(localStorage.getItem(KEY)||"{}");
       if(!raw||!Array.isArray(raw.blocks)||raw.blocks.length>MAX_BLOCKS)return;
-      state.blocks=raw.blocks.map(b=>makeBlock(b.type,b.energy,b.bars,b.vocal,b.instruments,b.customName,b.instrumentsGenreId));
+      state.blocks=raw.blocks.map(b=>makeBlock(b.type,b.energy,b.bars,b.vocal,b.instruments,b.customName,b.instrumentsGenreId,b.transitionOut));
       if(choiceMeta(raw.activePreset))state.activePreset=raw.activePreset;
       state.selectedPreset=state.activePreset;
     }catch(e){}
@@ -133,7 +182,7 @@
     return parts.join(", ");
   }
   function generatedLyrics(){
-    return state.blocks.map((b,i)=>"["+nameFor(b,i)+": "+cues(b)+"]").join("\n\n");
+    return state.blocks.map((b,i)=>"["+nameFor(b,i)+": "+cues(b)+"]"+(i<state.blocks.length-1&&transitionTag(b)?"\n\n"+transitionTag(b):"")).join("\n\n");
   }
   function lengthSeconds(){
     const tempo=Number(builder.tempo)||120;
@@ -146,7 +195,7 @@
   function stageName(b){return (b.type==="custom"?safeTitle(b.customName)||"custom section":SECTION[b.type].en).toLowerCase().replace("instrumental ","");}
   function shortDynamics(){
     const genre=choiceMeta(state.activePreset)?.genre;
-    return (genre?"Genre: "+genre.name+". ":"")+"Arrangement: "+state.blocks.map(b=>stageName(b)+" "+b.energy+"/5").join(" > ")+".";
+    return (genre?"Genre: "+genre.name+". ":"")+"Arrangement: "+state.blocks.map(b=>stageName(b)+" "+b.energy+"/5").join(" > ")+"."+transitionStyleSummary();
   }
   function fullDynamics(){
     const base=shortDynamics();
@@ -1008,7 +1057,7 @@
     if(action==="duplicate"){
       if(state.blocks.length>=MAX_BLOCKS){show("Ограничение: "+MAX_BLOCKS+" блоков.");return;}
       const b=state.blocks[index];
-      state.blocks.splice(index+1,0,makeBlock(b.type,b.energy,b.bars,b.vocal,b.instruments,b.customName,b.instrumentsGenreId));
+      state.blocks.splice(index+1,0,makeBlock(b.type,b.energy,b.bars,b.vocal,b.instruments,b.customName,b.instrumentsGenreId,b.transitionOut));
       changed();return;
     }
   });
@@ -1193,6 +1242,6 @@
     }
   });
   load();
-  window.SUNOBOOM_ARRANGER=Object.freeze({version:"0.73",getBlockCount:()=>state.blocks.length,getLyrics:generatedLyrics,getStyle:fullDynamics,getDurationEstimate:()=>lengthString()});
+  window.SUNOBOOM_ARRANGER=Object.freeze({version:"0.74",getBlockCount:()=>state.blocks.length,getLyrics:generatedLyrics,getStyle:fullDynamics,getDurationEstimate:()=>lengthString()});
   if(view.nav==="studio")render();
 })();
