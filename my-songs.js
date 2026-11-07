@@ -407,7 +407,7 @@
       '<button type="button" class="sbsong-main-btn" data-sbsong-action="share" data-id="'+esc(song.id)+'">🔗 Поделиться ссылкой</button>'+
       (song.hasAudio?'<button type="button" data-sbsong-action="share-file" data-id="'+esc(song.id)+'">Отправить аудиофайл</button>':"")+
       (song.listenUrl?'<a href="'+esc(song.listenUrl)+'" target="_blank" rel="noopener noreferrer">Открыть публичную запись ↗</a>':"")+
-      '<button type="button" data-sbsong-action="producer" data-id="'+esc(song.id)+'">🎛 Продюсерский центр</button>'+ 
+      '<button type="button" data-sbsong-action="producer" data-id="'+esc(song.id)+'">🎛 Мастер</button>'+ 
       '<button type="button" data-sbsong-action="edit" data-id="'+esc(song.id)+'">Изменить</button>'+
       '<button type="button" class="sbsong-danger" data-sbsong-action="delete" data-id="'+esc(song.id)+'">Удалить</button>'+
       '</div>'+
