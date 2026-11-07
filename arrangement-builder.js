@@ -1373,7 +1373,7 @@
     state.blocks=draft.blocks.map(b=>makeBlock(b.type,b.energy,b.bars,b.vocal,b.instruments,b.customName,b.instrumentsGenreId,b.transitionOut));
     state.activePreset=choiceMeta(draft.activePreset)?draft.activePreset:"blank";
     state.selectedPreset=state.activePreset;
-    state.message="Аранжировка загружена из Продюсерского центра.";
+    state.message="Аранжировка загружена из раздела «Мастер».";
     state.tab="lyrics";
     if(!save()){
       state.blocks=previousBlocks;state.activePreset=previousPreset;state.selectedPreset=previousPreset;
