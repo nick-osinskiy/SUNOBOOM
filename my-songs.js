@@ -407,6 +407,7 @@
       '<button type="button" class="sbsong-main-btn" data-sbsong-action="share" data-id="'+esc(song.id)+'">🔗 Поделиться ссылкой</button>'+
       (song.hasAudio?'<button type="button" data-sbsong-action="share-file" data-id="'+esc(song.id)+'">Отправить аудиофайл</button>':"")+
       (song.listenUrl?'<a href="'+esc(song.listenUrl)+'" target="_blank" rel="noopener noreferrer">Открыть публичную запись ↗</a>':"")+
+      '<button type="button" data-sbsong-action="producer" data-id="'+esc(song.id)+'">🎛 Продюсерский центр</button>'+ 
       '<button type="button" data-sbsong-action="edit" data-id="'+esc(song.id)+'">Изменить</button>'+
       '<button type="button" class="sbsong-danger" data-sbsong-action="delete" data-id="'+esc(song.id)+'">Удалить</button>'+
       '</div>'+
@@ -833,6 +834,7 @@
    const action=b.dataset.sbsongAction,id=b.dataset.id;
    if(action==="from-passport"){importPassport(id);return;}
    if(action==="open-library"){openLibrary();return;}
+   if(action==="producer"){window.SUNOBOOM_PRODUCER?.openForSong?.(id);return;}
    if(action==="shared-home"){
      history.replaceState(null,"",location.pathname+location.search);state.shared=null;go("home");return;
    }
@@ -905,6 +907,17 @@
  });
  window.addEventListener("hashchange",()=>{if(location.hash.startsWith(SHARE_PREFIX)||location.hash==="#view-songs")routeShare();});
  window.addEventListener("pagehide",()=>{resetCoverPreview();releaseAudio();for(const url of thumbs.values())URL.revokeObjectURL(url);thumbs.clear();});
- window.SUNOBOOM_MY_SONGS=Object.freeze({version:"0.89",count:()=>songs.length,getCards:()=>songs.map(s=>({id:s.id,title:s.title,hasAudio:s.hasAudio,versionCount:songVersions(s).length})),decodeCard});
+ function openCard(id){
+    const song=get(id);
+    if(!song)return false;
+    resetCoverPreview();resetTakeView();
+    history.replaceState(null,"",location.pathname+location.search+"#view-songs");
+    view.nav="songs";state.selectedId=id;state.editId=null;state.showForm=false;state.showArtistManager=false;state.notice="";
+    render();window.scrollTo({top:0,behavior:"instant"});return true;
+  }
+  window.SUNOBOOM_MY_SONGS=Object.freeze({version:"0.90",count:()=>songs.length,
+    getCards:()=>songs.map(x=>({id:x.id,title:x.title,artist:x.artist,genre:x.genre,passportId:x.passportId,
+      hasAudio:x.hasAudio,hasCover:x.hasCover,versionCount:songVersions(x).length,audioUrl:x.audioUrl,listenUrl:x.listenUrl})),
+    openCard,openLibrary,decodeCard});
  if(!routeShare())render();
 })();
