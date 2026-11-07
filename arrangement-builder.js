@@ -726,6 +726,34 @@
     if(root)root.innerHTML=soundPicker.mode==="genres"?soundGenreOptions():soundChoiceOptions(block);
   }
 
+
+  function transitionHTML(block,index){
+    if(index>=state.blocks.length-1)return "";
+    const next=state.blocks[index+1],t=makeTransition(block.transitionOut),active=t.type!=="none";
+    const open=state.transitionOpenId===block.id,guess=transitionTip(block,next);
+    const summary=active?TRANSITIONS[t.type].ru+" · "+TRANSITION_LENGTH[t.length].ru+
+      " · "+TRANSITION_STRENGTH[t.strength].ru:"Без перехода";
+    return '<div class="sba-transition-wrap'+(active?' sba-transition-active':'')+'" data-sba-from="'+esc(block.id)+'">'+
+      '<div class="sba-transition-line"><span class="sba-transition-link" aria-hidden="true">↳</span>'+
+      '<div class="sba-transition-summary"><strong>Переход '+(index+1)+' → '+(index+2)+'</strong>'+
+      '<span>'+esc(summary)+'</span></div>'+
+      '<button type="button" class="sba-transition-toggle" data-sba-action="transition-toggle" data-id="'+esc(block.id)+
+      '" aria-expanded="'+open+'">'+(open?'Скрыть':'Настроить')+' <span aria-hidden="true">⚙</span></button></div>'+
+      (open?'<div class="sba-transition-editor">'+
+        '<p class="sba-transition-explain">Из «'+esc(snakeName(block,index))+'» в «'+esc(snakeName(next,index+1))+'». Эффект не добавляет новый блок песни.</p>'+
+        '<div class="sba-transition-fields">'+
+          '<label>Тип перехода<select data-sba-transition="type" data-id="'+esc(block.id)+'">'+options(TRANSITIONS,t.type)+'</select></label>'+
+          '<label>Длительность<select data-sba-transition="length" data-id="'+esc(block.id)+'">'+options(TRANSITION_LENGTH,t.length)+'</select></label>'+
+          '<label>Выраженность<select data-sba-transition="strength" data-id="'+esc(block.id)+'">'+options(TRANSITION_STRENGTH,t.strength)+'</select></label>'+
+        '</div>'+
+        '<div class="sba-transition-suggestion"><span>Рекомендуется: <b>'+esc(TRANSITIONS[guess.type].ru)+'</b> · '+
+          esc(TRANSITION_LENGTH[guess.length].ru.toLowerCase())+'</span>'+
+          '<button type="button" data-sba-action="transition-suggest" data-id="'+esc(block.id)+'">Применить совет</button></div>'+
+        (active?'<div class="sba-transition-tag">Lyrics: <code>'+esc(transitionTag(block))+'</code>'+
+          '<button type="button" data-sba-action="transition-clear" data-id="'+esc(block.id)+'">Убрать переход</button></div>':"")+
+      '</div>':"")+'</div>';
+  }
+
   function blockHTML(b,i){
     const n=state.blocks.length;
     return '<article class="sba-block" data-sba-id="'+b.id+'" data-sba-energy="'+b.energy+'">'+
@@ -745,7 +773,7 @@
        '<div class="sba-quick-sounds" id="sba-quick-'+b.id+'">'+quickSoundsHTML(b)+'</div>'+
        (soundPicker.blockId===b.id?soundPanelHTML(b):"")+'</div>'+
      (b.type==="custom"?'<label class="sba-custom-label">Своё название<input type="text" maxlength="48" data-sba-field="customName" data-id="'+b.id+'" value="'+esc(b.customName)+'" placeholder="Название для тега Suno"></label>':"")+
-     '</div></article><button type="button" class="sba-between-add" data-sba-action="insert-after" data-id="'+b.id+'" aria-label="Добавить блок после '+esc(nameFor(b,i))+'"><span aria-hidden="true">＋</span> Добавить после</button>';
+     '</div></article>'+transitionHTML(b,i)+'<button type="button" class="sba-between-add" data-sba-action="insert-after" data-id="'+b.id+'" aria-label="Добавить блок после '+esc(nameFor(b,i))+'"><span aria-hidden="true">＋</span> Добавить после</button>';
   }
   function energyHTML(){
     const n=state.blocks.length;
@@ -784,7 +812,10 @@
           '<span class="sba-snake-num">'+(index+1)+'</span>'+
           '<span class="sba-snake-icon" aria-hidden="true">'+esc(SECTION[block.type].icon)+'</span>'+
           '<span class="sba-snake-title">'+esc(label)+'</span>'+
-          '<span class="sba-snake-level">'+block.energy+'/5</span></button>';
+          '<span class="sba-snake-level">'+block.energy+'/5</span>'+
+          (index<state.blocks.length-1&&makeTransition(block.transitionOut).type!=="none"?
+            '<span class="sba-snake-transition" title="'+esc("Переход: "+transitionShortLabel(block))+'" aria-hidden="true">↝</span>':"")+
+          '</button>';
       }).join("");
       result.push('<div class="sba-snake-row'+(reverse?' sba-snake-reverse':'')+
         (continued?' sba-snake-continues':'')+'">'+row+'</div>');
@@ -955,6 +986,19 @@
     if(!control||view.nav!=="studio")return;
     const action=control.dataset.sbaAction;
     if(action==="snake-toggle"){state.snakeExpanded=!state.snakeExpanded;updateSnakeOverview();return;}
+    if(action==="transition-toggle"){
+      const id=control.dataset.id,index=findIndex(id);
+      if(index<0||index>=state.blocks.length-1)return;
+      state.transitionOpenId=state.transitionOpenId===id?null:id;
+      drawBlocks();return;
+    }
+    if(action==="transition-suggest"||action==="transition-clear"){
+      const index=findIndex(control.dataset.id);
+      if(index<0||index>=state.blocks.length-1)return;
+      const block=state.blocks[index];
+      block.transitionOut=action==="transition-clear"?makeTransition(null):transitionTip(block,state.blocks[index+1]);
+      changed();return;
+    }
 
     if(action==="sound-toggle"||action==="sound-close"){
       const id=control.dataset.id;
@@ -1035,7 +1079,7 @@
     if(action==="preset-accept"){
       if(!choiceMeta(state.presetPending))return;
       const name=state.presetPending;
-      state.blocks=presetBlocks(name);state.activePreset=name;state.presetPending=null;state.insertAfter=null;
+      state.blocks=presetBlocks(name);state.activePreset=name;state.presetPending=null;state.insertAfter=null;state.transitionOpenId=null;
       drawPresetPrompt();changed();show("Шаблон загружен. Теперь можно изменять блоки.");return;
     }
     if(action==="tab"){state.tab=control.dataset.tab==="style"?"style":"lyrics";updateDerived();return;}
@@ -1053,7 +1097,7 @@
     if(index<0)return;
     if(action==="up"){swap(index,index-1);return;}
     if(action==="down"){swap(index,index+1);return;}
-    if(action==="remove"){state.blocks.splice(index,1);changed();return;}
+    if(action==="remove"){state.blocks.splice(index,1);if(state.transitionOpenId===id)state.transitionOpenId=null;changed();return;}
     if(action==="duplicate"){
       if(state.blocks.length>=MAX_BLOCKS){show("Ограничение: "+MAX_BLOCKS+" блоков.");return;}
       const b=state.blocks[index];
@@ -1065,6 +1109,17 @@
     if(view.nav!=="studio")return;
     const el=event.target;
     if(el?.id==="sba-add-type"){updateAddComposer();return;}
+    if(el?.dataset?.sbaTransition){
+      const index=findIndex(el.dataset.id);
+      if(index<0||index>=state.blocks.length-1)return;
+      const field=el.dataset.sbaTransition;
+      const dictionaries={type:TRANSITIONS,length:TRANSITION_LENGTH,strength:TRANSITION_STRENGTH};
+      if(!dictionaries[field]||!dictionaries[field][el.value])return;
+      const chosen=makeTransition(state.blocks[index].transitionOut);
+      chosen[field]=el.value;
+      state.blocks[index].transitionOut=chosen;
+      changed();return;
+    }
     const key=el?.dataset?.sbaField;
     if(!key)return;
     const index=findIndex(el.dataset.id);if(index<0)return;
