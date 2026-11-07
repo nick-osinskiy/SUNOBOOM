@@ -225,7 +225,7 @@
      '<button type="button" data-sbsong-action="cancel">Закрыть ×</button></div>'+
      '<form id="sbsong-save-form" class="sbsong-form">'+
        '<div class="sbsong-form-columns">'+field("Название *","title",song?.title||"",120,"Название песни")+
-       artistField(song?.artist||"")+
+       artistField(song?.artist||data.profileName||"")+
        field("Жанр","genre",song?.genre||"",80,"Например: поп-рок")+
        field("Альбом / релиз","album",song?.album||"",120,"Название альбома")+'</div>'+
        '<label class="sbsong-field"><span>Описание</span><textarea name="description" maxlength="700" rows="3" placeholder="История, настроение или заметки">'+esc(song?.description||"")+'</textarea></label>'+
