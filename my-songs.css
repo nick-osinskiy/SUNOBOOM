@@ -190,3 +190,67 @@
   .sbsong-artist-options{max-height:205px}
   .sbsong-artist-option small{max-width:36%}
 }
+
+
+/* SUNOBOOM 0.79 · Academy genre picker inside My Songs */
+.sbsong-genre-field{position:relative;display:grid;gap:6px;min-width:0}
+.sbsong-genre-field .sbsong-field{min-width:0}
+.sbsong-genre-toggle{
+  width:100%;min-height:35px;padding:8px 11px;
+  border:1px solid #8775ad;border-radius:9px;
+  background:linear-gradient(115deg,#4d365f,#343f6d);
+  color:#f5daf8;font-size:11px;font-weight:820;cursor:pointer;text-align:left
+}
+.sbsong-genre-toggle:hover,.sbsong-genre-toggle[aria-expanded="true"]{border-color:#e6a3dd;background:linear-gradient(120deg,#70447b,#435a88)}
+.sbsong-genre-toggle:focus-visible{outline:2px solid #8cdded;outline-offset:2px}
+.sbsong-genre-options{
+  position:absolute;z-index:30;left:0;right:0;top:100%;
+  background:#202940;border:1px solid #9c7ebb;
+  border-radius:11px;box-shadow:0 14px 30px #030617bb;
+  padding:9px;min-width:0
+}
+.sbsong-genre-options[hidden]{display:none}
+.sbsong-genre-picker-head{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;
+  gap:5px 8px;align-items:center;margin:0 0 7px
+}
+.sbsong-genre-picker-head label{
+  grid-column:1 / -1;font-size:10px;color:#d4c9ee;font-weight:820
+}
+.sbsong-genre-picker-head select{
+  min-width:0;width:100%;border:1px solid #6b7597;
+  background:#24314d;color:#f3e8fa;border-radius:8px;
+  min-height:40px;padding:8px 9px;font-size:12px
+}
+.sbsong-genre-picker-head small{white-space:nowrap;font-size:10px;color:#afc3df}
+.sbsong-genre-results{
+  max-height:min(36dvh,330px);overflow-y:auto;overscroll-behavior:contain;
+  scrollbar-width:thin;padding:3px 3px 3px 0
+}
+.sbsong-genre-group{margin:0 0 8px}
+.sbsong-genre-group-title{
+  display:flex;justify-content:space-between;align-items:center;gap:6px;
+  padding:8px 9px;font-size:11px;font-weight:890;letter-spacing:.01em;
+  color:#f5c6ed;background:#353554;border-bottom:1px solid #625d87;
+  border-radius:7px 7px 0 0
+}
+.sbsong-genre-group-title span{
+  font-size:10px;color:#bfd2ec;background:#444567;border-radius:20px;
+  padding:2px 7px
+}
+.sbsong-genre-option{
+  width:100%;display:flex;align-items:center;min-height:39px;
+  padding:9px 10px;border:0;border-bottom:1px solid #ffffff13;
+  background:transparent;text-align:left;cursor:pointer;
+  color:#e9e9f8;font-size:12px;font-weight:760
+}
+.sbsong-genre-option:last-child{border-bottom:0}
+.sbsong-genre-option:hover,.sbsong-genre-option:focus-visible{
+  background:#483861;color:#fff;outline:none;border-radius:7px
+}
+.sbsong-genre-hint{padding:12px 8px;color:#c5c6da;font-size:11px;line-height:1.5;margin:0}
+@media(max-width:720px){
+  .sbsong-genre-options{padding:8px;max-width:100%}
+  .sbsong-genre-results{max-height:min(33dvh,250px)}
+  .sbsong-genre-option{min-height:44px;font-size:12px}
+}
