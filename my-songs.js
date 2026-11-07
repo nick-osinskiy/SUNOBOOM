@@ -352,7 +352,7 @@
       '<small>'+esc(v.fileName||"Запись из предыдущей версии SUNOBOOM")+' · '+esc(audioSize(v.bytes))+
       ' · '+new Date(v.addedAt||Date.now()).toLocaleDateString("ru-RU")+'</small></div></div>'+
       '<div class="sbsong-version-actions">'+
-        '<button type="button" data-sbsong-action="version-play" data-version-id="'+esc(v.id)+'">▶ Слушать</button>'+
+        '<button type="button" data-sbsong-action="version-play" data-version-id="'+esc(v.id)+'">Выбрать для плеера</button>'+
         (main?.id!==v.id?'<button type="button" data-sbsong-action="version-main" data-version-id="'+esc(v.id)+'">★ Сделать основной</button>':'')+
         '<button type="button" data-sbsong-action="share-file" data-id="'+esc(song.id)+'" data-version-id="'+esc(v.id)+'">Сохранить / отправить</button>'+
         '<button type="button" class="sbsong-version-danger" data-sbsong-action="version-remove" data-version-id="'+esc(v.id)+'">Удалить дубль</button>'+
@@ -477,32 +477,48 @@
     '<button type="button" class="sbsong-main-btn" data-sbsong-action="shared-home">Открыть SUNOBOOM</button>'+
     '<p class="sbsong-public-notice">Ссылка открывает выбранные автором сведения. Карточка не требует входа, поэтому её сможет посмотреть любой получатель ссылки.</p></section>';
  }
- async function hydrate(){
-   if(view.nav!=="songs")return;
-   const ids=[...document.querySelectorAll("[data-sbsong-cover]")].map(x=>x.dataset.sbsongCover);
-   for(const id of new Set(ids)){
-     const url=await coverURL(id);
-     if(view.nav!=="songs"||!url)continue;
-     document.querySelectorAll("[data-sbsong-cover]").forEach(el=>{if(el.dataset.sbsongCover===id){el.src=url;el.style.display="block";}});
-   }
-   if(state.showForm&&state.editId&&!state.coverScanFile)await showSavedCover();
-   const selected=get(state.selectedId),audio=document.getElementById("sbsong-audio-player");
-   if(!audio||!selected)return;
-   releaseAudio();
-   if(selected.hasAudio){
-     try{const file=await getFile(selected.id+":audio");
-       if(file&&view.nav==="songs"&&get(state.selectedId)?.id===selected.id){
-         activeAudioURL=URL.createObjectURL(file);
-         audio.src=activeAudioURL;
-         return;
-       }
-     }catch(e){}
-   }
-   if(selected.audioUrl)audio.src=selected.audioUrl;
-   else if(selected.hasAudio)notify("Не удалось найти аудиофайл в хранилище устройства.");
- }
+ async function setAudioSource(elementId,song,version,fallbackExternal){
+    const player=document.getElementById(elementId);
+    if(!player)return;
+    if(version){
+      try{
+        const blob=await getFile(audioKey(song.id,version.id));
+        if(!blob)throw new Error("missing audio");
+        if(view.nav!=="songs"||state.selectedId!==song.id||document.getElementById(elementId)!==player)return;
+        const url=URL.createObjectURL(blob);
+        activeAudioURLs.add(url);
+        player.src=url;
+        return;
+      }catch(e){
+        if(!fallbackExternal){player.setAttribute("aria-label","Аудиофайл не найден в локальном хранилище");return;}
+      }
+    }
+    if(fallbackExternal&&song.audioUrl&&document.getElementById(elementId)===player)player.src=song.audioUrl;
+    else if(version&&fallbackExternal)notify("Аудиофайл этой версии не найден в хранилище устройства.");
+  }
+  async function hydrate(){
+    if(view.nav!=="songs")return;
+    const ids=[...document.querySelectorAll("[data-sbsong-cover]")].map(x=>x.dataset.sbsongCover);
+    for(const id of new Set(ids)){
+      const url=await coverURL(id);
+      if(view.nav!=="songs"||!url)continue;
+      document.querySelectorAll("[data-sbsong-cover]").forEach(el=>{if(el.dataset.sbsongCover===id){el.src=url;el.style.display="block";}});
+    }
+    if(state.showForm&&state.editId&&!state.coverScanFile)await showSavedCover();
+    const selected=get(state.selectedId),audio=document.getElementById("sbsong-audio-player");
+    if(!selected||!audio||view.nav!=="songs")return;
+    const all=songVersions(selected);
+    const chosen=all.find(v=>v.id===state.playVersionId)||activeVersion(selected);
+    if(!audio.hasAttribute("src"))void setAudioSource("sbsong-audio-player",selected,chosen,true);
+    if(state.compareOpen&&all.length>1){
+      const left=all.find(v=>v.id===state.compareAId)||all[0];
+      const right=all.find(v=>v.id===state.compareBId)||all[1];
+      void setAudioSource("sbsong-ab-a",selected,left,false);
+      void setAudioSource("sbsong-ab-b",selected,right,false);
+    }
+  }
 
- // Existing Track Passport can create/update a library card without duplicating metadata entry.
+  // Existing Track Passport can create/update a library card without duplicating metadata entry.
  if(typeof sbTrackDetail==="function"){
    const previousTrackDetail=sbTrackDetail;
    sbTrackDetail=function(t){
