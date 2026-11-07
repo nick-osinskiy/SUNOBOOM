@@ -612,7 +612,7 @@
    if((rawAudio&&!audioUrl)||(rawListen&&!listenUrl)||(rawCover&&!coverUrl)){notify("Внешние ссылки должны начинаться с https://");return;}
    const before=get(state.editId),id=before?.id||("song-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,9));
    const autoCover=inputAudio&&!inputCover?(state.coverScanFile===inputAudio&&state.coverScanPromise?await state.coverScanPromise:await readEmbeddedCover(inputAudio)):null;
-   const selectedCover=inputCover||autoCover;
+   const selectedCover=inputCover||(!before?.hasCover?autoCover:null);
    const versions=before?songVersions(before):[];
     if(inputAudio&&versions.length>=100){notify("В одной карточке можно хранить до 100 аудиоверсий.");return;}
     const addedId=inputAudio?(versions.length?newVersionId():"original"):null;
