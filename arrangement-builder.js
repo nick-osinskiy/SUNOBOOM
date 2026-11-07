@@ -69,7 +69,7 @@
   }
   function genreArchetype(g){
     const name=(g.name+" "+g.family+" "+g.id).toLocaleLowerCase("ru");
-    if(/ска|ska/.test(name))return "ska";
+    if(/(^|[^а-яa-z])ска(?=$|[^а-яa-z])|(^|[^a-z])ska(?=$|[^a-z])/.test(name))return "ska";
     if(/эпик|эпичес|кинематограф|саундтрек|оркестр|симфон|classical|cinematic|epic|orchestra/.test(name))return "epic";
     if(/электро|хаус|техно|транс|синти|драм-н-бейс|драм энд бейс|дабстеп|эмбиент|электрон|electro|techno|house|ambient|dubstep|trance|synth/.test(name))return "electronic";
     if(/рок|панк|метал|гранж|хардкор|rock|punk|metal|grunge/.test(name))return "rock";
@@ -477,7 +477,7 @@
   };
   function smartFamily(genre){
     const signature=normalizeQuery([genre?.id,genre?.name,genre?.family].filter(Boolean).join(" "));
-    if(/ска|(^|[^a-z])ska([^a-z]|$)/.test(signature))return "ska";
+    if(/(^|[^а-яa-z])ска(?=$|[^а-яa-z])|(^|[^a-z])ska(?=$|[^a-z])/.test(signature))return "ska";
     if(/религи|духовн|православ|христиан|госпел|церков|молитв|sacred|gospel/.test(signature))return "sacred";
     if(/эпик|эпичес|кинематограф|саундтрек|trailer|epic|cinematic/.test(signature))return "epic";
     if(/классичес|оркестров|симфон|камерн|classical|orchestral/.test(signature))return "classical";
@@ -583,7 +583,8 @@
     const query=soundPicker.typingId===block.id?normalizeQuery(soundPicker.typingQuery):"";
     const groupItems=title=>groups.find(g=>g.title===title)?.items||[];
     const roleItems=groupItems("Для "+role[0]).slice(0,3);
-    const dynamicItems=groupItems("Энергия "+block.energy+"/5 и вокал").slice(0,2);
+    const allDynamics=groupItems("Энергия "+block.energy+"/5 и вокал");
+    const dynamicItems=[allDynamics[0],allDynamics.length>2?allDynamics[allDynamics.length-1]:allDynamics[1]].filter(Boolean);
     const acoustic=genre?groupItems("Инструменты · "+genre.name):[];
     const styling=genre?groupItems("Приёмы и звучание · "+genre.name):[];
     const genreItems=[...acoustic.slice(0,2),...styling.slice(0,2)].slice(0,3);
