@@ -1,0 +1,100 @@
+/* SUNOBOOM · My Songs v0.76 · dark neon private library */
+.sbsong-page{padding:20px 22px 38px;max-width:1260px;margin:0 auto;min-width:0;color:#eef1ff}
+.sbsong-page *{box-sizing:border-box}
+.sbsong-page button,.sbsong-page input,.sbsong-page textarea{font:inherit}
+.sbsong-hero{background:linear-gradient(125deg,#302443,#202d49);border:1px solid #72548c;border-radius:18px;padding:22px;margin-bottom:15px}
+.sbsong-eyebrow{font-size:10px;font-weight:900;letter-spacing:1.5px;color:#ec97c8;margin-bottom:9px}
+.sbsong-back{display:inline-flex;align-items:center;gap:5px;border:1px solid #565f82;border-radius:9px;color:#d3c8e8;background:#2b2b49;font-size:11px;font-weight:800;padding:8px 12px;min-height:34px;cursor:pointer;margin-bottom:13px}
+.sbsong-back:hover{border-color:#d99ac4;color:#fff}
+.sbsong-hero-row{display:flex;align-items:center;justify-content:space-between;gap:17px;flex-wrap:wrap}
+.sbsong-hero h1{font-size:clamp(27px,3.5vw,37px);font-weight:900;color:#fce5f4;margin:0 0 6px}
+.sbsong-hero p{font-size:13px;color:#bdc9df;line-height:1.55;margin:0;max-width:700px}
+.sbsong-main-btn{border:1px solid #d089d0;border-radius:10px;background:linear-gradient(115deg,#b24a96,#6853be);color:white;font-size:12px;font-weight:850;padding:11px 15px;min-height:42px;cursor:pointer;text-align:center;text-decoration:none}
+.sbsong-main-btn:hover,.sbsong-main-btn:focus-visible{filter:brightness(1.13);color:white}
+.sbsong-main-btn:disabled{opacity:.6;cursor:wait}
+.sbsong-stats{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:17px}
+.sbsong-stats span{padding:7px 10px;border:1px solid #645b85;background:#322f50;border-radius:9px;color:#d6d9ee;font-size:10px;font-weight:760}
+.sbsong-privacy{padding:11px 14px;background:#253044;border:1px solid #4c607f;color:#bdcce2;border-radius:11px;font-size:12px;line-height:1.6;margin:0 0 15px}
+.sbsong-notice{background:#293950;color:#c7f5e7;border:1px solid #477f78;border-radius:9px;padding:9px 12px;font-size:12px;margin:12px 0}
+.sbsong-notice[hidden]{display:none}
+.sbsong-subhead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 12px}
+.sbsong-subhead h2{font-size:19px;color:#f4c8e9;margin:0;overflow-wrap:anywhere}
+.sbsong-subhead>button{border:1px solid #666282;color:#dad6ec;border-radius:9px;background:#363048;padding:7px 11px;font-size:11px;font-weight:800;cursor:pointer}
+.sbsong-form-panel,.sbsong-detail{background:#242a42;border:1px solid #6b5b80;border-radius:14px;padding:17px;margin-bottom:17px}
+.sbsong-form{display:grid;gap:13px}
+.sbsong-form-columns{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sbsong-field{display:grid;gap:6px;min-width:0;color:#bbc6df;font-size:11px;font-weight:800}
+.sbsong-field>span{display:block}
+.sbsong-field input:not([type=file]),.sbsong-field textarea{min-width:0;width:100%;background:#192439;border:1px solid #606987;color:#f3edff;border-radius:9px;min-height:44px;padding:10px 12px;font-size:13px;line-height:1.5}
+.sbsong-field textarea{resize:vertical;min-height:92px}
+.sbsong-field input[type=file]{width:100%;max-width:100%;min-width:0;background:#1b2437;border:1px dashed #6f678a;color:#d2cce8;border-radius:9px;padding:10px;font-size:11px}
+.sbsong-field input[type=file]::file-selector-button{background:#474062;color:#f0dced;border:1px solid #78638a;border-radius:7px;padding:7px;font-size:11px;font-weight:800;margin-right:8px}
+.sbsong-field input:focus,.sbsong-field textarea:focus{outline:2px solid #8ddae9;outline-offset:1px}
+.sbsong-form-help{margin:0;color:#a9b8cf;font-size:11px;line-height:1.6}
+.sbsong-form-actions{display:flex;flex-wrap:wrap;align-items:center;gap:9px}
+.sbsong-form-actions button:last-child{background:#35374f;color:#e0d8ef;border:1px solid #626582;border-radius:9px;padding:11px 14px;font-size:12px;font-weight:770;cursor:pointer}
+.sbsong-collection-head{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:18px 0 13px}
+.sbsong-collection-head h2{color:#f2c7e8;font-size:20px;margin:0}
+.sbsong-collection-head input{min-width:190px;max-width:100%;width:330px;background:#1f2941;border:1px solid #5d6386;color:#f6edff;border-radius:10px;padding:10px 12px;min-height:42px;font-size:13px}
+.sbsong-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,270px),1fr));gap:14px}
+.sbsong-card{border:1px solid #54587b;border-radius:15px;background:linear-gradient(155deg,#30304a,#232d44);overflow:hidden;min-width:0;transition:transform .15s ease,border-color .15s ease}
+.sbsong-card:hover{transform:translateY(-2px);border-color:#aa79c8}
+.sbsong-art-button{position:relative;display:grid;place-items:center;width:100%;aspect-ratio:1.3;cursor:pointer;border:0;background:radial-gradient(circle at 35% 30%,#884b8c,#413354 50%,#1a2a41);padding:0;overflow:hidden}
+.sbsong-art-button img{display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.sbsong-no-cover{font-size:67px;line-height:1;color:#ffb8e1;text-shadow:0 4px 28px #ff80c86e}
+.sbsong-card-text{padding:14px}
+.sbsong-card-text>small{font-size:10px;font-weight:860;color:#a9c3e3}
+.sbsong-card-text h3{font-size:18px;margin:7px 0 4px;color:#f8d9ef;line-height:1.26;overflow-wrap:anywhere}
+.sbsong-card-text p{font-size:12px;color:#b9c6dd;min-height:20px;margin:0}
+.sbsong-card-flags{margin-top:10px;font-size:10px;color:#99e1c7;font-weight:730}
+.sbsong-card-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.sbsong-card-actions button{flex:1 1 auto;cursor:pointer;border:1px solid #676288;border-radius:8px;background:#3c3556;color:#e6d1f4;min-height:35px;font-size:10px;font-weight:790;padding:7px}
+.sbsong-card-actions button:first-child{background:linear-gradient(120deg,#824882,#4d5688);border-color:#a37cb0;color:#fff}
+.sbsong-card-actions button:hover{filter:brightness(1.15)}
+.sbsong-empty{margin:10px 0;padding:28px 18px;text-align:center;color:#bcc8df;border:1px dashed #616787;background:#273046;border-radius:12px;font-size:13px;line-height:1.6}
+.sbsong-detail-layout{display:grid;grid-template-columns:minmax(140px,240px) minmax(0,1fr);gap:17px;align-items:start}
+.sbsong-detail-cover{aspect-ratio:1/1;position:relative;background:radial-gradient(circle at 32% 26%,#915a91,#47395d 55%,#1f304c);display:grid;place-items:center;border:1px solid #745c8b;border-radius:12px;overflow:hidden}
+.sbsong-detail-cover img{display:none;width:100%;height:100%;object-fit:cover;position:absolute;inset:0}
+.sbsong-detail-artist{color:#f3d0eb;font-size:16px;font-weight:800;margin:0 0 9px}
+.sbsong-detail-tags{display:flex;flex-wrap:wrap;gap:7px;margin:6px 0}
+.sbsong-detail-tags span{font-size:10px;font-weight:800;background:#3c3556;border:1px solid #73598a;color:#e3cbe9;border-radius:8px;padding:5px 8px}
+.sbsong-detail-description{white-space:pre-wrap;font-size:12px;color:#d0d7e8;line-height:1.6;margin:12px 0}
+.sbsong-audio-box{margin:12px 0;padding:10px;background:#1d263b;border-radius:11px;border:1px solid #485675}
+.sbsong-audio-box audio{display:block;width:100%;min-width:0;max-width:100%}
+.sbsong-audio-box p{font-size:11px;color:#aebcd1;margin:0}
+.sbsong-detail-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.sbsong-detail-actions button,.sbsong-detail-actions a{font-size:11px;font-weight:790;min-height:39px;border:1px solid #746487;background:#383451;color:#e8d9f0;border-radius:9px;padding:10px 12px;cursor:pointer;text-decoration:none}
+.sbsong-detail-actions .sbsong-main-btn{background:linear-gradient(120deg,#af4e97,#6156b4);color:#fff;border-color:#cf82c9}
+.sbsong-detail-actions .sbsong-danger{color:#f0afb9;background:#442c3c;border-color:#865569}
+.sbsong-detail-actions button:hover,.sbsong-detail-actions a:hover{filter:brightness(1.13)}
+.sbsong-delete-confirm{margin-top:12px;padding:10px;background:#3c2a3f;border:1px solid #9c6474;border-radius:10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.sbsong-delete-confirm strong{font-size:12px;color:#ffcad4;margin-right:auto}
+.sbsong-delete-confirm button{cursor:pointer;border:1px solid #8b657d;border-radius:8px;background:#57344b;color:#fce3e9;padding:8px 11px;font-weight:750;font-size:11px}
+.sbsong-public-card{margin:15px 0;padding:20px;background:#292941;border:1px solid #715b87;border-radius:14px;max-width:700px}
+.sbsong-public-art{display:grid;place-items:center;aspect-ratio:2/1;max-width:300px;background:linear-gradient(120deg,#6b4177,#263853);color:#ffc2e9;font-size:83px;border-radius:12px}
+.sbsong-public-card audio{width:100%;margin:12px 0}
+.sbsong-public-card a{color:#b2e4f9}
+.sbsong-public-notice{margin:13px 0;font-size:12px;line-height:1.65;color:#b7c7dc}
+.sbsong-account-icon{font-size:30px;line-height:1;color:#f49aca}
+.sbsong-shared .sbsong-hero{max-width:700px}
+@media(max-width:720px){
+ .sbsong-page{padding:12px 9px 28px}
+ .sbsong-hero{padding:17px 13px;border-radius:14px}
+ .sbsong-hero h1{font-size:27px}
+ .sbsong-hero-row .sbsong-main-btn{width:100%}
+ .sbsong-form-panel,.sbsong-detail{padding:12px;border-radius:11px}
+ .sbsong-form-columns{grid-template-columns:1fr}
+ .sbsong-collection-head input{width:100%}
+ .sbsong-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .sbsong-art-button{aspect-ratio:1}
+ .sbsong-card-text{padding:10px}
+ .sbsong-card-text h3{font-size:14px}
+ .sbsong-card-actions{gap:5px}
+ .sbsong-card-actions button{flex:1 1 100%;min-height:34px}
+ .sbsong-detail-layout{grid-template-columns:1fr}
+ .sbsong-detail-cover{max-width:260px;width:100%}
+ .sbsong-detail-actions{display:grid;grid-template-columns:1fr 1fr}
+ .sbsong-detail-actions button,.sbsong-detail-actions a{white-space:normal;overflow-wrap:anywhere}
+}
+@media(max-width:355px){.sbsong-grid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.sbsong-card{transition:none}}
