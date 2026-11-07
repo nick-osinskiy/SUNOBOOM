@@ -365,3 +365,101 @@
 @media(prefers-reduced-motion:reduce){
   .sba-snake-overview .sba-snake-chip{transition:none}
 }
+
+
+/* SUNOBOOM 0.74 · Transition designer between adjacent arrangement blocks */
+.sba-transition-wrap{
+  margin:7px 0 8px; padding:0; border:1px solid #4f526c;
+  background:linear-gradient(135deg,#242b41,#28243d);
+  border-radius:12px;min-width:0;overflow:hidden
+}
+.sba-transition-active{
+  border-color:#9161a2;
+  background:linear-gradient(135deg,#302643,#27314a)
+}
+.sba-transition-line{
+  display:flex;align-items:center;min-height:43px;gap:10px;padding:8px 11px
+}
+.sba-transition-link{
+  font-size:19px;line-height:1;color:#dc98cc;font-weight:800;flex:none
+}
+.sba-transition-summary{
+  flex:1 1 auto;min-width:0;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap
+}
+.sba-transition-summary strong{
+  color:#e5d7f1;font-size:11px;white-space:nowrap;font-weight:860
+}
+.sba-transition-summary span{
+  color:#acbad5;font-size:11px;min-width:0;overflow-wrap:anywhere
+}
+.sba-transition-active .sba-transition-summary span{color:#f1aedb}
+.sba-transition-toggle{
+  flex:none;border:1px solid #776284;border-radius:8px;
+  background:#403154;color:#f4d8ed;min-height:32px;padding:5px 9px;
+  cursor:pointer;font:inherit;font-size:11px;font-weight:760
+}
+.sba-transition-toggle:hover,.sba-transition-toggle:focus-visible{
+  background:#65416d;border-color:#eb99d0;color:#fff
+}
+.sba-transition-editor{
+  padding:10px 12px 12px;border-top:1px solid #534b69;display:grid;gap:11px
+}
+.sba-transition-explain{
+  color:#afbed4;font-size:11px;line-height:1.5;margin:0
+}
+.sba-transition-fields{
+  display:grid;grid-template-columns:minmax(0,1.3fr) repeat(2,minmax(0,.85fr));gap:9px
+}
+.sba-transition-fields label{
+  min-width:0;display:grid;gap:5px;font-size:11px;font-weight:780;color:#cfbce0
+}
+.sba-transition-fields select{
+  width:100%;min-width:0;min-height:41px;cursor:pointer;
+  padding:8px 10px;background:#1d263b;border:1px solid #697094;
+  border-radius:9px;color:#f4efff;font:inherit;font-size:12px
+}
+.sba-transition-fields select:focus-visible{outline:2px solid #7ad6e4;outline-offset:1px}
+.sba-transition-suggestion{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:8px;padding:9px 10px;background:#29334b;border-radius:9px;
+  border:1px solid #515c7d
+}
+.sba-transition-suggestion span{color:#b8c9db;font-size:11px;line-height:1.5}
+.sba-transition-suggestion b{color:#eeb6d7}
+.sba-transition-suggestion button{
+  flex:none;min-height:35px;border-radius:8px;border:1px solid #a77bb2;
+  background:linear-gradient(115deg,#713e83,#445c8e);
+  color:white;font:inherit;font-size:11px;font-weight:800;padding:8px 10px;cursor:pointer
+}
+.sba-transition-suggestion button:hover{filter:brightness(1.15)}
+.sba-transition-tag{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  font-size:10px;color:#a5b7d2
+}
+.sba-transition-tag code{
+  background:#1a253b;border:1px solid #505b79;border-radius:8px;
+  color:#cde2f7;padding:7px 9px;font-size:10px;overflow-wrap:anywhere;min-width:0
+}
+.sba-transition-tag button{
+  flex:none;border:1px solid #715369;background:#352738;border-radius:8px;
+  color:#e5b0be;padding:7px 10px;font-size:10px;font-weight:750;cursor:pointer
+}
+.sba-transition-tag button:hover{color:#fff;border-color:#dd8cad}
+.sba-snake-transition{
+  position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);
+  padding:1px 5px;line-height:1.1;border-radius:5px;
+  background:#603b75;color:#fbe1ef;border:1px solid #ac78ac;
+  font-size:10px;font-weight:900;z-index:3;pointer-events:none
+}
+@media(max-width:720px){
+  .sba-transition-line{gap:7px;padding:8px 9px}
+  .sba-transition-summary{display:grid;gap:3px}
+  .sba-transition-toggle{min-height:39px;padding:8px 10px}
+  .sba-transition-editor{padding:10px}
+  .sba-transition-fields{grid-template-columns:1fr}
+  .sba-transition-fields label{font-size:12px}
+  .sba-transition-fields select{min-height:45px;font-size:14px}
+  .sba-transition-suggestion{align-items:stretch;flex-wrap:wrap}
+  .sba-transition-suggestion button{width:100%;min-height:40px}
+  .sba-snake-transition{bottom:-5px;font-size:9px}
+}
