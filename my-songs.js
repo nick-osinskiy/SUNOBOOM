@@ -155,7 +155,7 @@
        song.coverUrl?'<img alt="" src="'+esc(song.coverUrl)+'" style="display:block" loading="lazy">'+iconCover:iconCover)+'</button>'+
       '<div class="sbsong-card-text"><small>'+esc(song.genre||"Моя музыка")+'</small>'+
       '<h3>'+esc(song.title||"Без названия")+'</h3><p>'+esc(song.artist||"Без исполнителя")+'</p>'+
-      '<div class="sbsong-card-flags">'+(song.hasAudio?'<span>♪ Файл сохранён</span>':song.audioUrl?'<span>↗ Аудио по ссылке</span>':'<span>Нет аудио</span>')+'</div>'+
+      '<div class="sbsong-card-flags">'+(song.hasAudio?'<span>♪ Версий: '+songVersions(song).length+'</span>':song.audioUrl?'<span>↗ Аудио по ссылке</span>':'<span>Нет аудио</span>')+'</div>'+
       '<div class="sbsong-card-actions"><button data-sbsong-action="open" data-id="'+esc(song.id)+'" type="button">Открыть</button>'+
       '<button data-sbsong-action="edit" data-id="'+esc(song.id)+'" type="button">Изменить</button>'+
       '<button data-sbsong-action="share" data-id="'+esc(song.id)+'" type="button">Поделиться</button></div></div></article>';
@@ -324,7 +324,7 @@
        field("Альбом / релиз","album",song?.album||"",120,"Название альбома")+'</div>'+
        '<label class="sbsong-field"><span>Описание</span><textarea name="description" maxlength="700" rows="3" placeholder="История, настроение или заметки">'+esc(song?.description||"")+'</textarea></label>'+
        '<div class="sbsong-form-columns">'+
-         '<label class="sbsong-field"><span>Загрузить аудиофайл</span><input name="audio" type="file" accept="audio/*,.mp3,.wav,.m4a,.flac,.ogg"></label>'+
+         '<label class="sbsong-field"><span>'+(song?.hasAudio?"Добавить новую аудиоверсию":"Загрузить аудиофайл (MP3, M4A, WAV и другие)")+'</span><input name="audio" type="file" accept="audio/*,.mp3,.wav,.wave,.m4a,.aac,.flac,.ogg,.opus"></label>'+
          '<label class="sbsong-field"><span>Обложка вручную (необязательно)</span><input name="cover" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></label>'+
        '</div>'+
        '<div class="sbsong-cover-auto" aria-live="polite"><div class="sbsong-cover-preview-figure">'+
@@ -337,7 +337,7 @@
          field("Прямая ссылка на MP3 (если есть)","audioUrl",song?.audioUrl||"",700,"https://.../song.mp3")+
          field("Публичная страница песни","listenUrl",song?.listenUrl||"",700,"https://suno.com/...")+
          field("Публичная обложка (по желанию)","coverUrl",song?.coverUrl||"",700,"https://.../cover.jpg")+'</div>'+
-       '<p class="sbsong-form-help">При выборе MP3, M4A или FLAC обложка извлекается из метаданных, если она встроена в файл. Аудио и найденная обложка сохраняются только на этом устройстве (IndexedDB). Для прослушивания по общей ссылке нужен публичный аудиоадрес или страница прослушивания.</p>'+
+       '<p class="sbsong-form-help">MP3, M4A, WAV, FLAC и другие аудиофайлы сохраняются локально (IndexedDB): WAV — до 500 МБ, остальные — до 150 МБ при наличии свободной памяти браузера. Новая загрузка добавляет версию, не заменяя старую. Обложка ищется в MP3, M4A и FLAC; для WAV её обычно добавляют вручную. Локальное аудио по общей ссылке не передаётся.</p>'+
        '<div class="sbsong-form-actions"><button type="submit" class="sbsong-main-btn" id="sbsong-submit">Сохранить песню</button>'+
         '<button type="button" data-sbsong-action="cancel">Отмена</button></div>'+
      '</form></section>';
@@ -353,7 +353,8 @@
       (song.description?'<p class="sbsong-detail-description">'+esc(song.description)+'</p>':"")+
       '<div class="sbsong-audio-box" id="sbsong-audio-box">'+
         (song.hasAudio||song.audioUrl?'<audio controls preload="metadata" id="sbsong-audio-player"></audio>':
-        '<p>Аудио ещё не добавлено. Отредактируй карточку и загрузи MP3.</p>')+'</div>'+
+        '<p>Аудио ещё не добавлено. Добавь первую версию в этой карточке.</p>')+'</div>'+
+      versionManager(song)+
       '<div class="sbsong-detail-actions">'+
       '<button type="button" class="sbsong-main-btn" data-sbsong-action="share" data-id="'+esc(song.id)+'">🔗 Поделиться ссылкой</button>'+
       (song.hasAudio?'<button type="button" data-sbsong-action="share-file" data-id="'+esc(song.id)+'">Отправить аудиофайл</button>':"")+
@@ -374,10 +375,10 @@
      '<header class="sbsong-hero"><div class="sbsong-eyebrow">SUNOBOOM · ЛИЧНЫЙ КАБИНЕТ</div>'+
      '<button type="button" data-sbsong-action="back" class="sbsong-back">← В личный кабинет</button>'+
      '<div class="sbsong-hero-row"><div><h1>Мои песни</h1>'+
-     '<p>Личная коллекция песен: карточки, обложки, MP3 и прослушивание прямо в SUNOBOOM.</p></div>'+
+     '<p>Личная коллекция песен: карточки, обложки, MP3, M4A, WAV и версии записей.</p></div>'+
      '<div class="sbsong-hero-tools"><button type="button" class="sbsong-artists-manage-btn" data-sbsong-action="artists-manage">♬ Мои артисты ('+customArtists().length+')</button>'+
      '<button type="button" class="sbsong-main-btn" data-sbsong-action="new">+ Добавить песню</button></div></div>'+
-     '<div class="sbsong-stats"><span>'+songs.length+' песен</span><span>'+songs.filter(s=>s.hasAudio).length+' аудиофайлов на устройстве</span>'+
+     '<div class="sbsong-stats"><span>'+songs.length+' песен</span><span>'+songs.reduce((n,s)=>n+songVersions(s).length,0)+' аудиоверсий на устройстве</span>'+
      '<span>Хранение локально</span></div></header>'+
      '<div class="sbsong-privacy">🔒 Это локальная библиотека в браузере, а не защищённое облачное хранилище. Карточки не синхронизируются между устройствами. Ссылку на песню можно отправить отдельно — она откроет только выбранные для публикации сведения.</div>'+
      '<p class="sbsong-notice" id="sbsong-notice" role="status" aria-live="polite"'+(!state.notice?' hidden':'')+'>'+esc(state.notice)+'</p>'+
