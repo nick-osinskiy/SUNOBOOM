@@ -252,6 +252,303 @@
     const family=PRESETS[state.activePreset]?state.activePreset:"pop";
     return GENRES.find(g=>genreArchetype(g)===family)||GENRES[0];
   }
+
+  // v0.71 · Genre x section role x energy x vocal context rules.
+  // All actual genre entries continue to come from the existing Academy GENRES array.
+  const SMART_ROLE={
+    intro:["Вступление","Обозначить звучание и подготовить вход композиции","intro"],
+    verse:["Куплет","Освободить пространство для текста и основного ритма","verse"],
+    prechorus:["Предприпев","Постепенно поднять напряжение перед припевом","rise"],
+    chorus:["Припев","Раскрыть главный хук и расширить звучание","peak"],
+    postchorus:["Постприпев","Продолжить запоминающийся мотив после припева","peak"],
+    bridge:["Бридж","Дать контраст перед возвращением основной темы","break"],
+    build:["Разгон","Усилить ритмическое ожидание следующей части","rise"],
+    drop:["Дроп","Сделать акцент на мощном ритмическом входе","drop"],
+    breakdown:["Брейкдаун","Разгрузить аранжировку и создать контраст","break"],
+    solo:["Соло","Вывести мелодический инструмент на передний план","solo"],
+    instrumental:["Инструментал","Передать развитие без основного вокала","solo"],
+    finalchorus:["Финальный припев","Усилить финальное раскрытие главного хука","peak"],
+    outro:["Завершение","Завершить музыкальную мысль без лишнего затягивания","outro"],
+    custom:["Свой блок","Поддержать индивидуальную задумку этого фрагмента","verse"]
+  };
+  // Sections in each family: intro, verse, rise, peak, drop, break, solo, outro.
+  // Suggestions are short production cues intended for Suno, not sound playback.
+  const SMART_FAMILY_BANK={
+    rock:{
+      intro:"clean electric guitar arpeggio|subtle guitar harmonics|gentle bass pickup",
+      verse:"tight bass and dry drums|palm-muted rhythm guitar|restrained guitar groove",
+      rise:"tom drum build|rising guitar intensity|gradually opening cymbals",
+      peak:"distorted guitar wall|full live drum kit|wide melodic guitar hook",
+      drop:"explosive guitar downbeat|hard-hitting drum entrance|tight distorted riff",
+      break:"stripped bass and guitar|half-time drum groove|clean guitar contrast",
+      solo:"expressive electric guitar solo|melodic lead guitar phrases|live drum support",
+      outro:"ringing guitar chord|fading clean guitar motif|short drum ending"
+    },
+    ska:{
+      intro:"clean offbeat guitar chops|brass pickup phrase|walking bass introduction",
+      verse:"offbeat skank guitar|walking bass groove|light punchy drums",
+      rise:"short brass rise|snare pickup fill|rising guitar skanks",
+      peak:"bright horn stabs|energetic punk drums|driving offbeat guitar",
+      drop:"punchy brass downbeat|full skank rhythm return|bass and drum hit",
+      break:"bass and skank guitar only|minimal offbeat groove|short horn pause",
+      solo:"trumpet melodic solo|trombone response phrases|brass improvisation",
+      outro:"brass ending stab|final offbeat guitar hit|playful horn tag"
+    },
+    electronic:{
+      intro:"soft synth atmosphere|filtered pulse motif|subtle arpeggio",
+      verse:"minimal drum machine|pulsing synth bass|tight electronic groove",
+      rise:"rising synth arpeggio|snare roll build|filtered riser",
+      peak:"wide synth hook|full electronic drum pattern|bright lead synth",
+      drop:"heavy kick and bass drop|driving synth bass|punchy rhythmic drop",
+      break:"drums stripped away|ambient synth pads|filtered bass break",
+      solo:"melodic synth lead|evolving arpeggio sequence|instrumental synth hook",
+      outro:"filtered synth fade|short electronic tail|gradual drum removal"
+    },
+    epic:{
+      intro:"solo cello motif|soft cinematic strings|distant low brass",
+      verse:"low string ostinato|restrained orchestral pulse|warm horn motif",
+      rise:"timpani crescendo|rising string ostinato|brass swell",
+      peak:"full orchestra climax|powerful cinematic percussion|soaring string melody",
+      drop:"orchestral impact hit|deep cinematic drums|sudden brass entrance",
+      break:"solo piano and strings|thin orchestral texture|low sustained cello",
+      solo:"expressive solo violin|heroic brass melody|lyrical cello lead",
+      outro:"resolving strings|soft orchestral cadence|gentle final brass chord"
+    },
+    classical:{
+      intro:"delicate piano opening|solo violin theme|light chamber strings",
+      verse:"expressive piano accompaniment|balanced string ensemble|gentle counterpoint",
+      rise:"gradual orchestral crescendo|ascending string phrase|dynamic harmonic build",
+      peak:"full string ensemble|rich orchestral harmony|expansive melodic climax",
+      drop:"forte ensemble entrance|dramatic orchestral accent|timpani accent",
+      break:"solo instrument interlude|quiet chamber passage|transparent orchestration",
+      solo:"solo violin passage|expressive piano melody|cello cantabile",
+      outro:"soft harmonic resolution|gentle string cadence|final piano chord"
+    },
+    afro:{
+      intro:"soft kalimba motif|gentle guitar plucks|subtle hand percussion",
+      verse:"syncopated percussion groove|bouncy melodic bass|short clean guitar phrases",
+      rise:"layered shaker build|ascending percussion fills|rhythmic call-and-response",
+      peak:"full afro-pop percussion|bright guitar hook|rolling bass groove",
+      drop:"percussion-driven downbeat|bouncy sub bass entrance|tight dance drums",
+      break:"bass and hand percussion only|stripped shaker groove|warm guitar interlude",
+      solo:"melodic guitar plucks|talking drum accents|percussion-led instrumental",
+      outro:"gentle percussion fade|warm guitar refrain|short rhythmic outro"
+    },
+    reggae:{
+      intro:"warm organ bubble|clean skank guitar|laid-back bass intro",
+      verse:"deep one-drop bass|offbeat rhythm guitar|soft rimshot drums",
+      rise:"organ swell|subtle tom drum fill|bass anticipation",
+      peak:"full reggae rhythm section|strong bass hook|bright skank accents",
+      drop:"heavy dub bass entrance|kick and snare accent|offbeat guitar return",
+      break:"bass and echoing guitar|dub delay space|minimal one-drop drums",
+      solo:"melodic guitar solo|organ lead phrase|dub instrumental break",
+      outro:"dub echo tail|warm bass fade|short organ cadence"
+    },
+    jazz:{
+      intro:"soft piano voicings|upright bass introduction|light brushed cymbals",
+      verse:"walking upright bass|brushed jazz drums|warm piano comping",
+      rise:"ascending piano voicings|ride cymbal lift|building horn phrase",
+      peak:"full swinging jazz ensemble|expressive horn unison|bright piano accents",
+      drop:"accented ensemble hit|full rhythm section entrance|drum fill release",
+      break:"piano and upright bass duo|brushed drum interlude|sparse jazz comping",
+      solo:"melodic saxophone solo|expressive piano improvisation|walking bass support",
+      outro:"gentle piano turnaround|soft cymbal ending|warm final jazz chord"
+    },
+    blues:{
+      intro:"clean blues guitar lick|warm organ pad|slow bass pickup",
+      verse:"shuffle drum groove|expressive blues guitar fills|round electric bass",
+      rise:"rising blues guitar lick|snare pickup|organ swell",
+      peak:"full blues band groove|strong electric guitar response|punchy live drums",
+      drop:"guitar and drum accent|strong bass entrance|blues turnaround hit",
+      break:"guitar and bass only|slow organ interlude|restrained drum texture",
+      solo:"expressive blues guitar solo|slide guitar phrases|Hammond organ solo",
+      outro:"classic blues turnaround|final guitar bend|warm chord resolution"
+    },
+    latin:{
+      intro:"soft nylon guitar|light conga pattern|gentle piano montuno",
+      verse:"syncopated clave groove|rounded Latin bass|conga and shaker",
+      rise:"timbale roll|ascending brass phrase|growing clave accents",
+      peak:"full Latin percussion|bright brass hook|driving piano montuno",
+      drop:"strong dembow downbeat|deep rhythmic bass|punchy percussion return",
+      break:"minimal conga groove|nylon guitar passage|stripped percussion",
+      solo:"trumpet solo phrase|expressive nylon guitar lead|piano montuno spotlight",
+      outro:"short brass cadence|gentle conga fade|guitar ending phrase"
+    },
+    hiphop:{
+      intro:"subtle vinyl texture|sparse melodic sample|quiet 808 pulse",
+      verse:"tight kick and snare|focused 808 bass|minimal melodic loop",
+      rise:"snare roll pickup|filtered sample rise|short bass anticipation",
+      peak:"heavy 808 bass|strong drum groove|catchy sampled hook",
+      drop:"hard 808 drop|punchy sub bass|snare accent impact",
+      break:"drums cut to sparse sample|low bass pause|stripped beat texture",
+      solo:"instrumental sample variation|turntable scratches|melodic beat interlude",
+      outro:"filtered sample ending|soft 808 decay|short beat stop"
+    },
+    rnb:{
+      intro:"warm electric piano|soft synth pad|gentle bass motif",
+      verse:"laid-back R&B drums|smooth electric piano chords|round bass groove",
+      rise:"rising chord layers|subtle vocal pad support|gentle drum fill",
+      peak:"wide soulful chord voicings|full R&B groove|melodic bass accents",
+      drop:"smooth sub bass entrance|tight R&B drum hit|warm chord stab",
+      break:"electric piano and bass|stripped soulful harmony|intimate drum texture",
+      solo:"melodic electric piano solo|smooth guitar lead|expressive keyboard runs",
+      outro:"warm chord resolution|soft bass fade|short Rhodes outro"
+    },
+    funk:{
+      intro:"muted funk guitar|tight bass pickup|clavinet riff",
+      verse:"syncopated slap bass|dry funk drums|short guitar chops",
+      rise:"brass pickup phrase|busy drum fill|rising clavinet riff",
+      peak:"full funk horn section|driving slap bass|punchy guitar groove",
+      drop:"tight bass and drum hit|brass accent return|heavy syncopated groove",
+      break:"bass and drums only|stripped guitar groove|short stop-time accent",
+      solo:"clavinet solo|bright trumpet improvisation|expressive bass fill",
+      outro:"final brass stab|bass groove stop|short guitar ending"
+    },
+    folk:{
+      intro:"gentle acoustic guitar|solo fiddle motif|soft plucked strings",
+      verse:"fingerpicked acoustic guitar|restrained folk percussion|warm melodic strings",
+      rise:"gradually layered acoustic strings|frame drum lift|fiddle build",
+      peak:"full acoustic ensemble|strong fiddle melody|driving folk rhythm",
+      drop:"frame drum accent|full acoustic strum entrance|strong folk downbeat",
+      break:"solo acoustic passage|soft bowed string texture|unaccompanied plucked motif",
+      solo:"expressive fiddle solo|acoustic string interlude|folk flute melody",
+      outro:"quiet acoustic resolution|soft fiddle ending|final plucked chord"
+    },
+    chanson:{
+      intro:"gentle accordion motif|clean acoustic guitar|soft piano opening",
+      verse:"warm bass and restrained drums|clear piano accompaniment|gentle acoustic rhythm",
+      rise:"ascending accordion phrase|gradual string lift|subtle drum build",
+      peak:"full melodic accompaniment|expressive accordion hook|wide acoustic chorus",
+      drop:"full rhythm entrance|strong accordion accent|dynamic band pickup",
+      break:"piano and acoustic guitar only|soft accordion interlude|stripped accompaniment",
+      solo:"accordion solo|melodic acoustic guitar lead|lyrical violin phrase",
+      outro:"short accordion reprise|soft piano resolution|acoustic guitar ending"
+    },
+    sacred:{
+      intro:"gentle organ prelude|soft choral harmony|quiet bell motif",
+      verse:"clear solo voice space|restrained organ support|soft sustained choir",
+      rise:"gradual harmonic lift|layered vocal harmony|warm sustained organ",
+      peak:"rich choral harmony|full organ chords|reverent orchestral support",
+      drop:"strong orchestral accent|firm harmonic resolution|resonant percussion accent",
+      break:"solo voice and soft organ|quiet choral passage|sparse sacred harmony",
+      solo:"expressive organ interlude|solo cello passage|gentle vocalise",
+      outro:"soft final choral cadence|organ chord resolution|gentle bell ending"
+    },
+    country:{
+      intro:"clean acoustic guitar picking|gentle pedal steel|short fiddle pickup",
+      verse:"steady acoustic rhythm|warm electric bass|light brushed snare",
+      rise:"pedal steel swell|rising fiddle phrase|subtle drum fill",
+      peak:"full country band|bright fiddle hook|warm layered acoustic guitars",
+      drop:"driving country downbeat|full rhythm entrance|bright guitar accent",
+      break:"acoustic guitar and fiddle|stripped bass groove|gentle instrumental pause",
+      solo:"pedal steel solo|chicken-pickin guitar|melodic fiddle lead",
+      outro:"short acoustic guitar tag|fiddle cadence|warm pedal steel fade"
+    },
+    ambient:{
+      intro:"airy atmospheric pads|soft textural drone|gentle tonal shimmer",
+      verse:"slow evolving synth layers|subtle ambient pulse|warm drone texture",
+      rise:"gradual spectral swell|slow filter opening|layered atmospheric wash",
+      peak:"wide evolving soundscape|rich harmonic layers|soft textural climax",
+      drop:"deep ambient bass swell|gentle pulse entrance|low-frequency bloom",
+      break:"near-silent atmospheric bed|solo sustained tone|minimal spatial texture",
+      solo:"evolving synth lead|organic textural motif|gentle piano phrases",
+      outro:"slow pad decay|soft fading drone|spacious harmonic tail"
+    },
+    experimental:{
+      intro:"unusual percussive texture|sparse sound design motif|subtle tonal noise",
+      verse:"asymmetric rhythm pattern|textural percussion|minimal melodic fragments",
+      rise:"layered rhythmic displacement|gradual timbral shift|complex pulsing build",
+      peak:"dense experimental texture|strong rhythmic contrast|unusual layered timbres",
+      drop:"unexpected percussive impact|heavy processed bass|sudden texture switch",
+      break:"abstract quiet sound design|sparse low drone|rhythmic silence",
+      solo:"prepared piano motif|experimental synthesizer lead|freeform instrument texture",
+      outro:"fragmented rhythmic ending|slow textural dissolve|sudden final accent"
+    },
+    vocal:{
+      intro:"soft vocal harmony bed|gentle humming motif|light vowel textures",
+      verse:"single clear lead line|restrained backing harmonies|natural vocal rhythm",
+      rise:"layered voices rising|graduated harmony stack|vocal swell",
+      peak:"full polyphonic harmonies|strong melodic lead|wide vocal chords",
+      drop:"rhythmic vocal accent|bass voice entrance|full vocal harmony hit",
+      break:"solo voice passage|minimal two-part harmony|unaccompanied vocal phrase",
+      solo:"solo vocalise|ornamental vocal melody|wordless lead vocal",
+      outro:"soft closing vocal chord|gentle harmony resolution|fading vocal tail"
+    }
+  };
+  function smartFamily(genre){
+    const signature=normalizeQuery([genre?.id,genre?.name,genre?.family].filter(Boolean).join(" "));
+    if(/ска|(^|[^a-z])ska([^a-z]|$)/.test(signature))return "ska";
+    if(/религи|духовн|православ|христиан|госпел|церков|молитв|sacred|gospel/.test(signature))return "sacred";
+    if(/эпик|эпичес|кинематограф|саундтрек|trailer|epic|cinematic/.test(signature))return "epic";
+    if(/классичес|оркестров|симфон|камерн|classical|orchestral/.test(signature))return "classical";
+    if(/эмбиент|атмосферн|нью-эйдж|ambient|new.age|drone/.test(signature))return "ambient";
+    if(/экспериментал|авангард|experimental|avant/.test(signature))return "experimental";
+    if(/акапел|а капел|вокальная музыка|a cappella|vocal ensemble/.test(signature))return "vocal";
+    if(/джаз|jazz|swing|bebop|бибоп/.test(signature))return "jazz";
+    if(/блюз|blues/.test(signature))return "blues";
+    if(/афро|амапиано|африкан|afro|amapiano/.test(signature))return "afro";
+    if(/регги|даб\b|кариб|reggae|dub/.test(signature))return "reggae";
+    if(/латино|реггетон|сальса|бачата|меренге|латин|latin|reggaeton|salsa|bachata/.test(signature))return "latin";
+    if(/хип.хоп|рэп|трэп|хипхоп|hip.hop|rap|trap/.test(signature))return "hiphop";
+    if(/фанк|диско|funk|disco/.test(signature))return "funk";
+    if(/r&b|соул|нео.соул|soul|rhythm and blues/.test(signature))return "rnb";
+    if(/кантри|американа|country|americana/.test(signature))return "country";
+    if(/шансон|бард|авторская песня|баллада|chanson/.test(signature))return "chanson";
+    if(/фолк|народн|этно|кельт|folk|ethno/.test(signature))return "folk";
+    if(/электро|хаус|техно|транс|синти|драм-н-бейс|дабстеп|electronic|electro|house|techno|trance|synth|dubstep/.test(signature))return "electronic";
+    if(/рок|панк|метал|гранж|хардкор|rock|punk|metal|grunge/.test(signature))return "rock";
+    return "pop";
+  }
+  // Pop is a neutral fallback if a niche Academy entry has no dedicated section bank.
+  SMART_FAMILY_BANK.pop={
+    intro:"gentle melodic intro|soft piano motif|subtle synth atmosphere",
+    verse:"restrained beat and bass|clear melodic accompaniment|tight pop groove",
+    rise:"gradual percussion build|rising synth layers|harmonic lift",
+    peak:"full bright chorus arrangement|wide melodic hook|punchy drums and bass",
+    drop:"drum and bass downbeat|strong synth hook|sharp pop accent",
+    break:"minimal piano and pad|stripped rhythmic accompaniment|soft instrumental pause",
+    solo:"melodic guitar lead|expressive synth solo|piano instrumental motif",
+    outro:"short melodic reprise|soft pad fade|clean final chord"
+  };
+  function smartRoleInfo(block){return SMART_ROLE[block.type]||SMART_ROLE.custom;}
+  function smartRoleCues(genre,block){
+    const role=smartRoleInfo(block)[2];
+    const family=smartFamily(genre);
+    const bank=SMART_FAMILY_BANK[family]||SMART_FAMILY_BANK.pop;
+    const cues=(bank[role]||SMART_FAMILY_BANK.pop[role]||"").split("|").filter(Boolean);
+    if(block.type==="finalchorus")cues.unshift("final chorus lift");
+    if(block.type==="postchorus")cues.unshift("short repeating melodic hook");
+    if(block.type==="custom"&&block.customName)cues.unshift("custom section contrast");
+    return [...new Set(cues)].slice(0,5);
+  }
+  function smartDynamicsCues(block){
+    const energy=Number(block.energy);
+    const dynamics={
+      1:["sparse arrangement","very soft dynamics"],
+      2:["restrained groove","light rhythmic texture"],
+      3:["balanced dynamic groove","controlled musical build"],
+      4:["driving rhythmic accents","strong dynamic lift"],
+      5:["full dynamic impact","wide powerful accents"]
+    };
+    const choices=[...(dynamics[energy]||dynamics[3])];
+    const vocal={
+      none:"instrumental melodic focus",
+      lead:"space for clear lead vocal",
+      male:"space for clear male lead",
+      female:"space for clear female lead",
+      duet:"duet call-and-response",
+      harmonies:"layered backing harmonies",
+      falsetto:"smooth falsetto lift",
+      backing:"supporting backing vocal responses"
+    }[block.vocal];
+    if(vocal)choices.push(vocal);
+    return choices;
+  }
+  function smartPurpose(block){
+    const role=smartRoleInfo(block);
+    return role[1];
+  }
+
   function soundSuggestions(genre,block){
     const groups=[],all=new Set();
     const exclusions=/^(?:no |without |clean studio|polished studio|studio recording|studio sound|high-quality|high quality|professional production|not |avoid |no crowd|no stage|no whisper)/i;
