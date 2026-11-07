@@ -1,4 +1,4 @@
-/* SUNOBOOM • My Songs v0.79: Academy genre picker and personal artist library. */
+/* SUNOBOOM • My Songs v0.89: take library, WAV and in-card A/B comparison. */
 (function installSunoboomSongs(){
  "use strict";
  if(typeof account!=="function"||typeof render!=="function"||typeof chrome!=="function"||typeof go!=="function")return;
@@ -6,20 +6,47 @@
  const esc=s=>escapeHTML(String(s??""));
  const clean=(s,max=120)=>String(s??"").replace(/[\u0000-\u001f]/g," ").trim().slice(0,max);
  const safeURL=value=>{try{const u=new URL(String(value||"").trim());return u.protocol==="https:"?u.href:"";}catch(e){return "";}};
- const state={editId:null,selectedId:null,showForm:false,search:"",notice:"",confirmDelete:null,shared:null,loading:false,coverScanToken:0,coverScanFile:null,coverScanPromise:null,autoCoverBlob:null,coverPreviewURL:"",showArtistManager:false,artistManagerFilter:"",artistPickerOpen:false,artistShowAll:false,genrePickerOpen:false,genreShowAll:false,genreFamily:"Все"};
+ const state={editId:null,selectedId:null,showForm:false,search:"",notice:"",confirmDelete:null,shared:null,loading:false,coverScanToken:0,coverScanFile:null,coverScanPromise:null,autoCoverBlob:null,coverPreviewURL:"",showArtistManager:false,artistManagerFilter:"",artistPickerOpen:false,artistShowAll:false,genrePickerOpen:false,genreShowAll:false,genreFamily:"Все",playVersionId:null,compareOpen:false,compareAId:null,compareBId:null};
  const thumbs=new Map();
- let activeAudioURL="";
+ const activeAudioURLs=new Set();
  let songs=[];
+  const WAV_LIMIT=500*1024*1024, OTHER_AUDIO_LIMIT=150*1024*1024;
+  const isWave=file=>/\.(wav|wave)$/i.test(file?.name||"")||/^(audio\/(?:x-)?wav|audio\/wave)$/i.test(file?.type||"");
+  const maxAudioBytes=file=>isWave(file)?WAV_LIMIT:OTHER_AUDIO_LIMIT;
+  const audioLimitMessage=file=>isWave(file)?"WAV не должен превышать 500 МБ. Проверь свободное место в браузере.":"Размер аудиофайла не должен превышать 150 МБ.";
+  function sanitizeVersions(raw){
+    if(!Array.isArray(raw))return [];
+    const used=new Set();
+    return raw.slice(0,100).filter(v=>v&&typeof v==="object").map(v=>({
+      id:clean(v.id,60),label:clean(v.label,90),notes:clean(v.notes,800),
+      fileName:clean(v.fileName,180),bytes:Math.max(0,Number(v.bytes)||0),
+      addedAt:Number(v.addedAt)||Date.now()
+    })).filter(v=>v.id&&/^(original|v-[a-z0-9-]+)$/.test(v.id)&&!used.has(v.id)&&used.add(v.id));
+  }
+  function songVersions(song){
+    if(!song)return [];
+    const current=sanitizeVersions(song.versions);
+    if(current.length||!song.hasAudio)return current;
+    // Preserve existing audio keys from older releases without copying/overwriting media.
+    return [{id:"original",label:"Исходная запись",notes:"",fileName:"",bytes:0,addedAt:song.createdAt||Date.now()}];
+  }
+  const activeVersion=song=>songVersions(song).find(v=>v.id===song?.activeVersionId)||songVersions(song)[0]||null;
+  const audioKey=(songId,versionId)=>versionId==="original"?songId+":audio":songId+":version:"+versionId;
+  const newVersionId=()=>"v-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,9);
+  const audioSize=bytes=>bytes?(bytes/1048576).toFixed(1)+" МБ":"Размер не указан";
+  const versionName=(file,index)=>clean((file?.name||"").replace(/\.[^.]+$/,""),90)||"Версия "+index;
+  function resetTakeView(){state.playVersionId=null;state.compareOpen=false;state.compareAId=null;state.compareBId=null;}
+
  try{const saved=JSON.parse(localStorage.getItem(KEY)||"[]");if(Array.isArray(saved))songs=saved.filter(x=>x&&typeof x==="object"&&typeof x.id==="string").slice(0,500).map(x=>({
    id:clean(x.id,90),passportId:clean(x.passportId,100),title:clean(x.title,120),artist:clean(x.artist,120),genre:clean(x.genre,80),
    album:clean(x.album,120),description:clean(x.description,700),createdAt:Number(x.createdAt)||Date.now(),
    updatedAt:Number(x.updatedAt)||Date.now(),audioUrl:safeURL(x.audioUrl),listenUrl:safeURL(x.listenUrl),coverUrl:safeURL(x.coverUrl),
-   hasAudio:x.hasAudio===true,hasCover:x.hasCover===true
+   hasAudio:x.hasAudio===true,hasCover:x.hasCover===true,versions:sanitizeVersions(x.versions),activeVersionId:clean(x.activeVersionId,60)
  }));}catch(e){}
  const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(songs));return true;}catch(e){return false;}};
  const get=id=>songs.find(x=>x.id===id)||null;
  const notify=message=>{state.notice=message;const el=document.getElementById("sbsong-notice");if(el){el.textContent=message;el.hidden=false;}else if(typeof toast==="function")toast(message);};
- const mimeAudio=file=>file&&(file.type.startsWith("audio/")||/\.(mp3|wav|m4a|aac|ogg|opus|flac)$/i.test(file.name||""));
+ const mimeAudio=file=>file&&((file.type||"").startsWith("audio/")||/\.(mp3|wav|wave|m4a|aac|ogg|opus|flac)$/i.test(file.name||""));
  const mimeImage=file=>file&&(file.type==="image/jpeg"||file.type==="image/png"||file.type==="image/webp"||file.type==="image/gif"||/\.(jpg|jpeg|png|webp|gif)$/i.test(file.name||""));
  let dbPromise;
  function database(){
@@ -53,7 +80,7 @@
  const putFile=(key,blob)=>fileOperation("put",key,blob);
  const delFile=key=>fileOperation("delete",key);
  function clearThumb(id){const url=thumbs.get(id);if(url)URL.revokeObjectURL(url);thumbs.delete(id);}
- function releaseAudio(){if(activeAudioURL){URL.revokeObjectURL(activeAudioURL);activeAudioURL="";}}
+ function releaseAudio(){for(const url of activeAudioURLs)URL.revokeObjectURL(url);activeAudioURLs.clear();}
 
  function resetCoverPreview(){
    state.coverScanToken++;
@@ -100,7 +127,7 @@
      else showBlobCover(null,"Добавь MP3, M4A или FLAC, чтобы найти обложку");
      return;
    }
-   if(!mimeAudio(file)||file.size>150*1024*1024){paintCoverPreview("","Неподдерживаемый аудиофайл");return;}
+   if(!mimeAudio(file)||file.size>maxAudioBytes(file)){paintCoverPreview("","Неподдерживаемый аудиофайл или превышен размер");return;}
    paintCoverPreview("","Ищу встроенную обложку в аудиофайле…");
    state.coverScanPromise=readEmbeddedCover(file).catch(()=>null);
    const blob=await state.coverScanPromise;
