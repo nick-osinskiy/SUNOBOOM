@@ -339,10 +339,13 @@
  async function shareAudio(song){
    try{
      const blob=await getFile(song.id+":audio");if(!blob){notify("Аудиофайл не найден.");return;}
-     const name=(song.title||"song").replace(/[\\/:*?"<>|]/g,"").slice(0,90)+(/audio\/(?:mpeg|mp3)/.test(blob.type)?".mp3":".m4a");
+     const ext=String(blob.name||"").match(/\.(mp3|wav|m4a|aac|ogg|opus|flac)$/i)?.[0]||
+       ({ "audio/mpeg":".mp3","audio/wav":".wav","audio/x-wav":".wav","audio/mp4":".m4a","audio/ogg":".ogg","audio/flac":".flac" }[blob.type]||".mp3");
+     const name=(song.title||"song").replace(/[\\/:*?"<>|]/g,"").slice(0,90)+ext;
      const file=new File([blob],name,{type:blob.type||"audio/mpeg"});
      if(navigator.canShare?.({files:[file]})&&navigator.share){
-       await navigator.share({files:[file],title:song.title,text:"Аудиозапись "+song.title});return;
+       try{await navigator.share({files:[file],title:song.title,text:"Аудиозапись "+song.title});return;}
+       catch(e){if(e.name==="AbortError")return; /* Use a download when native sharing is unsupported. */}
      }
      const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=file.name;document.body.appendChild(a);a.click();a.remove();
      notify("Файл подготовлен для сохранения. Отправь его через мессенджер.");
