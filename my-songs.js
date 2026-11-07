@@ -639,7 +639,85 @@
    }catch(e){notify("Не удалось сохранить: "+(e.message||"проверь доступное место на устройстве"));}
    finally{state.loading=false;if(btn)btn.disabled=false;}
  }
- async function removeSong(id){
+ function updateSongRecord(updated){
+    const previous=songs;
+    songs=songs.map(song=>song.id===updated.id?updated:song);
+    if(!save()){songs=previous;notify("Не удалось сохранить изменения карточки.");return false;}
+    return true;
+  }
+  async function addTake(){
+    if(state.loading)return;
+    const song=get(state.selectedId);
+    const file=document.getElementById("sbsong-version-file")?.files?.[0];
+    if(!song||!file){notify("Выбери MP3, M4A, WAV или другой аудиофайл.");return;}
+    if(!mimeAudio(file)||file.size>maxAudioBytes(file)){
+      notify(!mimeAudio(file)?"Неподдерживаемый тип аудиофайла.":audioLimitMessage(file));return;
+    }
+    const versions=songVersions(song);
+    if(versions.length>=100){notify("В одной карточке можно хранить до 100 аудиоверсий.");return;}
+    const id=versions.length?newVersionId():"original";
+    const label=clean(document.getElementById("sbsong-new-version-title")?.value,90)||versionName(file,versions.length+1);
+    const notes=clean(document.getElementById("sbsong-new-version-notes")?.value,800);
+    const version={id,label,notes,fileName:clean(file.name,180),bytes:file.size,addedAt:Date.now()};
+    const next={...song,versions:[...versions,version],hasAudio:true,
+      activeVersionId:activeVersion(song)?.id||id,updatedAt:Date.now()};
+    state.loading=true;
+    const button=document.getElementById("sbsong-version-submit");if(button)button.disabled=true;
+    let savedFile=false,committed=false;
+    try{
+      await putFile(audioKey(song.id,id),file);savedFile=true;
+      if(!updateSongRecord(next))throw new Error("Не удалось сохранить список версий.");
+      committed=true;
+      if(!song.hasCover&&!song.coverUrl&&!isWave(file)){
+        try{
+          const cover=await readEmbeddedCover(file);
+          if(cover){await putFile(song.id+":cover",cover);clearThumb(song.id);
+            updateSongRecord({...next,hasCover:true});
+          }
+        }catch(e){}
+      }
+      state.playVersionId=id;
+      state.notice="Сохранена новая версия «"+label+"». Другие дубли не изменены.";
+      render();
+    }catch(e){
+      if(savedFile&&!committed)try{await delFile(audioKey(song.id,id));}catch(ignore){}
+      notify("Не удалось загрузить версию: "+(e.message||"проверь свободное место в браузере"));
+    }finally{state.loading=false;if(button)button.disabled=false;}
+  }
+  function editTakeDetails(versionId){
+    const song=get(state.selectedId),versions=songVersions(song);
+    if(!song||!versions.some(v=>v.id===versionId))return;
+    const titleInput=[...document.querySelectorAll("[data-sbsong-version-title]")].find(x=>x.dataset.sbsongVersionTitle===versionId);
+    const notesInput=[...document.querySelectorAll("[data-sbsong-version-note]")].find(x=>x.dataset.sbsongVersionNote===versionId);
+    const label=clean(titleInput?.value,90)||"Версия";
+    const notes=clean(notesInput?.value,800);
+    const next={...song,versions:versions.map(v=>v.id===versionId?{...v,label,notes}:v),updatedAt:Date.now()};
+    if(updateSongRecord(next)){state.notice="Название и заметки версии сохранены.";render();}
+  }
+  function markMainTake(versionId){
+    const song=get(state.selectedId);
+    if(!song||!songVersions(song).some(v=>v.id===versionId))return;
+    if(updateSongRecord({...song,activeVersionId:versionId,updatedAt:Date.now()})){
+      state.playVersionId=null;state.notice="Основная версия песни изменена.";render();
+    }
+  }
+  async function removeTake(versionId){
+    const song=get(state.selectedId),versions=songVersions(song);
+    const selected=versions.find(v=>v.id===versionId);
+    if(!song||!selected||state.loading)return;
+    if(!confirm("Удалить только аудиоверсию «"+selected.label+"»? Восстановить её нельзя. Остальные дубли и карточка останутся."))return;
+    const remaining=versions.filter(v=>v.id!==versionId);
+    const next={...song,versions:remaining,hasAudio:remaining.length>0,
+      activeVersionId:remaining.some(v=>v.id===song.activeVersionId)?song.activeVersionId:(remaining[0]?.id||""),
+      updatedAt:Date.now()};
+    if(!updateSongRecord(next))return;
+    try{await delFile(audioKey(song.id,versionId));}catch(e){notify("Версия исключена из списка, но удалить её файл из хранилища не получилось.");}
+    state.playVersionId=null;state.compareAId=null;state.compareBId=null;
+    if(remaining.length<2)state.compareOpen=false;
+    state.notice="Выбранный дубль удалён. Карточка и остальные версии сохранены.";
+    render();
+  }
+  async function removeSong(id){
    const x=get(id);if(!x)return;
    songs=songs.filter(y=>y.id!==id);
    if(!save()){songs.push(x);notify("Не получилось удалить карточку.");return;}
