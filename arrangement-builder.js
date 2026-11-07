@@ -173,7 +173,8 @@
         '<div class="sba-snake-top"><div><span class="sba-snake-eyebrow">СХЕМА ПЕСНИ</span><h3>Змейка аранжировки <span aria-hidden="true">〰</span></h3></div>'+
         '<div class="sba-snake-tools"><span id="sba-snake-meta" class="sba-snake-meta"></span><button type="button" id="sba-snake-toggle" data-sba-action="snake-toggle" hidden>Показать все</button></div></div>'+
         '<div id="sba-snake-track" class="sba-snake-track" aria-live="polite"></div>'+
-        '<p class="sba-snake-footnote">Порядок фрагментов сверху вниз, по змейке. Цвет показывает энергию 1–5.</p>'+
+        '<p class="sba-snake-footnote">Перетаскивай блоки в змейке мышью или пальцем. Порядок и черновик обновятся автоматически.</p>'+
+        '<span id="sba-snake-status" class="sba-sr-only" role="status" aria-live="polite"></span>'+
       '</section>'+
       '<div class="sba-body">'+
       '<div class="sba-editor">'+
@@ -728,12 +729,13 @@
       const continued=start+columns<items.length;
       const row=items.slice(start,start+columns).map((block,offset)=>{
         const index=start+offset,label=snakeName(block,index);
-        return '<span class="sba-snake-chip" data-sba-energy="'+block.energy+'" '+
-          'title="'+esc(String(index+1)+". "+label+" · энергия "+block.energy+"/5")+'">'+
+        return '<button type="button" draggable="true" class="sba-snake-chip" data-sba-snake-id="'+esc(block.id)+'" data-sba-energy="'+block.energy+'" '+
+          'aria-label="'+esc("Переместить "+label+", позиция "+(index+1)+" из "+state.blocks.length+", энергия "+block.energy+"/5")+'" '+
+          'title="'+esc(String(index+1)+". "+label+" · энергия "+block.energy+"/5 · перетащи для перестановки")+'">'+
           '<span class="sba-snake-num">'+(index+1)+'</span>'+
           '<span class="sba-snake-icon" aria-hidden="true">'+esc(SECTION[block.type].icon)+'</span>'+
           '<span class="sba-snake-title">'+esc(label)+'</span>'+
-          '<span class="sba-snake-level">'+block.energy+'/5</span></span>';
+          '<span class="sba-snake-level">'+block.energy+'/5</span></button>';
       }).join("");
       result.push('<div class="sba-snake-row'+(reverse?' sba-snake-reverse':'')+
         (continued?' sba-snake-continues':'')+'">'+row+'</div>');
@@ -748,8 +750,8 @@
     const summary=visible.map((b,i)=>(i+1)+". "+snakeName(b,i)).join(" → ");
     const desktop=snakeRowsHTML(visible,6),mobile=snakeRowsHTML(visible,3);
     root.innerHTML=total?
-      '<div class="sba-snake-desktop" role="img" aria-label="'+esc(summary)+'">'+desktop+'</div>'+
-      '<div class="sba-snake-mobile" role="img" aria-label="'+esc(summary)+'">'+mobile+'</div>'+
+      '<div class="sba-snake-desktop" role="group" aria-label="'+esc("Схема блоков: "+summary)+'">'+desktop+'</div>'+
+      '<div class="sba-snake-mobile" role="group" aria-label="'+esc("Схема блоков: "+summary)+'">'+mobile+'</div>'+
       (shown<total?'<p class="sba-snake-more">… и ещё '+(total-shown)+' блоков</p>':""):
       '<p class="sba-snake-empty">Добавь первый блок, и здесь появится схема композиции.</p>';
     const meta=document.getElementById("sba-snake-meta");
@@ -813,7 +815,38 @@
     if(i<0||j<0||i>=state.blocks.length||j>=state.blocks.length||i===j)return;
     const [item]=state.blocks.splice(i,1);state.blocks.splice(j,0,item);changed();
   }
+
   function findIndex(id){return state.blocks.findIndex(b=>b.id===id);}
+  // Both the desktop drag and iPhone pointer gesture act on the same song blocks.
+  function reorderSnake(fromId,toId){
+    const from=findIndex(fromId),to=findIndex(toId);
+    if(from<0||to<0||from===to)return false;
+    const label=snakeName(state.blocks[from],from);
+    swap(from,to); // Uses the existing mutation, redraw and local draft persistence.
+    const status=document.getElementById("sba-snake-status");
+    if(status)status.textContent="Блок «"+label+"» перемещён на позицию "+(to+1);
+    return true;
+  }
+  function clearSnakeDragClasses(){
+    document.querySelectorAll(".sba-snake-dragging,.sba-snake-drop-target").forEach(el=>{
+      el.classList.remove("sba-snake-dragging","sba-snake-drop-target");
+    });
+  }
+  function highlightSnakeTarget(id){
+    document.querySelectorAll(".sba-snake-drop-target").forEach(el=>el.classList.remove("sba-snake-drop-target"));
+    if(!id)return;
+    document.querySelectorAll("[data-sba-snake-id]").forEach(el=>{
+      if(el.dataset.sbaSnakeId===id)el.classList.add("sba-snake-drop-target");
+    });
+  }
+  let snakePointer=null;
+  function snakePointerClear(){
+    if(snakePointer?.chip?.releasePointerCapture){
+      try{if(snakePointer.chip.hasPointerCapture?.(snakePointer.id))snakePointer.chip.releasePointerCapture(snakePointer.id);}catch(e){}
+    }
+    snakePointer=null;
+    clearSnakeDragClasses();
+  }
   function prepareTransfer(){
     if(!state.blocks.length){show("Добавь хотя бы один блок перед переносом.");return;}
     const before=String(builder.extra||"");
@@ -1053,6 +1086,16 @@
   });
   document.addEventListener("dragstart",event=>{
     if(view.nav!=="studio")return;
+    const snake=event.target?.closest?.("[data-sba-snake-id]");
+    if(snake){
+      state.snakeDragId=snake.dataset.sbaSnakeId;
+      if(event.dataTransfer){
+        event.dataTransfer.setData("text/plain",state.snakeDragId);
+        event.dataTransfer.effectAllowed="move";
+      }
+      snake.classList.add("sba-snake-dragging");
+      return;
+    }
     const handle=event.target?.closest?.("[data-sba-drag]");
     if(!handle)return;
     state.dragId=handle.dataset.sbaDrag;
@@ -1061,7 +1104,16 @@
     handle.closest(".sba-block")?.classList.add("sba-dragging");
   });
   document.addEventListener("dragover",event=>{
-    if(view.nav!=="studio"||!state.dragId)return;
+    if(view.nav!=="studio")return;
+    if(state.snakeDragId){
+      const target=event.target?.closest?.("[data-sba-snake-id]");
+      if(!target)return;
+      event.preventDefault();
+      if(event.dataTransfer)event.dataTransfer.dropEffect="move";
+      highlightSnakeTarget(target.dataset.sbaSnakeId===state.snakeDragId?null:target.dataset.sbaSnakeId);
+      return;
+    }
+    if(!state.dragId)return;
     const block=event.target?.closest?.(".sba-block");if(!block)return;
     event.preventDefault();
     if(event.dataTransfer)event.dataTransfer.dropEffect="move";
@@ -1069,7 +1121,15 @@
     block.classList.add("sba-drop-target");
   });
   document.addEventListener("drop",event=>{
-    if(view.nav!=="studio"||!state.dragId)return;
+    if(view.nav!=="studio")return;
+    if(state.snakeDragId){
+      const target=event.target?.closest?.("[data-sba-snake-id]");
+      const source=state.snakeDragId;
+      state.snakeDragId=null;clearSnakeDragClasses();
+      if(target){event.preventDefault();reorderSnake(source,target.dataset.sbaSnakeId);}
+      return;
+    }
+    if(!state.dragId)return;
     const target=event.target?.closest?.(".sba-block");if(!target)return;
     event.preventDefault();
     const from=findIndex(state.dragId),to=findIndex(target.dataset.sbaId);
@@ -1077,10 +1137,59 @@
     if(from>=0&&to>=0)swap(from,to);
   });
   document.addEventListener("dragend",()=>{
+    state.snakeDragId=null;clearSnakeDragClasses();
     state.dragId=null;
     document.querySelectorAll(".sba-dragging,.sba-drop-target").forEach(el=>el.classList.remove("sba-dragging","sba-drop-target"));
   });
+  // Pointer Events are used for touch-based reordering, since Safari on iPhone
+  // does not reliably start HTML5 native drag-and-drop on ordinary buttons.
+  document.addEventListener("pointerdown",event=>{
+    if(view.nav!=="studio"||event.pointerType==="mouse"||!event.isPrimary)return;
+    const chip=event.target?.closest?.("[data-sba-snake-id]");
+    if(!chip||snakePointer)return;
+    snakePointer={id:event.pointerId,source:chip.dataset.sbaSnakeId,target:null,chip,started:false,
+      x:event.clientX,y:event.clientY};
+    try{chip.setPointerCapture?.(event.pointerId);}catch(e){}
+    chip.classList.add("sba-snake-dragging");
+  });
+  document.addEventListener("pointermove",event=>{
+    if(view.nav!=="studio"||!snakePointer||event.pointerId!==snakePointer.id)return;
+    const dx=event.clientX-snakePointer.x,dy=event.clientY-snakePointer.y;
+    if(!snakePointer.started&&Math.hypot(dx,dy)<6)return;
+    snakePointer.started=true;
+    event.preventDefault();
+    const beneath=document.elementFromPoint?.(event.clientX,event.clientY);
+    const target=beneath?.closest?.("[data-sba-snake-id]");
+    const targetId=target?.dataset?.sbaSnakeId||null;
+    snakePointer.target=targetId&&targetId!==snakePointer.source?targetId:null;
+    highlightSnakeTarget(snakePointer.target);
+  },{passive:false});
+  document.addEventListener("pointerup",event=>{
+    if(!snakePointer||event.pointerId!==snakePointer.id)return;
+    const {source,target,started}=snakePointer;
+    snakePointerClear();
+    if(started&&target){event.preventDefault();reorderSnake(source,target);}
+  });
+  document.addEventListener("pointercancel",event=>{
+    if(snakePointer&&event.pointerId===snakePointer.id)snakePointerClear();
+  });
+  // Keyboard alternative: move one block toward the start/end of the song.
+  document.addEventListener("keydown",event=>{
+    if(view.nav!=="studio"||!["ArrowLeft","ArrowRight"].includes(event.key))return;
+    const chip=event.target?.closest?.("[data-sba-snake-id]");
+    if(!chip)return;
+    const id=chip.dataset.sbaSnakeId;
+    const at=findIndex(id);
+    const to=at+(event.key==="ArrowLeft"?-1:1);
+    if(to<0||to>=state.blocks.length)return;
+    event.preventDefault();
+    if(reorderSnake(id,state.blocks[to].id)){
+      const matches=document.querySelectorAll("[data-sba-snake-id]");
+      const active=[...matches].find(el=>el.dataset.sbaSnakeId===id&&el.getClientRects?.().length)||[...matches].find(el=>el.dataset.sbaSnakeId===id);
+      active?.focus?.({preventScroll:true});
+    }
+  });
   load();
-  window.SUNOBOOM_ARRANGER=Object.freeze({version:"0.72",getBlockCount:()=>state.blocks.length,getLyrics:generatedLyrics,getStyle:fullDynamics,getDurationEstimate:()=>lengthString()});
+  window.SUNOBOOM_ARRANGER=Object.freeze({version:"0.73",getBlockCount:()=>state.blocks.length,getLyrics:generatedLyrics,getStyle:fullDynamics,getDurationEstimate:()=>lengthString()});
   if(view.nav==="studio")render();
 })();
