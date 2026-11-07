@@ -98,9 +98,9 @@ body.sb-vh-open{overflow:hidden}
  .sb-vh-major-release .sb-vh-release-no{min-width:45px;font-size:13px;padding:10px 7px}
 }
 
-/* Two secondary tabs inside the numerically minor versions section. */
+/* Three secondary tabs inside the numerically minor versions section. */
 .sb-vh-minor-tabs{
-  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;
   padding:10px 24px 9px;background:#1d253c;
   border-bottom:1px solid #4b5372
 }
@@ -145,4 +145,11 @@ body.sb-vh-open{overflow:hidden}
  .sb-vh-search-all{gap:13px}
  .sb-vh-search-group>h3{font-size:12px}
  .sb-vh-search-tag{font-size:9px}
+}
+
+/* SUNOBOOM 0.88 · All / Large / Small release tabs */
+.sb-vh-minor-tabs .sb-vh-size-tab{white-space:normal;overflow-wrap:normal;min-height:50px}
+@media(max-width:700px){
+ .sb-vh-minor-tabs{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:9px 10px}
+ .sb-vh-minor-tabs .sb-vh-size-tab{font-size:10px;line-height:1.25;padding:7px 4px;min-height:50px}
 }
