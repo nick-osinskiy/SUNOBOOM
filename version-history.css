@@ -1,4 +1,4 @@
-/* SUNOBOOM v0.83 · Major and minor release categories */
+/* SUNOBOOM v0.84 · Numeric major.minor version history */
 .sb-version-trigger{appearance:none;-webkit-appearance:none;font-family:inherit;cursor:pointer;line-height:1;text-align:center}
 .sb-version-trigger:hover,.sb-version-trigger:focus-visible{border-color:#f8b6e7;background:linear-gradient(115deg,#86457c,#555a9f);color:#fff;box-shadow:0 0 0 2px #db8cdf55,0 6px 20px #c159ae33}
 .sb-version-trigger:focus-visible{outline:2px solid #96e6f0;outline-offset:3px}
@@ -77,4 +77,23 @@ body.sb-vh-open{overflow:hidden}
   .sb-vh-tabs{gap:6px;padding:11px 13px 6px}
   .sb-vh-tab{padding:10px 6px;min-height:45px;font-size:11px}
   .sb-vh-legend{padding:5px 14px 10px;font-size:10px}
+}
+
+/* Major = numeric component before dot, minor = numeric component after dot. */
+.sb-vh-major-release{align-items:center;padding:20px 17px;background:linear-gradient(120deg,#322846,#252e4c)}
+.sb-vh-major-release .sb-vh-release-no{font-size:16px;min-width:54px;padding:12px 10px}
+.sb-vh-major-release .sb-vh-release-text h3{margin:0 0 8px;font-size:17px;line-height:1.3;color:#fbe0f7}
+.sb-vh-major-release .sb-vh-release-text p{font-weight:500;margin:0 0 10px;color:#cbd5ec}
+.sb-vh-version-range{font-variant-numeric:tabular-nums;font-size:11px!important}
+.sb-vh-view-minors{
+  background:linear-gradient(115deg,#904791,#5458a2);border:1px solid #c58cc5;
+  color:#fff;min-height:39px;padding:9px 12px;border-radius:9px;font-size:12px;
+  font-weight:800;cursor:pointer
+}
+.sb-vh-view-minors:hover{filter:brightness(1.12)}
+.sb-vh-view-minors:focus-visible{outline:2px solid #9bdef3;outline-offset:2px}
+@media(max-width:700px){
+ .sb-vh-major-release{padding:15px 12px;align-items:flex-start}
+ .sb-vh-major-release .sb-vh-release-text h3{font-size:15px}
+ .sb-vh-major-release .sb-vh-release-no{min-width:45px;font-size:13px;padding:10px 7px}
 }
