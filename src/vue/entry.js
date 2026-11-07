@@ -1,6 +1,7 @@
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import VueFeatureHost from './VueFeatureHost.vue';
+import { activateLegacyNavigation } from './navigation/legacyBridge.js';
 
 // Vue components are mounted only into explicitly handed-off feature containers.
 // Importing this module never replaces the existing SUNOBOOM application shell.
@@ -39,4 +40,9 @@ export function unmountVueFeature(target) {
   if (!app) return;
   app.unmount();
   mounted.delete(element);
+}
+
+/** Mount the Vue navigation into the existing desktop and mobile menu containers. */
+export function startLegacyNavigation() {
+  return activateLegacyNavigation({ mountVueFeature, unmountVueFeature });
 }

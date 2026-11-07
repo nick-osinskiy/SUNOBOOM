@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build:vue": "vite build"
+    "build:vue": "vite build",
+    "test:vue-nav": "node --test tests/vue-navigation.test.mjs"
   },
   "engines": {
     "node": ">=22.12.0"
