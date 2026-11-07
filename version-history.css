@@ -1,4 +1,4 @@
-/* SUNOBOOM v0.85 · Two-level major/minor and large/small version tabs */
+/* SUNOBOOM v0.86 · Global search across version tabs */
 .sb-version-trigger{appearance:none;-webkit-appearance:none;font-family:inherit;cursor:pointer;line-height:1;text-align:center}
 .sb-version-trigger:hover,.sb-version-trigger:focus-visible{border-color:#f8b6e7;background:linear-gradient(115deg,#86457c,#555a9f);color:#fff;box-shadow:0 0 0 2px #db8cdf55,0 6px 20px #c159ae33}
 .sb-version-trigger:focus-visible{outline:2px solid #96e6f0;outline-offset:3px}
@@ -121,4 +121,28 @@ body.sb-vh-open{overflow:hidden}
 @media(max-width:700px){
   .sb-vh-minor-tabs{padding:9px 13px;gap:6px}
   .sb-vh-size-tab{padding:9px 6px;min-height:44px;font-size:11px}
+}
+
+/* Grouped results when searching all version-history sections at once. */
+.sb-vh-search-all{display:grid;gap:16px}
+.sb-vh-search-group{display:grid;gap:8px}
+.sb-vh-search-group>h3{
+  margin:4px 2px 0;display:flex;align-items:center;justify-content:space-between;
+  gap:10px;color:#f3cae9;font-size:14px;font-weight:850;
+  border-bottom:1px solid #6c5d88;padding:0 0 9px
+}
+.sb-vh-search-group>h3 span{
+  color:#c1d7ee;background:#353b60;border:1px solid #65668f;
+  min-width:26px;padding:4px 8px;border-radius:99px;text-align:center;font-size:10px
+}
+.sb-vh-search-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.sb-vh-search-meta time{font-size:10px;color:#b4c2dc;font-variant-numeric:tabular-nums}
+.sb-vh-search-tag{
+  color:#d6c8eb;background:#343b60;border:1px solid #675f89;
+  border-radius:8px;padding:4px 7px;font-size:10px;font-weight:800
+}
+@media(max-width:700px){
+ .sb-vh-search-all{gap:13px}
+ .sb-vh-search-group>h3{font-size:12px}
+ .sb-vh-search-tag{font-size:9px}
 }
