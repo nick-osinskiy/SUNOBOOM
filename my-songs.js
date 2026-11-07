@@ -270,14 +270,18 @@
  };
  const oldGo=go;
  go=function(target){
-   if(location.hash.startsWith(SHARE_PREFIX))history.replaceState(null,"",location.pathname+location.search);
+   if(location.hash.startsWith(SHARE_PREFIX)||location.hash==="#view-songs")history.replaceState(null,"",location.pathname+location.search);
    return oldGo.apply(this,arguments);
  };
  function openLibrary(){
+   history.replaceState(null,"",location.pathname+location.search+"#view-songs");
    view.nav="songs";state.selectedId=null;state.showForm=false;state.notice="";state.editId=null;
    render();window.scrollTo({top:0,behavior:"instant"});
  }
  function routeShare(){
+   if(location.hash==="#view-songs"){
+     view.nav="songs";render();window.scrollTo({top:0,behavior:"instant"});return true;
+   }
    if(!location.hash.startsWith(SHARE_PREFIX))return false;
    state.shared=decodeCard(location.hash.slice(SHARE_PREFIX.length));
    view.nav="sharedSong";
@@ -384,7 +388,7 @@
    if(action==="share"){const song=get(id);if(song)shareCard(song);return;}
    if(action==="share-file"){const song=get(id);if(song)shareAudio(song);return;}
  });
- window.addEventListener("hashchange",()=>{if(location.hash.startsWith(SHARE_PREFIX))routeShare();});
+ window.addEventListener("hashchange",()=>{if(location.hash.startsWith(SHARE_PREFIX)||location.hash==="#view-songs")routeShare();});
  window.addEventListener("pagehide",()=>{releaseAudio();for(const url of thumbs.values())URL.revokeObjectURL(url);thumbs.clear();});
  window.SUNOBOOM_MY_SONGS=Object.freeze({version:"0.76",count:()=>songs.length,getCards:()=>songs.map(s=>({id:s.id,title:s.title,hasAudio:s.hasAudio})),decodeCard});
  if(!routeShare())render();
