@@ -1360,6 +1360,28 @@
     }
   });
   load();
-  window.SUNOBOOM_ARRANGER=Object.freeze({version:"0.75",getBlockCount:()=>state.blocks.length,getLyrics:generatedLyrics,getStyle:fullDynamics,getDurationEstimate:()=>lengthString()});
+  function exportDraft(){
+    return {version:1,activePreset:state.activePreset,
+      blocks:state.blocks.map(b=>({type:b.type,energy:b.energy,bars:b.bars,vocal:b.vocal,
+        instruments:b.instruments,customName:b.customName,instrumentsGenreId:b.instrumentsGenreId,
+        transitionOut:makeTransition(b.transitionOut)}))};
+  }
+  function importDraft(draft){
+    if(!draft||!Array.isArray(draft.blocks)||!draft.blocks.length||draft.blocks.length>MAX_BLOCKS)return false;
+    if(draft.blocks.some(b=>!b||typeof b!=="object"||!SECTION[b.type]))return false;
+    const previousBlocks=state.blocks,previousPreset=state.activePreset;
+    state.blocks=draft.blocks.map(b=>makeBlock(b.type,b.energy,b.bars,b.vocal,b.instruments,b.customName,b.instrumentsGenreId,b.transitionOut));
+    state.activePreset=choiceMeta(draft.activePreset)?draft.activePreset:"blank";
+    state.selectedPreset=state.activePreset;
+    state.message="Аранжировка загружена из Продюсерского центра.";
+    state.tab="lyrics";
+    if(!save()){
+      state.blocks=previousBlocks;state.activePreset=previousPreset;state.selectedPreset=previousPreset;
+      return false;
+    }
+    if(view.nav==="studio")render();
+    return true;
+  }
+  window.SUNOBOOM_ARRANGER=Object.freeze({version:"0.90",getBlockCount:()=>state.blocks.length,getLyrics:generatedLyrics,getStyle:fullDynamics,getDurationEstimate:()=>lengthString(),exportDraft,importDraft});
   if(view.nav==="studio")render();
 })();
