@@ -569,7 +569,7 @@
    }
    if(action==="back"){go("account");return;}
    if(view.nav!=="songs")return;
-   if(action==="artist-list-toggle"){state.artistShowAll=true;refreshArtistPicker(!state.artistPickerOpen);return;}
+   if(action==="artist-list-toggle"){const opening=!(state.artistPickerOpen&&state.artistShowAll);state.artistShowAll=true;refreshArtistPicker(opening);return;}
    if(action==="artist-pick"){
      const input=document.getElementById("sbsong-artist-input");
      if(input){input.value=clean(b.dataset.name,120);state.artistPickerOpen=false;refreshArtistPicker(false);}
@@ -608,6 +608,6 @@
  });
  window.addEventListener("hashchange",()=>{if(location.hash.startsWith(SHARE_PREFIX)||location.hash==="#view-songs")routeShare();});
  window.addEventListener("pagehide",()=>{resetCoverPreview();releaseAudio();for(const url of thumbs.values())URL.revokeObjectURL(url);thumbs.clear();});
- window.SUNOBOOM_MY_SONGS=Object.freeze({version:"0.77",count:()=>songs.length,getCards:()=>songs.map(s=>({id:s.id,title:s.title,hasAudio:s.hasAudio})),decodeCard});
+ window.SUNOBOOM_MY_SONGS=Object.freeze({version:"0.78",count:()=>songs.length,getCards:()=>songs.map(s=>({id:s.id,title:s.title,hasAudio:s.hasAudio})),decodeCard});
  if(!routeShare())render();
 })();
