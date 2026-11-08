@@ -20,9 +20,17 @@ export function mountVueFeature(target, component, componentProps = {}) {
   const previous = mounted.get(element);
   if (previous) previous.unmount();
 
+  const oldMarkup = element.innerHTML;
   const app = createApp(VueFeatureHost, { component, componentProps });
   app.use(pinia);
-  app.mount(element);
+  try {
+    app.mount(element);
+  } catch (error) {
+    // Preserve the previous functional legacy menu if Vue cannot initialize.
+    element.innerHTML = oldMarkup;
+    console.warn('[SUNOBOOM] Vue mount failed; legacy navigation retained.', error);
+    return null;
+  }
   mounted.set(element, app);
 
   // Call before the legacy render() replaces the container.

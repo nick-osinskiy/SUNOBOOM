@@ -41,3 +41,12 @@ npm run build:vue
 - `node --test tests/vue-navigation.test.mjs` проверяет маршруты и динамический пункт «Мастер», без npm-пакетов.
 
 `Vue Router` и `Pinia` пока не перехватывают существующие данные или маршруты, они подготовлены для будущих этапов.
+
+## Этап 3 — проверяемая production-сборка
+
+- `npm run build:vue` создаёт `dist/vue/sunoboom-vue.js` и `dist/vue/sunoboom-vue.css`.
+- `npm run test:vue-nav` проверяет соответствие существующим маршрутам.
+- `npm run test:vue-browser` использует Playwright/Chromium, проверяя обе навигации и переходы через действующие страницы с готовой production-сборкой.
+- Workflow `.github/workflows/vue-navigation.yml` запускает сборку и браузерные тесты в GitHub Actions. **Только если все проверки прошли**, он сохраняет собранные assets в `dist/vue/` внутри того же репозитория.
+- Никаких настроек GitHub Pages workflow не меняет; Vue-меню сайта будет включено отдельным коммитом **только после подтверждённого успешного результата**.
+- Загрузчик сначала проверяет признак production-режима, что позволяет тестировать production-бандл и по локальному адресу.

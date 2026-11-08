@@ -4,7 +4,7 @@
 // and <meta name="sunoboom-vue-nav" content="enabled"> is explicitly added.
 const localDev = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 const productionEnabled = !!document.querySelector('meta[name="sunoboom-vue-nav"][content="enabled"]');
-const moduleUrl = localDev ? './entry.js' : productionEnabled ? '../../dist/vue/sunoboom-vue.js' : null;
+const moduleUrl = productionEnabled ? '../../dist/vue/sunoboom-vue.js' : localDev ? './entry.js' : null;
 
 if (moduleUrl && window.SUNOBOOM_LEGACY_NAV) {
   import(moduleUrl)
