@@ -2,6 +2,8 @@
 import { nextTick, ref } from 'vue';
 import GenreOverview from './GenreOverview.vue';
 import GenreArtists from './GenreArtists.vue';
+import GenreIdeas from './GenreIdeas.vue';
+import GenrePrompts from './GenrePrompts.vue';
 
 const props = defineProps({
   genre: { type: Object, required: true },
@@ -93,8 +95,10 @@ async function chooseTab(tab) {
         <GenreOverview v-if="activeTab === 'overview'" :genre="genre" @select-tab="chooseTab" />
         <GenreArtists v-else-if="activeTab === 'artists' && artistCatalog"
           :genre="genre" :catalog="artistCatalog" :enhance-profiles="enhanceArtistProfiles" />
-        <!-- The song ideas and Suno prompt editors remain fully compatible with
-             their established trusted HTML generators and delegated actions. -->
+        <GenreIdeas v-else-if="activeTab === 'ideas'" :genre="genre" />
+        <GenrePrompts v-else-if="activeTab === 'prompts'" :genre="genre" />
+        <!-- Legacy HTML output is retained only as a defensive fallback for
+             an unavailable extension; all four core tabs use Vue components. -->
         <div v-else v-html="contentHtml"></div>
       </section>
     </div>

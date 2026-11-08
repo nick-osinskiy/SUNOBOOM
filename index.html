@@ -3261,6 +3261,8 @@ window.SUNOBOOM_LEGACY_GENRE=Object.freeze({
       artistCount:g.artists.length,favorite:data.favorites.includes(g.id),
       instruments:g.instruments,style:g.style,themes:g.themes,
       ideas:g.ideas.slice(0,3).map(item=>({title:item.title,pitch:item.pitch})),
+      allIdeas:g.ideas.map((item,index)=>({index,title:item.title,pitch:item.pitch,mood:item.mood,
+        saved:data.savedIdeas.includes(g.id+':'+index)})),
       artists:Array.isArray(g.artists)?[...g.artists]:[],
       tab,
       icons:{

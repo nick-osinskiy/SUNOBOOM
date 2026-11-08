@@ -143,11 +143,32 @@ async function checkLayout(mobile) {
     if (await page.locator('#genre-nav-content .idea-grid .idea').count() < 1) {
       throw new Error('Genre song ideas did not render');
     }
+    await page.locator('[data-sb-vue-ideas]').waitFor();
+    const firstIdeaSave = page.locator('[data-sb-vue-ideas] [data-action="idea-save"][data-i="0"]');
+    await firstIdeaSave.click();
+    await page.locator('[data-sb-vue-ideas] [data-action="idea-save"][data-i="0"][aria-pressed="true"]').waitFor();
+    const persistedIdea = await page.evaluate(() => {
+      const record = JSON.parse(localStorage.getItem('sunoboom-v1') || '{}');
+      return Array.isArray(record.savedIdeas) && record.savedIdeas.includes('reggae-ska:0');
+    });
+    if (!persistedIdea) throw new Error('Saved idea missing from the existing personal library');
+    if (!(await page.locator('[data-sb-vue-ideas] [data-action="idea-save"][data-i="0"]').textContent())?.includes('Сохранено')) {
+      throw new Error('Vue idea save status did not update');
+    }
 
     await page.locator('.genre-side-item[data-tab="prompts"]').click();
     await page.locator('.genre-side-item[data-tab="prompts"].active').waitFor();
     if (!((await page.locator('#genre-nav-content').textContent()) || '').includes('Шаблоны звучания')) {
       throw new Error('Suno genre prompt templates missing');
+    }
+    await page.locator('[data-sb-vue-prompts]').waitFor();
+    if (await page.locator('[data-sb-vue-prompts] .idea').count() !== 2) {
+      throw new Error('Original and soft Suno prompt templates are not both present');
+    }
+    for (const action of ['use-genre', 'use-soft']) {
+      if (await page.locator('[data-sb-vue-prompts] [data-action="'+action+'"]').count() !== 1) {
+        throw new Error('Suno template action missing: '+action);
+      }
     }
 
     await page.locator('.genre-side-item[data-tab="artists"]').click();
@@ -215,6 +236,35 @@ async function checkLayout(mobile) {
       .waitFor({ state: 'attached', timeout: 10000 });
     if (await page.locator('#genre-search').inputValue() !== 'ска') {
       throw new Error('Return to Academy did not restore search');
+    }
+
+    // Validate that both Vue prompt templates and saved song ideas still
+    // execute the original studio actions (not just display correctly).
+    await page.locator('#catalog-cards button.genre-card[data-id="reggae-ska"]').click();
+    await page.locator('#sb-vue-genre-detail[data-v-app]').waitFor({ state: 'attached' });
+    await page.locator('.genre-side-item[data-tab="prompts"]').click();
+    await page.locator('[data-sb-vue-prompts] [data-action="use-soft"]').click();
+    const softState = await page.evaluate(() => ({
+      route: view.nav, genre: builder.genre, energy: builder.energy, mood: builder.mood
+    }));
+    if (softState.route !== 'studio' || softState.genre !== 'reggae-ska' ||
+        softState.energy !== 'soft' || softState.mood !== 'melancholic') {
+      throw new Error('Soft Suno template did not configure the existing Studio: ' + JSON.stringify(softState));
+    }
+
+    await page.locator(nav + ' button[data-nav="catalog"]').click();
+    await page.locator('#catalog-cards button.genre-card[data-id="reggae-ska"]').click();
+    await page.locator('.genre-side-item[data-tab="ideas"]').click();
+    if (await page.locator('[data-sb-vue-ideas] [data-action="idea-save"][data-i="0"]').getAttribute('aria-pressed') !== 'true') {
+      throw new Error('Saved song idea was not restored after navigation');
+    }
+    await page.locator('[data-sb-vue-ideas] [data-action="idea-use"][data-i="0"]').click();
+    const ideaState = await page.evaluate(() => ({
+      route: view.nav, genre: builder.genre, theme: builder.theme
+    }));
+    if (ideaState.route !== 'studio' || ideaState.genre !== 'reggae-ska' ||
+        typeof ideaState.theme !== 'string' || !ideaState.theme.trim()) {
+      throw new Error('Song idea transfer did not configure the existing Studio: ' + JSON.stringify(ideaState));
     }
 
     const version = await page.locator('.sb-app-version').first().textContent();
