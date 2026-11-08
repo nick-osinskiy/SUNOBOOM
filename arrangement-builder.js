@@ -838,7 +838,7 @@
     const visible=state.blocks.slice(0,shown);
     const summary=visible.map((b,i)=>(i+1)+". "+snakeName(b,i)).join(" → ");
     const desktop=snakeRowsHTML(visible,6),mobile=snakeRowsHTML(visible,3);
-    root.innerHTML=total?
+    if(!root.hasAttribute("data-v-app"))root.innerHTML=total?
       '<div class="sba-snake-desktop" role="group" aria-label="'+esc("Схема блоков: "+summary)+'">'+desktop+'</div>'+
       '<div class="sba-snake-mobile" role="group" aria-label="'+esc("Схема блоков: "+summary)+'">'+mobile+'</div>'+
       (shown<total?'<p class="sba-snake-more">… и ещё '+(total-shown)+' блоков</p>':""):
@@ -884,7 +884,7 @@
     if(!root)return;
     const count=Math.max(0,state.blocks.length-1);
     const active=state.blocks.slice(0,-1).filter(b=>makeTransition(b.transitionOut).type!=="none").length;
-    root.innerHTML=transitionHubHTML();
+    if(!root.hasAttribute("data-v-app"))root.innerHTML=transitionHubHTML();
     const meta=document.getElementById("sba-transition-hub-meta");
     if(meta)meta.textContent=count+" переходов · "+active+" настроено";
     const expand=document.getElementById("sba-transition-hub-expand");
@@ -905,9 +905,10 @@
     const stats=document.getElementById("sba-section-count");
     if(stats)stats.textContent=state.blocks.length+" секций · ≈ "+lengthString();
     const chart=document.getElementById("sba-energy-chart");
-    if(chart){chart.innerHTML=energyHTML();chart.setAttribute("aria-label",state.blocks.map((b,i)=>nameFor(b,i)+": "+b.energy+" из 5").join("; "));}
+    if(chart){if(!chart.hasAttribute("data-v-app"))chart.innerHTML=energyHTML();chart.setAttribute("aria-label",state.blocks.map((b,i)=>nameFor(b,i)+": "+b.energy+" из 5").join("; "));}
     document.querySelectorAll(".sba-preview-tabs button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.tab===state.tab)));
     const message=document.getElementById("sba-message");if(message){message.textContent=state.message;message.hidden=!state.message;}
+    window.dispatchEvent(new Event("sunoboom:arranger-updated"));
   }
   function updateAddComposer(){
     const afterIndex=state.insertAfter===null?-1:findIndex(state.insertAfter);
@@ -925,7 +926,7 @@
   }
   function drawBlocks(){
     const root=document.getElementById("sba-cards");
-    if(root)root.innerHTML=state.blocks.length?state.blocks.map(blockHTML).join(""):'<div class="sba-empty">Пока нет блоков. Добавь первый фрагмент снизу.</div>';
+    if(root&&!root.hasAttribute("data-v-app"))root.innerHTML=state.blocks.length?state.blocks.map(blockHTML).join(""):'<div class="sba-empty">Пока нет блоков. Добавь первый фрагмент снизу.</div>';
     updateDerived();updateAddComposer();
   }
   function drawPresetPrompt(){
@@ -1382,6 +1383,36 @@
     if(view.nav==="studio")render();
     return true;
   }
+  // Vue reads the real arrangement state. All existing rules remain authoritative.
+  window.SUNOBOOM_LEGACY_ARRANGER=Object.freeze({
+    snapshot(){
+      if(view.nav!=="studio")return null;
+      const blocks=state.blocks.map((b,i)=>({
+        id:b.id,index:i,type:b.type,energy:b.energy,bars:b.bars,vocal:b.vocal,
+        instruments:b.instruments,customName:b.customName,instrumentsGenreId:b.instrumentsGenreId,
+        label:nameFor(b,i),snakeLabel:snakeName(b,i),
+        sectionName:SECTION[b.type].ru,icon:SECTION[b.type].icon,
+        hasTransition:i<state.blocks.length-1&&makeTransition(b.transitionOut).type!=="none",
+        transitionLabel:transitionShortLabel(b),
+        quickSounds:quickSoundsHTML(b),
+        soundPanel:soundPicker.blockId===b.id?soundPanelHTML(b):"",
+        transitionHTML:transitionHTML(b,i)
+      }));
+      const mapped=entries=>Object.entries(entries).map(([id,item])=>({id,name:item.ru}));
+      return {
+        blocks,sections:mapped(SECTION),voices:mapped(VOICES),
+        energies:Object.fromEntries(Object.entries(ENERGY).map(([id,item])=>[id,item.ru])),
+        snakeExpanded:state.snakeExpanded,transitionHubExpanded:state.transitionHubExpanded,
+        transitions:state.blocks.slice(0,-1).map((b,i)=>{
+          const tip=transitionTip(b,state.blocks[i+1]);
+          return {id:b.id,index:i,from:snakeName(b,i),to:snakeName(state.blocks[i+1],i+1),
+            current:makeTransition(b.transitionOut),advice:TRANSITIONS[tip.type].ru};
+        }),
+        transitionTypes:mapped(TRANSITIONS),transitionLengths:mapped(TRANSITION_LENGTH),
+        transitionStrengths:mapped(TRANSITION_STRENGTH)
+      };
+    }
+  });
   window.SUNOBOOM_ARRANGER=Object.freeze({version:"0.90",getBlockCount:()=>state.blocks.length,getLyrics:generatedLyrics,getStyle:fullDynamics,getDurationEstimate:()=>lengthString(),exportDraft,importDraft});
   if(view.nav==="studio")render();
 })();

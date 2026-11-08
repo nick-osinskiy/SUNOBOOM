@@ -7,6 +7,7 @@ import { activateLegacyGenreDetail } from './academy/legacyGenreDetailBridge.js'
 import { activateLegacyStudio } from './studio/legacyStudioBridge.js';
 import { activateLegacyMixer } from './studio/legacyMixerBridge.js';
 import { activateLegacyAuditor } from './studio/legacyAuditorBridge.js';
+import { activateLegacyArranger } from './studio/legacyArrangerBridge.js';
 
 // Vue components are mounted only into explicitly handed-off feature containers.
 // Importing this module never replaces the existing SUNOBOOM application shell.
@@ -83,4 +84,9 @@ export function startLegacyMixer() {
 /** Vue 3 prompt auditor interface, with original rule engine and clipboard actions. */
 export function startLegacyAuditor() {
   return activateLegacyAuditor({ mountVueFeature });
+}
+
+/** Vue 3 arrangement cards, snake, transition hub and energy curve. */
+export function startLegacyArranger() {
+  return activateLegacyArranger({ mountVueFeature });
 }

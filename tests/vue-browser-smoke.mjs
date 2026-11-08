@@ -466,6 +466,93 @@ async function checkLayout(mobile) {
       throw new Error('Auditing altered the original Studio builder settings');
     }
 
+    // Native Vue arranger: the original drag handlers, recommendations,
+    // transitions, and localStorage draft all remain functional.
+    for (const selector of [
+      '#sba-cards', '#sba-snake-track', '#sba-transition-hub-list', '#sba-energy-chart'
+    ]) {
+      await page.locator(selector + '[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    }
+    const initialArrangement = await page.evaluate(() => ({
+      count: SUNOBOOM_ARRANGER.getBlockCount(),
+      draft: SUNOBOOM_ARRANGER.exportDraft(),
+      stored: localStorage.getItem('sunoboom-arrangement-v066')
+    }));
+    if (await page.locator('#sba-cards .sba-block').count() !== initialArrangement.count ||
+        await page.locator('#sba-snake-track .sba-snake-desktop .sba-snake-chip').count() !==
+          Math.min(initialArrangement.count, 12) ||
+        await page.locator('#sba-energy-chart .sba-chart-step').count() !== initialArrangement.count) {
+      throw new Error('The Vue arrangement dashboard differs from its legacy source data');
+    }
+    const firstCard = page.locator('#sba-cards .sba-block').first();
+    await firstCard.locator('[data-sba-field="bars"]').selectOption('12');
+    await page.waitForFunction(() => SUNOBOOM_ARRANGER.exportDraft().blocks[0]?.bars === 12);
+    await page.locator('#sba-cards .sba-block').first()
+      .locator('[data-sba-field="energy"]').evaluate(input => {
+        input.value = '5';
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+    await page.waitForFunction(() =>
+      SUNOBOOM_ARRANGER.exportDraft().blocks[0]?.energy === 5 &&
+      document.querySelector('#sba-cards .sba-block .sba-head-energy')?.textContent?.includes('5/5'));
+
+    const beforeInstrument = await page.locator('#sba-cards .sba-block').first()
+      .locator('[data-sba-field="instruments"]').inputValue();
+    await page.locator('#sba-cards .sba-block').first()
+      .locator('.sba-quick-chip:not([disabled])').first().click();
+    await page.waitForFunction(previous => {
+      const current = document.querySelector('#sba-cards .sba-block [data-sba-field="instruments"]')?.value || '';
+      return current.length > previous.length;
+    }, beforeInstrument);
+    await page.locator('#sba-transition-hub-list [data-sba-transition="type"]').first().selectOption('riser');
+    await page.waitForFunction(() => SUNOBOOM_ARRANGER.exportDraft().blocks[0]?.transitionOut?.type === 'riser');
+    if (await page.locator('#sba-snake-track .sba-snake-desktop .sba-snake-transition').count() < 1) {
+      throw new Error('Transition marker did not appear in the Vue snake');
+    }
+    await page.locator('#sba-transition-hub-list [data-sba-action="transition-hub-jump"]').first().click();
+    await page.locator('#sba-cards .sba-transition-editor').first().waitFor({ state: 'visible' });
+
+    // Both the native drag source IDs and the keyboard fallback use the same
+    // original block-order mutation and save path.
+    const beforeOrder = await page.evaluate(() => SUNOBOOM_ARRANGER.exportDraft().blocks
+      .map(block => block.type + ':' + block.instruments));
+    const snake = page.locator(
+      mobile ? '#sba-snake-track .sba-snake-mobile .sba-snake-chip'
+             : '#sba-snake-track .sba-snake-desktop .sba-snake-chip');
+    await snake.first().focus();
+    await snake.first().press('ArrowRight');
+    await page.waitForFunction(expected => {
+      const draft = SUNOBOOM_ARRANGER.exportDraft();
+      return draft.blocks[1]?.type + ':' + draft.blocks[1]?.instruments === expected;
+    }, beforeOrder[0]);
+    const afterMove = await page.evaluate(() => ({
+      blocks: SUNOBOOM_ARRANGER.exportDraft().blocks,
+      saved: JSON.parse(localStorage.getItem('sunoboom-arrangement-v066') || '{}').blocks
+    }));
+    if (afterMove.blocks.length !== afterMove.saved?.length ||
+        afterMove.blocks[1].type !== afterMove.saved[1].type) {
+      throw new Error('Reordered blocks were not persisted in the original arrangement draft');
+    }
+
+    await page.locator('#sba-add-type').selectOption('custom');
+    await page.locator('#sba-new-block-title').fill('Проверочный переход');
+    await page.locator('#sba-add-editor [data-sba-action="add"]').click();
+    await page.waitForFunction(expected => SUNOBOOM_ARRANGER.getBlockCount() === expected + 1,
+      initialArrangement.count);
+    if (!(await page.locator('#sba-cards .sba-block').last().textContent())?.includes('Проверочный переход')) {
+      throw new Error('Custom arrangement block was not added in the Vue editor');
+    }
+    await page.locator('#sba-cards .sba-block').last().locator('[data-sba-action="remove"]').click();
+    await page.waitForFunction(expected => SUNOBOOM_ARRANGER.getBlockCount() === expected,
+      initialArrangement.count);
+    if (await page.locator('#sba-cards .sba-block').count() !== initialArrangement.count) {
+      throw new Error('Vue block removal did not restore the original block count');
+    }
+    if (!((await page.locator('#sba-preview').inputValue()) || '').includes('[') ||
+        await page.locator('#sba-cards .sba-quick-sounds').count() !== initialArrangement.count) {
+      throw new Error('Lyrics preview or Academy arrangement recommendations disappeared');
+    }
+
     const version = await page.locator('.sb-app-version').first().textContent();
     if (!/^v?\d+\.\d+$/.test(String(version || '').trim())) throw new Error('Version display missing or malformed');
 
