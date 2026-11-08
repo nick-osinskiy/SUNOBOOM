@@ -1078,10 +1078,15 @@ async function checkLayout(mobile) {
     if (!addedId?.startsWith('v-')) throw new Error('Generated WAV take ID is invalid');
     page.once('dialog', dialog => { void dialog.accept(); });
     await songDetail.locator('[data-sbsong-action="version-remove"][data-version-id="' + addedId + '"]').click();
-    await page.waitForFunction(() => JSON.parse(localStorage.getItem('sunoboom-my-songs-v1'))[0]?.versions?.length === 2, null, { timeout: 10000 });
-    if (await songDetail.locator('.sbsong-version-row').count() !== 2 ||
-        await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-my-songs-v1'))[0]?.activeVersionId) !== 'v-demo') {
-      throw new Error('Removing a WAV take affected other versions');
+    // The metadata write precedes the asynchronous IndexedDB delete. Wait
+    // for the complete render, not only the earlier localStorage mutation.
+    await page.waitForFunction(() =>
+      JSON.parse(localStorage.getItem('sunoboom-my-songs-v1'))[0]?.versions?.length === 2 &&
+      document.querySelector('#sb-vue-song-detail[data-v-app]') &&
+      document.querySelectorAll('#sb-vue-song-detail .sbsong-version-row').length === 2,
+      null, { timeout: 10000 });
+    if (await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-my-songs-v1'))[0]?.activeVersionId) !== 'v-demo') {
+      throw new Error('Removing a WAV take affected the primary version');
     }
     await songDetail.locator('[data-sbsong-action="delete"]').click();
     await page.locator('#sb-vue-song-detail[data-v-app]').waitFor({ state: 'attached' });
