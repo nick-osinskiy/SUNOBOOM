@@ -3327,43 +3327,193 @@ function Ns({ mountVueFeature: e }) {
 		i || (i = !0, o.disconnect(), r?.unmount(), r = null);
 	};
 }
+// src/vue/academy/GenreDetail.vue
+var Ps = { class: "gb-hero" }, Fs = { class: "gb-content" }, Is = { class: "gb-eyebrow" }, Ls = { class: "gb-title" }, Rs = { class: "gb-desc" }, zs = { class: "gb-tags" }, Bs = { class: "gb-buttons" }, Vs = ["data-id"], Hs = ["innerHTML"], Us = ["data-id"], Ws = ["innerHTML"], Gs = {
+	class: "gb-vinyl",
+	"aria-hidden": "true"
+}, Ks = { class: "gb-equalizer" }, qs = { class: "gb-facts" }, Js = { class: "gb-fact" }, Ys = { class: "gb-fact" }, Xs = { class: "gb-fact" }, Zs = { class: "gb-fact" }, Qs = { class: "genre-detail-layout" }, $s = {
+	class: "genre-side-nav",
+	"aria-label": "ЖАНР-НАВ — меню жанра"
+}, ec = {
+	class: "genre-side-links",
+	"aria-label": "Разделы жанра"
+}, tc = [
+	"data-tab",
+	"aria-current",
+	"onClick"
+], nc = ["innerHTML"], rc = {
+	class: "genre-detail-content",
+	id: "genre-nav-content",
+	"aria-label": "Содержимое раздела жанра"
+}, ic = ["innerHTML"], ac = {
+	__name: "GenreDetail",
+	props: {
+		genre: {
+			type: Object,
+			required: !0
+		},
+		tabContent: {
+			type: Function,
+			required: !0
+		}
+	},
+	setup(e) {
+		let t = e, n = [
+			{
+				id: "overview",
+				label: "Обзор"
+			},
+			{
+				id: "ideas",
+				label: "Идеи песен"
+			},
+			{
+				id: "prompts",
+				label: "Промпты Suno"
+			},
+			{
+				id: "artists",
+				label: "Исполнители"
+			}
+		], r = /* @__PURE__ */ Gt(t.genre.tab), i = /* @__PURE__ */ Gt(t.tabContent(t.genre.id, r.value) || "");
+		async function a(e) {
+			if (r.value === e || !n.some((t) => t.id === e)) return;
+			let a = t.tabContent(t.genre.id, e);
+			typeof a == "string" && (r.value = e, i.value = a, await pn(), window.innerWidth <= 850 && document.getElementById("genre-nav-content")?.scrollIntoView({
+				block: "start",
+				behavior: "smooth"
+			}));
+		}
+		return (t, o) => (Y(), X("div", {
+			class: "genre-bright",
+			style: ue({ "--accent": e.genre.color })
+		}, [Z("div", Ps, [
+			o[5] ||= Z("div", { class: "gb-top" }, [Z("button", {
+				type: "button",
+				class: "back",
+				"data-action": "academy-back",
+				"aria-label": "Назад к разделу Академии"
+			}, "← Назад"), Z("small", null, "SUNOBOOM · MUSIC ATLAS")], -1),
+			Z("div", Fs, [Z("div", null, [
+				Z("div", Is, A(e.genre.family) + " · " + A(e.genre.era), 1),
+				Z("h1", Ls, A(e.genre.name), 1),
+				Z("p", Rs, A(e.genre.description), 1),
+				Z("div", zs, [
+					Z("span", null, A(e.genre.tagline), 1),
+					Z("span", null, A(e.genre.bpm[0]) + "–" + A(e.genre.bpm[1]) + " BPM", 1),
+					Z("span", null, A(e.genre.ideasCount) + " идеи", 1)
+				]),
+				Z("div", Bs, [Z("button", {
+					type: "button",
+					class: "btn primary",
+					"data-action": "use-genre",
+					"data-id": e.genre.id
+				}, [Z("span", {
+					innerHTML: e.genre.icons.studio,
+					"aria-hidden": "true"
+				}, null, 8, Hs), o[0] ||= qi(" Создать в Suno ", -1)], 8, Vs), Z("button", {
+					type: "button",
+					class: "btn ghost",
+					"data-action": "favorite",
+					"data-id": e.genre.id
+				}, [Z("span", {
+					innerHTML: e.genre.icons.heart,
+					"aria-hidden": "true"
+				}, null, 8, Ws), qi(" " + A(e.genre.favorite ? "В избранном" : "В избранное"), 1)], 8, Us)])
+			]), Z("div", Gs, [Z("div", Ks, [(Y(), X(K, null, vr(9, (e) => Z("i", { key: e })), 64))])])]),
+			Z("div", qs, [
+				Z("div", Js, [o[1] ||= Z("small", null, "История", -1), Z("strong", null, A(e.genre.era), 1)]),
+				Z("div", Ys, [o[2] ||= Z("small", null, "Темп", -1), Z("strong", null, A(e.genre.bpm[0]) + "–" + A(e.genre.bpm[1]) + " BPM", 1)]),
+				Z("div", Xs, [o[3] ||= Z("small", null, "Треки", -1), Z("strong", null, A(e.genre.ideasCount) + " сюжетных идеи", 1)]),
+				Z("div", Zs, [o[4] ||= Z("small", null, "Артисты", -1), Z("strong", null, A(e.genre.artistCount) + " ориентиров", 1)])
+			])
+		]), Z("div", Qs, [Z("aside", $s, [o[7] ||= Z("div", { class: "genre-side-head" }, [Z("span", null, "ЖАНР-НАВ"), Z("small", null, "Разделы карточки")], -1), Z("nav", ec, [(Y(), X(K, null, vr(n, (t) => Z("button", {
+			key: t.id,
+			type: "button",
+			class: k(["genre-side-item", { active: r.value === t.id }]),
+			"data-tab": t.id,
+			"aria-controls": "genre-nav-content",
+			"aria-current": r.value === t.id ? "page" : "false",
+			onClick: (e) => a(t.id)
+		}, [
+			Z("span", {
+				class: "genre-side-icon",
+				innerHTML: e.genre.icons[t.id],
+				"aria-hidden": "true"
+			}, null, 8, nc),
+			Z("span", null, A(t.label), 1),
+			o[6] ||= Z("span", {
+				class: "genre-side-chevron",
+				"aria-hidden": "true"
+			}, "›", -1)
+		], 10, tc)), 64))])]), Z("section", rc, [Z("div", { innerHTML: i.value }, null, 8, ic)])])], 4));
+	}
+};
+// src/vue/academy/legacyGenreDetailBridge.js
+function oc({ mountVueFeature: e }) {
+	let t = window.SUNOBOOM_LEGACY_GENRE, n = document.getElementById("app");
+	if (!n || !t || typeof t.snapshot != "function") return () => {};
+	let r = null, i = !1;
+	function a() {
+		if (i) return;
+		let a = n.querySelector("#sb-vue-genre-detail");
+		if (r?.target === a || (r &&= (r.unmount(), null), !a)) return;
+		let o = t.snapshot();
+		if (!o?.id) return;
+		let s = e(a, ac, {
+			genre: o,
+			tabContent: (e, n) => t.tabContent(e, n)
+		});
+		s && (r = {
+			target: a,
+			unmount: s
+		});
+	}
+	let o = new MutationObserver(a);
+	return o.observe(n, { childList: !0 }), a(), () => {
+		i || (i = !0, o.disconnect(), r?.unmount(), r = null);
+	};
+}
 // src/vue/entry.js
-var Ps = Lo(), Fs = /* @__PURE__ */ new WeakMap();
-function Is(e) {
+var sc = Lo(), cc = /* @__PURE__ */ new WeakMap();
+function lc(e) {
 	return typeof document > "u" ? null : typeof e == "string" ? document.querySelector(e) : e;
 }
-function Ls(e, t, n = {}) {
-	let r = Is(e);
+function uc(e, t, n = {}) {
+	let r = lc(e);
 	if (!r || r.nodeType !== 1 || !t) return null;
-	let i = Fs.get(r);
+	let i = cc.get(r);
 	i && i.unmount();
 	let a = r.innerHTML, o = yo(zo, {
 		component: t,
 		componentProps: n
 	});
-	o.use(Ps);
+	o.use(sc);
 	try {
 		o.mount(r);
 	} catch (e) {
 		return r.innerHTML = a, console.warn("[SUNOBOOM] Vue mount failed; legacy navigation retained.", e), null;
 	}
-	return Fs.set(r, o), () => {
-		Fs.get(r) === o && (o.unmount(), Fs.delete(r));
+	return cc.set(r, o), () => {
+		cc.get(r) === o && (o.unmount(), cc.delete(r));
 	};
 }
-function Rs(e) {
-	let t = Is(e);
+function dc(e) {
+	let t = lc(e);
 	if (!t) return;
-	let n = Fs.get(t);
-	n && (n.unmount(), Fs.delete(t));
+	let n = cc.get(t);
+	n && (n.unmount(), cc.delete(t));
 }
-function zs() {
+function fc() {
 	return Jo({
-		mountVueFeature: Ls,
-		unmountVueFeature: Rs
+		mountVueFeature: uc,
+		unmountVueFeature: dc
 	});
 }
-function Bs() {
-	return Ns({ mountVueFeature: Ls });
+function pc() {
+	return Ns({ mountVueFeature: uc });
 }
-export { Ls as mountVueFeature, Bs as startLegacyAcademy, zs as startLegacyNavigation, Rs as unmountVueFeature };
+function mc() {
+	return oc({ mountVueFeature: uc });
+}
+export { uc as mountVueFeature, pc as startLegacyAcademy, mc as startLegacyGenreDetail, fc as startLegacyNavigation, dc as unmountVueFeature };
