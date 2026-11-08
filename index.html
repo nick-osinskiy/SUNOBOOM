@@ -3205,7 +3205,7 @@ render();
 </script><script>
 function brightDetail(){
  const g=findGenre(view.selected), fav=data.favorites.includes(g.id);
- return `<div class="genre-bright" style="--accent:${escapeHTML(g.color)}">
+ return `<div id="sb-vue-genre-detail"><div class="genre-bright" style="--accent:${escapeHTML(g.color)}">
  <div class="gb-hero">
  <div class="gb-top"><button class="back" data-action="academy-back" aria-label="Назад к разделу Академии">← Назад</button><small>SUNOBOOM · MUSIC ATLAS</small></div>
  <div class="gb-content"><div>
@@ -3232,7 +3232,7 @@ function brightDetail(){
    ${view.tab==="overview"?overview(g):view.tab==="ideas"?`<div class="idea-grid">${g.ideas.map((x,i)=>ideaCard(g,x,i)).join("")}</div>`:view.tab==="artists"?artistView(g):genrePrompts(g)}
   </section>
  </div>
- </div>`;
+ </div></div>`;
 }
 function brightOverview(g){
 return `<div class="gb-grid">
@@ -3247,6 +3247,35 @@ return `<div class="gb-grid">
 }
 detail=brightDetail;
 overview=brightOverview;
+// The current genre objects and rich HTML generators remain the single source
+// of truth. Vue manages the detail shell, not the existing content datasets.
+window.SUNOBOOM_LEGACY_GENRE=Object.freeze({
+  snapshot(){
+    if(view.nav!=='detail')return null;
+    const g=findGenre(view.selected);
+    if(!g)return null;
+    const tab=['overview','ideas','prompts','artists'].includes(view.tab)?view.tab:'overview';
+    return {
+      id:g.id,name:g.name,family:g.family,era:g.era,description:g.description,
+      tagline:g.tagline,color:g.color,bpm:[...g.bpm],ideasCount:g.ideas.length,
+      artistCount:g.artists.length,favorite:data.favorites.includes(g.id),
+      tab,
+      icons:{
+        studio:I('studio'),heart:I('heart'),overview:I('library'),
+        ideas:I('ideas'),prompts:I('studio'),artists:I('account')
+      }
+    };
+  },
+  tabContent(id,tab){
+    if(view.nav!=='detail'||view.selected!==id)return null;
+    if(!['overview','ideas','prompts','artists'].includes(tab))return null;
+    view.tab=tab;
+    const g=findGenre(view.selected);
+    return tab==='overview'?overview(g):
+      tab==='ideas'?'<div class="idea-grid">'+g.ideas.map((idea,i)=>ideaCard(g,idea,i)).join('')+'</div>':
+      tab==='artists'?artistView(g):genrePrompts(g);
+  }
+});
 render();
 </script><script>
 /* SUNOBOOM v0.11: curated artists by era */

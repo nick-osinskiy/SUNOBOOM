@@ -131,6 +131,51 @@ async function checkLayout(mobile) {
       throw new Error('Genre card did not open the expected detail page: ' + genreTitle);
     }
 
+    // Vue owns the genre hero and ЖАНР-НАВ; the existing rich content
+    // generators and their delegated buttons must continue to function.
+    await page.locator('#sb-vue-genre-detail[data-v-app]')
+      .waitFor({ state: 'attached', timeout: 10000 });
+    const genreTabs = page.locator('.genre-side-nav .genre-side-item');
+    if (await genreTabs.count() !== 4) throw new Error('ЖАНР-НАВ lost tabs');
+
+    await page.locator('.genre-side-item[data-tab="ideas"]').click();
+    await page.locator('.genre-side-item[data-tab="ideas"].active').waitFor();
+    if (await page.locator('#genre-nav-content .idea-grid .idea').count() < 1) {
+      throw new Error('Genre song ideas did not render');
+    }
+
+    await page.locator('.genre-side-item[data-tab="prompts"]').click();
+    await page.locator('.genre-side-item[data-tab="prompts"].active').waitFor();
+    if (!((await page.locator('#genre-nav-content').textContent()) || '').includes('Шаблоны звучания')) {
+      throw new Error('Suno genre prompt templates missing');
+    }
+
+    await page.locator('.genre-side-item[data-tab="artists"]').click();
+    await page.locator('.genre-side-item[data-tab="artists"].active').waitFor();
+    if (!(await page.locator('#genre-nav-content').textContent())?.trim()) {
+      throw new Error('Artist section rendered empty');
+    }
+
+    await page.locator('.genre-side-item[data-tab="overview"]').click();
+    await page.locator('.genre-side-item[data-tab="overview"].active').waitFor();
+    if (!(await page.locator('#genre-nav-content').textContent())?.includes('Характер и звучание')) {
+      throw new Error('Overview content did not return');
+    }
+
+    await page.locator('.gb-buttons [data-action="favorite"]').click();
+    await page.locator('#sb-vue-genre-detail[data-v-app]')
+      .waitFor({ state: 'attached', timeout: 10000 });
+    if (!(await page.locator('.gb-buttons [data-action="favorite"]').textContent())?.includes('В избранном')) {
+      throw new Error('Existing favorite action stopped working');
+    }
+
+    await page.locator('.gb-top [data-action="academy-back"]').click();
+    await page.locator('#sb-vue-academy-root[data-v-app]')
+      .waitFor({ state: 'attached', timeout: 10000 });
+    if (await page.locator('#genre-search').inputValue() !== 'ска') {
+      throw new Error('Return to Academy did not restore search');
+    }
+
     const version = await page.locator('.sb-app-version').first().textContent();
     if (!/^v?\d+\.\d+$/.test(String(version || '').trim())) throw new Error('Version display missing or malformed');
 

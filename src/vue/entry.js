@@ -3,6 +3,7 @@ import { createPinia } from 'pinia';
 import VueFeatureHost from './VueFeatureHost.vue';
 import { activateLegacyNavigation } from './navigation/legacyBridge.js';
 import { activateLegacyAcademy } from './academy/legacyAcademyBridge.js';
+import { activateLegacyGenreDetail } from './academy/legacyGenreDetailBridge.js';
 
 // Vue components are mounted only into explicitly handed-off feature containers.
 // Importing this module never replaces the existing SUNOBOOM application shell.
@@ -59,4 +60,9 @@ export function startLegacyNavigation() {
 /** Render Academy genre cards inside its existing grouped HTML structure. */
 export function startLegacyAcademy() {
   return activateLegacyAcademy({ mountVueFeature });
+}
+
+/** Vue 3 genre detail layout; existing ideas, artists and Suno templates stay functional. */
+export function startLegacyGenreDetail() {
+  return activateLegacyGenreDetail({ mountVueFeature });
 }
