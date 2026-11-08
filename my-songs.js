@@ -826,9 +826,14 @@
    }
    const grid=document.querySelector(".sbsong-grid");
    const results=[...songs].sort((a,b)=>b.updatedAt-a.updatedAt).filter(x=>(x.title+" "+x.artist+" "+x.genre+" "+x.album).toLowerCase().includes(state.search.toLowerCase()));
-   const holder=grid||document.querySelector(".sbsong-empty");
-   if(holder&&holder.classList.contains("sbsong-grid")){holder.innerHTML=results.map(card).join("");hydrate();}
-   else render();
+   const holder=document.getElementById("sb-vue-song-cards");
+   if(holder){
+     // When Vue is disabled, update the original grid/empty state without
+     // replacing the search input or losing the typing caret.
+     holder.innerHTML=results.length?'<div class="sbsong-grid">'+results.map(card).join("")+'</div>':
+       '<div class="sbsong-empty">'+(songs.length?"По этому запросу песен нет.":"Песен пока нет. Добавь первую карточку и загрузи аудиофайл.")+'</div>';
+     void hydrateSongCovers();
+   }else render();
  });
  document.addEventListener("focusin",event=>{
    if(view.nav==="songs"&&event.target?.id==="sbsong-artist-input"){

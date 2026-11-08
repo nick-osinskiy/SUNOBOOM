@@ -1027,7 +1027,7 @@ async function checkLayout(mobile) {
     if (await page.locator('#sbsong-save-form [name="title"]').inputValue() !== 'Northern Lantern') {
       throw new Error('Original song editor did not receive the selected Vue card');
     }
-    await page.locator('[data-sbsong-action="cancel"]').click();
+    await page.locator('[data-sbsong-action="cancel"]').first().click();
     if (await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-my-songs-v1')).length) !== 2) {
       throw new Error('Song records changed during Vue card navigation');
     }
