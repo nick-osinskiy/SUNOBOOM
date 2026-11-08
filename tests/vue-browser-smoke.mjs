@@ -1456,13 +1456,11 @@ async function checkLayout(mobile) {
     }
     await page.locator('#sbs-theme').selectOption('system');
     await page.emulateMedia({ colorScheme: 'light' });
-    if (!await page.evaluate(() => document.documentElement.classList.contains('sb-theme-light'))) {
-      throw new Error('System theme did not follow light device appearance');
-    }
+    await page.waitForFunction(() => document.documentElement.classList.contains('sb-theme-light'), null, { timeout: 10000 });
     await page.emulateMedia({ colorScheme: 'dark' });
-    if (await page.evaluate(() => document.documentElement.classList.contains('sb-theme-light')) ||
-        await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-ui-settings-v1')).theme) !== 'system') {
-      throw new Error('System theme did not follow dark device appearance');
+    await page.waitForFunction(() => !document.documentElement.classList.contains('sb-theme-light'), null, { timeout: 10000 });
+    if (await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-ui-settings-v1')).theme) !== 'system') {
+      throw new Error('System theme choice was overwritten when OS appearance changed');
     }
     await page.locator('#sbs-theme').selectOption('light');
 
