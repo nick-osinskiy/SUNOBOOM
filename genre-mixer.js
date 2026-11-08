@@ -128,7 +128,7 @@
   }
   function page(){
     const s=state(),p=makePrompt(s.rows,s.settings),beat=finalTempo(s);
-    return `<div class="gm-page">
+    return `<div class="gm-page" id="sb-vue-mixer-root">
       <header class="heading"><div class="eyebrow">Suno Studio · новый инструмент</div><h1>Жанровый <span class="gm-highlight">миксер</span></h1>
         <p>Соединяй от 2 до 4 жанров из Академии SUNOBOOM, задавай пропорции и создавай готовый Style-промпт для Suno.</p></header>
       <div class="gm-layout"><section class="gm-panel">
@@ -183,6 +183,7 @@
     if(out)out.textContent=p;if(c)c.textContent=p.length+' / 1000';
     if(beat)beat.textContent=finalTempo(s)+' BPM';
     if(tempo&&s.settings.autoTempo)tempo.value=finalTempo(s);
+    window.dispatchEvent(new Event('sunoboom:mixer-updated'));
   }
   function savePrompt(){
     const s=state(), p=makePrompt(s.rows,s.settings);
@@ -290,6 +291,29 @@
     }
     if(t.hasAttribute('data-gm-setting')){const k=t.dataset.gmSetting;state().settings[k]=t.type==='checkbox'?t.checked:k==='tempo'?Number(t.value):t.value;saveDraft();updateLive();return}
     if(t.hasAttribute('data-gm-weight')||t.hasAttribute('data-gm-title')){saveDraft()}
+  });
+  // Read-only data bridge. The existing mixer owns all calculations and storage.
+  window.SUNOBOOM_LEGACY_MIXER=Object.freeze({
+    snapshot(){
+      if(view.nav!=='mixer')return null;
+      const s=state();
+      return {
+        rows:s.rows.map(r=>{
+          const g=byId(r.id);
+          return {id:r.id,weight:r.weight,name:g?.name||'',family:g?.family||'',
+            tagline:g?.tagline||'',instruments:String(g?.instruments||'').slice(0,150),
+            color:/^#[0-9a-fA-F]{6}$/.test(g?.color||'')?g.color:'#bb78ed'};
+        }),
+        settings:{...s.settings},title:s.title,tempo:finalTempo(s),
+        prompt:makePrompt(s.rows,s.settings),
+        genres:GENRES.map(g=>({id:g.id,name:g.name,family:g.family||'Прочее'})),
+        options:{moods:MOODS,energies:ENERGIES,vocals:VOCALS,languages:LANGS},
+        saved:(Array.isArray(data.savedMixes)?data.savedMixes:[]).map(item=>({
+          id:item.id,title:item.title,
+          summary:(item.rows||[]).map(r=>((byId(r.id)?.name)||'')+' '+r.weight+'%').join(' · ')
+        }))
+      };
+    }
   });
   // Preserve the currently visible page after loading the add-on.
   render();

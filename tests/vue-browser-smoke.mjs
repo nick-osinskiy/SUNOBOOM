@@ -340,6 +340,70 @@ async function checkLayout(mobile) {
       throw new Error('Genre change broke Studio or its arrangement extension');
     }
 
+    // Vue mixer keeps the original calculation engine and browser storage.
+    await page.locator(nav + ' button[data-nav="mixer"]').click();
+    await page.locator('#sb-vue-mixer-root[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    if (await page.locator('#sb-vue-mixer-root .gm-row').count() !== 2) {
+      throw new Error('Vue mixer did not render its two default genre rows');
+    }
+    await page.locator('#gm-genre-0').selectOption('reggae-ska');
+    await page.locator('#sb-vue-mixer-root[data-v-app]').waitFor({ state: 'attached' });
+    await page.locator('[data-gm-weight="0"]').evaluate(input => {
+      input.value = '75';
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+    await page.waitForFunction(() =>
+      document.querySelector('[data-gm-weight="1"]')?.value === '25' &&
+      document.getElementById('gm-count')?.textContent?.includes('/ 1000'));
+    const mixerState = await page.evaluate(() => {
+      const weights = [...document.querySelectorAll('#sb-vue-mixer-root [data-gm-weight]')]
+        .map(el => Number(el.value));
+      const prompt = document.getElementById('gm-prompt')?.textContent || '';
+      const draft = JSON.parse(localStorage.getItem('sunoboom-v1') || '{}').mixerDraft;
+      return { weights, promptLength: prompt.length, count: document.getElementById('gm-count')?.textContent,
+        savedRows: draft?.rows?.length, selected: draft?.rows?.[0]?.id };
+    });
+    if (mixerState.weights.reduce((a, b) => a + b, 0) !== 100 ||
+        mixerState.weights[0] !== 75 || mixerState.promptLength > 1000 ||
+        !mixerState.count?.includes(mixerState.promptLength + ' / 1000') ||
+        mixerState.savedRows !== 2 || mixerState.selected !== 'reggae-ska') {
+      throw new Error('Mixer lost calculations or its existing draft storage: ' + JSON.stringify(mixerState));
+    }
+
+    await page.locator('[data-action="gm-add"]').click();
+    await page.locator('#sb-vue-mixer-root[data-v-app]').waitFor({ state: 'attached' });
+    if (await page.locator('#sb-vue-mixer-root .gm-row').count() !== 3) {
+      throw new Error('Adding a mixer genre stopped working');
+    }
+    await page.locator('[data-action="gm-equal"]').click();
+    const equalSum = await page.locator('#sb-vue-mixer-root [data-gm-weight]')
+      .evaluateAll(inputs => inputs.map(el => Number(el.value)).reduce((a, b) => a + b, 0));
+    if (equalSum !== 100) throw new Error('Mixer equal weights no longer add up to 100%');
+    await page.locator('[data-action="gm-remove"]').last().click();
+    await page.locator('#sb-vue-mixer-root[data-v-app]').waitFor({ state: 'attached' });
+    if (await page.locator('#sb-vue-mixer-root .gm-row').count() !== 2) {
+      throw new Error('Removing a mixer genre stopped working');
+    }
+    await page.locator('#gm-title').fill('Vue test mixture');
+    await page.locator('[data-action="gm-save-mix"]').click();
+    await page.locator('#sb-vue-mixer-root[data-v-app]').waitFor({ state: 'attached' });
+    if (!(await page.locator('.gm-saved strong').first().textContent())?.includes('Vue test mixture')) {
+      throw new Error('Saved formulas missing from Vue mixer');
+    }
+    await page.locator('.gm-saved [data-action="gm-load"]').first().click();
+    await page.locator('#sb-vue-mixer-root[data-v-app]').waitFor({ state: 'attached' });
+    await page.locator('[data-action="gm-to-studio"]').click();
+    await page.locator('.studio-grid[data-sb-vue-studio][data-v-app]').waitFor();
+    const mixerTransfer = await page.evaluate(() => ({
+      nav: view.nav, blend: builder.mixerBlend, genre: builder.genre,
+      prompt: document.getElementById('prompt-output')?.textContent || ''
+    }));
+    if (mixerTransfer.nav !== 'studio' || mixerTransfer.blend?.length !== 2 ||
+        mixerTransfer.genre !== 'reggae-ska' || !mixerTransfer.prompt.includes('Genre blend targets')) {
+      throw new Error('Mixer-to-Studio handoff failed: ' + JSON.stringify(mixerTransfer));
+    }
+
     const version = await page.locator('.sb-app-version').first().textContent();
     if (!/^v?\d+\.\d+$/.test(String(version || '').trim())) throw new Error('Version display missing or malformed');
 
