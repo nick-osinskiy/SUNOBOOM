@@ -970,6 +970,68 @@ async function checkLayout(mobile) {
       throw new Error('Library navigation lost local persisted data');
     }
 
+    // v0.111: card grid/search are Vue-owned; local song storage, cover blobs and original actions are not.
+    await page.evaluate(async () => {
+      const now = Date.now();
+      localStorage.setItem('sunoboom-my-songs-v1', JSON.stringify([
+        { id: 'song-vue-a', title: 'Northern Lantern', artist: 'Studio Owl', genre: 'Indie Pop',
+          album: 'First Album', createdAt: now - 1000, updatedAt: now, hasCover: true, hasAudio: false },
+        { id: 'song-vue-b', title: 'Desert Echo', artist: 'Rosa', genre: 'Folk',
+          album: '', createdAt: now - 2000, updatedAt: now - 1000, hasCover: false, hasAudio: false }
+      ]));
+      const db = await new Promise((resolve, reject) => {
+        const request = indexedDB.open('sunoboom-song-media-v1', 1);
+        request.onupgradeneeded = () => {
+          if (!request.result.objectStoreNames.contains('files')) request.result.createObjectStore('files');
+        };
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+      const png = Uint8Array.from(atob('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jR4cAAAAASUVORK5CYII='), c => c.charCodeAt(0));
+      await new Promise((resolve, reject) => {
+        const tx = db.transaction('files', 'readwrite');
+        tx.objectStore('files').put(new Blob([png], { type: 'image/png' }), 'song-vue-a:cover');
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+      });
+      db.close();
+    });
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.locator('[data-sb-vue-sidebar][data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    await page.evaluate(() => window.SUNOBOOM_MY_SONGS.openLibrary());
+    const songCards = page.locator('#sb-vue-song-cards');
+    await page.locator('#sb-vue-song-cards[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    if (await songCards.locator('.sbsong-card').count() !== 2 ||
+        await songCards.locator('[data-sbsong-action="share"]').count() !== 2) {
+      throw new Error('Vue My Songs collection did not preserve card actions');
+    }
+    await page.waitForFunction(() => document.querySelector('[data-sbsong-cover="song-vue-a"]')?.getAttribute('src')?.startsWith('blob:'), null, { timeout: 10000 });
+    await page.locator('#sbsong-search').fill('desert');
+    if (await songCards.locator('.sbsong-card').count() !== 1 ||
+        !(await songCards.textContent()).includes('Desert Echo')) {
+      throw new Error('Reactive song search did not filter cards correctly');
+    }
+    await page.locator('#sbsong-search').fill('nothing-matches');
+    if (await songCards.locator('.sbsong-card').count() !== 0 ||
+        !(await songCards.textContent()).includes('По этому запросу песен нет')) {
+      throw new Error('Vue My Songs did not render the empty search result');
+    }
+    await page.locator('#sbsong-search').fill('');
+    await page.waitForFunction(() => document.querySelector('[data-sbsong-cover="song-vue-a"]')?.getAttribute('src')?.startsWith('blob:'), null, { timeout: 10000 });
+    await songCards.locator('[data-sbsong-action="open"][data-id="song-vue-a"]').first().click();
+    if (await page.locator('[data-sbsong-action="close-detail"]').count() !== 1) {
+      throw new Error('Original song detail did not open from Vue card');
+    }
+    await songCards.locator('[data-sbsong-action="edit"][data-id="song-vue-a"]').click();
+    await page.locator('#sbsong-save-form').waitFor({ state: 'attached' });
+    if (await page.locator('#sbsong-save-form [name="title"]').inputValue() !== 'Northern Lantern') {
+      throw new Error('Original song editor did not receive the selected Vue card');
+    }
+    await page.locator('[data-sbsong-action="cancel"]').click();
+    if (await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-my-songs-v1')).length) !== 2) {
+      throw new Error('Song records changed during Vue card navigation');
+    }
+
     const version = await page.locator('.sb-app-version').first().textContent();
     if (!/^v?\d+\.\d+$/.test(String(version || '').trim())) throw new Error('Version display missing or malformed');
 
@@ -1003,7 +1065,22 @@ async function checkEditorFallback() {
         await page.locator('#sb-vue-library-collection .genre-card').count() === 0) {
       throw new Error('Original library fallback failed without Vue');
     }
-    console.log('Original song editor and library without Vue PASS');
+    // Vue may be unavailable: the original card grid, search, and actions must survive.
+    await page.evaluate(() => localStorage.setItem('sunoboom-my-songs-v1', JSON.stringify([
+      { id: 'song-fallback', title: 'Fallback WAV', artist: 'Legacy Studio', genre: 'Pop',
+        updatedAt: Date.now(), createdAt: Date.now(), hasAudio: false, hasCover: false }
+    ])));
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.evaluate(() => window.SUNOBOOM_MY_SONGS.openLibrary());
+    if (await page.locator('#sb-vue-song-cards[data-v-app]').count() !== 0 ||
+        await page.locator('#sb-vue-song-cards .sbsong-card').count() !== 1) {
+      throw new Error('Original My Songs card grid fallback failed without Vue');
+    }
+    await page.locator('#sbsong-search').fill('does-not-exist');
+    if (!(await page.locator('#sb-vue-song-cards').textContent()).includes('По этому запросу песен нет')) {
+      throw new Error('Original My Songs search fallback failed without Vue');
+    }
+    console.log('Original song editor, library and My Songs without Vue PASS');
   } finally { await context.close(); }
 }
 

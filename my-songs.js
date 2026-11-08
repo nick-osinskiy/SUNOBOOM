@@ -416,6 +416,23 @@
       '<button type="button" data-sbsong-action="delete-cancel">Отмена</button></div>':"")+
       '</div></div></section>';
  }
+ // Read-only Vue cards model. Song records, version metadata and binary media
+ // remain owned by this legacy module; no second Vue store is created.
+ window.SUNOBOOM_LEGACY_SONG_CARDS=Object.freeze({
+   snapshot(){
+     if(view.nav!=="songs")return null;
+     const q=state.search.toLowerCase();
+     const items=[...songs].sort((a,b)=>b.updatedAt-a.updatedAt)
+       .filter(song=>(song.title+" "+song.artist+" "+song.genre+" "+song.album).toLowerCase().includes(q))
+       .map(song=>({
+         id:song.id,title:song.title||"Без названия",artist:song.artist||"Без исполнителя",
+         genre:song.genre||"Моя музыка",coverUrl:song.coverUrl,hasCover:song.hasCover,
+         status:song.hasAudio?"♪ Версий: "+songVersions(song).length:song.audioUrl?"↗ Аудио по ссылке":"Нет аудио"
+       }));
+     return {items,total:songs.length};
+   },
+   hydrateCovers:()=>hydrateSongCovers()
+ });
  function libraryPage(){
    const q=state.search.toLowerCase(),ordered=[...songs].sort((a,b)=>b.updatedAt-a.updatedAt);
    const shown=ordered.filter(song=>(song.title+" "+song.artist+" "+song.genre+" "+song.album).toLowerCase().includes(q));
@@ -435,9 +452,10 @@
      (state.showForm?formPage(get(state.editId)):"")+
      (selected&&!state.showForm?detail(selected):"")+
      '<div class="sbsong-collection-head"><h2>Коллекция</h2><input type="search" id="sbsong-search" placeholder="Найти песню или исполнителя…" value="'+esc(state.search)+'" aria-label="Поиск песен"></div>'+
+     '<div id="sb-vue-song-cards">'+
      (shown.length?'<div class="sbsong-grid">'+shown.map(card).join("")+'</div>':
        '<div class="sbsong-empty">'+(songs.length?"По этому запросу песен нет.":"Песен пока нет. Добавь первую карточку и загрузи аудиофайл.")+'</div>')+
-     '</section>';
+     '</div></section>';
  }
  function decodeCard(raw){
    if(!raw||raw.length>14000)return null;
@@ -497,7 +515,7 @@
     if(fallbackExternal&&song.audioUrl&&document.getElementById(elementId)===player)player.src=song.audioUrl;
     else if(version&&fallbackExternal)notify("Аудиофайл этой версии не найден в хранилище устройства.");
   }
-  async function hydrate(){
+  async function hydrateSongCovers(){
     if(view.nav!=="songs")return;
     const ids=[...document.querySelectorAll("[data-sbsong-cover]")].map(x=>x.dataset.sbsongCover);
     for(const id of new Set(ids)){
@@ -505,6 +523,10 @@
       if(view.nav!=="songs"||!url)continue;
       document.querySelectorAll("[data-sbsong-cover]").forEach(el=>{if(el.dataset.sbsongCover===id){el.src=url;el.style.display="block";}});
     }
+  }
+  async function hydrate(){
+    if(view.nav!=="songs")return;
+    await hydrateSongCovers();
     if(state.showForm&&state.editId&&!state.coverScanFile)await showSavedCover();
     const selected=get(state.selectedId),audio=document.getElementById("sbsong-audio-player");
     if(!selected||!audio||view.nav!=="songs")return;
@@ -797,6 +819,11 @@
    if(event.target?.id!=="sbsong-search")return;
    const el=event.target,selection=el.selectionStart;
    state.search=el.value;
+   // Never mutate a Vue-owned grid. The same original search rule is applied by snapshot().
+   if(document.getElementById("sb-vue-song-cards")?.hasAttribute("data-v-app")){
+     window.dispatchEvent(new Event("sunoboom:songs-search"));
+     return;
+   }
    const grid=document.querySelector(".sbsong-grid");
    const results=[...songs].sort((a,b)=>b.updatedAt-a.updatedAt).filter(x=>(x.title+" "+x.artist+" "+x.genre+" "+x.album).toLowerCase().includes(state.search.toLowerCase()));
    const holder=grid||document.querySelector(".sbsong-empty");
