@@ -4,6 +4,7 @@ import { activateLegacyPromptEditor } from './account/legacyPromptEditorBridge.j
 import { activateLegacyLibrary } from './account/legacyLibraryBridge.js';
 import { activateLegacySongCards } from './account/legacySongCardsBridge.js';
 import { activateLegacySongDetail } from './account/legacySongDetailBridge.js';
+import { activateLegacySongEditor } from './account/legacySongEditorBridge.js';
 import { activateLegacyIdeaEditor } from './poetry/legacyIdeaEditorBridge.js';
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
@@ -143,4 +144,9 @@ export function startLegacySongCards() {
 /** Vue song detail shell; versions, A/B controls and file storage stay legacy. */
 export function startLegacySongDetail() {
   return activateLegacySongDetail({ mountVueFeature });
+}
+
+/** Vue create/edit song fields with original media store and submit handlers. */
+export function startLegacySongEditor() {
+  return activateLegacySongEditor({ mountVueFeature });
 }

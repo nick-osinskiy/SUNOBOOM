@@ -1107,6 +1107,65 @@ async function checkLayout(mobile) {
       throw new Error('Song records changed during Vue card navigation');
     }
 
+    // v0.114: Vue owns new/edit fields and suggestion lists, while the original
+    // submit/change handlers still save cards, audio and cover blobs.
+    await page.locator('[data-sbsong-action="new"]').click();
+    const songEditor = page.locator('#sb-vue-song-editor');
+    await page.locator('#sb-vue-song-editor[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    await songEditor.locator('[name="title"]').fill('Song Editor Vue 114');
+    await songEditor.locator('#sbsong-artist-input').fill('Aurora Workshop 114');
+    await songEditor.locator('.sbsong-artist-shortcuts button').nth(1).click();
+    if (!await page.evaluate(() => (data.songArtists || []).some(a => a.name === 'Aurora Workshop 114'))) {
+      throw new Error('Vue editor failed to save artist in original custom artist storage');
+    }
+    await songEditor.locator('.sbsong-artist-shortcuts button').first().click();
+    await songEditor.locator('.sbsong-artist-option').filter({ hasText: 'Aurora Workshop 114' }).click();
+    if (await songEditor.locator('[name="artist"]').inputValue() !== 'Aurora Workshop 114') {
+      throw new Error('Vue artist picker failed to select saved artist');
+    }
+    await songEditor.locator('.sbsong-genre-toggle').click();
+    if (await songEditor.locator('#sbsong-genre-family option').count() < 2) {
+      throw new Error('Vue genre picker did not load Academy genre families');
+    }
+    await songEditor.locator('.sbsong-genre-option').first().click();
+    const selectedGenre = await songEditor.locator('[name="genre"]').inputValue();
+    if (!selectedGenre) throw new Error('Vue genre picker did not select a genre');
+    await songEditor.locator('[name="album"]').fill('Vue music album');
+    await songEditor.locator('[name="description"]').fill('Создано в Vue с локальным WAV и обложкой');
+    await songEditor.locator('[name="audio"]').setInputFiles({
+      name: 'song-editor-114.wav', mimeType: 'audio/wav',
+      buffer: Buffer.from([82,73,70,70,36,0,0,0,87,65,86,69,102,109,116,32,16,0,0,0,1,0,1,0,64,31,0,0,128,62,0,0,2,0,16,0,100,97,116,97,0,0,0,0])
+    });
+    await songEditor.locator('[name="cover"]').setInputFiles({
+      name: 'song-editor-cover.png', mimeType: 'image/png',
+      buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jR4cAAAAASUVORK5CYII=', 'base64')
+    });
+    await page.waitForFunction(() => document.getElementById('sbsong-cover-preview-img')?.getAttribute('src')?.startsWith('blob:'), null, { timeout: 10000 });
+    await songEditor.locator('#sbsong-submit').click();
+    await page.waitForFunction(() => JSON.parse(localStorage.getItem('sunoboom-my-songs-v1')).length === 3, null, { timeout: 10000 });
+    await page.locator('#sb-vue-song-detail[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    const createdSong = await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-my-songs-v1')).find(s => s.title === 'Song Editor Vue 114'));
+    if (!createdSong || createdSong.genre !== selectedGenre || createdSong.album !== 'Vue music album' ||
+        createdSong.artist !== 'Aurora Workshop 114' || createdSong.versions.length !== 1 ||
+        !createdSong.hasAudio || !createdSong.hasCover) {
+      throw new Error('Vue form did not persist song details, WAV and cover');
+    }
+    await page.waitForFunction(() => document.querySelector('#sb-vue-song-detail .sbsong-detail-cover img')?.getAttribute('src')?.startsWith('blob:'), null, { timeout: 10000 });
+    await page.locator('#sb-vue-song-detail [data-sbsong-action="edit"]').click();
+    await page.locator('#sb-vue-song-editor[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    if (await songEditor.locator('[name="title"]').inputValue() !== 'Song Editor Vue 114' ||
+        await songEditor.locator('[name="album"]').inputValue() !== 'Vue music album') {
+      throw new Error('Vue editor did not restore saved song fields');
+    }
+    await page.waitForFunction(() => document.getElementById('sbsong-cover-preview-img')?.getAttribute('src')?.startsWith('blob:'), null, { timeout: 10000 });
+    await songEditor.locator('[name="description"]').fill('Изменённое описание из Vue редактора');
+    await songEditor.locator('#sbsong-submit').click();
+    await page.waitForFunction(() => JSON.parse(localStorage.getItem('sunoboom-my-songs-v1')).find(s => s.title === 'Song Editor Vue 114')?.description === 'Изменённое описание из Vue редактора', null, { timeout: 10000 });
+    const updatedSong = await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-my-songs-v1')).find(s => s.title === 'Song Editor Vue 114'));
+    if (updatedSong.versions.length !== 1 || !updatedSong.hasCover || !updatedSong.hasAudio) {
+      throw new Error('Editing a song through Vue lost its saved audio or cover');
+    }
+
     const version = await page.locator('.sb-app-version').first().textContent();
     if (!/^v?\d+\.\d+$/.test(String(version || '').trim())) throw new Error('Version display missing or malformed');
 
@@ -1162,7 +1221,19 @@ async function checkEditorFallback() {
         await page.locator('#sb-vue-song-detail [data-sbsong-action="version-add"]').count() !== 1) {
       throw new Error('Original song detail fallback failed without Vue');
     }
-    console.log('Original song editor, library and My Songs detail without Vue PASS');
+    await page.locator('[data-sbsong-action="new"]').click();
+    if (await page.locator('#sb-vue-song-editor[data-v-app]').count() !== 0 ||
+        await page.locator('#sbsong-save-form').count() !== 1) {
+      throw new Error('Original song creation fallback did not render without Vue');
+    }
+    await page.locator('#sbsong-save-form [name="title"]').fill('Saved without Vue 114');
+    await page.locator('#sbsong-save-form [name="artist"]').fill('Fallback Artist');
+    await page.locator('#sbsong-save-form #sbsong-submit').click();
+    await page.waitForFunction(() => JSON.parse(localStorage.getItem('sunoboom-my-songs-v1')).some(s => s.title === 'Saved without Vue 114'), null, { timeout: 10000 });
+    if (await page.locator('#sb-vue-song-detail .sbsong-detail').count() !== 1) {
+      throw new Error('Original song create and detail fallback failed');
+    }
+    console.log('Original song editor, library, My Songs detail and create/edit without Vue PASS');
   } finally { await context.close(); }
 }
 

@@ -197,3 +197,11 @@ npm run build:vue
 - `SUNOBOOM_LEGACY_SONG_DETAIL.snapshot()` передаёт компоненту структурированные read-only метаданные версий, избранные ID и состояние сравнения. Никакой копии бинарных файлов или Pinia-хранилища не добавлено.
 - Сохраняются ID ввода и `data-sbsong-action`: исходные методы `addTake`, `editTakeDetails`, `markMainTake`, `removeTake`, `setAudioSource` и браузерное IndexedDB работают без миграции данных.
 - При недоступности Vue `#sb-vue-song-detail` содержит исходную разметку, включая полный `versionManager(song)`. В smoke-тесте проверяются A/B-переключение, выбор основного дубля, сохранение заметок, реальная загрузка/удаление тестового WAV, работа после повторной отрисовки и fallback на телефоне/десктопе.
+
+
+## Этап 23 — Vue 3: создание и редактирование песни (v0.114)
+
+- `account/SongEditor.vue` + `legacySongEditorBridge.js` заменяют форму `#sb-vue-song-editor`. Исходная `formPage(song)` остаётся в контейнере как функциональный fallback, если Vue недоступен.
+- Vue владеет текстовыми полями, подбором/сохранением артистов и поиском жанров Академии; данные поступают только через read-only `SUNOBOOM_LEGACY_SONG_EDITOR` и существующие `allArtistChoices()` / `academyGenreChoices()`. Оригинальные DOM-перерисовки подсказок отключены **только когда Vue смонтирован**.
+- Поля `name`, форма `#sbsong-save-form`, файловые `input`, превью обложки и `data-sbsong-action` сохранены: `submitForm`, `findAutoCover`, `showSavedCover`, проверки размеров файлов, IndexedDB и версия записи остались прежними.
+- После Vue mount повторно инициируется исходная загрузка сохранённой обложки. Smoke проверяет десктоп/телефон, выбор жанра из Академии, сохранение артиста, загрузку WAV и PNG, редактирование с сохранением медиа и fallback без Vue.

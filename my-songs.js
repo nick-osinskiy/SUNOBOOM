@@ -314,7 +314,7 @@
  }
 
  function formPage(song){
-   return '<section class="sbsong-form-panel" id="sbsong-form">'+
+   return '<div id="sb-vue-song-editor"><section class="sbsong-form-panel" id="sbsong-form">'+
      '<div class="sbsong-subhead"><h2>'+(song?"Изменить песню":"Новая песня")+'</h2>'+
      '<button type="button" data-sbsong-action="cancel">Закрыть ×</button></div>'+
      '<form id="sbsong-save-form" class="sbsong-form">'+
@@ -340,7 +340,7 @@
        '<p class="sbsong-form-help">MP3, M4A, WAV, FLAC и другие аудиофайлы сохраняются локально (IndexedDB): WAV — до 500 МБ, остальные — до 150 МБ при наличии свободной памяти браузера. Новая загрузка добавляет версию, не заменяя старую. Обложка ищется в MP3, M4A и FLAC; для WAV её обычно добавляют вручную. Локальное аудио по общей ссылке не передаётся.</p>'+
        '<div class="sbsong-form-actions"><button type="submit" class="sbsong-main-btn" id="sbsong-submit">Сохранить песню</button>'+
         '<button type="button" data-sbsong-action="cancel">Отмена</button></div>'+
-     '</form></section>';
+     '</form></section></div>';
  }
  function versionManager(song){
     const versions=songVersions(song),main=activeVersion(song);
@@ -446,6 +446,28 @@
      };
    },
    hydrateMedia:()=>hydrate()
+ });
+ // Vue editor owns only form inputs and the two suggestion popovers.
+ // Existing submitForm, file events, artist/genre sources and IndexedDB stay
+ // authoritative. The legacy HTML form remains as the mount fallback.
+ window.SUNOBOOM_LEGACY_SONG_EDITOR=Object.freeze({
+   snapshot(){
+     if(view.nav!=="songs"||!state.showForm)return null;
+     const song=get(state.editId);
+     return {
+       editId:state.editId||null, title:song?.title||"",
+       artist:song?.artist||data.profileName||"",genre:song?.genre||"",
+       album:song?.album||"",description:song?.description||"",
+       audioUrl:song?.audioUrl||"",listenUrl:song?.listenUrl||"",
+       coverUrl:song?.coverUrl||"",hasAudio:!!song?.hasAudio,
+       hasCover:!!(song?.hasCover||song?.coverUrl)
+     };
+   },
+   artistChoices:()=>allArtistChoices(),
+   genreChoices:()=>academyGenreChoices(),
+   genreFamilies:()=>academyGenreFamilies(academyGenreChoices()),
+   saveArtist:name=>saveArtistName(name),
+   hydrateCover:()=>state.showForm&&state.editId&&!state.coverScanFile?showSavedCover():undefined
  });
  // Read-only Vue cards model. Song records, version metadata and binary media
  // remain owned by this legacy module; no second Vue store is created.
@@ -837,9 +859,11 @@
  document.addEventListener("input",event=>{
    if(view.nav!=="songs")return;
    if(event.target?.id==="sbsong-artist-input"){
+     if(document.getElementById("sb-vue-song-editor")?.hasAttribute("data-v-app"))return;
      state.artistShowAll=false;refreshArtistPicker(true);return;
    }
    if(event.target?.id==="sbsong-genre-input"){
+     if(document.getElementById("sb-vue-song-editor")?.hasAttribute("data-v-app"))return;
      state.genreShowAll=false;state.genreFamily="Все";refreshGenrePicker(true);return;
    }
    if(event.target?.id==="sbsong-artist-manager-filter"){
@@ -867,15 +891,15 @@
    }else render();
  });
  document.addEventListener("focusin",event=>{
-   if(view.nav==="songs"&&event.target?.id==="sbsong-artist-input"){
+   if(view.nav==="songs"&&event.target?.id==="sbsong-artist-input"&&!document.getElementById("sb-vue-song-editor")?.hasAttribute("data-v-app")){
      state.artistShowAll=false;refreshArtistPicker(true);
    }
-   if(view.nav==="songs"&&event.target?.id==="sbsong-genre-input"){
+   if(view.nav==="songs"&&event.target?.id==="sbsong-genre-input"&&!document.getElementById("sb-vue-song-editor")?.hasAttribute("data-v-app")){
      state.genreShowAll=false;state.genreFamily="Все";refreshGenrePicker(true);
    }
  });
  document.addEventListener("keydown",event=>{
-   if(view.nav==="songs"&&event.target?.id==="sbsong-genre-input"&&event.key==="Escape"&&state.genrePickerOpen){
+   if(view.nav==="songs"&&!document.getElementById("sb-vue-song-editor")?.hasAttribute("data-v-app")&&event.target?.id==="sbsong-genre-input"&&event.key==="Escape"&&state.genrePickerOpen){
      refreshGenrePicker(false);event.preventDefault();return;
    }
    if(view.nav==="songs"&&event.target?.id==="sbsong-artist-manager-add"&&event.key==="Enter"){
@@ -884,11 +908,12 @@
  });
  document.addEventListener("pointerdown",event=>{
    if(view.nav!=="songs")return;
+   if(document.getElementById("sb-vue-song-editor")?.hasAttribute("data-v-app"))return;
    if(state.artistPickerOpen&&!event.target.closest?.(".sbsong-artist-field"))refreshArtistPicker(false);
    if(state.genrePickerOpen&&!event.target.closest?.(".sbsong-genre-field"))refreshGenrePicker(false);
  });
  document.addEventListener("change",event=>{
-   if(view.nav==="songs"&&event.target?.id==="sbsong-genre-family"){
+   if(view.nav==="songs"&&!document.getElementById("sb-vue-song-editor")?.hasAttribute("data-v-app")&&event.target?.id==="sbsong-genre-family"){
      state.genreFamily=event.target.value;state.genreShowAll=true;refreshGenrePicker(true);
    }
  });
