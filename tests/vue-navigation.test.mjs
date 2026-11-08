@@ -39,3 +39,20 @@ test('mobile labels match the old menu and duplicate ids are discarded', () => {
   assert.deepEqual(items.map(item => item.shortLabel), ['Главная', 'Идеи', 'Студия']);
   assert.equal(items.filter(item => item.active).length, 1);
 });
+
+
+test('mobile navigation shows one concise Mixer entry even when legacy labels repeat', () => {
+  const items = navigationSnapshot({
+    active: 'mixer',
+    items: [
+      { id: 'studio', label: 'Suno Studio' },
+      { id: 'mixer', label: 'Жанровый миксер' },
+      { id: 'legacy-mix', label: 'Миксер' },
+      { id: 'producer', label: 'Мастер' },
+      { id: 'account', label: 'Личный кабинет' }
+    ]
+  });
+  assert.deepEqual(items.map(item => item.id), ['studio', 'mixer', 'producer', 'account']);
+  assert.equal(items.filter(item => item.shortLabel === 'Миксер').length, 1);
+  assert.equal(items.find(item => item.id === 'mixer')?.active, true);
+});

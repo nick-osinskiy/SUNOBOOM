@@ -74,6 +74,13 @@ async function checkLayout(mobile) {
 
     const nav = mobile ? '.mobile-nav' : '[data-sb-vue-sidebar]';
     const master = page.locator(nav + ' button[data-nav="producer"]');
+    // The lower/mobile bar must not show “миксер” twice, even when
+    // legacy extensions use different route IDs for the same destination.
+    const mixerEntries = page.locator(nav + ' button').filter({ hasText: /миксер/i });
+    if (await mixerEntries.count() !== 1 ||
+        (mobile && (await mixerEntries.first().innerText()).trim() !== 'Миксер')) {
+      throw new Error('Duplicate or overlong Mixer label in the navigation');
+    }
     await master.waitFor();
     if (await master.count() !== 1) throw new Error('Master link missing or duplicated');
 
