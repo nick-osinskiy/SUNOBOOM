@@ -133,6 +133,13 @@
   const target=event.target.closest?.("[data-sbs-action]");
   if(!target)return;
   const action=target.dataset.sbsAction;
+  if(action==="open-top"){
+   // Open the SAME settings page regardless of the current route.
+   // go() also closes existing overlays and resets temporary settings state.
+   go("account");
+   display();
+   return;
+  }
   if(action==="open"){display();return}
   if(action==="close"){close();return}
   if(action==="backup"){backup();return}
