@@ -165,6 +165,30 @@
        '<span class="sbpc-tiny-progress"><i style="width:'+percent+'%"></i></span></button>';
    }).join(""):'<p class="sbpc-empty">Поиск не дал результатов. Измени запрос или создай новую рабочую карточку.</p>';
  }
+ // Read-only Vue list snapshot, derived from existing browser-owned data.
+ function producerListSnapshot(){
+   const records=items().slice().sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+   return {
+     query:state.query,
+     selectedId:state.selectedId,
+     hasRecords:records.length>0,
+     records:records.map(w=>{
+       const done=completed(w),next=nextStep(w);
+       return {
+         id:w.id,title:w.title||"Без названия",
+         artist:w.artist||"Исполнитель не указан",
+         done,total:STEPS.length,
+         nextLabel:next?.[1]||"",
+         percent:Math.round(done/STEPS.length*100),
+         searchText:[w.title,w.artist,resource("song",w.songId)?.title,
+           resource("project",w.projectId)?.title].join(" ")
+       };
+     })
+   };
+ }
+ window.SUNOBOOM_LEGACY_PRODUCER_LIST=Object.freeze({
+   snapshot:producerListSnapshot
+ });
  function openButton(type,id,label){
    if(!id)return "";
    const found=resource(type,id);
@@ -255,7 +279,7 @@
        '<button type="button" class="sbpc-main-btn" data-pc-action="create">+ Создать рабочую карточку</button></div></section>'+
      '<div class="sbpc-layout"><aside class="sbpc-sidebar"><div class="sbpc-side-heading"><h2>Песни ('+records.length+')</h2>'+
        '<input id="sbpc-search" type="search" value="'+e(state.query)+'" placeholder="Найти песню или артиста" aria-label="Поиск по песням"></div>'+
-       '<div id="sbpc-list" class="sbpc-song-list">'+(records.length?cards():'<p class="sbpc-empty">Пока нет рабочих карточек. Начни с первой песни выше.</p>')+'</div></aside>'+
+       '<div id="sbpc-list" class="sbpc-song-list" data-sb-vue-producer-list>'+(records.length?cards():'<p class="sbpc-empty">Пока нет рабочих карточек. Начни с первой песни выше.</p>')+'</div></aside>'+
        (selected?detail(selected):'<div class="sbpc-empty-state"><strong>Пока нет песен в работе</strong>'+
        '<p>Мастер объединяет уже созданные идеи, текст, аранжировку, генерации, прослушивание и релизы.</p></div>')+
      '</div><p class="sbpc-privacy">🔒 Локальная работа: синхронизации между устройствами нет. Аудиофайлы остаются в «Мои песни»; сам раздел «Мастер» хранит только ссылки, этапы, заметки, историю и снимок аранжировки.</p></div>';
@@ -412,7 +436,9 @@
    if(view.nav!=="producer"||ev.target?.id!=="sbpc-search")return;
    state.query=ev.target.value;
    const list=document.getElementById("sbpc-list");
-   if(list)list.innerHTML=cards();
+   // Vue listens for changes; legacy must never overwrite its DOM.
+   if(list&&!list.hasAttribute("data-v-app"))list.innerHTML=cards();
+   window.dispatchEvent(new CustomEvent("sunoboom:producer-search",{detail:{query:state.query}}));
  });
  document.addEventListener("keydown",ev=>{
    if(view.nav!=="producer"||ev.target?.id!=="sbpc-history-note"||ev.key!=="Enter")return;
