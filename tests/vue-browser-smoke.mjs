@@ -1437,7 +1437,7 @@ async function checkLayout(mobile) {
     await page.locator('#sbs-theme').selectOption('light');
     if (await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-ui-settings-v1')).theme) !== 'light' ||
         !await page.evaluate(() => document.documentElement.classList.contains('sb-theme-light')) ||
-        await page.evaluate(() getComputedStyle(document.documentElement).colorScheme) !== 'light') {
+        await page.evaluate(() => getComputedStyle(document.documentElement).colorScheme) !== 'light') {
       throw new Error('Vue light theme did not apply or persist');
     }
     const lightBackground = await page.locator('.side').evaluate(el => getComputedStyle(el).backgroundColor);
