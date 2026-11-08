@@ -263,6 +263,48 @@
      '<p class="sbpc-help">Удаление рабочей карточки не удаляет идеи, паспорта, промпты и аудио.</p></section>'+
      progressPanel(w)+linksPanel(w)+arrangementPanel(w)+historyPanel(w)+'</div>';
  }
+ // The original functions above stay authoritative for every mutation,
+ // validation, confirmation, navigation, media reference and local save.
+ // Vue receives a read-only view model, never a second production store.
+ function producerDetailSnapshot(){
+   if(view.nav!=="producer")return null;
+   const w=find(state.selectedId);
+   if(!w)return null;
+   const done=completed(w),next=nextStep(w),checks=materialsStatus(w);
+   const project=resource("project",w.projectId);
+   const draft=w.arrangementDraft,blockCount=draft?.blocks?.length||0;
+   return {
+     id:w.id,title:w.title||"",artist:w.artist||"",notes:w.notes||"",
+     projectTitle:project?.title||"",
+     done,total:STEPS.length,percent:Math.round(done/STEPS.length*100),
+     nextLabel:next?.[1]||"",
+     statuses:STATUSES.map(([id,label])=>({id,label})),
+     stages:STEPS.map(([key,title,desc],i)=>({
+       key,title,desc,index:i+1,status:currentStatus(w,key),
+       hasMaterial:!!checks[i][1],materialLabel:checks[i][2]
+     })),
+     links:LINKS.map(([field,label,type])=>{
+       const value=String(w[field]||"");
+       const options=[{value:"",label:"Без связи"}];
+       const list=listFor(type);
+       if(value&&!list.some(x=>String(x?.id)===value))
+         options.push({value,label:"Связанный материал сейчас недоступен"});
+       options.push(...list.map(x=>({value:String(x.id),label:resourceName(x,type)})));
+       return {field,label,type,value,available:!!resource(type,value),options};
+     }),
+     arrangement:{
+       count:blockCount,
+       savedAt:blockCount?dates(draft.savedAt):"",
+       duration:blockCount?String(draft.duration||""):""
+     },
+     history:(Array.isArray(w.history)?w.history.slice(0,80):[]).map(log=>({
+       date:dates(log.at),text:String(log.text||"Обновление")
+     }))
+   };
+ }
+ window.SUNOBOOM_LEGACY_PRODUCER_DETAIL=Object.freeze({
+   snapshot:producerDetailSnapshot
+ });
  function page(){
    const records=items();
    const selected=find(state.selectedId)||records.slice().sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0))[0]||null;
@@ -280,7 +322,7 @@
      '<div class="sbpc-layout"><aside class="sbpc-sidebar"><div class="sbpc-side-heading"><h2>Песни ('+records.length+')</h2>'+
        '<input id="sbpc-search" type="search" value="'+e(state.query)+'" placeholder="Найти песню или артиста" aria-label="Поиск по песням"></div>'+
        '<div id="sbpc-list" class="sbpc-song-list" data-sb-vue-producer-list>'+(records.length?cards():'<p class="sbpc-empty">Пока нет рабочих карточек. Начни с первой песни выше.</p>')+'</div></aside>'+
-       (selected?detail(selected):'<div class="sbpc-empty-state"><strong>Пока нет песен в работе</strong>'+
+       (selected?'<div id="sb-vue-producer-detail" data-sb-vue-producer-host>'+detail(selected)+'</div>':'<div class="sbpc-empty-state"><strong>Пока нет песен в работе</strong>'+
        '<p>Мастер объединяет уже созданные идеи, текст, аранжировку, генерации, прослушивание и релизы.</p></div>')+
      '</div><p class="sbpc-privacy">🔒 Локальная работа: синхронизации между устройствами нет. Аудиофайлы остаются в «Мои песни»; сам раздел «Мастер» хранит только ссылки, этапы, заметки, историю и снимок аранжировки.</p></div>';
  }
