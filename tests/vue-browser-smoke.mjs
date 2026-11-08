@@ -1633,6 +1633,44 @@ async function checkLayout(mobile) {
       throw new Error('Master deletion or Vue remount did not preserve the workflow');
     }
 
+    // v0.124: gear shortcut next to notifications opens the existing settings.
+    await page.evaluate(() => go('studio'));
+    const headerButtons = page.locator('.top .top-right');
+    const shortcut = headerButtons.locator('button.sb-settings-shortcut[data-sbs-action="open-top"]');
+    const notification = headerButtons.locator('button[data-action="sb-notice-toggle"]');
+    if (await shortcut.count() !== 1 || await notification.count() !== 1 ||
+        await shortcut.locator('svg').count() !== 1) {
+      throw new Error('Header gear shortcut or notification bell is missing');
+    }
+    const headerGeometry = await headerButtons.evaluate(node => {
+      const bell = node.querySelector('button[data-action="sb-notice-toggle"]');
+      const gear = node.querySelector('button.sb-settings-shortcut');
+      const avatar = node.querySelector('button.account-shortcut');
+      const b = bell?.getBoundingClientRect(), g = gear?.getBoundingClientRect(),
+        a = avatar?.getBoundingClientRect();
+      const top = node.closest('.top')?.getBoundingClientRect();
+      return { order: Boolean(b && g && a && b.right <= g.left + 1 && g.right <= a.left + 1),
+        widthsEqual: Boolean(b && g && Math.abs(b.width - g.width) < 1),
+        fits: Boolean(top && g && a && g.left >= top.left - 1 && a.right <= top.right + 1),
+        sameBackground: Boolean(bell && gear &&
+          getComputedStyle(bell).backgroundImage === getComputedStyle(gear).backgroundImage),
+        overflow: document.documentElement.scrollWidth > window.innerWidth + 1 };
+    });
+    if (!headerGeometry.order || !headerGeometry.widthsEqual ||
+        !headerGeometry.fits || !headerGeometry.sameBackground ||
+        (mobile && headerGeometry.overflow)) {
+      throw new Error('Header gear button does not match or fit by the bell: ' +
+        JSON.stringify(headerGeometry));
+    }
+    await shortcut.click();
+    await page.locator('#sb-vue-account-settings[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    if (await page.locator('#sbs-page[data-sb-vue-settings]').count() !== 1 ||
+        await page.locator('#sbs-theme option').count() !== 3 ||
+        await page.evaluate(() => view.nav) !== 'account') {
+      throw new Error('Header settings shortcut did not open the original Vue settings');
+    }
+    await page.locator('[data-sbs-action="close"]').click();
+
     const version = await page.locator('.sb-app-version').first().textContent();
     if (!/^v?\d+\.\d+$/.test(String(version || '').trim())) throw new Error('Version display missing or malformed');
 
@@ -1650,6 +1688,17 @@ async function checkEditorFallback() {
   await page.route('**/dist/vue/**', route => route.abort());
   try {
     await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+    // Gear shortcut also opens the original settings with the bundle blocked.
+    if (await page.locator('.top .sb-settings-shortcut').count() !== 1) {
+      throw new Error('Settings gear missing in legacy header');
+    }
+    await page.locator('.top .sb-settings-shortcut').click();
+    if (await page.locator('#sbs-page').count() !== 1 ||
+        await page.locator('#sb-vue-account-settings[data-v-app]').count() ||
+        await page.locator('#sbs-theme option').count() !== 3) {
+      throw new Error('Settings gear did not open HTML fallback preferences');
+    }
+    await page.locator('[data-sbs-action="close"]').click();
     // Without the Vue bundle the original mobile navigation still carries
     // exactly one Mixer caption (single text node beneath its SVG icon).
     const legacyMixer = await page.locator('.mobile-nav button[data-nav="mixer"]').evaluate(button => ({
