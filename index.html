@@ -2752,6 +2752,10 @@ function sbPoetryAmbiguousChoices(){
  if(!area||!target)return;
  const found=sbStressFindUnresolved(area.value);
  const count=[...found.values()].reduce((a,b)=>a+b,0);
+ if(target.hasAttribute('data-v-app')){
+  window.dispatchEvent(new Event('sunoboom:poetry-stress-updated'));
+  return;
+ }
  if(!count){target.innerHTML='<p class="sb-stress-ambig-clear">✓ Все найденные неоднозначные слова проверены.</p>';return}
  let html='<div class="sb-stress-ambig-heading">🔴 Требуют проверки: '+count+' вхождений ('+found.size+' разных слов). Нажми нужный вариант для каждого вхождения.</div>';
  const limit=30;
@@ -2834,6 +2838,7 @@ async function sbPoetryAutoStress(){
   '<p class="sb-poetry-small">Расширенный словарь содержит около 2 млн словоформ. Омографы, например «замок», требуют проверки по смыслу. Исходный текст не меняется до нажатия «Применить».</p></div>';
  sbStressHighlightEnable(area);
  sbStressHighlightEnable(document.getElementById('sb-poetry-stress-preview'));
+ window.dispatchEvent(new Event('sunoboom:poetry-stress-ready'));
  box.scrollIntoView({block:'nearest',behavior:'smooth'});
 }
 
@@ -2950,6 +2955,13 @@ function sbPoetryRender(){
   const source=document.getElementById('custom-idea-lyrics');
   const target=document.getElementById('sb-poetry-result');
   if(!source||!target)return;
+  if(target.hasAttribute('data-v-app')){
+    const analyzed=source.value.trim()&&sbPoetryAnalyze(source.value).rows.length>0;
+    target.dataset.analyzed=analyzed?'true':'false';
+    target.dataset.poetryDirty='false';
+    window.dispatchEvent(new Event('sunoboom:poetry-updated'));
+    return;
+  }
   if(!source.value.trim()){target.innerHTML='<p class="sb-poetry-empty">Добавь текст песни в поле выше, затем нажми «Анализировать».</p>';return}
   const a=sbPoetryAnalyze(source.value);
   if(!a.rows.length){target.innerHTML='<p class="sb-poetry-empty">Не удалось найти строки песни. Проверь текст и повтори анализ.</p>';return}
@@ -3003,6 +3015,57 @@ function sbPoetryAccent(){
   toast('Ударение отмечено. Сохрани идею, чтобы сохранить правку.');
 }
 
+// Vue reads the original poetry analysis and the ambiguity dictionary.
+window.SUNOBOOM_LEGACY_POETRY=Object.freeze({
+ analysis(){
+  if(view.nav!=='myideas')return null;
+  const text=document.getElementById('custom-idea-lyrics')?.value||'';
+  const target=document.getElementById('sb-poetry-result');
+  const analyzed=target?.dataset.analyzed==='true';
+  if(!analyzed)return {
+   analyzed:false,
+   message:target?.dataset.poetryDirty==='true'
+    ?'Текст изменён. Нажми «Разобрать текст песни», чтобы обновить анализ.'
+    :'Вставь текст выше и нажми «Разобрать текст песни».'
+  };
+  const a=sbPoetryAnalyze(text);
+  if(!a.rows.length)return {analyzed:false,message:'Не удалось найти строки песни. Проверь текст и повтори анализ.'};
+  return {
+   analyzed:true,rowCount:a.rows.length,
+   stats:[
+    {value:a.rows.length,label:'строк'},
+    {value:a.stanzas.length,label:'строф'},
+    {value:a.avg.toFixed(1),label:'слогов в среднем'},
+    {value:a.approxPairs,label:'предполагаемых рифм'}
+   ],
+   lower:a.sizes.length?Math.min(...a.sizes):0,
+   upper:a.sizes.length?Math.max(...a.sizes):0,
+   markedStress:a.markedStress,
+   stanzas:a.stanzas.slice(0,18).map((block,i)=>{
+    const sizes=block.rows.map(row=>row.syllables);
+    return {id:block.id,section:block.section,position:i+1,scheme:block.scheme,
+      spread:Math.max(...sizes)-Math.min(...sizes)};
+   }),
+   lines:a.rows.slice(0,120).map(row=>({
+    number:row.number,text:row.text,syllables:row.syllables,
+    width:Math.min(100,Math.round(row.syllables/22*100)),
+    rhyme:row.rhyme,repeat:row.repeat,mark:row.mark
+   })),
+   frequent:a.frequent.map(([word,count])=>({word,count})),
+   suggestions:a.suggestions.slice(0,6)
+  };
+ },
+ ambiguities(){
+  if(view.nav!=='myideas')return {count:0,total:0,words:[]};
+  const preview=document.getElementById('sb-poetry-stress-preview');
+  const found=sbStressFindUnresolved(preview?.value||'');
+  const count=[...found.values()].reduce((a,b)=>a+b,0);
+  const words=[...found].slice(0,30).map(([key,n])=>({
+   key,count:n,variants:sbStressAmbiguities.get(key)||[]
+  }));
+  return {count,total:found.size,words};
+ }
+});
 function myideas(){
   const own=(data.manualIdeas||[]).slice().reverse(), editing=(data.manualIdeas||[]).find(x=>x.id===view.editIdea);
   const generated=(data.savedGeneratedIdeas||[]).slice().reverse();
@@ -3090,7 +3153,10 @@ document.addEventListener('input',function(event){
   }
   if(result && result.dataset.analyzed==='true'){
     result.dataset.analyzed='false';
-    result.innerHTML='<p class="sb-poetry-empty">Текст изменён. Нажми «Разобрать текст песни», чтобы обновить анализ.</p>';
+    if(result.hasAttribute('data-v-app')){
+      result.dataset.poetryDirty='true';
+      window.dispatchEvent(new Event('sunoboom:poetry-updated'));
+    }else result.innerHTML='<p class="sb-poetry-empty">Текст изменён. Нажми «Разобрать текст песни», чтобы обновить анализ.</p>';
   }
  }
 });
