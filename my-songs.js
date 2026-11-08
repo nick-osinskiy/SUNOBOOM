@@ -392,7 +392,7 @@
   }
   function detail(song){
    if(!song)return "";
-   return '<section class="sbsong-detail">'+
+   return '<div id="sb-vue-song-detail"><section class="sbsong-detail">'+
       '<div class="sbsong-subhead"><h2>'+esc(song.title)+'</h2><button type="button" data-sbsong-action="close-detail">Закрыть ×</button></div>'+
       '<div class="sbsong-detail-layout"><div class="sbsong-detail-cover">'+(song.hasCover?'<img data-sbsong-cover="'+esc(song.id)+'" alt="'+esc("Обложка песни "+song.title)+'">':
        song.coverUrl?'<img src="'+esc(song.coverUrl)+'" alt="'+esc("Обложка песни "+song.title)+'" style="display:block">':iconCover)+'</div>'+
@@ -414,8 +414,28 @@
       (state.confirmDelete===song.id?'<div class="sbsong-delete-confirm"><strong>Удалить карточку вместе с локальными файлами?</strong>'+
       '<button type="button" data-sbsong-action="delete-confirm" data-id="'+esc(song.id)+'">Да, удалить</button>'+
       '<button type="button" data-sbsong-action="delete-cancel">Отмена</button></div>':"")+
-      '</div></div></section>';
+      '</div></div></section></div>';
  }
+ // The Vue detail is view-only. All audio versions, media keys, handlers and
+ // confirmation state still come directly from the existing song library.
+ window.SUNOBOOM_LEGACY_SONG_DETAIL=Object.freeze({
+   snapshot(){
+     if(view.nav!=="songs"||state.showForm)return null;
+     const song=get(state.selectedId);
+     if(!song)return null;
+     return {
+       id:song.id,title:song.title,artist:song.artist||"Исполнитель не указан",
+       genre:song.genre,album:song.album,description:song.description,
+       hasCover:song.hasCover,coverUrl:song.coverUrl,
+       hasAudio:song.hasAudio,hasPlayableAudio:!!(song.hasAudio||song.audioUrl),
+       listenUrl:song.listenUrl,confirmDelete:state.confirmDelete===song.id,
+       // This legacy markup retains the complete take manager, form inputs,
+       // version actions, A/B selectors and their established delegated handlers.
+       versionsMarkup:versionManager(song)
+     };
+   },
+   hydrateMedia:()=>hydrate()
+ });
  // Read-only Vue cards model. Song records, version metadata and binary media
  // remain owned by this legacy module; no second Vue store is created.
  window.SUNOBOOM_LEGACY_SONG_CARDS=Object.freeze({

@@ -3,6 +3,7 @@ import { activateLegacyPromptCollection } from './account/legacyPromptCollection
 import { activateLegacyPromptEditor } from './account/legacyPromptEditorBridge.js';
 import { activateLegacyLibrary } from './account/legacyLibraryBridge.js';
 import { activateLegacySongCards } from './account/legacySongCardsBridge.js';
+import { activateLegacySongDetail } from './account/legacySongDetailBridge.js';
 import { activateLegacyIdeaEditor } from './poetry/legacyIdeaEditorBridge.js';
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
@@ -137,4 +138,9 @@ export function startLegacyLibrary() {
 /** Vue cards and search results for My Songs; all media and actions stay in legacy. */
 export function startLegacySongCards() {
   return activateLegacySongCards({ mountVueFeature });
+}
+
+/** Vue song detail shell; versions, A/B controls and file storage stay legacy. */
+export function startLegacySongDetail() {
+  return activateLegacySongDetail({ mountVueFeature });
 }

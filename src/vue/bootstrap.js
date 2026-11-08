@@ -8,7 +8,7 @@ const moduleUrl = productionEnabled ? '../../dist/vue/sunoboom-vue.js' : localDe
 
 if (moduleUrl && window.SUNOBOOM_LEGACY_NAV) {
   import(moduleUrl)
-    .then(({ startLegacyNavigation, startLegacyAcademy, startLegacyGenreDetail, startLegacyStudio, startLegacyMixer, startLegacyAuditor, startLegacyArranger, startLegacyPoetry, startLegacyTags, startLegacyIdeaEditor, startLegacyIdeaCollections, startLegacyPromptCollection, startLegacyPromptEditor, startLegacyLibrary, startLegacySongCards }) => {
+    .then(({ startLegacyNavigation, startLegacyAcademy, startLegacyGenreDetail, startLegacyStudio, startLegacyMixer, startLegacyAuditor, startLegacyArranger, startLegacyPoetry, startLegacyTags, startLegacyIdeaEditor, startLegacyIdeaCollections, startLegacyPromptCollection, startLegacyPromptEditor, startLegacyLibrary, startLegacySongCards, startLegacySongDetail }) => {
       if (typeof startLegacyNavigation === 'function') startLegacyNavigation();
       if (typeof startLegacyAcademy === 'function') startLegacyAcademy();
       if (typeof startLegacyGenreDetail === 'function') startLegacyGenreDetail();
@@ -21,6 +21,7 @@ if (moduleUrl && window.SUNOBOOM_LEGACY_NAV) {
       if (typeof startLegacyPromptEditor === 'function') startLegacyPromptEditor();
       if (typeof startLegacyLibrary === 'function') startLegacyLibrary();
       if (typeof startLegacySongCards === 'function') startLegacySongCards();
+      if (typeof startLegacySongDetail === 'function') startLegacySongDetail();
       if (typeof startLegacyIdeaEditor === 'function') startLegacyIdeaEditor();
       if (typeof startLegacyPoetry === 'function') startLegacyPoetry();
       if (typeof startLegacyTags === 'function') startLegacyTags();

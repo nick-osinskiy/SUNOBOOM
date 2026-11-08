@@ -975,7 +975,11 @@ async function checkLayout(mobile) {
       const now = Date.now();
       localStorage.setItem('sunoboom-my-songs-v1', JSON.stringify([
         { id: 'song-vue-a', title: 'Northern Lantern', artist: 'Studio Owl', genre: 'Indie Pop',
-          album: 'First Album', createdAt: now - 1000, updatedAt: now, hasCover: true, hasAudio: false },
+          album: 'First Album', description: 'Песня о севере', createdAt: now - 1000, updatedAt: now, hasCover: true, hasAudio: true,
+          activeVersionId: 'original', versions: [
+            { id: 'original', label: 'Черновик', notes: '', fileName: 'demo.wav', bytes: 44, addedAt: now - 1000 },
+            { id: 'v-demo', label: 'Финал', notes: '', fileName: 'demo-final.wav', bytes: 44, addedAt: now }
+          ] },
         { id: 'song-vue-b', title: 'Desert Echo', artist: 'Rosa', genre: 'Folk',
           album: '', createdAt: now - 2000, updatedAt: now - 1000, hasCover: false, hasAudio: false }
       ]));
@@ -991,6 +995,9 @@ async function checkLayout(mobile) {
       await new Promise((resolve, reject) => {
         const tx = db.transaction('files', 'readwrite');
         tx.objectStore('files').put(new Blob([png], { type: 'image/png' }), 'song-vue-a:cover');
+        const wav = new Blob([new Uint8Array([82,73,70,70,36,0,0,0,87,65,86,69,102,109,116,32,16,0,0,0,1,0,1,0,64,31,0,0,128,62,0,0,2,0,16,0,100,97,116,97,0,0,0,0])], { type: 'audio/wav' });
+        tx.objectStore('files').put(wav, 'song-vue-a:audio');
+        tx.objectStore('files').put(wav, 'song-vue-a:version:v-demo');
         tx.oncomplete = resolve;
         tx.onerror = () => reject(tx.error);
       });
@@ -1019,8 +1026,36 @@ async function checkLayout(mobile) {
     await page.locator('#sbsong-search').fill('');
     await page.waitForFunction(() => document.querySelector('[data-sbsong-cover="song-vue-a"]')?.getAttribute('src')?.startsWith('blob:'), null, { timeout: 10000 });
     await songCards.locator('[data-sbsong-action="open"][data-id="song-vue-a"]').first().click();
-    if (await page.locator('[data-sbsong-action="close-detail"]').count() !== 1) {
-      throw new Error('Original song detail did not open from Vue card');
+    await page.locator('#sb-vue-song-detail[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    const songDetail = page.locator('#sb-vue-song-detail');
+    if (await songDetail.locator('[data-sbsong-action="close-detail"]').count() !== 1 ||
+        await songDetail.locator('.sbsong-version-row').count() !== 2 ||
+        !(await songDetail.textContent()).includes('Песня о севере') ||
+        await songDetail.locator('[data-sbsong-action="version-add"]').count() !== 1) {
+      throw new Error('Vue detail lost song metadata or legacy version controls');
+    }
+    await page.waitForFunction(() => document.querySelector('#sb-vue-song-detail .sbsong-detail-cover img')?.getAttribute('src')?.startsWith('blob:'), null, { timeout: 10000 });
+    await page.waitForFunction(() => document.querySelector('#sbsong-audio-player')?.getAttribute('src')?.startsWith('blob:'), null, { timeout: 10000 });
+    await songDetail.locator('[data-sbsong-action="compare-toggle"]').click();
+    await page.locator('#sb-vue-song-detail[data-v-app]').waitFor({ state: 'attached' });
+    await page.waitForFunction(() => ['sbsong-ab-a', 'sbsong-ab-b'].every(id => document.getElementById(id)?.getAttribute('src')?.startsWith('blob:')), null, { timeout: 10000 });
+    await songDetail.locator('[data-sbsong-action="version-play"][data-version-id="v-demo"]').click();
+    await page.locator('#sb-vue-song-detail[data-v-app]').waitFor({ state: 'attached' });
+    if (!(await songDetail.locator('.sbsong-version-heading').textContent()).includes('Финал')) {
+      throw new Error('Selecting a take did not update the Vue detail');
+    }
+    await songDetail.locator('[data-sbsong-version-note="v-demo"]').fill('Точный финальный микс');
+    await songDetail.locator('[data-sbsong-action="version-save"][data-version-id="v-demo"]').click();
+    const versionNote = await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-my-songs-v1'))[0]?.versions?.find(v => v.id === 'v-demo')?.notes);
+    if (versionNote !== 'Точный финальный микс') throw new Error('Legacy version note failed to persist from Vue detail');
+    await songDetail.locator('[data-sbsong-action="delete"]').click();
+    await page.locator('#sb-vue-song-detail[data-v-app]').waitFor({ state: 'attached' });
+    if (await songDetail.locator('[data-sbsong-action="delete-confirm"]').count() !== 1) {
+      throw new Error('Vue song deletion confirmation is missing');
+    }
+    await songDetail.locator('[data-sbsong-action="delete-cancel"]').click();
+    if (await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-my-songs-v1')).length) !== 2) {
+      throw new Error('Canceling deletion modified song storage');
     }
     await songCards.locator('[data-sbsong-action="edit"][data-id="song-vue-a"]').click();
     await page.locator('#sbsong-save-form').waitFor({ state: 'attached' });
@@ -1080,7 +1115,14 @@ async function checkEditorFallback() {
     if (!(await page.locator('#sb-vue-song-cards').textContent()).includes('По этому запросу песен нет')) {
       throw new Error('Original My Songs search fallback failed without Vue');
     }
-    console.log('Original song editor, library and My Songs without Vue PASS');
+    await page.locator('#sbsong-search').fill('');
+    await page.locator('#sb-vue-song-cards [data-sbsong-action="open"][data-id="song-fallback"]').first().click();
+    if (await page.locator('#sb-vue-song-detail[data-v-app]').count() !== 0 ||
+        await page.locator('#sb-vue-song-detail .sbsong-detail h2').textContent() !== 'Fallback WAV' ||
+        await page.locator('#sb-vue-song-detail [data-sbsong-action="version-add"]').count() !== 1) {
+      throw new Error('Original song detail fallback failed without Vue');
+    }
+    console.log('Original song editor, library and My Songs detail without Vue PASS');
   } finally { await context.close(); }
 }
 
