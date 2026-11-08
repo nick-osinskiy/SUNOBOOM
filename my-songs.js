@@ -236,16 +236,30 @@
      '<p class="sbsong-artist-hint">'+(customArtists().length?"Ничего не найдено.":"Пока нет добавленных вручную артистов.")+'</p>';
  }
  function artistManager(){
-   return '<section class="sbsong-artist-manager" id="sbsong-artist-manager">'+
+   return '<div id="sb-vue-artist-manager"><section class="sbsong-artist-manager" id="sbsong-artist-manager">'+
      '<div class="sbsong-subhead"><h2>Мои артисты</h2><button type="button" data-sbsong-action="artists-manage">Закрыть ×</button></div>'+
      '<p>Создавай свой список исполнителей и музыкальных проектов. Артисты из «ДНК артиста» и сохранённых песен также доступны при выборе. Удаление из списка не меняет существующие песни.</p>'+
      '<div class="sbsong-artist-manager-new"><input id="sbsong-artist-manager-add" type="text" maxlength="120" placeholder="Имя артиста или проекта" aria-label="Новый артист">'+
        '<button type="button" class="sbsong-main-btn" data-sbsong-action="artist-manager-add">+ Добавить артиста</button></div>'+
      '<input id="sbsong-artist-manager-filter" type="search" value="'+escapeAttr(state.artistManagerFilter)+'" placeholder="Фильтр по имени…" aria-label="Фильтр моих артистов">'+
      '<div id="sbsong-artist-manager-results">'+artistManagerEntries()+'</div>'+
-   '</section>';
+   '</section></div>';
  }
 
+
+ // Read-only Vue view of the hand-managed artist list. Profiles of artist
+ // DNA and existing songs remain untouched and available in artistChoices().
+ window.SUNOBOOM_LEGACY_ARTIST_MANAGER=Object.freeze({
+   snapshot(){
+     if(view.nav!=="songs"||state.showForm||!state.showArtistManager)return null;
+     return {
+       artists:[...customArtists()].map(a=>({id:a.id,name:a.name}))
+         .sort((a,b)=>a.name.localeCompare(b.name,"ru",{sensitivity:"base"})),
+       filter:state.artistManagerFilter,
+       dnaCount:Array.isArray(data.artistDNAs)?data.artistDNAs.filter(x=>x?.name).length:0
+     };
+   }
+ });
 
  // The Academy GENRES array is the single source of truth. Its subgenres and
  // dynamically added sections appear automatically here without duplicate data.
@@ -868,6 +882,8 @@
    }
    if(event.target?.id==="sbsong-artist-manager-filter"){
      state.artistManagerFilter=event.target.value;
+     // Vue owns the search results when mounted; never replace its DOM.
+     if(document.getElementById("sb-vue-artist-manager")?.hasAttribute("data-v-app"))return;
      const holder=document.getElementById("sbsong-artist-manager-results");if(holder)holder.innerHTML=artistManagerEntries();
      return;
    }

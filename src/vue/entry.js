@@ -5,6 +5,7 @@ import { activateLegacyLibrary } from './account/legacyLibraryBridge.js';
 import { activateLegacySongCards } from './account/legacySongCardsBridge.js';
 import { activateLegacySongDetail } from './account/legacySongDetailBridge.js';
 import { activateLegacySongEditor } from './account/legacySongEditorBridge.js';
+import { activateLegacyArtistManager } from './account/legacyArtistManagerBridge.js';
 import { activateLegacyIdeaEditor } from './poetry/legacyIdeaEditorBridge.js';
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
@@ -149,4 +150,9 @@ export function startLegacySongDetail() {
 /** Vue create/edit song fields with original media store and submit handlers. */
 export function startLegacySongEditor() {
   return activateLegacySongEditor({ mountVueFeature });
+}
+
+/** Vue personal artist manager; original artist catalog, DNA and song references are retained. */
+export function startLegacyArtistManager() {
+  return activateLegacyArtistManager({ mountVueFeature });
 }
