@@ -1,9 +1,10 @@
-/* SUNOBOOM • Account Settings v0.64 — additive module, local-only preferences. */
+/* SUNOBOOM • Account Settings v0.123 — persistent dark/light/system themes. */
 (function installAccountSettings(){
  "use strict";
  if(typeof account!=="function"||typeof render!=="function"||typeof go!=="function"||typeof chrome!=="function")return;
  const KEY="sunoboom-ui-settings-v1";
- const DEFAULTS=Object.freeze({compact:false,largeText:false,reduceMotion:false,startPage:"home"});
+ const DEFAULTS=Object.freeze({compact:false,largeText:false,reduceMotion:false,startPage:"home",theme:"dark"});
+ const THEMES=new Map([["dark","Тёмная"],["light","Светлая"],["system","Как на устройстве"]]);
  const VALID_PAGES=new Map([
   ["home","Главная"],
   ["catalog","Академия"],
@@ -22,6 +23,7 @@
    if(!saved||typeof saved!=="object"||Array.isArray(saved))return;
    for(const k of ["compact","largeText","reduceMotion"])if(validBool(saved[k]))settings[k]=saved[k];
    if(VALID_PAGES.has(saved.startPage))settings.startPage=saved.startPage;
+   if(THEMES.has(saved.theme))settings.theme=saved.theme;
   }catch(e){}
  }
  function apply(){
@@ -30,6 +32,11 @@
   html.classList.toggle("sb-ui-compact",settings.compact);
   html.classList.toggle("sb-ui-larger",settings.largeText);
   html.classList.toggle("sb-ui-reduce-motion",settings.reduceMotion);
+  const prefersLight=!!window.matchMedia?.("(prefers-color-scheme: light)")?.matches;
+  const resolved=settings.theme==="system"?(prefersLight?"light":"dark"):settings.theme;
+  html.dataset.sbTheme=resolved;
+  html.classList.toggle("sb-theme-light",resolved==="light");
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content",resolved==="light"?"#f6f7fc":"#0c0e1a");
  }
  function persistSettings(){
   try{localStorage.setItem(KEY,JSON.stringify(settings));return true}
@@ -63,6 +70,9 @@
    '<div class="sbs-eyebrow">SUNOBOOM · ЛИЧНЫЙ КАБИНЕТ</div><div class="sbs-heading-row"><div><h1>Настройки</h1><p>Настрой музыкальную мастерскую под себя. Изменения применяются сразу и сохраняются в этом браузере.</p></div><span class="sbs-badge">⚙️ ПЕРСОНАЛИЗАЦИЯ</span></div></header>'+
    '<div class="sbs-layout"><div class="sbs-main-column">'+
     '<section class="sbs-panel"><div class="sbs-panel-head"><span class="sbs-symbol" aria-hidden="true">🎨</span><div><h2>Внешний вид</h2><p>Удобная работа на компьютере и телефоне</p></div></div>'+
+      '<label class="sbs-field sbs-theme-field" for="sbs-theme"><span>Тема приложения</span><select id="sbs-theme" data-sbs-setting="theme" aria-label="Тема приложения">'+
+      [...THEMES].map(([id,title])=>'<option value="'+id+'"'+(settings.theme===id?' selected':'')+'>'+esc(title)+'</option>').join('')+
+      '</select></label><p class="sbs-help sbs-theme-help">Тёмная, светлая или тема устройства. Изменяется сразу и сохраняется после перезагрузки.</p>'+
       toggleItem("compact","Компактный интерфейс","Уменьшает отступы и высоту карточек. Больше материалов помещается на экране.",settings.compact)+
       toggleItem("largeText","Увеличенный текст","Делает основной пояснительный текст в каталогах, карточках и инструментах крупнее.",settings.largeText)+
       toggleItem("reduceMotion","Меньше анимации","Отключает декоративные движения и плавные переходы, не влияя на воспроизведение музыки.",settings.reduceMotion)+
@@ -93,7 +103,7 @@
  }
  // Read-only handoff: all preference mutations still pass through the original handlers.
  window.SUNOBOOM_LEGACY_SETTINGS={
-  snapshot(){return {settings:{...settings},pages:[...VALID_PAGES].map(([id,title])=>({id,title})),name:String(data.profileName||'Музыкант'),resetPending:state.resetPending,message:state.message};}
+  snapshot(){return {settings:{...settings},themes:[...THEMES].map(([id,title])=>({id,title})),pages:[...VALID_PAGES].map(([id,title])=>({id,title})),name:String(data.profileName||'Музыкант'),resetPending:state.resetPending,message:state.message};}
  };
  const originalGo=go;
  go=function(target){
@@ -144,7 +154,10 @@
   if(!el?.dataset?.sbsSetting)return;
   const setting=el.dataset.sbsSetting;
   if(!Object.prototype.hasOwnProperty.call(DEFAULTS,setting))return;
-  if(setting==="startPage"){
+  if(setting==="theme"){
+    if(!THEMES.has(el.value))return;
+    settings.theme=el.value;
+  }else if(setting==="startPage"){
     if(!VALID_PAGES.has(el.value))return;
     settings.startPage=el.value;
   }else settings[setting]=!!el.checked;
@@ -153,6 +166,10 @@
   notify(okay?"Настройка сохранена.": "Не удалось сохранить настройку в этом браузере.");
  });
  load();apply();
+ // System mode responds to OS appearance changes without rewriting the saved choice.
+ const systemTheme=window.matchMedia?.("(prefers-color-scheme: light)");
+ if(systemTheme?.addEventListener)systemTheme.addEventListener("change",()=>{if(settings.theme==="system")apply();});
+ else if(systemTheme?.addListener)systemTheme.addListener(()=>{if(settings.theme==="system")apply();});
  // Avoid overriding an explicit deep link or another module's navigation.
  if(view.nav==="home"&&settings.startPage!=="home"&&(!location.hash||location.hash==="#view-home")){
   const target=settings.startPage;
