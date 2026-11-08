@@ -1,0 +1,157 @@
+/* SUNOBOOM v0.123 — app-wide appearance settings.
+   Dark mode is the original design, untouched. Light mode overrides visual
+   surfaces only: component IDs, local data, routing and player logic persist. */
+html.sb-theme-light{
+  color-scheme:light;
+  --bg:#f5f6fb;
+  --panel:#fff;
+  --panel2:#f3f5fc;
+  --panel3:#e9edf7;
+  --stroke:#d5dbea;
+  --text:#242741;
+  --muted:#5e6782;
+  --pink:#bb2d79;
+  --violet:#6549ba;
+  --cyan:#087b8a;
+  --orange:#a65921;
+}
+html.sb-theme-light body{
+  background:radial-gradient(circle at 78% 0%,#e9e2fa 0,transparent 31%),
+    radial-gradient(circle at 8% 83%,#dceaf5 0,transparent 33%),var(--bg)!important;
+  color:var(--text);
+}
+html.sb-theme-light .app,html.sb-theme-light .main{
+  color:var(--text);
+}
+html.sb-theme-light :is(.side,.mobile-nav){
+  background:#fff!important;
+  border-color:#d9deed!important;
+  color:#36405c;
+  box-shadow:0 -5px 25px #20254e12;
+}
+html.sb-theme-light .side-bottom{
+  background:#eef0f9;border-color:#ccd4e7;color:#565f7c;
+}
+html.sb-theme-light .side-bottom :is(strong,p){color:#4d5775}
+html.sb-theme-light :is(.nav-button,.mobile-nav button){
+  color:#525e7c!important;
+}
+html.sb-theme-light :is(.nav-button.active,.mobile-nav button.active){
+  color:#a82875!important;
+  background:#f6dfed!important;
+}
+html.sb-theme-light .mobile-nav button.active svg{color:#b43b85;filter:none}
+html.sb-theme-light .top{color:#333951}
+html.sb-theme-light .breadcrumbs{color:#606b85}
+html.sb-theme-light .breadcrumbs b{color:#303851}
+html.sb-theme-light .pill,html.sb-theme-light .small-chip{
+  background:#f6f0fc;color:#66458a;border-color:#ddceed;
+}
+html.sb-theme-light .avatar{color:#fff}
+html.sb-theme-light .footer{color:#65708c}
+
+/* Shared editorial surfaces and cards across Studio, Academy and account. */
+html.sb-theme-light :is(
+  .panel,.genre-card,.account-tile,.account-stats,
+  .empty,.empty-state,.card,.studio-panel,.studio-section,.generator-panel,
+  .sbs-panel,.sbs-reset-panel,.sbpc-panel,.sbpc-sidebar,.sbpc-empty-state,
+  .sbpc-create,.sbpc-song,.sbpc-stage,.sbpc-hero,
+  .gm-panel,.gm-formula,.gm-row,.gm-output-panel,.gm-studio-banner,
+  .sba-panel,.sbp-panel,.sbab-panel,.sb-dna-card,.sb-ap-index-card,
+  .sbs-confirm,.sbs-message
+){
+  background:#fff!important;
+  color:#2c314c!important;
+  border-color:#d5dced!important;
+  box-shadow:0 5px 20px #292b4b0d;
+}
+html.sb-theme-light :is(.sbpc-song.active,.sbpc-stage[data-status="done"],.nav-button.active){
+  background:#f8e5f2!important;border-color:#b86b9e!important;
+}
+html.sb-theme-light :is(.sbpc-hero,.sbs-heading,.hero){
+  background:linear-gradient(122deg,#f7e9f7,#e9edfa 65%,#e5f3f8)!important;
+  color:#2d314c!important;
+  border-color:#d6cbe7!important;
+}
+html.sb-theme-light :is(.heading,.hero,.sbs-page,.sbpc-page,.sbpc-workspace) :is(h1,h2,h3){
+  color:#292c47!important;
+}
+html.sb-theme-light :is(.sbs-panel,.sbpc-panel,.sbpc-sidebar,.sbpc-song,.sbpc-stage,.sbpc-hero,.sbs-heading,.sbpc-create,.account-tile)
+  :is(h1,h2,h3,h4,strong,label){
+  color:#303650!important;
+}
+html.sb-theme-light :is(.sbs-panel,.sbpc-panel,.sbpc-sidebar,.sbpc-song,.sbpc-stage,.sbpc-hero,.sbs-heading,.sbpc-create,.account-tile)
+  :is(p,small){
+  color:#59647f!important;
+}
+html.sb-theme-light :is(.sbs-page,.sbpc-page) :is(.sbs-field span,.sbs-option-text strong,.sbs-help,.sbs-info,.sbs-option small,.sbs-heading p,.sbs-panel-head p,.sbpc-help,.sbpc-song-meta small,.sbpc-next,.sbpc-subnote,.sbpc-privacy,.sbpc-empty){
+  color:#5c6580!important;
+}
+html.sb-theme-light :is(.sbs-panel-head h2,.sbpc-panel-head h3,.sbs-option strong,.sbpc-song-main strong,.sbpc-hero h1){
+  color:#282e49!important;
+}
+html.sb-theme-light :is(.sbs-panel,.sbpc-panel) :is(.sbs-symbol,.sbpc-stage-index){
+  background:#ece8f8;border-color:#d3c8e4;color:#7a438e;
+}
+html.sb-theme-light :is(.sbs-option,.sbpc-option){
+  border-color:#dbe1ed;
+}
+html.sb-theme-light :is(.sbs-field input,.sbs-field select,.sbs-page input,.sbs-page textarea,.sbpc-page input,.sbpc-page select,.sbpc-page textarea,.main input,.main textarea,.main select){
+  background:#fff!important;color:#27304c!important;border-color:#bcc8dc!important;
+}
+html.sb-theme-light :is(input,textarea)::placeholder{color:#707c97!important;opacity:1}
+html.sb-theme-light :is(.sbs-secondary,.sbs-back,.sbpc-stage-actions button,.sbpc-arrangement-actions button,.sbpc-link-field button){
+  color:#4a3a72!important;background:#f2eefb!important;border-color:#d5c7e9!important;
+}
+html.sb-theme-light :is(.sbs-primary,.sbpc-main-btn,.sbs-confirm-button){
+  color:#fff!important;
+}
+html.sb-theme-light .sbs-badge{
+  background:#f8e0f0!important;color:#923e77!important;border-color:#e0bbd4!important;
+}
+html.sb-theme-light :is(.sbs-message,.sbpc-resource-present){
+  background:#e2f6f2!important;color:#206c68!important;border-color:#ade2d5!important;
+}
+html.sb-theme-light .sbs-reset-panel{background:#fcf7fb!important}
+html.sb-theme-light .sbs-switch-track{background:#cbd3e2;border-color:#a9b6d0}
+html.sb-theme-light .sbs-switch input:checked + .sbs-switch-track{
+  background:linear-gradient(120deg,#d64c9d,#8063ca);
+}
+html.sb-theme-light .sbpc-song-meta b{color:#735099}
+html.sb-theme-light .sbpc-tiny-progress,html.sb-theme-light .sbpc-progress{
+  background:#e3e7f0;border-color:#cad2e1;
+}
+
+/* Genre detail, library, tools and audio interfaces. */
+html.sb-theme-light :is(.genre-content,.genre-family,.genre-family-body,.genre-grid,.account-grid,.studio-grid,.gm-layout,.sbab-page,.sbp-page,.sba-page){
+  color:#2c3350;
+}
+html.sb-theme-light :is(.genre-content p,.genre-card p,.genre-family p,.studio-grid p,.gm-page p,.sbp-page p,.sbab-page p,.sba-page p){
+  color:#606a85;
+}
+html.sb-theme-light :is(.genre-content h2,.genre-content h3,.genre-family h2,.studio-grid h2,.gm-page h2,.sbp-page h2,.sbab-page h2,.sba-page h2){
+  color:#28304a;
+}
+html.sb-theme-light :is(.genre-card,.gm-panel,.gm-row,.sbpc-song,.sbpc-stage){
+  border-color:#d5dceb!important;
+}
+html.sb-theme-light :is(.gm-page,.sbp-page,.sbab-page,.sba-page){
+  --stroke:#d3daea;--text:#27304a;--muted:#5e6983;
+}
+html.sb-theme-light :is(.gm-page,.sbp-page,.sbab-page,.sba-page) :is(input,select,textarea){
+  background:#fff;color:#27304c;border-color:#c9d1e4;
+}
+html.sb-theme-light .gm-row{background:#f8f9fd!important}
+html.sb-theme-light .gm-highlight{color:#a0347d}
+html.sb-theme-light :is(.gm-studio-banner,.sbpc-song-head){
+  background:#f4edf8!important;
+}
+html.sb-theme-light :is(.sbs-panel,.sbpc-panel,.sbpc-sidebar,.gm-panel,.account-tile) a{
+  color:#744bb5;
+}
+html.sb-theme-light :is(.genre-card,.sbpc-song,.account-tile):hover{border-color:#a793cb!important}
+html.sb-theme-light .account-shortcut{color:#fff}
+
+/* Theme picker is shared by Vue and legacy settings. */
+.sbs-theme-field{margin-bottom:4px}
+.sbs-theme-help{margin:3px 0 13px}
