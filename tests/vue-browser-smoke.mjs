@@ -1166,6 +1166,64 @@ async function checkLayout(mobile) {
       throw new Error('Editing a song through Vue lost its saved audio or cover');
     }
 
+    // v0.115: personal artist manager is Vue-owned; all mutations still
+    // go through the original songArtists storage and delegated handlers.
+    await page.evaluate(() => {
+      data.artistDNAs = Array.isArray(data.artistDNAs) ? data.artistDNAs : [];
+      data.artistDNAs.push({ id: 'dna-vue-manager-115', name: 'DNA Studio 115' });
+    });
+    const originalDNA = await page.evaluate(() => JSON.stringify(data.artistDNAs));
+    await page.locator('[data-sbsong-action="artists-manage"]').click();
+    const manager = page.locator('#sb-vue-artist-manager');
+    await page.locator('#sb-vue-artist-manager[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    if (await manager.locator('[data-sb-vue-artist-manager]').count() !== 1 ||
+        !(await manager.textContent()).includes('Aurora Workshop 114') ||
+        !(await manager.textContent()).includes('Профилей ДНК артиста')) {
+      throw new Error('Vue artist manager lost saved artist or DNA profile reference');
+    }
+    await manager.locator('#sbsong-artist-manager-filter').fill('no-match-artist-115');
+    if (await manager.locator('.sbsong-artist-entry').count() !== 0 ||
+        !(await manager.textContent()).includes('Ничего не найдено')) {
+      throw new Error('Vue artist manager search did not show empty results');
+    }
+    await manager.locator('#sbsong-artist-manager-filter').fill('aurora');
+    if (await manager.locator('.sbsong-artist-entry').count() !== 1) {
+      throw new Error('Vue artist manager did not filter existing artists');
+    }
+    await manager.locator('#sbsong-artist-manager-filter').fill('');
+    await manager.locator('#sbsong-artist-manager-add').fill('New Artist Vue 115');
+    await manager.locator('[data-sbsong-action="artist-manager-add"]').click();
+    await page.waitForFunction(() => (data.songArtists || []).some(a => a.name === 'New Artist Vue 115') &&
+      document.querySelector('#sb-vue-artist-manager[data-v-app]')?.textContent?.includes('New Artist Vue 115'), null, { timeout: 10000 });
+    const savedArtist = await page.evaluate(() => {
+      const live = (data.songArtists || []).find(a => a.name === 'New Artist Vue 115');
+      const persisted = JSON.parse(localStorage.getItem('sunoboom-v1'));
+      return { id: live?.id, persisted: (persisted.songArtists || []).some(a => a.name === 'New Artist Vue 115') };
+    });
+    if (!savedArtist.id || !savedArtist.persisted) {
+      throw new Error('Vue artist manager failed to persist the new custom artist');
+    }
+    await manager.locator('#sbsong-artist-manager-filter').fill('New Artist Vue 115');
+    if (await manager.locator('.sbsong-artist-entry').count() !== 1) {
+      throw new Error('Vue artist manager failed to search for the new artist');
+    }
+    page.once('dialog', dialog => { void dialog.accept(); });
+    await manager.locator('[data-sbsong-action="artist-remove"][data-id="' + savedArtist.id + '"]').click();
+    await page.waitForFunction(() => !(data.songArtists || []).some(a => a.name === 'New Artist Vue 115') &&
+      !!document.querySelector('#sb-vue-artist-manager[data-v-app]'), null, { timeout: 10000 });
+    if (await page.evaluate(() => JSON.stringify(data.artistDNAs)) !== originalDNA ||
+        await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-my-songs-v1')).find(s => s.title === 'Song Editor Vue 114')?.artist) !== 'Aurora Workshop 114') {
+      throw new Error('Removing a custom artist changed DNA profiles or a saved song');
+    }
+    await manager.locator('[data-sbsong-action="artists-manage"]').click();
+    await page.locator('[data-sbsong-action="new"]').click();
+    await page.locator('#sb-vue-song-editor[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    await songEditor.locator('[name="artist"]').fill('DNA Studio 115');
+    if (!(await songEditor.locator('.sbsong-artist-option').allTextContents()).some(x => x.includes('DNA Studio 115'))) {
+      throw new Error('DNA profile is not offered in the existing Vue song editor');
+    }
+    await songEditor.locator('[data-sbsong-action="cancel"]').first().click();
+
     const version = await page.locator('.sb-app-version').first().textContent();
     if (!/^v?\d+\.\d+$/.test(String(version || '').trim())) throw new Error('Version display missing or malformed');
 
@@ -1233,7 +1291,31 @@ async function checkEditorFallback() {
     if (await page.locator('#sb-vue-song-detail .sbsong-detail').count() !== 1) {
       throw new Error('Original song create and detail fallback failed');
     }
-    console.log('Original song editor, library, My Songs detail and create/edit without Vue PASS');
+    // v0.115: the original manager and its delegated actions remain usable
+    // with the production Vue bundle intentionally blocked.
+    await page.locator('[data-sbsong-action="artists-manage"]').click();
+    const oldManager = page.locator('#sb-vue-artist-manager');
+    if (await page.locator('#sb-vue-artist-manager[data-v-app]').count() !== 0 ||
+        await oldManager.locator('#sbsong-artist-manager-add').count() !== 1) {
+      throw new Error('Original artist manager fallback is missing without Vue');
+    }
+    await oldManager.locator('#sbsong-artist-manager-add').fill('Original Artist 115');
+    await oldManager.locator('[data-sbsong-action="artist-manager-add"]').click();
+    await page.waitForFunction(() => (data.songArtists || []).some(a => a.name === 'Original Artist 115') &&
+      document.querySelector('#sbsong-artist-manager-results')?.textContent?.includes('Original Artist 115'), null, { timeout: 10000 });
+    await oldManager.locator('#sbsong-artist-manager-filter').fill('no-match-115');
+    if (!(await oldManager.textContent()).includes('Ничего не найдено')) {
+      throw new Error('Original artist manager search fallback failed');
+    }
+    await oldManager.locator('#sbsong-artist-manager-filter').fill('');
+    const legacyArtistId = await page.evaluate(() => data.songArtists.find(a => a.name === 'Original Artist 115')?.id);
+    page.once('dialog', dialog => { void dialog.accept(); });
+    await oldManager.locator('[data-sbsong-action="artist-remove"][data-id="' + legacyArtistId + '"]').click();
+    await page.waitForFunction(() => !(data.songArtists || []).some(a => a.name === 'Original Artist 115'), null, { timeout: 10000 });
+    if (await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-my-songs-v1')).some(s => s.title === 'Saved without Vue 114')) !== true) {
+      throw new Error('Original artist deletion changed a previously saved song');
+    }
+    console.log('Original song editor, library, My Songs and artist manager without Vue PASS');
   } finally { await context.close(); }
 }
 

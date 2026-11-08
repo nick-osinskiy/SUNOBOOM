@@ -190,3 +190,11 @@ npm run test:vue-browser
 - Dropdown артистов и жанров управляются Vue. Прежние JS-обработчики по input/focus/pointerdown/keydown/change не вмешиваются **только в смонтированную Vue-форму**; без Vue остаются полностью рабочими.
 - `submitForm`, `findAutoCover`, `showSavedCover`, `readEmbeddedCover`, `sunoboom-my-songs-v1` и `sunoboom-song-media-v1` не изменены. Vue создаёт тот же `<form id=sbsong-save-form>` с теми же именами полей и файловыми input. При редактировании не переписывает старые аудиоверсии.
 - Smoke тесты: новая карточка с жанром Академии и сохранённым артистом, локальные WAV/PNG, превью и сохранённая обложка, редактирование/сохранность версий, fallback без Vue на компьютере и телефоне.
+
+
+## 16. Этап v0.115 — Vue-менеджер личных артистов
+
+- Добавлены `src/vue/account/ArtistManager.vue` и `legacyArtistManagerBridge.js`; область монтирования `#sb-vue-artist-manager` появляется только при открытии штатного менеджера на странице «Мои песни».
+- `my-songs.js` предоставляет read-only `SUNOBOOM_LEGACY_ARTIST_MANAGER.snapshot()` для текущих `data.songArtists`, фильтра и счётчика профилей `data.artistDNAs`. В Vue фильтрация реактивна, а mutation/сохранение/подтверждение удаления остаются исходными обработчиками. Legacy input не пишет `innerHTML` в область Vue.
+- Существующие песни и ДНК артиста не удаляются с именем из ручного списка; они по-прежнему предлагаются из `allArtistChoices()` при редактировании карточки песни. Не создавать новые записи ДНК при добавлении обычного артиста.
+- Browser smoke проверяет добавление/удаление/фильтрацию и сохранность исходных song/DNA, а также fallback, desktop/mobile. Публикация требует проверки успешных GitHub Actions.
