@@ -915,6 +915,53 @@ async function checkLayout(mobile) {
       throw new Error('Empty collection state or persisted deletion is incorrect');
     }
 
+    // v0.109: the full personal library uses Vue with existing local collections.
+    await page.evaluate(() => {
+      const g = GENRES.find(item => item.ideas?.length);
+      data.favorites = [g.id];
+      data.savedIdeas = [g.id + ':0'];
+      data.manualIdeas = [{ id:'vue-library-own', genre:g.id, title:'Own library idea', pitch:'A personal song', date:'08.11.2026' }];
+      data.savedGeneratedIdeas = [{ id:'vue-library-generated', genre:g.id, topic:'Дружба', title:'Idea Lab saved',
+        pitch:'An idea', storyLine:'A full story', hook:'Sing together', detail:'' }];
+      data.savedPrompts = [{ id:'vue-library-prompt', genre:g.name, mood:'bright', text:'Acoustic pop, 110 BPM', date:'08.11.2026' }];
+      persist(); go('saved');
+    });
+    const library = page.locator('#sb-vue-library-collection');
+    await page.locator('#sb-vue-library-collection[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    if (await library.locator('.genre-card').count() !== 1 ||
+        await library.locator('[data-action="idea-save"]').count() !== 1 ||
+        await library.locator('[data-action="edit-manual-idea"]').count() !== 1 ||
+        await library.locator('[data-action="generated-delete"]').count() !== 1 ||
+        await library.locator('[data-action="delete-saved"]').count() !== 1) {
+      throw new Error('Vue library did not render all five original collections');
+    }
+    await library.locator('[data-action="idea-save"]').click();
+    if (await page.evaluate(() => data.savedIdeas.length) !== 0 ||
+        !(await library.textContent()).includes('Нет сохранённых идей')) {
+      throw new Error('Removing an Academy idea failed to refresh Vue library');
+    }
+    await library.locator('[data-action="generated-delete"]').click();
+    if (await page.evaluate(() => data.savedGeneratedIdeas.length) !== 0 ||
+        !(await library.textContent()).includes('Сохранённых новых идей нет')) {
+      throw new Error('Deleting a saved Idea Lab entry failed');
+    }
+    await library.locator('[data-action="delete-saved"]').click();
+    if (await page.evaluate(() => data.savedPrompts.length) !== 0 ||
+        !(await library.textContent()).includes('Промптов пока нет')) {
+      throw new Error('Deleting a saved prompt failed');
+    }
+    await library.locator('[data-action="edit-manual-idea"]').click();
+    if (await page.evaluate(() => view.nav) !== 'myideas' ||
+        await page.locator('#custom-idea-title').inputValue() !== 'Own library idea') {
+      throw new Error('Library manual idea did not open original editor');
+    }
+    await page.evaluate(() => go('saved'));
+    await page.locator('#sb-vue-library-collection[data-v-app]').waitFor({ state: 'attached' });
+    if (await library.locator('.genre-card').count() !== 1 ||
+        await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-v1')).manualIdeas[0]?.title) !== 'Own library idea') {
+      throw new Error('Library navigation lost local persisted data');
+    }
+
     const version = await page.locator('.sb-app-version').first().textContent();
     if (!/^v?\d+\.\d+$/.test(String(version || '').trim())) throw new Error('Version display missing or malformed');
 
@@ -943,7 +990,12 @@ async function checkEditorFallback() {
         await page.locator('#sb-vue-idea-fields[data-v-app]').count()) {
       throw new Error('Original editor fallback failed without the Vue bundle');
     }
-    console.log('Original song editor without Vue PASS');
+    await page.evaluate(() => go('saved'));
+    if (await page.locator('#sb-vue-library-collection[data-v-app]').count() !== 0 ||
+        await page.locator('#sb-vue-library-collection .genre-card').count() === 0) {
+      throw new Error('Original library fallback failed without Vue');
+    }
+    console.log('Original song editor and library without Vue PASS');
   } finally { await context.close(); }
 }
 

@@ -1,5 +1,6 @@
 import { activateLegacyIdeaCollections } from './poetry/legacyIdeaCollectionsBridge.js';
 import { activateLegacyPromptCollection } from './account/legacyPromptCollectionBridge.js';
+import { activateLegacyLibrary } from './account/legacyLibraryBridge.js';
 import { activateLegacyIdeaEditor } from './poetry/legacyIdeaEditorBridge.js';
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
@@ -119,4 +120,9 @@ export function startLegacyIdeaCollections() {
 /** Vue saved prompt list with legacy editor and source data retained. */
 export function startLegacyPromptCollection() {
   return activateLegacyPromptCollection({ mountVueFeature });
+}
+
+/** Vue library collections with the same legacy data and delegated actions. */
+export function startLegacyLibrary() {
+  return activateLegacyLibrary({ mountVueFeature });
 }
