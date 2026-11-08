@@ -231,3 +231,10 @@ npm run build:vue
 - Style пересчитывается через **тот же** `sbDnaStyle(fields)`, ограничен 1000 символами, выводится с реактивным счётчиком. Старый `sbDnaPreview()` продолжает работать **только** для HTML fallback, не изменяя Vue-owned DOM.
 - Идентификаторы `dna-*` и кнопки `data-action="dna-save"`, `dna-copy-form`, `dna-cancel` сохранены, поэтому прежние `sbDnaFormValue()`, `sbDnaAction()`, валидация HTTPS/BPM, `persist()` и связи с паспортами треков продолжают работать без миграции.
 - Smoke-тесты: Vue-редактор на десктопе и телефоне, Style/чекбоксы/язык/диапазон BPM, отказ при ошибке и успешное сохранение, создание нового, и резервная HTML-форма при заблокированном бандле.
+
+
+## Этап 27 — Vue 3: настройки кабинета (v0.118)
+
+- `account/AccountSettings.vue` и `legacyAccountSettingsBridge.js` используют существующий контейнер `#sb-vue-account-settings`: старый `settingsPage()` всегда рендерится первым и служит рабочим fallback.
+- `SUNOBOOM_LEGACY_SETTINGS.snapshot()` передаёт текущие предпочтения, варианты стартовой страницы, имя и подтверждение сброса. Vue контролирует поля, исходные `data-sbs-setting`/`data-sbs-action` оставляют применение, сохранение и сброс в `account-settings.js`.
+- Ключи `sunoboom-ui-settings-v1` и `sunoboom-v1`, данные проектов/песен, резервная копия и переходы не мигрируются. Проверки включают desktop/mobile, профиль, переключатели, отмену/подтверждение сброса, резервные копии и HTML fallback без Vue.

@@ -14,7 +14,7 @@
  ]);
  const esc=x=>escapeHTML(String(x??""));
  const settings={...DEFAULTS};
- const state={open:false,resetPending:false};
+ const state={open:false,resetPending:false,message:""};
  const validBool=x=>typeof x==="boolean";
  function load(){
   try{
@@ -36,6 +36,7 @@
   catch(e){return false}
  }
  function notify(message){
+  state.message=String(message);
   const node=document.getElementById("sbs-message");
   if(node){node.hidden=false;node.textContent=message;}
   else if(typeof toast==="function")toast(message);
@@ -57,7 +58,7 @@
  }
  function settingsPage(){
   const name=String(data.profileName||"Музыкант");
-  return '<section class="sbs-page" id="sbs-page">'+
+  return '<div id="sb-vue-account-settings"><section class="sbs-page" id="sbs-page">'+
    '<header class="sbs-heading"><button type="button" class="sbs-back" data-sbs-action="close">'+I("back")+' Вернуться в кабинет</button>'+
    '<div class="sbs-eyebrow">SUNOBOOM · ЛИЧНЫЙ КАБИНЕТ</div><div class="sbs-heading-row"><div><h1>Настройки</h1><p>Настрой музыкальную мастерскую под себя. Изменения применяются сразу и сохраняются в этом браузере.</p></div><span class="sbs-badge">⚙️ ПЕРСОНАЛИЗАЦИЯ</span></div></header>'+
    '<div class="sbs-layout"><div class="sbs-main-column">'+
@@ -88,8 +89,12 @@
        '<button type="button" class="sbs-secondary" data-sbs-action="reset">Сбросить настройки</button>')+
     '</section>'+
    '</aside></div><p id="sbs-message" class="sbs-message" role="status" aria-live="polite" hidden></p>'+
-  '</section>';
+  '</section></div>';
  }
+ // Read-only handoff: all preference mutations still pass through the original handlers.
+ window.SUNOBOOM_LEGACY_SETTINGS={
+  snapshot(){return {settings:{...settings},pages:[...VALID_PAGES].map(([id,title])=>({id,title})),name:String(data.profileName||'Музыкант'),resetPending:state.resetPending,message:state.message};}
+ };
  const originalGo=go;
  go=function(target){
   state.open=false;
@@ -100,7 +105,7 @@
   state.open=false;state.resetPending=false;render();
  }
  function display(){
-  state.open=true;state.resetPending=false;render();
+  state.open=true;state.resetPending=false;state.message="";render();
   window.scrollTo({top:0,behavior:"instant"});
  }
  function backup(){
@@ -110,8 +115,9 @@
  function reset(){
   Object.assign(settings,DEFAULTS);
   persistSettings();apply();
-  state.resetPending=false;render();
+  state.resetPending=false;
   notify("Восстановлены стандартные настройки интерфейса. Проекты и песни сохранены.");
+  render();
  }
  document.addEventListener("click",event=>{
   const target=event.target.closest?.("[data-sbs-action]");
@@ -125,8 +131,8 @@
    if(!newName){notify("Укажи имя для отображения.");return}
    data.profileName=newName.slice(0,60);
    persist();
-   render();
    notify("Имя профиля сохранено.");
+   render();
    return;
   }
   if(action==="reset"){state.resetPending=true;render();document.querySelector('.sbs-confirm-button')?.focus();return;}

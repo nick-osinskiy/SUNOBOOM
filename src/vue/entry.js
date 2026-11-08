@@ -8,6 +8,7 @@ import { activateLegacySongEditor } from './account/legacySongEditorBridge.js';
 import { activateLegacyArtistManager } from './account/legacyArtistManagerBridge.js';
 import { activateLegacyArtistDNA } from './account/legacyArtistDNABridge.js';
 import { activateLegacyArtistDNAEditor } from './account/legacyArtistDNAEditorBridge.js';
+import { activateLegacyAccountSettings } from './account/legacyAccountSettingsBridge.js';
 import { activateLegacyIdeaEditor } from './poetry/legacyIdeaEditorBridge.js';
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
@@ -167,4 +168,9 @@ export function startLegacyArtistDNA() {
 /** Vue artist DNA creation/editing; original save and Style generator stay authoritative. */
 export function startLegacyArtistDNAEditor() {
   return activateLegacyArtistDNAEditor({ mountVueFeature });
+}
+
+/** Vue settings screen, with original local preferences and profile handlers. */
+export function startLegacyAccountSettings() {
+  return activateLegacyAccountSettings({ mountVueFeature });
 }

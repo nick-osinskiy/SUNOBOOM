@@ -1326,6 +1326,54 @@ async function checkLayout(mobile) {
       throw new Error('Deleting a DNA profile affected another profile or a saved song');
     }
 
+    // v0.118: the settings screen is Vue-owned, while original handlers own storage.
+    await page.evaluate(() => go('account'));
+    await page.locator('[data-sbs-action="open"]').click();
+    await page.locator('#sb-vue-account-settings[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    const settingsPage = page.locator('#sbs-page[data-sb-vue-settings]');
+    await settingsPage.waitFor({ state: 'visible' });
+    if (await page.locator('#sbs-compact').count() !== 1 ||
+        await page.locator('#sbs-start option').count() !== 6 ||
+        await settingsPage.locator('[data-sbs-action="backup"]').count() !== 1) {
+      throw new Error('Vue account settings omitted preferences or backup action');
+    }
+    await page.locator('#sbs-compact').check();
+    await page.locator('#sbs-largeText').check();
+    await page.locator('#sbs-start').selectOption('studio');
+    const savedPrefs118 = await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-ui-settings-v1')));
+    if (savedPrefs118.compact !== true || savedPrefs118.largeText !== true ||
+        savedPrefs118.startPage !== 'studio' ||
+        !await page.evaluate(() => document.documentElement.classList.contains('sb-ui-compact'))) {
+      throw new Error('Original browser settings did not persist Vue changes');
+    }
+    await page.locator('#sbs-name').fill('Vue Settings 118');
+    await page.locator('[data-sbs-action="save-name"]').click();
+    await page.locator('#sb-vue-account-settings[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    if (await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-v1')).profileName) !== 'Vue Settings 118' ||
+        await page.locator('#sbs-name').inputValue() !== 'Vue Settings 118') {
+      throw new Error('Vue profile editor did not preserve original save handler');
+    }
+    await page.locator('[data-sbs-action="reset"]').click();
+    await page.locator('#sb-vue-account-settings[data-v-app]').waitFor({ state: 'attached' });
+    await page.locator('[data-sbs-action="cancel-reset"]').click();
+    if (await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-ui-settings-v1')).compact) !== true) {
+      throw new Error('Cancelling the Vue reset changed saved preferences');
+    }
+    await page.locator('[data-sbs-action="reset"]').click();
+    await page.locator('[data-sbs-action="confirm-reset"]').click();
+    await page.locator('#sb-vue-account-settings[data-v-app]').waitFor({ state: 'attached' });
+    const resetPrefs118 = await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-ui-settings-v1')));
+    if (resetPrefs118.compact || resetPrefs118.largeText || resetPrefs118.startPage !== 'home' ||
+        await page.locator('#sbs-compact').isChecked() ||
+        await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-v1')).profileName) !== 'Vue Settings 118') {
+      throw new Error('Vue reset modified profile data or failed to reset preferences');
+    }
+    await page.locator('[data-sbs-action="backup"]').click();
+    if (await page.locator('#sb-vue-account-settings').count() ||
+        await page.locator('.account-settings [data-action="export"]').count() !== 1) {
+      throw new Error('Original backup section is not reachable from Vue settings');
+    }
+
     const version = await page.locator('.sb-app-version').first().textContent();
     if (!/^v?\d+\.\d+$/.test(String(version || '').trim())) throw new Error('Version display missing or malformed');
 
@@ -1449,7 +1497,27 @@ async function checkEditorFallback() {
     if (await page.locator('#sb-vue-dna-view .sb-dna-card').count() < 1) {
       throw new Error('Original DNA card list failed without Vue');
     }
-    console.log('Original song editor, library, My Songs, artist manager and DNA editor without Vue PASS');
+    // v0.118: the same settings page and original event handlers work without Vue.
+    await page.evaluate(() => go('account'));
+    await page.locator('[data-sbs-action="open"]').click();
+    if (await page.locator('#sb-vue-account-settings[data-v-app]').count() !== 0 ||
+        await page.locator('#sb-vue-account-settings #sbs-compact').count() !== 1) {
+      throw new Error('Legacy settings page fallback is missing');
+    }
+    await page.locator('#sbs-reduceMotion').check();
+    if (await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-ui-settings-v1')).reduceMotion) !== true) {
+      throw new Error('Legacy settings fallback failed to persist checkbox changes');
+    }
+    await page.locator('[data-sbs-action="reset"]').click();
+    await page.locator('[data-sbs-action="confirm-reset"]').click();
+    if (await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-ui-settings-v1')).reduceMotion) !== false) {
+      throw new Error('Legacy settings fallback reset failed');
+    }
+    await page.locator('[data-sbs-action="close"]').click();
+    if (await page.locator('.account-settings [data-action="export"]').count() !== 1) {
+      throw new Error('Legacy settings fallback cannot return to backup tools');
+    }
+    console.log('Original song editor, library, My Songs, artist manager, DNA and settings without Vue PASS');
   } finally { await context.close(); }
 }
 
