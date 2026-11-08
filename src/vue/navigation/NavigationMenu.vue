@@ -40,8 +40,13 @@ defineProps({
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
+}
+.mobile-nav button > .sb-vue-nav-icon {
   font-size: 0;
   line-height: 0;
+  width: 21px;
+  height: 21px;
+  overflow: hidden;
 }
 .sb-vue-nav-label {
   min-width: 0;
