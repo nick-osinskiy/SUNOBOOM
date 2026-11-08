@@ -55,8 +55,8 @@ async function checkLayout(mobile) {
     await page.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 30000 });
 
     // Both menus are enhanced; the initial Master link must already exist.
-    await page.locator('[data-sb-vue-sidebar][data-v-app]').waitFor({ timeout: 20000 });
-    await page.locator('[data-sb-vue-mobile][data-v-app]').waitFor({ timeout: 20000 });
+    await page.locator('[data-sb-vue-sidebar][data-v-app]').waitFor({ state: 'attached', timeout: 20000 });
+    await page.locator('[data-sb-vue-mobile][data-v-app]').waitFor({ state: 'attached', timeout: 20000 });
 
     const nav = mobile ? '.mobile-nav' : '[data-sb-vue-sidebar]';
     const master = page.locator(nav + ' button[data-nav="producer"]');
