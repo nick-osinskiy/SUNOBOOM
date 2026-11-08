@@ -89,7 +89,7 @@ async function checkLayout(mobile) {
       const structure = await mixerButton.evaluate(button => ({
         captionCount: button.querySelectorAll(':scope > .sb-vue-nav-label').length,
         caption: button.querySelector(':scope > .sb-vue-nav-label')?.textContent?.trim(),
-        allText: button.textContent.replace(/\\s+/g, ' ').trim(),
+        allText: button.textContent.replace(/\s+/g, ' ').trim(),
         accessibleTextOccurrences: (button.textContent.match(/миксер/gi) || []).length,
         iconText: button.querySelector(':scope > .sb-vue-nav-icon')?.textContent?.trim()
       }));
