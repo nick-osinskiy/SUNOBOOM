@@ -38,6 +38,13 @@ onMounted(() => {
             <span class="sbs-symbol" aria-hidden="true">🎨</span>
             <div><h2>Внешний вид</h2><p>Удобная работа на компьютере и телефоне</p></div>
           </div>
+          <label class="sbs-field sbs-theme-field" for="sbs-theme">
+            <span>Тема приложения</span>
+            <select id="sbs-theme" v-model="settings.theme" data-sbs-setting="theme" aria-label="Тема приложения">
+              <option v-for="theme in model.themes" :key="theme.id" :value="theme.id">{{ theme.title }}</option>
+            </select>
+          </label>
+          <p class="sbs-help sbs-theme-help">Тёмная, светлая или тема устройства. Изменяется сразу и сохраняется после перезагрузки.</p>
           <label v-for="option in options" :key="option.key" class="sbs-option" :for="'sbs-' + option.key">
             <span class="sbs-option-text"><strong>{{ option.title }}</strong><small>{{ option.desc }}</small></span>
             <span class="sbs-switch">
