@@ -5047,58 +5047,374 @@ function pp({ mountVueFeature: e }) {
 		}
 	};
 }
+// src/vue/poetry/PoetryAnalysis.vue
+var mp = {
+	key: 0,
+	class: "sb-poetry-empty"
+}, hp = { class: "sb-poetry-stats" }, gp = { class: "sb-poetry-subline" }, _p = { class: "sb-poetry-sections" }, vp = { class: "sb-poetry-stanzas" }, yp = { class: "sb-poetry-stanza-name" }, bp = { class: "sb-poetry-stanza-data" }, xp = { class: "sb-poetry-lines" }, Sp = { class: "sb-poetry-line-main" }, Cp = { class: "sb-poetry-index" }, wp = { class: "sb-poetry-verse" }, Tp = {
+	class: "sb-poetry-syllable",
+	title: "Оценка слогов"
+}, Ep = ["title"], Dp = {
+	key: 0,
+	class: "sb-poetry-footnote"
+}, Op = {
+	key: 1,
+	class: "sb-poetry-words"
+}, kp = { class: "sb-poetry-tips" }, Ap = {
+	__name: "PoetryAnalysis",
+	props: { api: {
+		type: Object,
+		required: !0
+	} },
+	setup(e) {
+		let t = e, n = /* @__PURE__ */ Kt(t.api.analysis()), r = $(() => n.value || {
+			analyzed: !1,
+			message: ""
+		});
+		function i() {
+			let e = t.api.analysis();
+			e && (n.value = e);
+		}
+		return cr(() => window.addEventListener("sunoboom:poetry-updated", i)), fr(() => window.removeEventListener("sunoboom:poetry-updated", i)), (e, t) => r.value.analyzed ? (K(), q(W, { key: 1 }, [
+			J("div", hp, [(K(!0), q(W, null, V(r.value.stats, (e) => (K(), q("div", {
+				key: e.label,
+				class: "sb-poetry-stat"
+			}, [J("strong", null, A(e.value), 1), J("span", null, A(e.label), 1)]))), 128))]),
+			J("p", gp, " Диапазон: " + A(r.value.lower) + "–" + A(r.value.upper) + " слогов на строку · меток ударения: " + A(r.value.markedStress) + ". ", 1),
+			J("div", _p, [t[1] ||= J("h4", null, "Строфы и предполагаемая рифмовка", -1), J("div", vp, [(K(!0), q(W, null, V(r.value.stanzas, (e) => (K(), q("div", {
+				key: e.id,
+				class: "sb-poetry-stanza"
+			}, [J("div", yp, A(e.section) + " · строфа " + A(e.position), 1), J("div", bp, [
+				X(" Схема " + A(e.scheme) + " ", 1),
+				t[0] ||= J("span", null, "·", -1),
+				X(" разброс " + A(e.spread) + " сл. ", 1)
+			])]))), 128))])]),
+			t[4] ||= J("div", { class: "sb-poetry-lines-head" }, [J("strong", null, "Построчный анализ"), J("span", null, "Слоги · рифма")], -1),
+			J("div", xp, [(K(!0), q(W, null, V(r.value.lines, (e) => (K(), q("div", {
+				key: e.number,
+				class: "sb-poetry-line"
+			}, [
+				J("div", Sp, [J("span", Cp, A(e.number) + ".", 1), J("span", wp, A(e.text), 1)]),
+				J("div", Tp, [J("span", null, A(e.syllables) + " сл.", 1), J("i", { style: O({ width: e.width + "%" }) }, null, 4)]),
+				J("span", {
+					class: k(["sb-poetry-letter", { "sb-poetry-letter-match": e.rhyme }]),
+					title: e.repeat ? "Совпадение последнего слова" : e.rhyme ? "Предполагаемая рифма" : "Метка окончания"
+				}, A(e.mark), 11, Ep)
+			]))), 128))]),
+			r.value.rowCount > 120 ? (K(), q("p", Dp, " Показаны первые 120 строк из " + A(r.value.rowCount) + "; статистика рассчитана по всему тексту. ", 1)) : Z("", !0),
+			r.value.frequent.length ? (K(), q("div", Op, [t[2] ||= J("strong", null, "Повторяющиеся слова:", -1), (K(!0), q(W, null, V(r.value.frequent, (e) => (K(), q("span", { key: e.word }, A(e.word) + " · " + A(e.count), 1))), 128))])) : Z("", !0),
+			J("div", kp, [t[3] ||= J("h4", null, "На что обратить внимание", -1), J("ul", null, [(K(!0), q(W, null, V(r.value.suggestions, (e, t) => (K(), q("li", { key: t }, A(e), 1))), 128))])]),
+			t[5] ||= J("p", { class: "sb-poetry-footnote" }, " Анализ ориентировочный: счёт гласных не равен точной метрической скансии, совпадение окончаний не гарантирует рифму, а вокальная удобность зависит от темпа и мелодии. Исходный текст автоматически не изменяется. ", -1)
+		], 64)) : (K(), q("p", mp, A(r.value.message), 1));
+	}
+}, jp = {
+	key: 0,
+	class: "sb-stress-ambig-clear"
+}, Mp = { class: "sb-stress-ambig-heading" }, Np = { class: "sb-stress-ambig-variants" }, Pp = ["data-word", "data-variant"], Fp = {
+	key: 0,
+	class: "sb-poetry-small"
+}, Ip = {
+	__name: "PoetryAmbiguities",
+	props: { api: {
+		type: Object,
+		required: !0
+	} },
+	setup(e) {
+		let t = e, n = /* @__PURE__ */ Kt(t.api.ambiguities()), r = $(() => n.value || {
+			count: 0,
+			words: [],
+			total: 0
+		});
+		function i() {
+			n.value = t.api.ambiguities();
+		}
+		return cr(() => window.addEventListener("sunoboom:poetry-stress-updated", i)), fr(() => window.removeEventListener("sunoboom:poetry-stress-updated", i)), (e, t) => r.value.count ? (K(), q(W, { key: 1 }, [
+			J("div", Mp, " 🔴 Требуют проверки: " + A(r.value.count) + " вхождений (" + A(r.value.total) + " разных слов). Нажми нужный вариант для каждого вхождения. ", 1),
+			(K(!0), q(W, null, V(r.value.words, (e) => (K(), q("div", {
+				key: e.key,
+				class: "sb-stress-ambig-choice"
+			}, [J("strong", null, A(e.key) + A(e.count > 1 ? " ×" + e.count : ""), 1), J("div", Np, [(K(!0), q(W, null, V(e.variants, (t) => (K(), q("button", {
+				key: t,
+				type: "button",
+				"data-action": "sb-poetry-stress-choice",
+				"data-word": e.key,
+				"data-variant": t,
+				title: "Указать ударение для следующего вхождения"
+			}, A(t), 9, Pp))), 128))])]))), 128)),
+			r.value.total > 30 ? (K(), q("p", Fp, " Показаны первые 30 разных слов; другие можно исправить вручную. ")) : Z("", !0)
+		], 64)) : (K(), q("p", jp, " ✓ Все найденные неоднозначные слова проверены. "));
+	}
+};
+// src/vue/poetry/legacyPoetryBridge.js
+function Lp({ mountVueFeature: e }) {
+	let t = window.SUNOBOOM_LEGACY_POETRY, n = document.getElementById("app");
+	if (!t || !n) return () => {};
+	let r = !1, i = /* @__PURE__ */ new Map();
+	function a() {
+		if (r) return;
+		let a = [[
+			"analysis",
+			"#sb-poetry-result",
+			Ap
+		], [
+			"ambiguities",
+			"#sb-poetry-ambiguous-choices",
+			Ip
+		]];
+		for (let [r, o, s] of a) {
+			let a = n.querySelector(o), c = i.get(r);
+			if (c?.node === a || (c && (c.unmount(), i.delete(r)), !a)) continue;
+			let l = e(a, s, { api: t });
+			l && i.set(r, {
+				node: a,
+				unmount: l
+			});
+		}
+	}
+	let o = new MutationObserver(a);
+	return o.observe(n, { childList: !0 }), window.addEventListener("sunoboom:poetry-stress-ready", a), a(), () => {
+		r = !0, o.disconnect(), window.removeEventListener("sunoboom:poetry-stress-ready", a);
+		for (let e of i.values()) e.unmount();
+		i.clear();
+	};
+}
+// src/vue/poetry/PerformanceTags.vue
+var Rp = { class: "sb-vt-field" }, zp = ["value"], Bp = ["value"], Vp = {
+	class: "sb-vt-hint",
+	id: "sb-vt-mode-hint"
+}, Hp = { class: "sb-vt-grid" }, Up = { class: "sb-vt-field" }, Wp = ["value"], Gp = ["value"], Kp = { class: "sb-vt-field" }, qp = ["value"], Jp = ["value"], Yp = {
+	key: 0,
+	class: "sb-vt-field"
+}, Xp = ["value"], Zp = ["value"], Qp = { class: "sb-vt-intensity" }, $p = { class: "sb-vt-between" }, em = { id: "sb-vt-intensity-label" }, tm = ["value"], nm = { class: "sb-vt-options" }, rm = ["data-vt-pref", "checked"], im = {
+	key: 1,
+	class: "sb-vt-consent",
+	id: "sb-vt-consent-row"
+}, am = { class: "sb-vt-buttons" }, om = ["disabled"], sm = {
+	id: "sb-vt-result",
+	"aria-live": "polite"
+}, cm = {
+	key: 0,
+	class: "sb-vt-draft"
+}, lm = { class: "sb-vt-draft-head" }, um = { class: "sb-vt-method" }, dm = { class: "sb-vt-section-list" }, fm = { class: "sb-vt-section-heading" }, pm = { class: "sb-vt-section-controls" }, mm = [
+	"data-vt-preset",
+	"value",
+	"aria-label"
+], hm = ["value"], gm = [
+	"data-vt-cue",
+	"value",
+	"aria-label"
+], _m = { class: "sb-vt-field" }, vm = ["value"], ym = {
+	class: "sb-vt-small",
+	id: "sb-vt-preview-state"
+}, bm = {
+	__name: "PerformanceTags",
+	props: { api: {
+		type: Object,
+		required: !0
+	} },
+	setup(e) {
+		let t = e, n = /* @__PURE__ */ Kt(t.api.snapshot()), r = $(() => n.value?.prefs || {}), i = $(() => n.value?.draft || null), a = [
+			["smart", "Интеллектуальный · Gemini"],
+			["rules", "Автоматический · без API"],
+			["manual", "Ручной · по секциям"]
+		], o = [
+			["minimal", "Минимально"],
+			["balanced", "Сбалансированно"],
+			["detailed", "Подробно"]
+		], s = [
+			["auto", "Авто: готовая Lyrics, если есть"],
+			["original", "Оригинальный текст"],
+			["tagged", "Готовая версия Lyrics"]
+		], c = [
+			["melisma", "Мелизмы"],
+			["falsetto", "Фальцет"],
+			["harmonies", "Гармонии"],
+			["noWhisper", "Без шёпота"],
+			["noRasp", "Без хрипотцы"]
+		];
+		function l() {
+			let e = t.api.snapshot();
+			e && (n.value = e);
+		}
+		return cr(() => window.addEventListener("sunoboom:tags-updated", l)), fr(() => window.removeEventListener("sunoboom:tags-updated", l)), (e, t) => (K(), q(W, null, [
+			t[12] ||= J("div", { class: "sb-vt-header" }, [J("span", { class: "sb-vt-symbol" }, "🎭"), J("div", null, [J("h3", null, "Генератор тегов исполнения"), J("p", null, "Вокальная драматургия по секциям. Без изменения слов песни; результат можно проверить и применить только вручную.")])], -1),
+			J("div", Rp, [t[0] ||= J("label", { for: "sb-vt-mode" }, "Способ генерации", -1), J("select", {
+				id: "sb-vt-mode",
+				"data-vt-pref": "mode",
+				value: r.value.mode
+			}, [(K(), q(W, null, V(a, ([e, t]) => J("option", {
+				key: e,
+				value: e
+			}, A(t), 9, Bp)), 64))], 8, zp)]),
+			J("p", Vp, A(n.value.modeHint), 1),
+			J("div", Hp, [J("div", Up, [t[1] ||= J("label", { for: "sb-vt-source" }, "Источник текста", -1), J("select", {
+				id: "sb-vt-source",
+				"data-vt-pref": "source",
+				value: r.value.source
+			}, [(K(), q(W, null, V(s, ([e, t]) => J("option", {
+				key: e,
+				value: e
+			}, A(t), 9, Gp)), 64))], 8, Wp)]), J("div", Kp, [t[2] ||= J("label", { for: "sb-vt-density" }, "Детализация метатегов", -1), J("select", {
+				id: "sb-vt-density",
+				"data-vt-pref": "density",
+				value: r.value.density
+			}, [(K(), q(W, null, V(o, ([e, t]) => J("option", {
+				key: e,
+				value: e
+			}, A(t), 9, Jp)), 64))], 8, qp)])]),
+			n.value.artists?.length ? (K(), q("div", Yp, [t[4] ||= J("label", { for: "sb-vt-artist" }, "Учесть «ДНК артиста» (необязательно)", -1), J("select", {
+				id: "sb-vt-artist",
+				"data-vt-pref": "artistId",
+				value: r.value.artistId
+			}, [t[3] ||= J("option", { value: "" }, "Без привязки к артисту", -1), (K(!0), q(W, null, V(n.value.artists, (e) => (K(), q("option", {
+				key: e.id,
+				value: e.id
+			}, A(e.name), 9, Zp))), 128))], 8, Xp)])) : Z("", !0),
+			J("div", Qp, [
+				J("div", $p, [t[5] ||= J("label", { for: "sb-vt-intensity" }, "Максимальная интенсивность исполнения", -1), J("strong", em, A(r.value.intensity) + " / 5", 1)]),
+				J("input", {
+					type: "range",
+					id: "sb-vt-intensity",
+					min: "1",
+					max: "5",
+					step: "1",
+					value: r.value.intensity,
+					"data-vt-pref": "intensity"
+				}, null, 8, tm),
+				t[6] ||= J("div", { class: "sb-vt-between sb-vt-scale" }, [J("span", null, "Сдержанная"), J("span", null, "Экспрессивная")], -1)
+			]),
+			J("div", nm, [(K(), q(W, null, V(c, ([e, t]) => J("label", { key: e }, [J("input", {
+				type: "checkbox",
+				"data-vt-pref": e,
+				checked: r.value[e]
+			}, null, 8, rm), X(" " + A(t), 1)])), 64))]),
+			n.value.hasEndpoint ? (K(), q("label", im, [...t[7] ||= [J("input", {
+				type: "checkbox",
+				id: "sb-vt-consent"
+			}, null, -1), X(" Разрешаю отправить выбранный текст песни на защищённый сервер для анализа Gemini. ", -1)]])) : Z("", !0),
+			J("div", am, [J("button", {
+				type: "button",
+				class: "btn primary",
+				"data-action": "vt-generate",
+				disabled: n.value.busy
+			}, "✨ Создать предпросмотр", 8, om), t[8] ||= J("span", { class: "sb-vt-note" }, "Никакого автоматического применения к Lyrics.", -1)]),
+			J("div", {
+				id: "sb-vt-notice",
+				class: k(["sb-vt-notice", n.value.notice?.kind]),
+				role: "status",
+				"aria-live": "polite"
+			}, A(n.value.notice?.text), 3),
+			J("div", sm, [i.value ? (K(), q("div", cm, [
+				J("div", lm, [J("h4", null, "Предпросмотр · " + A(i.value.sections.length) + " секций", 1), J("span", um, A(i.value.method), 1)]),
+				t[10] ||= J("p", { class: "sb-vt-small" }, " Проверь каждую секцию. Теги можно выбрать из списка или переписать вручную. Оригинальные строки песни остаются неизменными. ", -1),
+				J("div", dm, [(K(!0), q(W, null, V(i.value.sections, (e, t) => (K(), q("div", {
+					key: e.id,
+					class: "sb-vt-section"
+				}, [J("div", fm, [J("strong", null, A(e.label), 1), J("span", null, A(t + 1) + "/" + A(i.value.sections.length), 1)]), J("div", pm, [J("select", {
+					"data-vt-preset": t,
+					value: i.value.tags[t],
+					"aria-label": "Готовые теги для " + e.label
+				}, [(K(!0), q(W, null, V(n.value.presets, ([e, t]) => (K(), q("option", {
+					key: e,
+					value: e
+				}, A(t), 9, hm))), 128))], 8, mm), J("input", {
+					"data-vt-cue": t,
+					value: i.value.tags[t],
+					maxlength: "165",
+					placeholder: "Например: Warm Emotional Vocals",
+					"aria-label": "Тег исполнения " + e.label
+				}, null, 8, gm)])]))), 128))]),
+				J("div", _m, [t[9] ||= J("label", { for: "sb-vt-preview" }, " Готовый Lyrics — разрешено редактировать только инструкции, не слова песни ", -1), J("textarea", {
+					id: "sb-vt-preview",
+					spellcheck: "false",
+					rows: "13",
+					maxlength: "25000",
+					value: i.value.preview
+				}, null, 8, vm)]),
+				J("p", ym, A(n.value.previewState), 1),
+				t[11] ||= Zi("<div class=\"sb-vt-draft-actions\"><button type=\"button\" class=\"btn primary\" data-action=\"vt-apply\"> ✓ Применить к Lyrics </button><button type=\"button\" class=\"btn ghost\" data-action=\"vt-copy\"> Копировать предпросмотр </button><button type=\"button\" class=\"btn ghost\" data-action=\"vt-refresh\"> Обновить предпросмотр </button><button type=\"button\" class=\"btn ghost\" data-action=\"vt-cancel\"> Отменить </button></div>", 1)
+			])) : Z("", !0)])
+		], 64));
+	}
+};
+// src/vue/poetry/legacyTagsBridge.js
+function xm({ mountVueFeature: e }) {
+	let t = window.SUNOBOOM_LEGACY_TAGS, n = document.getElementById("app");
+	if (!t || !n || typeof t.snapshot != "function") return () => {};
+	let r = null, i = !1;
+	function a() {
+		if (i) return;
+		let a = n.querySelector("#sb-vt-workbench");
+		if (r?.target === a || (r &&= (r.unmount(), null), !a || !t.snapshot())) return;
+		let o = e(a, bm, { api: t });
+		o && (r = {
+			target: a,
+			unmount: o
+		});
+	}
+	let o = new MutationObserver(a);
+	return o.observe(n, { childList: !0 }), a(), () => {
+		i = !0, o.disconnect(), r?.unmount(), r = null;
+	};
+}
 // src/vue/entry.js
-var mp = Vo(), hp = /* @__PURE__ */ new WeakMap();
-function gp(e) {
+var Sm = Vo(), Cm = /* @__PURE__ */ new WeakMap();
+function wm(e) {
 	return typeof document > "u" ? null : typeof e == "string" ? document.querySelector(e) : e;
 }
-function _p(e, t, n = {}) {
-	let r = gp(e);
+function Tm(e, t, n = {}) {
+	let r = wm(e);
 	if (!r || r.nodeType !== 1 || !t) return null;
-	let i = hp.get(r);
+	let i = Cm.get(r);
 	i && i.unmount();
 	let a = r.innerHTML, o = Co(Uo, {
 		component: t,
 		componentProps: n
 	});
-	o.use(mp);
+	o.use(Sm);
 	try {
 		o.mount(r);
 	} catch (e) {
 		return r.innerHTML = a, console.warn("[SUNOBOOM] Vue mount failed; legacy navigation retained.", e), null;
 	}
-	return hp.set(r, o), () => {
-		hp.get(r) === o && (o.unmount(), hp.delete(r));
+	return Cm.set(r, o), () => {
+		Cm.get(r) === o && (o.unmount(), Cm.delete(r));
 	};
 }
-function vp(e) {
-	let t = gp(e);
+function Em(e) {
+	let t = wm(e);
 	if (!t) return;
-	let n = hp.get(t);
-	n && (n.unmount(), hp.delete(t));
+	let n = Cm.get(t);
+	n && (n.unmount(), Cm.delete(t));
 }
-function yp() {
+function Dm() {
 	return Qo({
-		mountVueFeature: _p,
-		unmountVueFeature: vp
+		mountVueFeature: Tm,
+		unmountVueFeature: Em
 	});
 }
-function bp() {
-	return Ls({ mountVueFeature: _p });
+function Om() {
+	return Ls({ mountVueFeature: Tm });
 }
-function xp() {
-	return ml({ mountVueFeature: _p });
+function km() {
+	return ml({ mountVueFeature: Tm });
 }
-function Sp() {
-	return nu({ mountVueFeature: _p });
+function Am() {
+	return nu({ mountVueFeature: Tm });
 }
-function Cp() {
-	return Yu({ mountVueFeature: _p });
+function jm() {
+	return Yu({ mountVueFeature: Tm });
 }
-function wp() {
-	return xd({ mountVueFeature: _p });
+function Mm() {
+	return xd({ mountVueFeature: Tm });
 }
-function Tp() {
-	return pp({ mountVueFeature: _p });
+function Nm() {
+	return pp({ mountVueFeature: Tm });
 }
-export { _p as mountVueFeature, bp as startLegacyAcademy, Tp as startLegacyArranger, wp as startLegacyAuditor, xp as startLegacyGenreDetail, Cp as startLegacyMixer, yp as startLegacyNavigation, Sp as startLegacyStudio, vp as unmountVueFeature };
+function Pm() {
+	return Lp({ mountVueFeature: Tm });
+}
+function Fm() {
+	return xm({ mountVueFeature: Tm });
+}
+export { Tm as mountVueFeature, Om as startLegacyAcademy, Nm as startLegacyArranger, Mm as startLegacyAuditor, km as startLegacyGenreDetail, jm as startLegacyMixer, Dm as startLegacyNavigation, Pm as startLegacyPoetry, Am as startLegacyStudio, Fm as startLegacyTags, Em as unmountVueFeature };
