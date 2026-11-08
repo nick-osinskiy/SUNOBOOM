@@ -1466,6 +1466,9 @@ async function checkLayout(mobile) {
     }
 
     await page.locator('.sbab-modes [data-mode="player"]').click();
+    if (!(await page.locator('#sb-vue-player-lab').isVisible())) {
+      throw new Error('Vue Player LAB must reappear when leaving A/B comparison');
+    }
     if (await page.evaluate(() => window.SUNOBOOM_AB_COMPARE?.getMode()) !== 'player' ||
         await player.locator('.sbp-track').count() !== 3) {
       throw new Error('A/B return unexpectedly reset the Vue player queue');
@@ -1637,6 +1640,9 @@ async function checkEditorFallback() {
         await page.locator('#sb-vue-player-ab[data-v-app]').count() !== 0 ||
         await page.locator('#sb-vue-player-ab #sbab-play:disabled').count() !== 1) {
       throw new Error('Original A/B comparison fallback is missing without Vue');
+    }
+    if (await page.locator('#sb-vue-player-lab').isVisible()) {
+      throw new Error('Vue Player LAB must be hidden while A/B comparison is active');
     }
     await page.locator('#sbab-compare [data-sbab-action="demo"]').click();
     if (!await page.evaluate(() => window.SUNOBOOM_AB_COMPARE?.hasBoth()) ||

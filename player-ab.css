@@ -94,3 +94,6 @@
 @media(max-width:600px){.sbab-heading{padding:18px}.sbab-heading h2{font-size:22px}.sbab-lab-badge{font-size:12px;padding:10px}.sbab-modes button{padding:10px 8px;font-size:11px}.sbab-modes span{margin-left:2px;font-size:8px}.sbab-demo-row{flex-direction:column;align-items:stretch}.sbab-demo-row button{width:100%}.sbab-console{padding:15px;gap:13px}.sbab-toggle button{min-height:64px;font-size:25px}.sbab-clip{align-items:flex-start}.sbab-clip-actions{width:100%}.sbab-review{padding:15px}.sbab-note-grid{grid-template-columns:1fr}.sbab-file-card{padding:15px}.sbab-rating-grid{grid-template-columns:minmax(105px,1.5fr) repeat(2,minmax(67px,1fr))}}
 @media(max-width:370px){.sbab-rating-label{font-size:11px}.sbab-rating-grid select{font-size:11px;padding:8px 4px}.sbab-modes span{display:none}.sbab-file-bottom{gap:6px}.sbab-toggle button small{font-size:10px}}
 @media(prefers-reduced-motion:reduce){.sbab-shell.sbab-is-playing .sbab-wave-bars i{animation:none}.sbab-toggle button{transition:none}}
+
+/* v0.120: Player LAB is nested under #sb-vue-player-lab in the hybrid Vue shell. */
+.sbp-wrap.sbab-compare-mode > #sb-vue-player-lab{display:none!important}
