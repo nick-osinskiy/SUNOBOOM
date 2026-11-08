@@ -87,6 +87,36 @@ async function checkLayout(mobile) {
     await page.locator(nav + ' button[data-nav="account"].active').waitFor({ timeout: 10000 });
 
 
+    // v0.108: Vue list, legacy editor, actions and auditor entry coexist.
+    await page.evaluate(() => go('myprompts'));
+    await page.locator('#sb-vue-prompts-list[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    if (await page.locator('#prompt-editor').count() !== 1 ||
+        await page.locator('#prompt-editor [data-sbpa-action="from-editor"]').count() !== 1) {
+      throw new Error('Prompt editor or auditor link was lost');
+    }
+    await page.locator('#custom-prompt-title').fill('Vue test <title>');
+    await page.locator('#custom-prompt-text').fill('Russian indie pop, clear vocals');
+    await page.locator('#prompt-editor [data-action="save-manual-prompt"]').click();
+    await page.locator('#sb-vue-prompts-list[data-v-app]').waitFor({ state: 'attached' });
+    const idPrompt = await page.evaluate(() => data.savedPrompts.at(-1)?.id);
+    if (!idPrompt || !(await page.locator('#sb-vue-prompts-list').textContent()).includes('Vue test <title>')) {
+      throw new Error('Vue prompt collection did not render the saved record');
+    }
+    await page.locator('#sb-vue-prompts-list [data-action="edit-manual-prompt"][data-id="' + idPrompt + '"]').click();
+    if (await page.locator('#custom-prompt-title').inputValue() !== 'Vue test <title>') {
+      throw new Error('Legacy edit prompt action was lost');
+    }
+    await page.locator('#custom-prompt-text').fill('Russian indie pop, 118 BPM');
+    await page.locator('#prompt-editor [data-action="save-manual-prompt"]').click();
+    if (await page.evaluate(id => data.savedPrompts.find(p => p.id === id)?.text, idPrompt) !== 'Russian indie pop, 118 BPM') {
+      throw new Error('Prompt edits stopped persisting');
+    }
+    await page.locator('#sb-vue-prompts-list [data-action="copy-saved"][data-id="' + idPrompt + '"]').click();
+    await page.locator('#sb-vue-prompts-list [data-action="delete-saved"][data-id="' + idPrompt + '"]').click();
+    if (await page.evaluate(id => data.savedPrompts.some(p => p.id === id), idPrompt)) {
+      throw new Error('Legacy delete prompt action was lost');
+    }
+
     // Vue now owns search, filtering, family details and all genre cards.
     await page.locator(nav + ' button[data-nav="catalog"]').click();
     await page.locator('#sb-vue-academy-root[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });

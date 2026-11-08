@@ -1,4 +1,5 @@
 import { activateLegacyIdeaCollections } from './poetry/legacyIdeaCollectionsBridge.js';
+import { activateLegacyPromptCollection } from './account/legacyPromptCollectionBridge.js';
 import { activateLegacyIdeaEditor } from './poetry/legacyIdeaEditorBridge.js';
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
@@ -113,4 +114,9 @@ export function startLegacyIdeaEditor() {
 
 export function startLegacyIdeaCollections() {
   return activateLegacyIdeaCollections({ mountVueFeature });
+}
+
+/** Vue saved prompt list with legacy editor and source data retained. */
+export function startLegacyPromptCollection() {
+  return activateLegacyPromptCollection({ mountVueFeature });
 }

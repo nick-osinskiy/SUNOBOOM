@@ -155,3 +155,10 @@ npm run build:vue
 - `poetry/PerformanceTags.vue` переносит настройки и предпросмотр генератора тегов исполнения. `performance-tags.js` продолжает контролировать сборку Lyrics, неизменность исходных слов, разрешение вызова Gemini и применение только с подтверждением.
 - Подключение через `poetry/legacyPoetryBridge.js`, `poetry/legacyTagsBridge.js` с наблюдением за заменой основного маршрута `myideas`, а для асинхронного предварительного просмотра ударений — отдельным событием готовности.
 - Без Vue остаются доступными прежние редакторы, словари, кнопки, предпросмотры и хранилище. Полный набор функций проверяется браузерными тестами на ширинах телефона и компьютера.
+
+## Этапы 15–16 — форма и коллекции идей (v0.106–0.107)
+- `poetry/IdeaFields.vue`, `LyricsSource.vue`, `LyricsTools.vue`, `IdeaCollections.vue` через исходные action handlers и хранилище.
+
+## Этап 17 — список «Мои промпты» (v0.108)
+- `account/PromptCollection.vue` + `account/legacyPromptCollectionBridge.js` заменяют только `#sb-vue-prompts-list`.
+- Legacy форма `#prompt-editor`, аудитор, actions, `data.savedPrompts` и HTML fallback сохранены; браузерный CRUD тест в `tests/vue-browser-smoke.mjs`.
