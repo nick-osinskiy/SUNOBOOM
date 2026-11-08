@@ -1560,6 +1560,43 @@ async function checkLayout(mobile) {
       throw new Error('Vue Player LAB did not clear its original audio queue');
     }
 
+    // v0.122: the Master list is Vue-owned, while the producer workflow,
+    // filtering input, all actions, and local browser storage remain original.
+    await page.evaluate(() => go('producer'));
+    await page.locator('#sbpc-list[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    if (await page.locator('#sbpc-list .sbpc-empty').count() !== 1 ||
+        await page.locator('[data-pc-action="create"]').count() !== 1) {
+      throw new Error('Vue Master list failed to mount or creation tools were lost');
+    }
+    await page.locator('#sbpc-new-title').fill('Vue Master 122');
+    await page.locator('[data-pc-action="create"]').click();
+    await page.locator('#sbpc-list[data-v-app] .sbpc-song.active').waitFor({ timeout: 10000 });
+    if (!(await page.locator('#sbpc-list .sbpc-song.active').textContent()).includes('Vue Master 122') ||
+        await page.evaluate(() => data.productions.some(w => w.title === 'Vue Master 122')) !== true) {
+      throw new Error('Master failed to create a working card through the old storage');
+    }
+    await page.locator('#sbpc-search').fill('no-match-vue-122');
+    if (await page.locator('#sbpc-list .sbpc-song').count() ||
+        !(await page.locator('#sbpc-list .sbpc-empty').textContent()).includes('Поиск не дал результатов')) {
+      throw new Error('Vue Master list failed to react to the original search field');
+    }
+    await page.locator('#sbpc-search').fill('Vue Master');
+    if (await page.locator('#sbpc-list .sbpc-song').count() !== 1) {
+      throw new Error('Vue Master search did not restore the song');
+    }
+    await page.locator('[data-pc-stage="idea"]').selectOption('done');
+    await page.locator('#sbpc-list[data-v-app] .sbpc-song-meta b').waitFor({ timeout: 10000 });
+    if ((await page.locator('#sbpc-list .sbpc-song-meta b').textContent()).trim() !== '1/6' ||
+        await page.evaluate(() => data.productions.find(w => w.title === 'Vue Master 122')?.steps.idea) !== 'done') {
+      throw new Error('Master stage update did not return to the Vue list');
+    }
+    page.once('dialog', dialog => { void dialog.accept(); });
+    await page.locator('[data-pc-action="delete"]').click();
+    if (await page.evaluate(() => data.productions.some(w => w.title === 'Vue Master 122')) ||
+        await page.locator('#sbpc-list[data-v-app]').count() !== 1) {
+      throw new Error('Master deletion or Vue remount did not preserve the workflow');
+    }
+
     const version = await page.locator('.sb-app-version').first().textContent();
     if (!/^v?\d+\.\d+$/.test(String(version || '').trim())) throw new Error('Version display missing or malformed');
 
@@ -1755,7 +1792,25 @@ async function checkEditorFallback() {
     if (await page.evaluate(() => window.SUNOBOOM_PLAYER_LAB?.getTrackCount()) !== 0) {
       throw new Error('Original Player LAB clear failed without Vue');
     }
-    console.log('Original song editor, library, My Songs, artist manager, DNA, settings and player without Vue PASS');
+    // A blocked Vue bundle must leave the original Master list fully usable.
+    await page.evaluate(() => go('producer'));
+    if (await page.locator('#sbpc-list[data-v-app]').count() ||
+        await page.locator('#sbpc-new-title').count() !== 1) {
+      throw new Error('Master legacy fallback is missing');
+    }
+    await page.locator('#sbpc-new-title').fill('Fallback Master 122');
+    await page.locator('[data-pc-action="create"]').click();
+    if (await page.locator('#sbpc-list .sbpc-song.active').count() !== 1 ||
+        await page.evaluate(() => data.productions.some(w => w.title === 'Fallback Master 122')) !== true) {
+      throw new Error('Master fallback creation failed');
+    }
+    await page.locator('#sbpc-search').fill('not-in-master-122');
+    if (await page.locator('#sbpc-list .sbpc-song').count() ||
+        !(await page.locator('#sbpc-list').textContent()).includes('Поиск не дал результатов')) {
+      throw new Error('Master legacy fallback search failed');
+    }
+    await page.locator('#sbpc-search').fill('');
+    console.log('Original song editor, library, My Songs, artist manager, DNA, settings player and Master without Vue PASS');
   } finally { await context.close(); }
 }
 
