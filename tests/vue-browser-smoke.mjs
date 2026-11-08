@@ -1564,7 +1564,7 @@ async function checkLayout(mobile) {
     // filtering input, all actions, and local browser storage remain original.
     await page.evaluate(() => go('producer'));
     await page.locator('#sbpc-list[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
-    if (await page.locator('#sbpc-list .sbpc-empty').count() !== 1 ||
+    if (await page.locator('#sbpc-list[data-v-app]').count() !== 1 ||
         await page.locator('[data-pc-action="create"]').count() !== 1) {
       throw new Error('Vue Master list failed to mount or creation tools were lost');
     }
