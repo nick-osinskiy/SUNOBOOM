@@ -663,6 +663,17 @@ async function checkLayout(mobile) {
     // Vue 3 poetry editor and performance tags (v0.105) are on the original
     // "My ideas" route; the actual song text always remains outside Vue.
     await page.evaluate(() => go('myideas'));
+    const poetryMountState = await page.evaluate(() => ({
+      route: view.nav,
+      api: typeof window.SUNOBOOM_LEGACY_POETRY?.analysis,
+      tags: typeof window.SUNOBOOM_LEGACY_TAGS?.snapshot,
+      result: !!document.getElementById('sb-poetry-result'),
+      tagPanel: !!document.getElementById('sb-vt-workbench')
+    }));
+    if (poetryMountState.route !== 'myideas' || poetryMountState.api !== 'function' ||
+        poetryMountState.tags !== 'function' || !poetryMountState.result || !poetryMountState.tagPanel) {
+      throw new Error('Poetry bridge or original editor missing: ' + JSON.stringify(poetryMountState));
+    }
     await page.locator('#sb-poetry-result[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
     await page.locator('#sb-vt-workbench[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
     const lyricText = [
