@@ -1044,6 +1044,7 @@ async function checkLayout(mobile) {
     if (!(await songDetail.locator('.sbsong-version-heading').textContent()).includes('Финал')) {
       throw new Error('Selecting a take did not update the Vue detail');
     }
+    await songDetail.locator('.sbsong-version-row').nth(1).locator('details.sbsong-version-notes > summary').click();
     await songDetail.locator('[data-sbsong-version-note="v-demo"]').fill('Точный финальный микс');
     await songDetail.locator('[data-sbsong-action="version-save"][data-version-id="v-demo"]').click();
     const versionNote = await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-my-songs-v1'))[0]?.versions?.find(v => v.id === 'v-demo')?.notes);
