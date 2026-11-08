@@ -238,3 +238,12 @@ npm run build:vue
 - `account/AccountSettings.vue` и `legacyAccountSettingsBridge.js` используют существующий контейнер `#sb-vue-account-settings`: старый `settingsPage()` всегда рендерится первым и служит рабочим fallback.
 - `SUNOBOOM_LEGACY_SETTINGS.snapshot()` передаёт текущие предпочтения, варианты стартовой страницы, имя и подтверждение сброса. Vue контролирует поля, исходные `data-sbs-setting`/`data-sbs-action` оставляют применение, сохранение и сброс в `account-settings.js`.
 - Ключи `sunoboom-ui-settings-v1` и `sunoboom-v1`, данные проектов/песен, резервная копия и переходы не мигрируются. Проверки включают desktop/mobile, профиль, переключатели, отмену/подтверждение сброса, резервные копии и HTML fallback без Vue.
+
+
+## Этап 28 — Vue 3: самостоятельный плеер LAB (v0.119)
+
+- `player/PlayerLab.vue` и `legacyPlayerLabBridge.js` монтируются **только** в `#sb-vue-player-lab` внутри существующей `#sbp-page`: транспорт, прогресс, громкость, скорость, перемешивание, повторы, очередь, добавление WAV/MP3/M4A и демо-сигналов.
+- `player-lab.js` отдаёт read-only `SUNOBOOM_LEGACY_PLAYER_LAB.snapshot()`; аудио-объект, список blob URL, MediaSession, drag/drop и делегированные `data-sbp-action`/input/change/keydown продолжают оставаться в исходном коде. Vue получает обновления только через `sunoboom:player-lab-update` (не создаёт второй движок).
+- `renderList()` и `sync()` не меняют Vue-owned DOM, когда контейнер смонтирован. Исходная HTML-разметка остается fallback без бандла; имеющиеся кнопки и input ID не меняются.
+- `player-ab.js` продолжает добавлять режимы и независимый A/B-компаратор вне Vue-слота, поэтому переключение между режимами не сбрасывает загруженные файлы или очередь.
+- Playwright desktop/mobile проверяют WAV, демо, скорость, громкость, shuffle/repeat, выбор/удаление трека, A/B и fallback без Vue.

@@ -219,3 +219,11 @@ npm run test:vue-browser
 ## 2026-11-08 — v0.118, Vue-настройки кабинета
 
 В текущем гибридном приложении перенесён только экран настроек личного кабинета: `AccountSettings.vue` и `legacyAccountSettingsBridge.js` монтируются в `#sb-vue-account-settings`. Старый HTML сохраняется как fallback. Не изменяются ключи localStorage, исходная логика применения предпочтений, профиль, экспорт/импорт резервных копий, а также навигация и остальные экраны. Следующая миграция должна начинаться с проверки нового HEAD `main` и результатов Actions.
+
+
+## 20. Этап v0.119 — Vue-плеер LAB
+
+- Основной UI `player-lab.js` (транспорт, плейлист, кнопки загрузки/демо, seek/volume/rate/repeat/shuffle) вынесен в `src/vue/player/PlayerLab.vue` и `legacyPlayerLabBridge.js`.
+- `#sb-vue-player-lab` охватывает только основной `.sbp-layout`. Внешние `.sbp-hero`, `.sbab-modes` и `#sbab-compare` оставлены за исходным кодом `player-ab.js`; A/B в v0.119 **не переносится**.
+- Данные аудио/локальные Blob URL/MediaSession/drag-drop/клавиши/настройки остались в `player-lab.js`. Vue читает `SUNOBOOM_LEGACY_PLAYER_LAB.snapshot()` и реагирует на `sunoboom:player-lab-update`; исходный `renderList/sync` не обновляет Vue-owned DOM. Сохранение предпочтений без миграции.
+- HTML fallback встроен в исходный `page()`, доступен при отсутствии Vue. Smoke на десктопе/телефоне проверяет WAV, демо, проигрывание/выбор, режимы и A/B, настройки и резервный режим.

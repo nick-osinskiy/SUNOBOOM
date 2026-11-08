@@ -1374,6 +1374,72 @@ async function checkLayout(mobile) {
       throw new Error('Original backup section is not reachable from Vue settings');
     }
 
+    // v0.119: standalone Player LAB UI is Vue-owned but audio/file handling,
+    // MediaSession, drag/drop and independent A/B engines remain legacy.
+    await page.evaluate(() => go('player'));
+    const player = page.locator('#sb-vue-player-lab');
+    await page.locator('#sb-vue-player-lab[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    if (await player.locator('[data-sb-vue-player-lab]').count() !== 1 ||
+        await player.locator('#sbp-seek:disabled').count() !== 1 ||
+        await player.locator('.sbp-track').count() !== 0 ||
+        await page.locator('.sbab-modes [data-mode="compare"]').count() !== 1) {
+      throw new Error('Vue Player LAB initial state or legacy A/B switcher is missing');
+    }
+    await player.locator('#sbp-file').setInputFiles({
+      name: 'vue-player-119.wav', mimeType: 'audio/wav',
+      buffer: Buffer.from([82,73,70,70,36,0,0,0,87,65,86,69,102,109,116,32,16,0,0,0,1,0,1,0,64,31,0,0,128,62,0,0,2,0,16,0,100,97,116,97,0,0,0,0])
+    });
+    await page.waitForFunction(() => document.querySelectorAll('#sb-vue-player-lab .sbp-track').length === 1, null, { timeout: 10000 });
+    if (await player.locator('#sbp-title').textContent() !== 'vue-player-119' ||
+        await page.evaluate(() => window.SUNOBOOM_PLAYER_LAB?.getTrackCount()) !== 1) {
+      throw new Error('Vue Player LAB did not render the imported WAV track');
+    }
+    await player.locator('[data-sbp-action="shuffle"]').click();
+    if (await player.locator('#sbp-shuffle').getAttribute('aria-pressed') !== 'true') {
+      throw new Error('Vue Player LAB shuffle did not use existing settings');
+    }
+    await player.locator('[data-sbp-action="repeat"]').click();
+    if (await player.locator('#sbp-repeat').getAttribute('aria-label') !== 'Повтор списка') {
+      throw new Error('Vue Player LAB repeat cycle is broken');
+    }
+    await player.locator('#sbp-rate').selectOption('1.25');
+    if (await page.evaluate(() => window.SUNOBOOM_PLAYER_LAB?.getAudioElement()?.playbackRate) !== 1.25) {
+      throw new Error('Vue Player LAB rate change did not reach the audio engine');
+    }
+    if (await player.locator('#sbp-volume').count()) {
+      await player.locator('#sbp-volume').fill('45');
+      const volume = await page.evaluate(() => window.SUNOBOOM_PLAYER_LAB?.getAudioElement()?.volume);
+      if (Math.abs(volume - 0.45) > 0.001) throw new Error('Vue player volume did not reach Audio API');
+    }
+    await player.locator('[data-sbp-action="demo"]').click();
+    await page.waitForFunction(() => document.querySelectorAll('#sb-vue-player-lab .sbp-track').length === 4, null, { timeout: 10000 });
+    await player.locator('[data-sbp-action="select"][data-index="2"]').click();
+    await page.waitForFunction(() => window.SUNOBOOM_PLAYER_LAB?.getCurrentTitle() === 'Мягкие клавиши', null, { timeout: 10000 });
+    if (await player.locator('.sbp-track.is-current').count() !== 1 ||
+        !(await player.locator('#sbp-counter').textContent()).includes('3 / 4')) {
+      throw new Error('Vue queue did not update the selected demo track');
+    }
+    await player.locator('[data-sbp-action="remove"][data-index="0"]').click();
+    await page.waitForFunction(() => document.querySelectorAll('#sb-vue-player-lab .sbp-track').length === 3, null, { timeout: 10000 });
+    await page.locator('.sbab-modes [data-mode="compare"]').click();
+    if (await page.evaluate(() => window.SUNOBOOM_AB_COMPARE?.getMode()) !== 'compare' ||
+        !(await page.locator('#sbab-compare').isVisible())) {
+      throw new Error('Legacy A/B comparison failed after Vue Player LAB mount');
+    }
+    await page.locator('#sbab-compare [data-sbab-action="demo"]').click();
+    await page.waitForFunction(() => window.SUNOBOOM_AB_COMPARE?.hasBoth(), null, { timeout: 10000 });
+    await page.locator('.sbab-modes [data-mode="player"]').click();
+    if (await page.evaluate(() => window.SUNOBOOM_AB_COMPARE?.getMode()) !== 'player' ||
+        await player.locator('.sbp-track').count() !== 3) {
+      throw new Error('A/B return unexpectedly reset the Vue player queue');
+    }
+    await player.locator('[data-sbp-action="clear"]').click();
+    await page.waitForFunction(() => document.querySelectorAll('#sb-vue-player-lab .sbp-track').length === 0, null, { timeout: 10000 });
+    if (await page.evaluate(() => window.SUNOBOOM_PLAYER_LAB?.getTrackCount()) !== 0 ||
+        await player.locator('#sbp-play:disabled').count() !== 1) {
+      throw new Error('Vue Player LAB did not clear its original audio queue');
+    }
+
     const version = await page.locator('.sb-app-version').first().textContent();
     if (!/^v?\d+\.\d+$/.test(String(version || '').trim())) throw new Error('Version display missing or malformed');
 
@@ -1517,7 +1583,28 @@ async function checkEditorFallback() {
     if (await page.locator('.account-settings [data-action="export"]').count() !== 1) {
       throw new Error('Legacy settings fallback cannot return to backup tools');
     }
-    console.log('Original song editor, library, My Songs, artist manager, DNA and settings without Vue PASS');
+    // v0.119: with the Vue bundle blocked the original transport, queue and
+    // A/B comparator must still be operable without touching local records.
+    await page.evaluate(() => go('player'));
+    if (await page.locator('#sb-vue-player-lab[data-v-app]').count() !== 0 ||
+        await page.locator('#sb-vue-player-lab #sbp-play').count() !== 1) {
+      throw new Error('Original Player LAB transport fallback is missing');
+    }
+    await page.locator('#sbp-demo').click();
+    if (await page.locator('#sb-vue-player-lab .sbp-track').count() !== 3 ||
+        await page.evaluate(() => window.SUNOBOOM_PLAYER_LAB?.getTrackCount()) !== 3) {
+      throw new Error('Original Player LAB queue did not render without Vue');
+    }
+    await page.locator('.sbab-modes [data-mode="compare"]').click();
+    if (await page.evaluate(() => window.SUNOBOOM_AB_COMPARE?.getMode()) !== 'compare') {
+      throw new Error('Original A/B comparison is missing without Vue');
+    }
+    await page.locator('.sbab-modes [data-mode="player"]').click();
+    await page.locator('#sbp-clear').click();
+    if (await page.evaluate(() => window.SUNOBOOM_PLAYER_LAB?.getTrackCount()) !== 0) {
+      throw new Error('Original Player LAB clear failed without Vue');
+    }
+    console.log('Original song editor, library, My Songs, artist manager, DNA, settings and player without Vue PASS');
   } finally { await context.close(); }
 }
 
