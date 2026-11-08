@@ -165,7 +165,7 @@ async function checkLayout(mobile) {
     await artistCards.first().locator('[data-sb-ap-action="profile"]').waitFor();
     await artistCards.first().locator('[data-sb-ap-action="profile"]').click();
     await page.locator('#sb-ap-overlay:not([hidden])').waitFor();
-    await page.locator('#sb-ap-overlay [data-sb-ap-action="close"]').click();
+    await page.locator('#sb-ap-overlay button[data-sb-ap-action="close"]').click();
 
     const artistSearch = page.locator('[data-vue-artist-search]');
     await artistSearch.fill(firstName);
