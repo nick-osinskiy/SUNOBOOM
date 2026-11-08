@@ -11,6 +11,7 @@ import { activateLegacyArtistDNAEditor } from './account/legacyArtistDNAEditorBr
 import { activateLegacyAccountSettings } from './account/legacyAccountSettingsBridge.js';
 import { activateLegacyPlayerLab } from './player/legacyPlayerLabBridge.js';
 import { activateLegacyPlayerAB } from './player/legacyPlayerABBridge.js';
+import { activateLegacyProducerSongList } from './producer/legacyProducerSongListBridge.js';
 import { activateLegacyIdeaEditor } from './poetry/legacyIdeaEditorBridge.js';
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
@@ -185,4 +186,9 @@ export function startLegacyPlayerLab() {
 /** Vue A/B comparator interface, retaining two independent legacy audio engines. */
 export function startLegacyPlayerAB() {
   return activateLegacyPlayerAB({ mountVueFeature });
+}
+
+/** Vue Master song list, with original creation, stage editing and storage. */
+export function startLegacyProducerSongList() {
+  return activateLegacyProducerSongList({ mountVueFeature });
 }
