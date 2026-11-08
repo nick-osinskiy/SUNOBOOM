@@ -5630,18 +5630,20 @@ function Qp(e) {
 	return e === "detail" ? "catalog" : Zp.has(e) ? "account" : e;
 }
 function $p(e) {
-	let t = Qp(e?.active), n = /* @__PURE__ */ new Set(), r = [];
-	for (let i of Array.isArray(e?.items) ? e.items : []) {
-		let e = typeof i?.id == "string" ? i.id : "", a = typeof i?.label == "string" ? i.label : "";
-		e && a && !n.has(e) && (n.add(e), r.push({
+	let t = Qp(e?.active), n = /* @__PURE__ */ new Set(), r = !1, i = [];
+	for (let a of Array.isArray(e?.items) ? e.items : []) {
+		let e = typeof a?.id == "string" ? a.id : "", o = typeof a?.label == "string" ? a.label : "";
+		if (!e || !o || n.has(e)) continue;
+		let s = e === "mixer" || /(^|\s)миксер(\s|$)/i.test(o.trim());
+		s && r || (s && (r = !0), n.add(e), i.push({
 			id: e,
-			label: a,
-			shortLabel: a.replace("Идеи песен", "Идеи").replace("Suno Studio", "Студия").replace("Личный кабинет", "Кабинет"),
-			iconHtml: typeof i.iconHtml == "string" ? i.iconHtml : "",
+			label: o,
+			shortLabel: e === "mixer" ? "Миксер" : o.replace("Жанровый миксер", "Миксер").replace("Идеи песен", "Идеи").replace("Suno Studio", "Студия").replace("Личный кабинет", "Кабинет"),
+			iconHtml: typeof a.iconHtml == "string" ? a.iconHtml : "",
 			active: e === t
 		}));
 	}
-	return r;
+	return i;
 }
 // src/vue/navigation/legacyBridge.js
 var em = [{
