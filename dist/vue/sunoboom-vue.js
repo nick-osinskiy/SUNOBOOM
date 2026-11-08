@@ -5585,7 +5585,7 @@ var { assign: Gp } = Object, Kp = {
 	"aria-label",
 	"title",
 	"onClick"
-], Jp = ["innerHTML"], Yp = { key: 0 }, Xp = {
+], Jp = ["innerHTML"], Yp = { class: "sb-vue-nav-label" }, Xp = {
 	__name: "NavigationMenu",
 	props: {
 		items: {
@@ -5615,7 +5615,7 @@ var { assign: Gp } = Object, Kp = {
 			class: "sb-vue-nav-icon",
 			"aria-hidden": "true",
 			innerHTML: t.iconHtml
-		}, null, 8, Jp), e.mobile ? (W(), G("span", Yp, k(t.shortLabel), 1)) : (W(), G(U, { key: 1 }, [J(k(t.label), 1)], 64))], 10, qp))), 128));
+		}, null, 8, Jp), K("span", Yp, k(e.mobile ? t.shortLabel : t.label), 1)], 10, qp))), 128));
 	}
 }, Zp = /* @__PURE__ */ new Set([
 	"projects",
