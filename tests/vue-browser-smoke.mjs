@@ -152,8 +152,42 @@ async function checkLayout(mobile) {
 
     await page.locator('.genre-side-item[data-tab="artists"]').click();
     await page.locator('.genre-side-item[data-tab="artists"].active').waitFor();
-    if (!(await page.locator('#genre-nav-content').textContent())?.trim()) {
-      throw new Error('Artist section rendered empty');
+    await page.locator('#sb-artist-expanded[data-sb-vue-artists]').waitFor();
+    const artistCards = page.locator('#sb-artist-expanded .ahx-card');
+    const worldCount = await artistCards.count();
+    if (worldCount < 2) throw new Error('Artist profiles missing from migrated Vue panel');
+
+    const firstName = (await artistCards.first().locator('.ahx-title h4').textContent())?.trim();
+    if (!firstName) throw new Error('Artist name is missing');
+
+    // Full artist profiles and favorite buttons belong to the existing
+    // profiles module and must still be available on Vue-rendered cards.
+    await artistCards.first().locator('[data-sb-ap-action="profile"]').waitFor();
+    await artistCards.first().locator('[data-sb-ap-action="profile"]').click();
+    await page.locator('#sb-ap-overlay:not([hidden])').waitFor();
+    await page.locator('#sb-ap-overlay [data-sb-ap-action="close"]').click();
+
+    const artistSearch = page.locator('[data-vue-artist-search]');
+    await artistSearch.fill(firstName);
+    if (await page.locator('#sb-artist-expanded .ahx-card').count() >= worldCount) {
+      throw new Error('Vue artist search did not filter the cards');
+    }
+    if (await page.locator('#sb-artist-expanded .ahx-card').count() < 1) {
+      throw new Error('Vue artist search lost the matching artist');
+    }
+    await artistSearch.fill('');
+    await page.locator('[data-vue-artist-filter="adjacent"]').click();
+    if (await page.locator('[data-vue-artist-filter="adjacent"]').getAttribute('aria-pressed') !== 'true') {
+      throw new Error('Vue artist relationship filter did not activate');
+    }
+    await page.locator('[data-vue-artist-filter="all"]').click();
+    await page.locator('[data-vue-artist-scene="ru"]').click();
+    if (await page.locator('[data-vue-artist-scene="ru"]').getAttribute('aria-pressed') !== 'true') {
+      throw new Error('Russian-speaking scene did not activate');
+    }
+    await page.locator('[data-vue-artist-scene="world"]').click();
+    if (await page.locator('[data-vue-artist-scene="world"]').getAttribute('aria-pressed') !== 'true') {
+      throw new Error('World scene did not restore');
     }
 
     await page.locator('.genre-side-item[data-tab="overview"]').click();
@@ -161,6 +195,13 @@ async function checkLayout(mobile) {
     if (!(await page.locator('#genre-nav-content').textContent())?.includes('Характер и звучание')) {
       throw new Error('Overview content did not return');
     }
+    if (await page.locator('[data-sb-vue-overview]').count() !== 1) {
+      throw new Error('Native Vue overview component missing');
+    }
+    await page.locator('[data-sb-vue-overview] .btn.ghost').click();
+    await page.locator('.genre-side-item[data-tab="ideas"].active').waitFor();
+    await page.locator('.genre-side-item[data-tab="overview"]').click();
+    await page.locator('.genre-side-item[data-tab="overview"].active').waitFor();
 
     await page.locator('.gb-buttons [data-action="favorite"]').click();
     await page.locator('#sb-vue-genre-detail[data-v-app]')

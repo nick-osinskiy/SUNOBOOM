@@ -263,5 +263,10 @@
       else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
     }
   });
+  // Vue-backed artist cards are mounted after the legacy render() returns.
+  // Allow them to receive the existing profile/favorite controls as well.
+  window.SUNOBOOM_ARTIST_PROFILES=Object.freeze({
+    enhanceCards:enhanceExistingCards
+  });
   if(view.nav==="detail")enhanceExistingCards();
 })();

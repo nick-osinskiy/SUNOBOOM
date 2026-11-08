@@ -3259,9 +3259,12 @@ window.SUNOBOOM_LEGACY_GENRE=Object.freeze({
       id:g.id,name:g.name,family:g.family,era:g.era,description:g.description,
       tagline:g.tagline,color:g.color,bpm:[...g.bpm],ideasCount:g.ideas.length,
       artistCount:g.artists.length,favorite:data.favorites.includes(g.id),
+      instruments:g.instruments,style:g.style,themes:g.themes,
+      ideas:g.ideas.slice(0,3).map(item=>({title:item.title,pitch:item.pitch})),
+      artists:Array.isArray(g.artists)?[...g.artists]:[],
       tab,
       icons:{
-        studio:I('studio'),heart:I('heart'),overview:I('library'),
+        studio:I('studio'),heart:I('heart'),arrow:I('arrow'),overview:I('library'),
         ideas:I('ideas'),prompts:I('studio'),artists:I('account')
       }
     };

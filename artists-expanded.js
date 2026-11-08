@@ -103,6 +103,41 @@
   </div>`;
  }
  artistView=artistPage;
+ // Provide Vue with the actual expanded artist records/classification.
+ // No copy of catalogues, role rules or Russian-language supplements.
+ window.SUNOBOOM_ARTIST_CATALOG=Object.freeze({
+   initialScene:()=>view.artistLocale==='ru'?'ru':'world',
+   setScene(scene){if(scene==='ru'||scene==='world')view.artistLocale=scene;},
+   getScene(id,scene){
+     const g=GENRES.find(item=>item.id===id);
+     if(!g)return null;
+     const world=rowsFor(g,'world'),native=rowsFor(g,'ru');
+     const selected=scene==='ru'?'ru':'world';
+     const instrumental=/^(epic-|cinematic-|classical-|ambient-|experimental-)/.test(g.id)||
+       ['Классическая и оркестровая музыка','Кинематографичная музыка','Нью-эйдж и атмосферная музыка'].includes(g.family);
+     const description=selected==='ru'?
+       instrumental?'Отечественные композиторы и исполнители, а также русскоязычные вокальные проекты и близкие по эстетике направления. Для инструментальной музыки язык исполнения не является определяющим.':
+       'Русскоязычные музыканты и проекты близких жанров. Смежные направления обозначены отдельно, чтобы не смешивать традиции.':
+       'Международные исполнители, композиторы и коллективы: основные представители и близкие музыкальные ориентиры.';
+     const groups=(selected==='ru'?native:world).map((items,index)=>({
+       index,artists:items.map((item,i)=>{
+         const label=roleOf(item);
+         return {
+           name:String(item[0]||''),period:String(item[1]||''),
+           bio:String(item[2]||''),track:String(item[3]||''),
+           initials:assetName(item),label,
+           group:label==='Близкое направление'?'adjacent':
+             label.startsWith('Инструмент')?'instrumental':'main',
+           key:index+':'+i+':'+String(item[0]||'')
+         };
+       })
+     }));
+     return {
+       name:g.name,scene:selected,description,
+       worldCount:world.flat().length,ruCount:native.flat().length,groups
+     };
+   }
+ });
  function applyFilters(){
   const root=document.getElementById('sb-artist-expanded');if(!root)return;
   const query=(root.querySelector('[data-ahx-search]')?.value||'').toLocaleLowerCase('ru').trim();

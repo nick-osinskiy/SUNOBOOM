@@ -22,7 +22,9 @@ export function activateLegacyGenreDetail({ mountVueFeature }) {
     if (!genre?.id) return;
     const unmount = mountVueFeature(target, GenreDetail, {
       genre,
-      tabContent: (id, tab) => api.tabContent(id, tab)
+      tabContent: (id, tab) => api.tabContent(id, tab),
+      artistCatalog: window.SUNOBOOM_ARTIST_CATALOG || null,
+      enhanceArtistProfiles: () => window.SUNOBOOM_ARTIST_PROFILES?.enhanceCards?.()
     });
     if (unmount) current = { target, unmount };
   }
