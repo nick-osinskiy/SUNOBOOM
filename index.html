@@ -2307,7 +2307,38 @@ function ideasView(){const all=GENRES.flatMap(g=>g.ideas.map((x,i)=>({g,x,i})));
 function promptValue(){const g=findGenre(builder.genre),voice=({male:'expressive clean male vocals',female:'expressive clean female vocals',duet:'expressive male and female duet'})[builder.vocal],energy=({soft:'restrained intimate energy',medium:'dynamic balanced energy',high:'powerful high energy'})[builder.energy];let parts=[g.name+' music',`${builder.tempo} BPM`,`${builder.mood} mood`,g.style,energy,voice,`${builder.language} lyrics`];if(builder.theme.trim())parts.push('song about '+builder.theme.trim());if(builder.extra.trim())parts.push(builder.extra.trim());if(builder.studio)parts.push('clean studio production, no live ambience, no crowd noise');if(builder.noWhisper)parts.push('no whispering');if(builder.noChoir)parts.push('no choir');if(builder.noIntro)parts.push('start immediately with lead vocals, no long intro');let s=parts.join(', ')+'.';if(s.length>1000){s=parts.slice(0,7).join(', ')+'.'}return s}
 function options(list,selected){return list.map(([v,label])=>`<option value="${escapeHTML(v)}" ${selected===v?'selected':''}>${escapeHTML(label)}</option>`).join('')}
 function studio(){const g=findGenre(builder.genre),p=promptValue();return `<header class="heading"><h1>Suno Studio <span style="color:#fd83c3">✦</span></h1><p>Управляй звуком и получай английский промпт для генерации. Каждый параметр меняет текст в реальном времени.</p></header><div class="studio-grid"><div class="panel"><h3>Параметры трека</h3><div class="field"><label for="b-genre">Жанр</label><select id="b-genre" data-builder="genre">${options(GENRES.map(g=>[g.id,g.name]),builder.genre)}</select></div><div class="form-grid"><div class="field"><label for="b-mood">Настроение</label><select id="b-mood" data-builder="mood">${options([['melancholic','Меланхоличное'],['energetic','Энергичное'],['romantic','Романтичное'],['dark','Мрачное'],['uplifting','Воодушевляющее'],['dreamy','Мечтательное'],['playful','Игривое'],['epic','Эпическое'],['nostalgic','Ностальгическое']],builder.mood)}</select></div><div class="field"><label for="b-vocal">Вокал</label><select id="b-vocal" data-builder="vocal">${options([['male','Мужской'],['female','Женский'],['duet','Дуэт']],builder.vocal)}</select></div><div class="field"><label for="b-lang">Язык текста</label><select id="b-lang" data-builder="language">${options([['Russian','Русский'],['English','Английский'],['Spanish','Испанский'],['Kazakh','Казахский']],builder.language)}</select></div><div class="field"><label for="b-energy">Энергия</label><select id="b-energy" data-builder="energy">${options([['soft','Мягкая'],['medium','Средняя'],['high','Мощная']],builder.energy)}</select></div></div><div class="field"><label for="b-tempo">Темп · <span style="color:#ffa8d5" id="tempo-num">${builder.tempo}</span> BPM</label><div class="range"><input type="range" min="65" max="200" step="1" id="b-tempo" data-builder="tempo" value="${builder.tempo}"><output id="bpm-output">${builder.tempo} BPM</output></div><span class="muted" style="font-size:11px">Обычно для «${escapeHTML(g.name)}»: ${g.bpm[0]}–${g.bpm[1]} BPM</span></div><div class="field"><label for="b-theme">Тема / история трека</label><textarea id="b-theme" rows="2" data-builder="theme" placeholder="О чём будет песня?">${escapeHTML(builder.theme)}</textarea></div><div class="field"><label for="b-extra">Дополнительные инструкции (необязательно)</label><textarea id="b-extra" rows="2" data-builder="extra" placeholder="Например: memorable chorus, short guitar solo">${escapeHTML(builder.extra)}</textarea></div><div class="checkrow"><label><input type="checkbox" data-builder="studio" ${builder.studio?'checked':''}>Без публики и live-атмосферы</label><label><input type="checkbox" data-builder="noWhisper" ${builder.noWhisper?'checked':''}>Без шёпота</label><label><input type="checkbox" data-builder="noChoir" ${builder.noChoir?'checked':''}>Без хора</label><label><input type="checkbox" data-builder="noIntro" ${builder.noIntro?'checked':''}>Без длинного интро</label></div></div><div class="panel" style="position:sticky;top:20px"><div class="eyebrow">Готово к Suno</div><h3>Твой промпт</h3><div class="output" id="prompt-output">${escapeHTML(p)}</div><div class="counter"><span>Максимум 1000 символов</span><b id="prompt-count">${p.length} / 1000</b></div><div class="two-col"><button class="btn primary" data-action="copy-prompt">${I('copy')} Копировать</button><button class="btn ghost" data-action="save-prompt">${I('saved')} Сохранить</button></div><div class="spacer"></div><div class="notice"><strong>Подсказка:</strong> промпт задаёт стиль, а текст песни можно вводить отдельно в Suno. Результат генерации может отличаться от запроса.</div><div class="spacer"></div><div class="info-label">Музыкальный профиль</div><div class="list-pills"><span>${escapeHTML(g.name)}</span><span>${escapeHTML(g.family)}</span><span>${g.bpm[0]}–${g.bpm[1]} BPM</span></div></div></div>`}
-function updateOutput(){const el=document.getElementById('prompt-output');if(el){let p=promptValue();el.textContent=p;document.getElementById('prompt-count').textContent=p.length+' / 1000';const n=document.getElementById('tempo-num'),out=document.getElementById('bpm-output');if(n)n.textContent=builder.tempo;if(out)out.textContent=builder.tempo+' BPM'}}
+function updateOutput(){const el=document.getElementById('prompt-output');if(el){let p=promptValue();el.textContent=p;document.getElementById('prompt-count').textContent=p.length+' / 1000';const n=document.getElementById('tempo-num'),out=document.getElementById('bpm-output');if(n)n.textContent=builder.tempo;if(out)out.textContent=builder.tempo+' BPM'}window.dispatchEvent(new Event('sunoboom:studio-updated'))}
+
+// SUNOBOOM Vue 3 bridge: the existing builder, genre database, promptValue()
+// and updateBuilder() remain authoritative. No second prompt engine is created.
+window.SUNOBOOM_LEGACY_STUDIO=Object.freeze({
+ snapshot(){
+  if(view.nav!=='studio')return null;
+  const g=findGenre(builder.genre);
+  return {
+   settings:{
+    genre:builder.genre,mood:builder.mood,vocal:builder.vocal,
+    language:builder.language,energy:builder.energy,tempo:Number(builder.tempo),
+    theme:String(builder.theme??''),extra:String(builder.extra??''),
+    studio:!!builder.studio,noWhisper:!!builder.noWhisper,
+    noChoir:!!builder.noChoir,noIntro:!!builder.noIntro
+   },
+   genre:{id:g.id,name:g.name,family:g.family,bpm:[...g.bpm]},
+   genres:GENRES.map(x=>({id:x.id,name:x.name})),
+   prompt:promptValue(),
+   icons:{copy:I('copy'),save:I('saved')}
+  };
+ },
+ update(key,value){
+  if(view.nav!=='studio'||!['genre','mood','vocal','language','energy',
+    'tempo','theme','extra','studio','noWhisper','noChoir','noIntro'].includes(key))return;
+  if(key==='genre'&&!GENRES.some(g=>g.id===value))return;
+  updateBuilder(key,value);
+  // Legacy extensions insert the arrangement builder and mixer banner when
+  // rendering. Preserve their original full-render behaviour on genre changes.
+  if(key==='genre')render();
+ }
+});
 function account(){
   const name=String(data.profileName||'Музыкант');
   const count=(data.savedIdeas||[]).length+(data.savedGeneratedIdeas||[]).length+(data.manualIdeas||[]).length;

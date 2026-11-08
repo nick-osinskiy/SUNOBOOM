@@ -4,6 +4,7 @@ import VueFeatureHost from './VueFeatureHost.vue';
 import { activateLegacyNavigation } from './navigation/legacyBridge.js';
 import { activateLegacyAcademy } from './academy/legacyAcademyBridge.js';
 import { activateLegacyGenreDetail } from './academy/legacyGenreDetailBridge.js';
+import { activateLegacyStudio } from './studio/legacyStudioBridge.js';
 
 // Vue components are mounted only into explicitly handed-off feature containers.
 // Importing this module never replaces the existing SUNOBOOM application shell.
@@ -65,4 +66,9 @@ export function startLegacyAcademy() {
 /** Vue 3 genre detail layout; existing ideas, artists and Suno templates stay functional. */
 export function startLegacyGenreDetail() {
   return activateLegacyGenreDetail({ mountVueFeature });
+}
+
+/** Vue 3 central Suno Studio prompt builder; existing modules remain in place. */
+export function startLegacyStudio() {
+  return activateLegacyStudio({ mountVueFeature });
 }

@@ -267,6 +267,79 @@ async function checkLayout(mobile) {
       throw new Error('Song idea transfer did not configure the existing Studio: ' + JSON.stringify(ideaState));
     }
 
+    // Vue Studio must preserve the original 1000-char prompt engine, actions,
+    // genre mixer, arrangement builder and prompt auditor.
+    await page.locator('.studio-grid[data-sb-vue-studio][data-v-app]')
+      .waitFor({ state: 'attached', timeout: 10000 });
+    if (await page.locator('.studio-grid > .panel').count() !== 2) {
+      throw new Error('The original Studio grid layout was not preserved');
+    }
+    if (await page.locator('#sba-arranger').count() !== 1 ||
+        await page.locator('#sbpa-auditor').count() !== 1 ||
+        await page.locator('.gm-studio-banner').count() !== 1) {
+      throw new Error('An integrated Studio module is missing');
+    }
+    if (await page.locator('#b-genre').inputValue() !== 'reggae-ska') {
+      throw new Error('Studio genre was not transferred from the idea');
+    }
+
+    await page.locator('#b-mood').selectOption('romantic');
+    if (!(await page.locator('#prompt-output').textContent())?.includes('romantic mood')) {
+      throw new Error('Vue mood input did not call the legacy prompt engine');
+    }
+    await page.locator('#b-vocal').selectOption('female');
+    await page.locator('#b-lang').selectOption('Kazakh');
+    if (!(await page.locator('#prompt-output').textContent())?.includes('Kazakh lyrics')) {
+      throw new Error('Vue language setting did not update the prompt');
+    }
+    await page.locator('#b-theme').fill('Любовь к музыке');
+    if (!(await page.locator('#prompt-output').textContent())?.includes('song about Любовь к музыке')) {
+      throw new Error('Vue track theme not passed to the legacy engine');
+    }
+
+    // The arranger updates builder.extra itself and calls updateOutput().
+    // Verify the Vue field updates after a legacy-side change.
+    await page.evaluate(() => { builder.extra='short brass break'; updateOutput(); });
+    await page.waitForFunction(() => document.getElementById('b-extra')?.value === 'short brass break');
+    await page.locator('#b-extra').fill('cinematic energy, ' + 'very long instrumental description '.repeat(80));
+    const promptStatus = await page.evaluate(() => {
+      const prompt = document.getElementById('prompt-output')?.textContent || '';
+      return {
+        textLength:prompt.length,
+        authoritativeLength:promptValue().length,
+        count:document.getElementById('prompt-count')?.textContent,
+        same:prompt === promptValue()
+      };
+    });
+    if (!promptStatus.same || promptStatus.textLength > 1000 ||
+        promptStatus.textLength !== promptStatus.authoritativeLength ||
+        !promptStatus.count?.includes(promptStatus.textLength + ' / 1000')) {
+      throw new Error('Studio 1000-character limit diverged from legacy promptValue(): ' + JSON.stringify(promptStatus));
+    }
+
+    await page.locator('#b-extra').fill('bright brass, tight percussion');
+    const beforeSave = await page.evaluate(() => data.savedPrompts.length);
+    await page.locator('.studio-grid [data-action="save-prompt"]').click();
+    const savedState = await page.evaluate(() => ({
+      saved:data.savedPrompts.length,
+      last:data.savedPrompts[data.savedPrompts.length-1]?.text,
+      current:promptValue()
+    }));
+    if (savedState.saved !== beforeSave + 1 || savedState.last !== savedState.current) {
+      throw new Error('Legacy saved prompt library was not updated');
+    }
+
+    // A genre selection must still refresh its musical profile and all
+    // legacy Studio extension panels, as the old builder did.
+    await page.locator('#b-genre').selectOption('afropop');
+    await page.locator('.studio-grid[data-sb-vue-studio][data-v-app]')
+      .waitFor({ state: 'attached', timeout: 10000 });
+    if (await page.locator('#b-genre').inputValue() !== 'afropop' ||
+        await page.locator('#bpm-output').textContent() === '' ||
+        await page.locator('#sba-arranger').count() !== 1) {
+      throw new Error('Genre change broke Studio or its arrangement extension');
+    }
+
     const version = await page.locator('.sb-app-version').first().textContent();
     if (!/^v?\d+\.\d+$/.test(String(version || '').trim())) throw new Error('Version display missing or malformed');
 
