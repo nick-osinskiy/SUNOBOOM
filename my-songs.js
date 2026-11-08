@@ -429,9 +429,20 @@
        hasCover:song.hasCover,coverUrl:song.coverUrl,
        hasAudio:song.hasAudio,hasPlayableAudio:!!(song.hasAudio||song.audioUrl),
        listenUrl:song.listenUrl,confirmDelete:state.confirmDelete===song.id,
-       // This legacy markup retains the complete take manager, form inputs,
-       // version actions, A/B selectors and their established delegated handlers.
-       versionsMarkup:versionManager(song)
+       // Read-only take metadata for Vue. File storage and all delegated
+       // actions remain in the legacy module; no parallel state or migration.
+       versions:songVersions(song).map((v,i)=>({
+         id:v.id,label:v.label||"Версия "+(i+1),notes:v.notes,
+         fileName:v.fileName||"Запись из предыдущей версии SUNOBOOM",
+         sizeLabel:audioSize(v.bytes),
+         addedDate:new Date(v.addedAt||Date.now()).toLocaleDateString("ru-RU"),
+         isMain:activeVersion(song)?.id===v.id,
+         isPlaying:(songVersions(song).find(x=>x.id===state.playVersionId)||activeVersion(song))?.id===v.id
+       })),
+       playingLabel:(songVersions(song).find(v=>v.id===state.playVersionId)||activeVersion(song))?.label||"",
+       compareOpen:state.compareOpen,
+       compareAId:(songVersions(song).find(v=>v.id===state.compareAId)||songVersions(song)[0])?.id||"",
+       compareBId:(songVersions(song).find(v=>v.id===state.compareBId)||songVersions(song)[1])?.id||""
      };
    },
    hydrateMedia:()=>hydrate()

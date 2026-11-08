@@ -1,5 +1,6 @@
 <script setup>
 import { nextTick, onMounted } from 'vue';
+import SongVersions from './SongVersions.vue';
 
 const props = defineProps({ model: { type: Object, required: true }, api: { type: Object, required: true } });
 
@@ -34,9 +35,16 @@ onMounted(() => {
           <audio v-if="model.hasPlayableAudio" controls preload="metadata" id="sbsong-audio-player"></audio>
           <p v-else>Аудио ещё не добавлено. Добавь первую версию в этой карточке.</p>
         </div>
-        <!-- The original version manager remains intact: upload, notes, A/B,
-             and its selectors are all driven by the existing event handlers. -->
-        <div v-html="model.versionsMarkup"></div>
+        <!-- Vue owns the whole take manager UI; the original data and action
+             handlers continue to control local files, A/B and persistence. -->
+        <SongVersions
+          :song-id="model.id"
+          :versions="model.versions"
+          :playing-label="model.playingLabel"
+          :compare-open="model.compareOpen"
+          :compare-a-id="model.compareAId"
+          :compare-b-id="model.compareBId"
+        />
         <div class="sbsong-detail-actions">
           <button type="button" class="sbsong-main-btn" data-sbsong-action="share" :data-id="model.id">🔗 Поделиться ссылкой</button>
           <button v-if="model.hasAudio" type="button" data-sbsong-action="share-file" :data-id="model.id">Отправить аудиофайл</button>

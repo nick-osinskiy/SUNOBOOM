@@ -1029,6 +1029,7 @@ async function checkLayout(mobile) {
     await page.locator('#sb-vue-song-detail[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
     const songDetail = page.locator('#sb-vue-song-detail');
     if (await songDetail.locator('[data-sbsong-action="close-detail"]').count() !== 1 ||
+        await songDetail.locator('[data-sb-vue-song-versions]').count() !== 1 ||
         await songDetail.locator('.sbsong-version-row').count() !== 2 ||
         !(await songDetail.textContent()).includes('Песня о севере') ||
         await songDetail.locator('[data-sbsong-action="version-add"]').count() !== 1) {
@@ -1039,6 +1040,13 @@ async function checkLayout(mobile) {
     await songDetail.locator('[data-sbsong-action="compare-toggle"]').click();
     await page.locator('#sb-vue-song-detail[data-v-app]').waitFor({ state: 'attached' });
     await page.waitForFunction(() => ['sbsong-ab-a', 'sbsong-ab-b'].every(id => document.getElementById(id)?.getAttribute('src')?.startsWith('blob:')), null, { timeout: 10000 });
+    await songDetail.locator('#sbsong-compare-a').selectOption('v-demo');
+    await page.locator('#sb-vue-song-detail[data-v-app]').waitFor({ state: 'attached' });
+    if (await songDetail.locator('#sbsong-compare-a').inputValue() !== 'v-demo' ||
+        await songDetail.locator('#sbsong-compare-b').inputValue() !== 'v-demo') {
+      throw new Error('Vue A/B selection did not retain the two independent choices');
+    }
+    await page.waitForFunction(() => ['sbsong-ab-a', 'sbsong-ab-b'].every(id => document.getElementById(id)?.getAttribute('src')?.startsWith('blob:')), null, { timeout: 10000 });
     await songDetail.locator('[data-sbsong-action="version-play"][data-version-id="v-demo"]').click();
     await page.locator('#sb-vue-song-detail[data-v-app]').waitFor({ state: 'attached' });
     if (!(await songDetail.locator('.sbsong-version-heading').textContent()).includes('Финал')) {
@@ -1048,7 +1056,33 @@ async function checkLayout(mobile) {
     await songDetail.locator('[data-sbsong-version-note="v-demo"]').fill('Точный финальный микс');
     await songDetail.locator('[data-sbsong-action="version-save"][data-version-id="v-demo"]').click();
     const versionNote = await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-my-songs-v1'))[0]?.versions?.find(v => v.id === 'v-demo')?.notes);
-    if (versionNote !== 'Точный финальный микс') throw new Error('Legacy version note failed to persist from Vue detail');
+    if (versionNote !== 'Точный финальный микс') throw new Error('Vue version note failed to persist');
+    await songDetail.locator('[data-sbsong-action="version-main"][data-version-id="v-demo"]').click();
+    if (await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-my-songs-v1'))[0]?.activeVersionId) !== 'v-demo') {
+      throw new Error('Vue version manager failed to set the primary take');
+    }
+    await songDetail.locator('#sbsong-new-version-title').fill('Третий WAV дубль');
+    await songDetail.locator('#sbsong-new-version-notes').fill('Новая вокальная дорожка');
+    await songDetail.locator('#sbsong-version-file').setInputFiles({
+      name: 'third-take.wav', mimeType: 'audio/wav',
+      buffer: Buffer.from([82,73,70,70,36,0,0,0,87,65,86,69,102,109,116,32,16,0,0,0,1,0,1,0,64,31,0,0,128,62,0,0,2,0,16,0,100,97,116,97,0,0,0,0])
+    });
+    await songDetail.locator('[data-sbsong-action="version-add"]').click();
+    await page.waitForFunction(() => JSON.parse(localStorage.getItem('sunoboom-my-songs-v1'))[0]?.versions?.length === 3, null, { timeout: 10000 });
+    await page.locator('#sb-vue-song-detail[data-v-app]').waitFor({ state: 'attached' });
+    if (await songDetail.locator('.sbsong-version-row').count() !== 3 ||
+        !(await songDetail.textContent()).includes('Третий WAV дубль')) {
+      throw new Error('Adding a local WAV file through the Vue version manager failed');
+    }
+    const addedId = await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-my-songs-v1'))[0]?.versions?.at(-1)?.id);
+    if (!addedId?.startsWith('v-')) throw new Error('Generated WAV take ID is invalid');
+    page.once('dialog', dialog => { void dialog.accept(); });
+    await songDetail.locator('[data-sbsong-action="version-remove"][data-version-id="' + addedId + '"]').click();
+    await page.waitForFunction(() => JSON.parse(localStorage.getItem('sunoboom-my-songs-v1'))[0]?.versions?.length === 2, null, { timeout: 10000 });
+    if (await songDetail.locator('.sbsong-version-row').count() !== 2 ||
+        await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-my-songs-v1'))[0]?.activeVersionId) !== 'v-demo') {
+      throw new Error('Removing a WAV take affected other versions');
+    }
     await songDetail.locator('[data-sbsong-action="delete"]').click();
     await page.locator('#sb-vue-song-detail[data-v-app]').waitFor({ state: 'attached' });
     if (await songDetail.locator('[data-sbsong-action="delete-confirm"]').count() !== 1) {
