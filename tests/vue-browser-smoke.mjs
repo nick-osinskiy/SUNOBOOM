@@ -1224,6 +1224,72 @@ async function checkLayout(mobile) {
     }
     await songEditor.locator('[data-sbsong-action="cancel"]').first().click();
 
+    // v0.116: DNA collection/detail are Vue-owned, while the original
+    // editor, Style builder and ID links remain the single source of truth.
+    await page.evaluate(() => {
+      view.sbDnaSelected = null;
+      view.sbDnaEdit = null;
+      go('artists');
+    });
+    const dnaView = page.locator('#sb-vue-dna-view');
+    await page.locator('#sb-vue-dna-view[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    if (await dnaView.locator('[data-action="dna-open"][data-id="dna-vue-manager-115"]').count() !== 1) {
+      throw new Error('Vue DNA collection did not display existing artist profile');
+    }
+    await dnaView.locator('[data-action="dna-open"][data-id="dna-vue-manager-115"]').click();
+    await page.locator('#sb-vue-dna-view[data-v-app]').waitFor({ state: 'attached' });
+    if (!(await dnaView.textContent()).includes('DNA Studio 115') ||
+        await dnaView.locator('[data-action="dna-copy"][data-id="dna-vue-manager-115"]').count() !== 1 ||
+        await dnaView.locator('[data-action="dna-apply"][data-id="dna-vue-manager-115"]').count() !== 2) {
+      throw new Error('Vue DNA detail lost Style, copy or Suno Studio actions');
+    }
+    await dnaView.locator('[data-action="dna-edit"][data-id="dna-vue-manager-115"]').click();
+    await page.locator('#dna-editor').waitFor({ state: 'visible', timeout: 10000 });
+    if (await page.locator('#sb-vue-dna-view').count() !== 0) {
+      throw new Error('Existing DNA editor must remain the original HTML form');
+    }
+    await page.locator('#dna-timbre').fill('gentle warm baritone v116');
+    await page.locator('#dna-delivery').fill('clear intimate voice');
+    if (!(await page.locator('#dna-style-preview').textContent()).includes('gentle warm baritone v116')) {
+      throw new Error('Original DNA form lost its live Suno Style preview');
+    }
+    await page.locator('[data-action="dna-save"]').click();
+    await page.locator('#sb-vue-dna-view[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    if (!(await dnaView.textContent()).includes('gentle warm baritone v116') ||
+        await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-v1')).artistDNAs.find(a => a.id === 'dna-vue-manager-115')?.timbre) !== 'gentle warm baritone v116') {
+      throw new Error('Updating a DNA profile lost data or Vue detail display');
+    }
+    await dnaView.locator('[data-action="dna-list"]').click();
+    await page.locator('#sb-vue-dna-view[data-v-app]').waitFor({ state: 'attached' });
+    await page.locator('[data-action="dna-new"]').click();
+    await page.locator('#dna-editor').waitFor({ state: 'visible', timeout: 10000 });
+    await page.locator('#dna-name').fill('Vue DNA Artist 116');
+    await page.locator('#dna-genre').selectOption({ index: 0 });
+    await page.locator('#dna-timbre').fill('soft tenor, expressive clean voice');
+    await page.locator('#dna-mood').fill('warm uplifting groove');
+    await page.locator('[data-action="dna-save"]').click();
+    await page.locator('#sb-vue-dna-view[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    const artistId116 = await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-v1')).artistDNAs.find(a => a.name === 'Vue DNA Artist 116')?.id);
+    if (!artistId116 || !(await dnaView.textContent()).includes('soft tenor, expressive clean voice') ||
+        !(await dnaView.locator('.sb-dna-style').textContent()).includes('warm uplifting groove')) {
+      throw new Error('New DNA profile did not appear in the Vue detail after saving');
+    }
+    await dnaView.locator('[data-action="dna-list"]').click();
+    await page.locator('#sb-vue-dna-view[data-v-app]').waitFor({ state: 'attached' });
+    if (await dnaView.locator('.sb-dna-card').count() < 2) {
+      throw new Error('New DNA profile is missing from the Vue list');
+    }
+    await dnaView.locator('[data-action="dna-open"][data-id="' + artistId116 + '"]').click();
+    page.once('dialog', dialog => { void dialog.accept(); });
+    await dnaView.locator('[data-action="dna-delete"][data-id="' + artistId116 + '"]').click();
+    await page.waitForFunction(() =>
+      !JSON.parse(localStorage.getItem('sunoboom-v1')).artistDNAs.some(a => a.name === 'Vue DNA Artist 116') &&
+      !!document.querySelector('#sb-vue-dna-view[data-v-app]'), null, { timeout: 10000 });
+    if (await dnaView.locator('[data-action="dna-open"][data-id="dna-vue-manager-115"]').count() !== 1 ||
+        await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-my-songs-v1')).find(s => s.title === 'Song Editor Vue 114')?.artist) !== 'Aurora Workshop 114') {
+      throw new Error('Deleting a DNA profile affected another profile or a saved song');
+    }
+
     const version = await page.locator('.sb-app-version').first().textContent();
     if (!/^v?\d+\.\d+$/.test(String(version || '').trim())) throw new Error('Version display missing or malformed');
 
@@ -1315,7 +1381,32 @@ async function checkEditorFallback() {
     if (await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-my-songs-v1')).some(s => s.title === 'Saved without Vue 114')) !== true) {
       throw new Error('Original artist deletion changed a previously saved song');
     }
-    console.log('Original song editor, library, My Songs and artist manager without Vue PASS');
+    // Vue bundle is blocked: the artist DNA collection, form and detail must
+    // all remain usable through the original HTML and handlers.
+    await page.evaluate(() => {
+      view.sbDnaSelected = null;
+      view.sbDnaEdit = null;
+      go('artists');
+    });
+    if (await page.locator('#sb-vue-dna-view[data-v-app]').count() !== 0 ||
+        await page.locator('#sb-vue-dna-view').count() !== 1) {
+      throw new Error('Original DNA collection fallback is missing');
+    }
+    await page.locator('[data-action="dna-new"]').click();
+    await page.locator('#dna-editor').waitFor({ state: 'visible' });
+    await page.locator('#dna-name').fill('Legacy DNA 116');
+    await page.locator('#dna-timbre').fill('clear soft voice');
+    await page.locator('[data-action="dna-save"]').click();
+    await page.waitForFunction(() => JSON.parse(localStorage.getItem('sunoboom-v1')).artistDNAs.some(a => a.name === 'Legacy DNA 116'), null, { timeout: 10000 });
+    if (await page.locator('#sb-vue-dna-view .sb-dna-detail').count() !== 1 ||
+        await page.locator('#sb-vue-dna-view[data-v-app]').count() !== 0) {
+      throw new Error('Original DNA detail failed without Vue');
+    }
+    await page.locator('[data-action="dna-list"]').click();
+    if (await page.locator('#sb-vue-dna-view .sb-dna-card').count() < 1) {
+      throw new Error('Original DNA card list failed without Vue');
+    }
+    console.log('Original song editor, library, My Songs, artist manager and DNA without Vue PASS');
   } finally { await context.close(); }
 }
 
