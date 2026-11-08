@@ -3163,7 +3163,7 @@ document.addEventListener('keydown',e=>{
    e.preventDefault();e.target.blur();
  }
 });
-document.addEventListener('input',e=>{if(e.target.dataset.ideaGenerator){const k=e.target.dataset.ideaGenerator;ideaGen[k]=k==='count'?Number(e.target.value):e.target.value;return}if(e.target.id==='genre-search'){view.search=e.target.value;filterCatalog();return}const k=e.target.dataset.builder;if(k){let v=e.target.type==='checkbox'?e.target.checked:e.target.value;if(k==='tempo')v=Number(v);if(k==='genre'){updateBuilder(k,v);render()}else updateBuilder(k,v)}});
+document.addEventListener('input',e=>{if(e.target.dataset.ideaGenerator){const k=e.target.dataset.ideaGenerator;ideaGen[k]=k==='count'?Number(e.target.value):e.target.value;return}if(e.target.id==='genre-search'){view.search=e.target.value;if(!document.querySelector('#sb-vue-academy-root[data-v-app]'))filterCatalog();return}const k=e.target.dataset.builder;if(k){let v=e.target.type==='checkbox'?e.target.checked:e.target.value;if(k==='tempo')v=Number(v);if(k==='genre'){updateBuilder(k,v);render()}else updateBuilder(k,v)}});
 document.addEventListener('change',e=>{const genKey=e.target.dataset.ideaGenerator;if(genKey){ideaGen[genKey]=genKey==='count'?Number(e.target.value):e.target.value;return}const k=e.target.dataset.builder;if(k&&e.target.tagName==='SELECT'&&k!=='genre')updateBuilder(k,e.target.value)});
 document.addEventListener('change',async e=>{if(e.target.id!=='import-file')return;const f=e.target.files?.[0];if(!f)return;try{const parsed=JSON.parse(await f.text());const d=parsed?.data;if(parsed?.app!=='SUNOBOOM'||!d||!Array.isArray(d.favorites)||!Array.isArray(d.savedPrompts)||!Array.isArray(d.savedIdeas)||!Array.isArray(d.projects))throw Error('Неверный формат');if(!confirm('Заменить локальную библиотеку данными из резервной копии?'))return;data={...initData, ...d,savedGeneratedIdeas:Array.isArray(d.savedGeneratedIdeas)?d.savedGeneratedIdeas:[]};persist();render();toast('Данные восстановлены')}catch(err){toast('Не удалось импортировать файл')}});
 render();
@@ -3363,7 +3363,7 @@ function groupedGenreCatalogHtml(){
  return {total,panels:panels||'<div class="genre-family-empty">Ничего не найдено. Попробуй другой запрос.</div>'};
 }
 function newCatalog(){
- return `<header class="genre-family-intro"><div class="eyebrow">SUNOBOOM · БИБЛИОТЕКА ЗНАНИЙ</div><h1>Академия</h1><p>Музыкальная база знаний SUNOBOOM. Сейчас здесь собраны жанры и поджанры; позже появятся учебники и другие образовательные разделы.</p></header><div class="encyclopedia-sections" aria-label="Разделы Академии"><div class="encyclopedia-section encyclopedia-section-active"><span class="encyclopedia-section-icon" aria-hidden="true">🎼</span><div><strong>Музыкальные жанры</strong><small>${familyOrder.length} музыкальных семейств · ${GENRES.length} направлений</small></div><span class="encyclopedia-section-status">Открыто</span></div><div class="encyclopedia-section encyclopedia-section-future"><span class="encyclopedia-section-icon" aria-hidden="true">📚</span><div><strong>Учебники</strong><small>В дальнейшем добавим обучающие материалы</small></div><span class="encyclopedia-section-status">Позже</span></div></div><div class="genre-family-toolbar"><label class="search-box">${I("search")}<input id="genre-search" type="search" enterkeyhint="search" autocapitalize="off" spellcheck="false" aria-label="Поиск жанров" placeholder="Поиск жанра, поджанра или исполнителя…" autocomplete="off" value="${escapeHTML(view.search)}"></label><span class="hint">${familyOrder.length} разделов · ${GENRES.length} жанров</span></div><div class="genre-family-summary"><h2 id="catalog-count">Музыкальные жанры · ${GENRES.length}</h2><span class="hint" id="sb-academy-search-hint"></span></div><div id="catalog-cards" class="genre-families">${groupedGenreCatalogHtml().panels}</div>`;
+ return `<header class="genre-family-intro"><div class="eyebrow">SUNOBOOM · БИБЛИОТЕКА ЗНАНИЙ</div><h1>Академия</h1><p>Музыкальная база знаний SUNOBOOM. Сейчас здесь собраны жанры и поджанры; позже появятся учебники и другие образовательные разделы.</p></header><div class="encyclopedia-sections" aria-label="Разделы Академии"><div class="encyclopedia-section encyclopedia-section-active"><span class="encyclopedia-section-icon" aria-hidden="true">🎼</span><div><strong>Музыкальные жанры</strong><small>${familyOrder.length} музыкальных семейств · ${GENRES.length} направлений</small></div><span class="encyclopedia-section-status">Открыто</span></div><div class="encyclopedia-section encyclopedia-section-future"><span class="encyclopedia-section-icon" aria-hidden="true">📚</span><div><strong>Учебники</strong><small>В дальнейшем добавим обучающие материалы</small></div><span class="encyclopedia-section-status">Позже</span></div></div><section id="sb-vue-academy-root"><div class="genre-family-toolbar"><label class="search-box">${I("search")}<input id="genre-search" type="search" enterkeyhint="search" autocapitalize="off" spellcheck="false" aria-label="Поиск жанров" placeholder="Поиск жанра, поджанра или исполнителя…" autocomplete="off" value="${escapeHTML(view.search)}"></label><span class="hint">${familyOrder.length} разделов · ${GENRES.length} жанров</span></div><div class="genre-family-summary"><h2 id="catalog-count">Музыкальные жанры · ${GENRES.length}</h2><span class="hint" id="sb-academy-search-hint"></span></div><div id="catalog-cards" class="genre-families">${groupedGenreCatalogHtml().panels}</div></section>`;
 }
 function newFilterCatalog(){
  const result=groupedGenreCatalogHtml();
@@ -3380,16 +3380,44 @@ function newFilterCatalog(){
 }
 catalog=newCatalog;
 filterCatalog=newFilterCatalog;
-// Read-only bridge for Vue cards. Existing genre records and legacy actions
-// remain the authoritative source; no duplicate Vue genre catalogue is stored.
+// Vue owns only the Academy's catalog controls and family list.
+// The existing genres and search ranking rules remain authoritative.
 window.SUNOBOOM_LEGACY_ACADEMY=Object.freeze({
-  genreCards(ids){
-    if(!Array.isArray(ids))return [];
-    return ids.map(id=>{
-      const g=GENRES.find(entry=>entry.id===id);
-      return g?{id:g.id,name:g.name,family:g.family,tagline:g.tagline,
-        era:g.era,color:g.color,bpm:g.bpm}:null;
-    }).filter(Boolean);
+  snapshot(){
+    const card=g=>({
+      id:g.id,name:g.name,family:g.family,tagline:g.tagline,
+      era:g.era,color:g.color,bpm:Array.isArray(g.bpm)?[...g.bpm]:[0,0]
+    });
+    return {
+      query:view.search,
+      families:familyOrder.map(name=>({
+        name,
+        meta:CATALOG_GROUP_META[name]||{icon:"🎵",desc:"Музыкальные направления",accent:"#b99bef"},
+        genres:GENRES.filter(g=>g.family===name).map(card)
+      })),
+      sacred:SACRED_HIERARCHY.map(religion=>({
+        id:religion.id,name:religion.name,icon:religion.icon,description:religion.description,
+        branches:religion.branches.map(branch=>({
+          id:branch.id,name:branch.name,description:branch.description,ids:[...branch.ids]
+        }))
+      })),
+      expanded:{
+        family:{...view.catalogExpanded},
+        religion:{...view.sacredReligionsExpanded},
+        branch:{...view.sacredBranchesExpanded}
+      }
+    };
+  },
+  search(q){
+    view.search=String(q??"");
+    const selection=sbAcademySearchSelection();
+    return {ids:selection.ids?[...selection.ids]:null,mode:selection.mode};
+  },
+  setExpanded(kind,id,open){
+    const store=kind==="family"?view.catalogExpanded:
+      kind==="religion"?view.sacredReligionsExpanded:
+      kind==="branch"?view.sacredBranchesExpanded:null;
+    if(store&&typeof id==="string")store[id]=Boolean(open);
   }
 });
 document.addEventListener("toggle",event=>{if(event.target?.matches?.("details.genre-family")&&!view.search.trim()){view.catalogExpanded[event.target.dataset.family]=event.target.open;}},true);

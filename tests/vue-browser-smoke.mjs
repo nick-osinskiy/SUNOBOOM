@@ -87,11 +87,9 @@ async function checkLayout(mobile) {
     await page.locator(nav + ' button[data-nav="account"].active').waitFor({ timeout: 10000 });
 
 
-    // Academy is still grouped with nested religious subsections, but its
-    // genre cards are now Vue-owned in both desktop and mobile layouts.
+    // Vue now owns search, filtering, family details and all genre cards.
     await page.locator(nav + ' button[data-nav="catalog"]').click();
-    await page.locator('#catalog-cards .genre-grid[data-sb-vue-academy][data-v-app]').first()
-      .waitFor({ state: 'attached', timeout: 10000 });
+    await page.locator('#sb-vue-academy-root[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
 
     const familyCount = await page.locator('#catalog-cards details.genre-family').count();
     const cardCount = await page.locator('#catalog-cards .genre-card').count();
@@ -107,16 +105,25 @@ async function checkLayout(mobile) {
     if (await sacred.locator('details.sb-sacred-religion').count() < 1) {
       throw new Error('Religious Academy hierarchy missing');
     }
-    if (await sacred.locator('.genre-grid[data-sb-vue-academy][data-v-app]').count() < 1) {
-      throw new Error('Religious Academy cards were not mounted with Vue');
+    if (await sacred.locator('.genre-grid button.genre-card').count() < 1) {
+      throw new Error('Religious Academy cards are missing from Vue');
+    }
+    const religion = sacred.locator('details.sb-sacred-religion').first();
+    await religion.locator(':scope > summary').click();
+    await religion.locator('details.sb-sacred-branch').first().locator(':scope > summary').click();
+    if (!(await religion.locator('details.sb-sacred-branch').first().evaluate(el => el.open))) {
+      throw new Error('Religious branch did not expand');
     }
 
     const search = page.locator('#genre-search');
     await search.fill('ска');
     const ska = page.locator('#catalog-cards button.genre-card[data-id="reggae-ska"]');
     await ska.waitFor({ timeout: 10000 });
-    await page.locator('#catalog-cards .genre-grid[data-sb-vue-academy][data-v-app]').first()
-      .waitFor({ state: 'attached', timeout: 10000 });
+    const familyMatches = await page.locator('#catalog-cards details.genre-family').count();
+    if (familyMatches >= familyCount) throw new Error('Vue search did not filter family groups');
+    if (await page.locator('#catalog-count').textContent() === 'Музыкальные жанры · ' + cardCount) {
+      throw new Error('Vue search did not update result count');
+    }
     await ska.click();
     await page.locator('.genre-bright h1.gb-title').waitFor({ timeout: 10000 });
     const genreTitle = await page.locator('.genre-bright h1.gb-title').textContent();
