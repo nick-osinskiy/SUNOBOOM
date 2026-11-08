@@ -46,6 +46,8 @@
 .sbpc-song-meta small{text-align:right}
 .sbpc-tiny-progress{height:4px;border-radius:8px;background:#151e31;overflow:hidden}
 .sbpc-tiny-progress i{height:100%;display:block;background:linear-gradient(90deg,#ff67ab,#9a72f5,#64bfe1)}
+/* The Vue detail host is the same grid item as the original workspace. */
+#sb-vue-producer-detail{min-width:0;max-width:100%;width:100%}
 .sbpc-workspace{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start}
 .sbpc-workspace>.sbpc-panel:first-child,.sbpc-workspace>.sbpc-panel:nth-child(2),.sbpc-workspace>.sbpc-panel:last-child{grid-column:1/-1}
 .sbpc-panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:13px}
