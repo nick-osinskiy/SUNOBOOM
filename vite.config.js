@@ -6,6 +6,8 @@ import vue from '@vitejs/plugin-vue';
 // The current GitHub Pages site continues serving the root index.html unchanged.
 export default defineConfig({
   plugins: [vue()],
+  // Vue/Pinia production builds must not reference Node's process global in browsers.
+  define: { 'process.env.NODE_ENV': JSON.stringify('production') },
   base: './',
   build: {
     outDir: 'dist/vue',

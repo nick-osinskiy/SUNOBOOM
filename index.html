@@ -3064,7 +3064,7 @@ document.addEventListener('input',function(event){
  }
 });
 function render(){
- document.getElementById('app').innerHTML=chrome(({home:home,catalog:catalog,detail:detail,ideas:ideasView,studio:studio,account:account,projects:projects,saved:saved,myideas:myideas,myprompts:myprompts,events:dashboardEventsView}[view.nav]||home)());
+ document.getElementById('app').innerHTML=chrome(({home:home,catalog:catalog,detail:detail,ideas:ideasView,studio:studio,account:account,projects:projects,saved:saved,myideas:myideas,myprompts:myprompts,events:typeof dashboardEventsView==='function'?dashboardEventsView:home}[view.nav]||home)());
  if(view.nav==='catalog')filterCatalog();
  if(view.nav==='account'){
   const stats=document.querySelector('.account-stats');
