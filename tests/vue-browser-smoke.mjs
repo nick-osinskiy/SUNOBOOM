@@ -55,7 +55,21 @@ async function checkLayout(mobile) {
     await page.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 30000 });
 
     // Both menus are enhanced; the initial Master link must already exist.
-    await page.locator('[data-sb-vue-sidebar][data-v-app]').waitFor({ state: 'attached', timeout: 20000 });
+    try {
+      await page.locator('[data-sb-vue-sidebar][data-v-app]').waitFor({ state: 'attached', timeout: 8000 });
+    } catch (error) {
+      const state = await page.evaluate(() => ({
+        legacyApi: typeof window.SUNOBOOM_LEGACY_NAV,
+        app: !!document.getElementById('app'),
+        sideHost: !!document.querySelector('[data-sb-vue-sidebar]'),
+        mobileHost: !!document.querySelector('[data-sb-vue-mobile]'),
+        menuCount: document.querySelectorAll('.mobile-nav [data-nav]').length,
+        productionEnabled: !!document.querySelector('meta[name="sunoboom-vue-nav"][content="enabled"]'),
+        scripts: Array.from(document.scripts).slice(-3).map(el => el.src)
+      }));
+      console.error('Vue navigation diagnostics:', JSON.stringify({ state, errors, url: page.url() }));
+      throw error;
+    }
     await page.locator('[data-sb-vue-mobile][data-v-app]').waitFor({ state: 'attached', timeout: 20000 });
 
     const nav = mobile ? '.mobile-nav' : '[data-sb-vue-sidebar]';
