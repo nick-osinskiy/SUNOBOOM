@@ -4561,6 +4561,37 @@ window.SUNOBOOM_LEGACY_DNA=Object.freeze({
   }};
  }
 });
+// Vue reads a snapshot of the existing DNA editor. The original save/copy
+// handlers continue to read the exact same dna-* DOM IDs; this API does not
+// clone or mutate the stored profiles or track/project references.
+window.SUNOBOOM_LEGACY_DNA_EDITOR=Object.freeze({
+ snapshot(){
+  if(view.nav!=='artists'||!view.sbDnaEdit)return null;
+  const existing=view.sbDnaEdit!=='new'?sbDnaGet(view.sbDnaEdit):null;
+  const a=existing||view.sbDnaDraft||{};
+  return {
+   editing:!!existing,
+   fields:{
+    name:a.name||'',projectId:a.projectId||'',
+    genre:a.genre||builder.genre||'',otherGenres:a.otherGenres||'',
+    vocal:a.vocal||'male',language:a.language||'Russian',
+    timbre:a.timbre||'',delivery:a.delivery||'',
+    tempoMin:a.tempoMin??'',tempoMax:a.tempoMax??'',
+    mood:a.mood||'',instruments:a.instruments||'',
+    production:a.production||'',signature:a.signature||'',
+    themes:a.themes||'',extra:a.extra||'',
+    visual:a.visual||'',portrait:a.portrait||'',
+    noWhisper:a.noWhisper!==false,noRasp:a.noRasp!==false,
+    noLive:a.noLive!==false,noChoir:!!a.noChoir
+   },
+   projects:[{id:'',title:'Без привязки'},...(data.projects||[]).map(p=>({
+    id:p.id,title:p.title||'Без названия'
+   }))],
+   genres:GENRES.map(g=>({id:g.id,name:g.name}))
+  };
+ },
+ stylePreview:fields=>sbDnaStyle(fields)
+});
 function sbDnaPage(){
  const all=sbDnaItems().slice().sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
  const selected=sbDnaGet(view.sbDnaSelected);
@@ -4574,7 +4605,7 @@ function sbDnaPage(){
  return '<div class="account-back"><button class="btn ghost small" data-action="workspace-back">'+workspaceBackLabel()+'</button></div>'+
  '<header class="heading"><div class="eyebrow">ПОСТОЯННОЕ ЗВУЧАНИЕ И ОБРАЗ</div><h1>🧬 ДНК артиста</h1><p>Храни характер вокала, музыкальный стиль, инструменты, запреты и визуальную идентичность каждого исполнителя.</p></header>'+
  summary+'<div class="sb-dna-toolbar"><button type="button" class="btn primary" data-action="dna-new">+ Создать ДНК артиста</button><span>Профили доступны в Suno Studio и Паспорте трека</span></div>'+
- (view.sbDnaEdit?sbDnaForm(editing):'<div id="sb-vue-dna-view">'+(selected?sbDnaDetail(selected):list)+'</div>');
+ (view.sbDnaEdit?'<div id="sb-vue-dna-editor">'+sbDnaForm(editing)+'</div>':'<div id="sb-vue-dna-view">'+(selected?sbDnaDetail(selected):list)+'</div>');
 }
 function sbDnaApply(a){
  if(!a)return;
@@ -4687,8 +4718,8 @@ handleAction=function(button){
  if(sbDnaAction(button))return;
  return sbDnaPrevAction(button);
 };
-document.addEventListener('input',e=>{if(e.target?.id?.startsWith('dna-')&&view.nav==='artists'&&view.sbDnaEdit)sbDnaPreview()});
-document.addEventListener('change',e=>{if(e.target?.id?.startsWith('dna-')&&view.nav==='artists'&&view.sbDnaEdit)sbDnaPreview()});
+document.addEventListener('input',e=>{if(e.target?.id?.startsWith('dna-')&&view.nav==='artists'&&view.sbDnaEdit&&!document.getElementById('sb-vue-dna-editor')?.hasAttribute('data-v-app'))sbDnaPreview()});
+document.addEventListener('change',e=>{if(e.target?.id?.startsWith('dna-')&&view.nav==='artists'&&view.sbDnaEdit&&!document.getElementById('sb-vue-dna-editor')?.hasAttribute('data-v-app'))sbDnaPreview()});
 render();
 
 
