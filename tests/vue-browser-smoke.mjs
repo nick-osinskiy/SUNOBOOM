@@ -1676,7 +1676,7 @@ async function checkLayout(mobile) {
     await page.locator('[data-pc-stage="idea"]').selectOption('done');
     await page.locator('#sbpc-list[data-v-app] .sbpc-song-meta b').waitFor({ timeout: 10000 });
     if ((await page.locator('#sbpc-list .sbpc-song-meta b').textContent()).trim() !== '1/6' ||
-        await page.evaluate(() => data.productions.find(w => w.title === 'Vue Master 122')?.steps.idea) !== 'done') {
+        await page.evaluate(id => data.productions.find(w => w.id === id)?.steps.idea, masterId125) !== 'done') {
       throw new Error('Master stage update did not return to the Vue list');
     }
     page.once('dialog', dialog => { void dialog.accept(); });
