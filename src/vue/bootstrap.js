@@ -8,8 +8,9 @@ const moduleUrl = productionEnabled ? '../../dist/vue/sunoboom-vue.js' : localDe
 
 if (moduleUrl && window.SUNOBOOM_LEGACY_NAV) {
   import(moduleUrl)
-    .then(({ startLegacyNavigation }) => {
+    .then(({ startLegacyNavigation, startLegacyAcademy }) => {
       if (typeof startLegacyNavigation === 'function') startLegacyNavigation();
+      if (typeof startLegacyAcademy === 'function') startLegacyAcademy();
     })
     .catch(error => {
       // All original menu buttons remain usable when the Vue bundle is absent.

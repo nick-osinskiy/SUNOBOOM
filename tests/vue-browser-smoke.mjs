@@ -86,6 +86,44 @@ async function checkLayout(mobile) {
     await page.locator(nav + ' button[data-nav="account"]').click();
     await page.locator(nav + ' button[data-nav="account"].active').waitFor({ timeout: 10000 });
 
+
+    // Academy is still grouped with nested religious subsections, but its
+    // genre cards are now Vue-owned in both desktop and mobile layouts.
+    await page.locator(nav + ' button[data-nav="catalog"]').click();
+    await page.locator('#catalog-cards .genre-grid[data-sb-vue-academy][data-v-app]').first()
+      .waitFor({ state: 'attached', timeout: 10000 });
+
+    const familyCount = await page.locator('#catalog-cards details.genre-family').count();
+    const cardCount = await page.locator('#catalog-cards .genre-card').count();
+    if (familyCount < 5 || cardCount < 20) {
+      throw new Error('Academy lost genre families or cards: ' + familyCount + ' / ' + cardCount);
+    }
+    // Family accordions must remain collapsed by default.
+    const collapsedCount = await page.locator('#catalog-cards details.genre-family:not([open])').count();
+    if (!collapsedCount) throw new Error('Academy family panels no longer collapse');
+
+    const sacred = page.locator('#catalog-cards details.genre-family[data-family="Религиозная музыка"]');
+    await sacred.locator(':scope > summary').click();
+    if (await sacred.locator('details.sb-sacred-religion').count() < 1) {
+      throw new Error('Religious Academy hierarchy missing');
+    }
+    if (await sacred.locator('.genre-grid[data-sb-vue-academy][data-v-app]').count() < 1) {
+      throw new Error('Religious Academy cards were not mounted with Vue');
+    }
+
+    const search = page.locator('#genre-search');
+    await search.fill('ска');
+    const ska = page.locator('#catalog-cards button.genre-card[data-id="reggae-ska"]');
+    await ska.waitFor({ timeout: 10000 });
+    await page.locator('#catalog-cards .genre-grid[data-sb-vue-academy][data-v-app]').first()
+      .waitFor({ state: 'attached', timeout: 10000 });
+    await ska.click();
+    await page.locator('.detail-head h1').waitFor({ timeout: 10000 });
+    const genreTitle = await page.locator('.detail-head h1').textContent();
+    if (!genreTitle?.toLocaleLowerCase('ru').includes('ска')) {
+      throw new Error('Genre card did not open the expected detail page: ' + genreTitle);
+    }
+
     const version = await page.locator('.sb-app-version').first().textContent();
     if (!/^v?\d+\.\d+$/.test(String(version || '').trim())) throw new Error('Version display missing or malformed');
 

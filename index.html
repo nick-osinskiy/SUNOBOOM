@@ -3380,6 +3380,18 @@ function newFilterCatalog(){
 }
 catalog=newCatalog;
 filterCatalog=newFilterCatalog;
+// Read-only bridge for Vue cards. Existing genre records and legacy actions
+// remain the authoritative source; no duplicate Vue genre catalogue is stored.
+window.SUNOBOOM_LEGACY_ACADEMY=Object.freeze({
+  genreCards(ids){
+    if(!Array.isArray(ids))return [];
+    return ids.map(id=>{
+      const g=GENRES.find(entry=>entry.id===id);
+      return g?{id:g.id,name:g.name,family:g.family,tagline:g.tagline,
+        era:g.era,color:g.color,bpm:g.bpm}:null;
+    }).filter(Boolean);
+  }
+});
 document.addEventListener("toggle",event=>{if(event.target?.matches?.("details.genre-family")&&!view.search.trim()){view.catalogExpanded[event.target.dataset.family]=event.target.open;}},true);
 render();
 </script><script>

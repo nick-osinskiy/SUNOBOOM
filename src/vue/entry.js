@@ -2,6 +2,7 @@ import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import VueFeatureHost from './VueFeatureHost.vue';
 import { activateLegacyNavigation } from './navigation/legacyBridge.js';
+import { activateLegacyAcademy } from './academy/legacyAcademyBridge.js';
 
 // Vue components are mounted only into explicitly handed-off feature containers.
 // Importing this module never replaces the existing SUNOBOOM application shell.
@@ -53,4 +54,9 @@ export function unmountVueFeature(target) {
 /** Mount the Vue navigation into the existing desktop and mobile menu containers. */
 export function startLegacyNavigation() {
   return activateLegacyNavigation({ mountVueFeature, unmountVueFeature });
+}
+
+/** Render Academy genre cards inside its existing grouped HTML structure. */
+export function startLegacyAcademy() {
+  return activateLegacyAcademy({ mountVueFeature });
 }
