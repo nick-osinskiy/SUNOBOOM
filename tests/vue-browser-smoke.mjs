@@ -765,17 +765,6 @@ async function checkLayout(mobile) {
 
     // Vue 3 poetry editor and performance tags (v0.105) are on the original
     // "My ideas" route; native fields retain the original text-processing handlers.
-    // Without the Vue bundle the original mobile navigation still carries
-    // exactly one Mixer caption (single text node beneath its SVG icon).
-    const legacyMixer = await page.locator('.mobile-nav button[data-nav="mixer"]').evaluate(button => ({
-      text: button.textContent.trim(),
-      spans: button.querySelectorAll(':scope > span').length,
-      repetitions: (button.textContent.match(/миксер/gi) || []).length
-    }));
-    if (legacyMixer.text !== 'Миксер' || legacyMixer.spans !== 1 ||
-        legacyMixer.repetitions !== 1) {
-      throw new Error('Legacy Mixer caption duplicated: ' + JSON.stringify(legacyMixer));
-    }
     await page.evaluate(() => go('myideas'));
     const poetryMountState = await page.evaluate(() => ({
       route: view.nav,
@@ -1573,6 +1562,18 @@ async function checkEditorFallback() {
   await page.route('**/dist/vue/**', route => route.abort());
   try {
     await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+    // Without the Vue bundle the original mobile navigation still carries
+    // exactly one Mixer caption (single text node beneath its SVG icon).
+    const legacyMixer = await page.locator('.mobile-nav button[data-nav="mixer"]').evaluate(button => ({
+      text: button.textContent.trim(),
+      spans: button.querySelectorAll(':scope > span').length,
+      repetitions: (button.textContent.match(/миксер/gi) || []).length
+    }));
+    if (legacyMixer.text !== 'Миксер' || legacyMixer.spans !== 1 ||
+        legacyMixer.repetitions !== 1) {
+      throw new Error('Legacy Mixer caption duplicated: ' + JSON.stringify(legacyMixer));
+    }
+
     await page.evaluate(() => go('myideas'));
     await page.locator('#custom-idea-title').fill('Fallback song');
     await page.locator('#custom-idea-lyrics').fill('Куплет 1:\nНаши слова остаются с нами');
