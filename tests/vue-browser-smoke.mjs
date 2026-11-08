@@ -404,6 +404,68 @@ async function checkLayout(mobile) {
       throw new Error('Mixer-to-Studio handoff failed: ' + JSON.stringify(mixerTransfer));
     }
 
+    // The rules-based auditor is now Vue, still using the original
+    // inspect(), propose(), clipboard and Studio settings.
+    await page.locator('#sbpa-auditor[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    const initialAudit = await page.evaluate(() => ({
+      count: document.querySelector('#sbpa-auditor #sbpa-results .sbpa-limit')?.textContent,
+      length: promptValue().length,
+      score: Number(document.querySelector('#sbpa-auditor .sbpa-score')?.firstChild?.textContent?.trim())
+    }));
+    if (!initialAudit.count?.includes(initialAudit.length + ' / 1000') ||
+        !Number.isFinite(initialAudit.score)) {
+      throw new Error('Vue audit score does not match the active Studio prompt: ' + JSON.stringify(initialAudit));
+    }
+
+    await page.locator('#b-theme').fill('Новое музыкальное направление');
+    await page.waitForFunction(() =>
+      document.querySelector('#sbpa-auditor .sbpa-limit')?.textContent?.includes(promptValue().length + ' / 1000'));
+    const builderBeforeAudit = await page.evaluate(() => JSON.stringify(builder));
+    await page.locator('#sbpa-auditor [data-sbpa-action="manual"]').click();
+    await page.locator('#sbpa-auditor[data-v-app] #sbpa-text').waitFor({ state: 'visible' });
+    const draft = '80 BPM, clear female lead vocals, 140 BPM, clear female lead vocals, no whispering';
+    await page.locator('#sbpa-text').fill(draft);
+    await page.waitForFunction(() =>
+      document.querySelector('#sbpa-results')?.textContent?.includes('Несколько разных темпов') &&
+      document.querySelector('#sbpa-results')?.textContent?.includes('Повторы инструкций'));
+    await page.locator('#sbpa-genre').selectOption('reggae-ska');
+    await page.waitForFunction(() => document.querySelector('#sbpa-genre')?.value === 'reggae-ska');
+
+    await page.locator('#sbpa-auditor [data-sbpa-action="preview"]').click();
+    await page.locator('#sbpa-preview-text').waitFor({ state: 'visible' });
+    const previewText = await page.locator('#sbpa-preview-text').inputValue();
+    if (previewText.split('clear female lead vocals').length !== 2) {
+      throw new Error('Vue preview did not remove one exact duplicate');
+    }
+    if (await page.locator('#sbpa-text').inputValue() !== draft) {
+      throw new Error('Audit preview overwrote the original manual text');
+    }
+    await page.locator('#sbpa-preview-text').fill('User approved preview, clean studio vocals');
+    if (await page.locator('#sbpa-preview-text').inputValue() !== 'User approved preview, clean studio vocals') {
+      throw new Error('Vue preview was not editable');
+    }
+    await page.locator('#sbpa-auditor [data-sbpa-action="close-preview"]').click();
+    await page.locator('#sbpa-preview-text').waitFor({ state: 'detached' });
+    if (await page.locator('#sbpa-text').inputValue() !== draft) {
+      throw new Error('Closing the preview modified the source text');
+    }
+
+    await page.locator('#sbpa-auditor [data-sbpa-action="load-studio"]').click();
+    await page.locator('#sbpa-auditor[data-v-app] #sbpa-text').waitFor();
+    const fromStudio = await page.locator('#sbpa-text').inputValue();
+    const currentStudio = await page.evaluate(() => promptValue());
+    if (fromStudio !== currentStudio) {
+      throw new Error('Load Studio prompt failed in Vue auditor');
+    }
+    await page.locator('#sbpa-auditor [data-sbpa-action="studio"]').click();
+    await page.locator('#sbpa-auditor[data-v-app] #sbpa-results').waitFor();
+    if (await page.locator('#sbpa-text').count() !== 0) {
+      throw new Error('Vue auditor did not return to Studio mode');
+    }
+    if (await page.evaluate(() => JSON.stringify(builder)) !== builderBeforeAudit) {
+      throw new Error('Auditing altered the original Studio builder settings');
+    }
+
     const version = await page.locator('.sb-app-version').first().textContent();
     if (!/^v?\d+\.\d+$/.test(String(version || '').trim())) throw new Error('Version display missing or malformed');
 

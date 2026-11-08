@@ -98,7 +98,7 @@
     return {text:draft,removed,complete:draft.length<=MAX};
   }
   const itemHTML=x=>'<li class="sbpa-item sbpa-'+x.kind+'"><div><strong>'+esc(x.title)+'</strong><p>'+esc(x.detail)+'</p><small>'+esc(x.fix)+'</small></div></li>';
-  function resultMarkup(){
+  function auditReport(){
     const text=currentText(),report=inspect(text,genre());
     if(state.mode==="studio"){
       const missing=[];
@@ -116,6 +116,10 @@
       }
     }
     const status=report.length>MAX?"Превышен лимит":report.score>=90?"Хорошая структура":report.score>=65?"Есть замечания":"Нужна проверка";
+    return {...report,status};
+  }
+  function resultMarkup(){
+    const report=auditReport(),status=report.status;
     const issues=report.issues.length?'<ul class="sbpa-issues">'+report.issues.map(itemHTML).join("")+'</ul>':
       '<p class="sbpa-clear">Явных противоречий и повторов по проверяемым правилам не найдено.</p>';
     return '<div class="sbpa-scoreline"><div class="sbpa-score" aria-label="Эвристическая оценка промпта">'+report.score+'<small>/ 100</small></div>'+
@@ -160,6 +164,11 @@
   }
   function refresh(){
     if(view.nav!=="studio")return;
+    // Do not mutate a Vue-owned subtree. Vue requests the authoritative report.
+    if(document.getElementById("sbpa-auditor")?.hasAttribute("data-v-app")){
+      window.dispatchEvent(new Event("sunoboom:auditor-updated"));
+      return;
+    }
     const results=document.getElementById("sbpa-results");
     if(results)results.innerHTML=resultMarkup();
     const slot=document.getElementById("sbpa-proposal-slot");
@@ -186,7 +195,7 @@
   document.addEventListener("input",event=>{
     if(view.nav!=="studio"||event.target?.id!=="sbpa-text")return;
     state.manual=event.target.value;state.proposalOpen=false;
-    const slot=document.getElementById("sbpa-proposal-slot");if(slot)slot.innerHTML="";
+    const slot=document.getElementById("sbpa-proposal-slot");if(slot&&!slot.closest("[data-v-app]"))slot.innerHTML="";
     refresh();
   });
   document.addEventListener("change",event=>{
@@ -214,11 +223,15 @@
     }
     if(action==="preview"){
       state.proposalOpen=true;const slot=document.getElementById("sbpa-proposal-slot");
-      if(slot)slot.innerHTML=proposalMarkup();return;
+      if(document.getElementById("sbpa-auditor")?.hasAttribute("data-v-app"))refresh();
+      else if(slot)slot.innerHTML=proposalMarkup();
+      return;
     }
     if(action==="close-preview"){
       state.proposalOpen=false;const slot=document.getElementById("sbpa-proposal-slot");
-      if(slot)slot.innerHTML="";return;
+      if(document.getElementById("sbpa-auditor")?.hasAttribute("data-v-app"))refresh();
+      else if(slot)slot.innerHTML="";
+      return;
     }
     if(action==="copy-preview"){
       const val=document.getElementById("sbpa-preview-text")?.value||"";
@@ -233,6 +246,19 @@
         }
         if(typeof toast==="function")toast("Проверенный вариант скопирован — исходник сохранён");
       }catch(error){if(typeof toast==="function")toast("Не удалось скопировать: выдели текст вручную");}
+    }
+  });
+  // Native Vue panel consumes snapshots, never a second copy of audit rules.
+  window.SUNOBOOM_LEGACY_AUDITOR=Object.freeze({
+    snapshot(){
+      if(view.nav!=="studio")return null;
+      return {
+        mode:state.mode,manual:state.manual,genreId:currentGenreId(),
+        genres:Array.isArray(GENRES)?GENRES.map(g=>({id:g.id,name:g.name})):[],
+        report:auditReport(),
+        proposalOpen:state.proposalOpen,
+        proposal:state.proposalOpen?propose(currentText()):null
+      };
     }
   });
   window.SUNOBOOM_PROMPT_AUDITOR=Object.freeze({version:"0.91",analyze:(text,genreId)=>inspect(text,(Array.isArray(GENRES)?GENRES:[]).find(g=>g.id===genreId)||null),propose,openManual});

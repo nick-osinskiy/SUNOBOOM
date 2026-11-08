@@ -6,6 +6,7 @@ import { activateLegacyAcademy } from './academy/legacyAcademyBridge.js';
 import { activateLegacyGenreDetail } from './academy/legacyGenreDetailBridge.js';
 import { activateLegacyStudio } from './studio/legacyStudioBridge.js';
 import { activateLegacyMixer } from './studio/legacyMixerBridge.js';
+import { activateLegacyAuditor } from './studio/legacyAuditorBridge.js';
 
 // Vue components are mounted only into explicitly handed-off feature containers.
 // Importing this module never replaces the existing SUNOBOOM application shell.
@@ -77,4 +78,9 @@ export function startLegacyStudio() {
 /** Vue 3 genre mixer; legacy calculations and browser storage remain unchanged. */
 export function startLegacyMixer() {
   return activateLegacyMixer({ mountVueFeature });
+}
+
+/** Vue 3 prompt auditor interface, with original rule engine and clipboard actions. */
+export function startLegacyAuditor() {
+  return activateLegacyAuditor({ mountVueFeature });
 }
