@@ -20,7 +20,7 @@
  const getDuration=()=>validDuration(activeAudio())?activeAudio().duration:(validDuration(audio[state.active==="A"?"B":"A"])?audio[state.active==="A"?"B":"A"].duration:0);
  const currentPosition=()=>Number.isFinite(activeAudio().currentTime)?activeAudio().currentTime:0;
  const supported=f=>f&&(/^(audio\/)/i.test(f.type||"")||/\.(mp3|m4a|aac|wav|flac|ogg|opus|aiff)$/i.test(f.name||""));
- const message=txt=>{state.status=txt;const el=document.getElementById("sbab-status");if(el){el.hidden=!txt;el.textContent=txt;}};
+ const message=txt=>{state.status=txt;if(document.getElementById("sb-vue-player-ab")?.hasAttribute("data-v-app")){window.dispatchEvent(new Event("sunoboom:player-ab-update"));return;}const el=document.getElementById("sbab-status");if(el){el.hidden=!txt;el.textContent=txt;}};
  const pauseAB=()=>{audio.A.pause();audio.B.pause();sync()};
  const haltMain=()=>{try{window.SUNOBOOM_PLAYER_LAB?.getAudioElement?.()?.pause()}catch(e){}};
  const markerName=()=>state.loop?"Повтор фрагмента включён":"Повтор фрагмента выключен";
@@ -96,8 +96,10 @@
   if(!hero)return;
   if(!host.querySelector(".sbab-modes")){
     hero.insertAdjacentHTML("afterend",modeTabs());
-    host.querySelector(".sbab-modes").insertAdjacentHTML("afterend",compareHTML());
+    host.querySelector(".sbab-modes").insertAdjacentHTML("afterend",'<div id="sb-vue-player-ab">'+compareHTML()+'</div>');
   }
+  const compareHost=host.querySelector("#sb-vue-player-ab");
+  if(compareHost)compareHost.hidden=state.mode!=="compare";
   const compare=host.querySelector("#"+rootID);
   if(compare)compare.hidden=state.mode!=="compare";
   host.classList.toggle("sbab-compare-mode",state.mode==="compare");
@@ -108,6 +110,9 @@
   if(view.nav!=="player")return;
   const root=document.getElementById(rootID);
   if(!root)return;
+  if(document.getElementById("sb-vue-player-ab")?.hasAttribute("data-v-app")){
+    window.dispatchEvent(new Event("sunoboom:player-ab-update"));return;
+  }
   const playing=!activeAudio().paused&&!activeAudio().ended&&!!files[state.active];
   root.classList.toggle("sbab-is-playing",playing);
   root.classList.toggle("sbab-has-files",!!files.A&&!!files.B);
@@ -296,7 +301,9 @@
    else if(act==="copy")copyReport();
    else if(act==="reset-review"){
       for(const side of ["A","B"]){scores[side]={vocal:0,arrangement:0,mix:0};notes[side]="";}
-      const r=document.querySelector(".sbab-review");if(r)r.outerHTML=reviewTable();
+      if(!document.getElementById("sb-vue-player-ab")?.hasAttribute("data-v-app")){
+        const r=document.querySelector(".sbab-review");if(r)r.outerHTML=reviewTable();
+      }
       message("Оценки и заметки очищены.");
    }
  });
@@ -304,7 +311,7 @@
    if(view.nav!=="player"||state.mode!=="compare")return;
    const e=event.target;
    if(e.dataset.sbabFile){const side=e.dataset.sbabFile;if(e.files?.length)loadFile(side,e.files[0]);e.value="";return;}
-   if(e.dataset.sbabScore){const [side,key]=e.dataset.sbabScore.split(":");if(scores[side]&&["vocal","arrangement","mix"].includes(key)){const n=Number(e.value);scores[side][key]=Number.isInteger(n)&&n>=0&&n<=5?n:0;}}
+   if(e.dataset.sbabScore){const [side,key]=e.dataset.sbabScore.split(":");if(scores[side]&&["vocal","arrangement","mix"].includes(key)){const n=Number(e.value);scores[side][key]=Number.isInteger(n)&&n>=0&&n<=5?n:0;sync();}}
  });
  document.addEventListener("input",event=>{
    if(view.nav!=="player"||state.mode!=="compare")return;
@@ -340,6 +347,33 @@
  window.addEventListener("pagehide",()=>{
    pauseAB();
    for(const side of ["A","B"]){audio[side].removeAttribute("src");audio[side].load();if(files[side])URL.revokeObjectURL(files[side].url);files[side]=null;}
+ });
+ // Read-only view model: all file, scoring and playback mutations remain in player-ab.js.
+ window.SUNOBOOM_LEGACY_PLAYER_AB=Object.freeze({
+   snapshot(){
+     if(view.nav!=="player")return null;
+     const duration=getDuration(),position=currentPosition();
+     return {
+       mode:state.mode,active:state.active,
+       playing:!activeAudio().paused&&!activeAudio().ended&&!!files[state.active],
+       hasBoth:!!files.A&&!!files.B,canPlay:!!files[state.active],
+       canSeek:!!files[state.active]&&validDuration(activeAudio()),
+       seek:validDuration(activeAudio())?Math.round(Math.min(position/duration,1)*1000):0,
+       currentTime:time(position),duration:time(duration),
+       start:state.segmentStart===null?"—":time(state.segmentStart),
+       end:state.segmentEnd===null?"—":time(state.segmentEnd),
+       loop:state.loop,status:state.status,ios:isIOS,
+       volume:{A:Math.round(audio.A.volume*100),B:Math.round(audio.B.volume*100)},
+       files:Object.fromEntries(["A","B"].map(side=>[side,{
+         ready:!!files[side],
+         name:files[side]?.name||"Добавь аудиозапись",
+         info:files[side]?(files[side].demo?"Оригинальный тестовый звук":"Локальный аудиофайл"):"MP3 · WAV · M4A и другие поддерживаемые форматы",
+         duration:validDuration(audio[side])?time(audio[side].duration):"—"
+       }])),
+       scores:{A:{...scores.A},B:{...scores.B}},
+       notes:{...notes}
+     };
+   }
  });
  window.SUNOBOOM_AB_COMPARE=Object.freeze({version:"0.65",getActive:()=>state.active,hasBoth:()=>!!files.A&&!!files.B,isPlaying:()=>!activeAudio().paused&&!!files[state.active],getMode:()=>state.mode});
  if(view.nav==="player")render();

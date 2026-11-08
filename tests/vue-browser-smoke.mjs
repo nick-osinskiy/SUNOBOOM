@@ -1426,8 +1426,45 @@ async function checkLayout(mobile) {
         !(await page.locator('#sbab-compare').isVisible())) {
       throw new Error('Legacy A/B comparison failed after Vue Player LAB mount');
     }
-    await page.locator('#sbab-compare [data-sbab-action="demo"]').click();
-    await page.waitForFunction(() => window.SUNOBOOM_AB_COMPARE?.hasBoth(), null, { timeout: 10000 });
+    // v0.120: the independent comparator is Vue-owned without taking over audio.
+    await page.locator('#sb-vue-player-ab[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    const ab = page.locator('#sb-vue-player-ab');
+    if (await ab.locator('[data-sb-vue-player-ab]').count() !== 1 ||
+        await ab.locator('#sbab-play:disabled').count() !== 1 ||
+        await ab.locator('[data-sbab-card]').count() !== 2) {
+      throw new Error('Vue A/B comparator initial state is incomplete');
+    }
+    await ab.locator('[data-sbab-action="demo"]').click();
+    await page.waitForFunction(() => window.SUNOBOOM_AB_COMPARE?.hasBoth() &&
+      document.querySelector('#sbab-ready-A')?.textContent === 'Файл добавлен' &&
+      document.querySelector('#sbab-ready-B')?.textContent === 'Файл добавлен', null, { timeout: 10000 });
+    if (await ab.locator('#sbab-play:enabled').count() !== 1) {
+      throw new Error('Vue A/B comparator did not enable playback after demo tracks');
+    }
+    await ab.locator('[data-sbab-action="select"][data-side="B"]').click();
+    await page.waitForFunction(() => window.SUNOBOOM_AB_COMPARE?.getActive() === 'B');
+    if (await ab.locator('.sbab-btn-b').getAttribute('aria-pressed') !== 'true') {
+      throw new Error('Vue A/B did not react to legacy version switching');
+    }
+    await ab.locator('[data-sbab-action="loop"]').click();
+    if (!(await ab.locator('#sbab-status').textContent()).includes('Отметь начало и конец')) {
+      throw new Error('Vue A/B missing fragment marker validation');
+    }
+    await ab.locator('[data-sbab-score="A:vocal"]').selectOption('4');
+    await ab.locator('[data-sbab-score="B:mix"]').selectOption('5');
+    await ab.locator('#sbab-note-A').fill('Сильный вокал в A');
+    await ab.locator('[data-sbab-action="reset-review"]').click();
+    if (await ab.locator('[data-sbab-score="A:vocal"]').inputValue() !== '0' ||
+        await ab.locator('[data-sbab-score="B:mix"]').inputValue() !== '0' ||
+        await ab.locator('#sbab-note-A').inputValue() !== '') {
+      throw new Error('Vue A/B review reset failed to clear ratings and notes');
+    }
+    await ab.locator('[data-sbab-action="remove"][data-side="B"]').click();
+    if (await ab.locator('#sbab-ready-B').textContent() !== 'Ожидает файл' ||
+        await page.evaluate(() => window.SUNOBOOM_AB_COMPARE?.hasBoth())) {
+      throw new Error('Vue A/B removal did not update the original engine');
+    }
+
     await page.locator('.sbab-modes [data-mode="player"]').click();
     if (await page.evaluate(() => window.SUNOBOOM_AB_COMPARE?.getMode()) !== 'player' ||
         await player.locator('.sbp-track').count() !== 3) {
@@ -1596,8 +1633,15 @@ async function checkEditorFallback() {
       throw new Error('Original Player LAB queue did not render without Vue');
     }
     await page.locator('.sbab-modes [data-mode="compare"]').click();
-    if (await page.evaluate(() => window.SUNOBOOM_AB_COMPARE?.getMode()) !== 'compare') {
-      throw new Error('Original A/B comparison is missing without Vue');
+    if (await page.evaluate(() => window.SUNOBOOM_AB_COMPARE?.getMode()) !== 'compare' ||
+        await page.locator('#sb-vue-player-ab[data-v-app]').count() !== 0 ||
+        await page.locator('#sb-vue-player-ab #sbab-play:disabled').count() !== 1) {
+      throw new Error('Original A/B comparison fallback is missing without Vue');
+    }
+    await page.locator('#sbab-compare [data-sbab-action="demo"]').click();
+    if (!await page.evaluate(() => window.SUNOBOOM_AB_COMPARE?.hasBoth()) ||
+        await page.locator('#sbab-compare #sbab-play:enabled').count() !== 1) {
+      throw new Error('Original A/B comparison demo failed without Vue');
     }
     await page.locator('.sbab-modes [data-mode="player"]').click();
     await page.locator('#sbp-clear').click();
