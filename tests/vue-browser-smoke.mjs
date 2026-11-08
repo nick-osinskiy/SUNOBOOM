@@ -95,6 +95,32 @@ async function checkLayout(mobile) {
         throw new Error('Mobile navigation items overlap or overflow at 375px');
       }
     }
+    // v0.123: extensions may register the same Mixer destination under another
+    // ID. Both original fallback markup and the Vue snapshot must expose one.
+    const duplicateCheck = await page.evaluate(() => {
+      navs.push(['mixer-copy-test', 'Дополнительный миксер', 'mixer']);
+      try {
+        render();
+        const navLabels = selector => [...document.querySelectorAll(selector + ' button')]
+          .map(el => el.textContent.trim())
+          .filter(label => /миксер/i.test(label)).length;
+        const snapshotCount = window.SUNOBOOM_LEGACY_NAV.snapshot().items
+          .filter(item => /миксер/i.test(item.label)).length;
+        return {
+          mobileCount: navLabels('.mobile-nav'),
+          desktopCount: navLabels('[data-sb-vue-sidebar]'),
+          snapshotCount
+        };
+      } finally {
+        navs.pop();
+        render();
+      }
+    });
+    if (duplicateCheck.mobileCount !== 1 || duplicateCheck.desktopCount !== 1 ||
+        duplicateCheck.snapshotCount !== 1) {
+      throw new Error('Mixer entry duplicated between legacy and Vue navigation: ' +
+        JSON.stringify(duplicateCheck));
+    }
     await master.waitFor();
     if (await master.count() !== 1) throw new Error('Master link missing or duplicated');
 
