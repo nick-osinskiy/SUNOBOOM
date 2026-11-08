@@ -633,7 +633,7 @@ async function checkLayout(mobile) {
       throw new Error('Vue genre search returned no matches');
     }
     await genreChoice.click();
-    await picker.locator('#sba-preset-menu[hidden]').waitFor();
+    await picker.locator('#sba-preset-menu[hidden]').waitFor({ state: 'attached' });
     if (!(await picker.locator('#sba-picked-label').textContent())?.includes('Ска')) {
       throw new Error('Vue picker did not select the requested genre');
     }
