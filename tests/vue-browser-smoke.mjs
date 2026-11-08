@@ -820,6 +820,71 @@ async function checkLayout(mobile) {
       throw new Error('Cancel changed saved data or duplicated the editor');
     }
 
+    // v0.107: all three collections keep their original actions and data.
+    const fixture = await page.evaluate(() => {
+      const genre = GENRES.find(g => g.ideas?.length);
+      const generated = { id: 'vue-collection-generated', genre: genre.id, title: 'Idea Lab <literal>',
+        pitch: 'История из генератора', topic: 'Дорога', storyLine: 'Начало и возвращение',
+        hook: 'Дом ждёт нас', detail: 'Старый вокзал', mood: 'nostalgic', vocal: 'male', language: 'ru' };
+      data.savedGeneratedIdeas = [generated];
+      data.savedIdeas = [genre.id + ':0'];
+      persist(); go('myideas');
+      window.__collectionCopies = [];
+      window.__collectionCopyOriginal = copyText;
+      copyText = text => { window.__collectionCopies.push(text); };
+      return { genre: genre.id, academyTitle: genre.ideas[0].title };
+    });
+    const collections = page.locator('#sb-vue-idea-collections');
+    await page.locator('#sb-vue-idea-collections[data-v-app]').waitFor({ state: 'attached' });
+    if (await collections.locator('[data-idea-collection]').count() !== 3 ||
+        !(await collections.textContent()).includes('Idea Lab <literal>')) {
+      throw new Error('Vue idea collections lost a group or interpreted title as HTML');
+    }
+    await collections.locator('[data-action="copy-manual-idea"][data-id="' + stored.id + '"]').click();
+    await collections.locator('[data-action="copy-saved-lyrics"][data-id="' + stored.id + '"]').click();
+    await collections.locator('[data-action="generated-copy"]').click();
+    const copied = await page.evaluate(() => window.__collectionCopies);
+    if (copied.length !== 3 || !copied[0].includes(stored.title) || copied[1] !== manualLyrics ||
+        !copied[2].includes('Idea Lab <literal>')) throw new Error('Collection copy actions lost content');
+    await page.evaluate(() => { copyText = window.__collectionCopyOriginal; });
+    await collections.locator('[data-action="tp-from-idea"][data-id="' + stored.id + '"]').click();
+    if (await page.evaluate(() => view.nav) !== 'tracks' ||
+        await page.locator('#tp-title').inputValue() !== stored.title) throw new Error('Track passport link lost its idea');
+    await page.evaluate(() => go('myideas'));
+    await page.locator('#sb-vue-idea-collections[data-v-app]').waitFor({ state: 'attached' });
+    await collections.locator('[data-action="pc-from-idea"][data-id="' + stored.id + '"]').click();
+    if (await page.evaluate(() => view.nav) !== 'producer') throw new Error('Master action failed');
+    await page.evaluate(() => go('myideas'));
+    await page.locator('#sb-vue-idea-collections[data-v-app]').waitFor({ state: 'attached' });
+    await collections.locator('[data-action="use-manual-idea"][data-id="' + stored.id + '"]').click();
+    if (!(await page.evaluate(() => builder.theme)).includes(stored.title)) throw new Error('Manual idea Studio transfer failed');
+    await page.evaluate(() => go('myideas'));
+    await page.locator('#sb-vue-idea-collections[data-v-app]').waitFor({ state: 'attached' });
+    await collections.locator('[data-action="generated-use"]').click();
+    if (!(await page.evaluate(() => builder.theme)).includes('Idea Lab <literal>')) throw new Error('Idea Lab Studio transfer failed');
+    await page.evaluate(() => go('myideas'));
+    await page.locator('#sb-vue-idea-collections[data-v-app]').waitFor({ state: 'attached' });
+    await collections.locator('[data-action="idea-use"]').click();
+    if (!(await page.evaluate(() => builder.theme)).includes(fixture.academyTitle)) throw new Error('Academy Studio transfer failed');
+    await page.evaluate(() => go('myideas'));
+    await page.locator('#sb-vue-idea-collections[data-v-app]').waitFor({ state: 'attached' });
+    await collections.locator('[data-action="idea-save"]').click();
+    await page.locator('#sb-vue-idea-collections[data-v-app]').waitFor({ state: 'attached' });
+    if (await collections.locator('[data-idea-collection="academy"]').count() ||
+        await collections.locator('[data-idea-collection="manual"] .idea').count() !== 1) throw new Error('Removing an Academy idea affected another collection');
+    await collections.locator('[data-action="generated-delete"]').click();
+    await page.locator('#sb-vue-idea-collections[data-v-app]').waitFor({ state: 'attached' });
+    page.once('dialog', dialog => dialog.dismiss());
+    await collections.locator('[data-action="delete-manual-idea"]').click();
+    if (await collections.locator('[data-action="delete-manual-idea"]').count() !== 1) throw new Error('Cancelled deletion removed the idea');
+    page.once('dialog', dialog => dialog.accept());
+    await collections.locator('[data-action="delete-manual-idea"]').click();
+    await page.locator('#sb-vue-idea-collections[data-v-app]').waitFor({ state: 'attached' });
+    if (await collections.locator('.empty').count() !== 3 ||
+        await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-v1')).manualIdeas.length) !== 0) {
+      throw new Error('Empty collection state or persisted deletion is incorrect');
+    }
+
     const version = await page.locator('.sb-app-version').first().textContent();
     if (!/^v?\d+\.\d+$/.test(String(version || '').trim())) throw new Error('Version display missing or malformed');
 

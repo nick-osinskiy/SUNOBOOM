@@ -1,3 +1,4 @@
+import { activateLegacyIdeaCollections } from './poetry/legacyIdeaCollectionsBridge.js';
 import { activateLegacyIdeaEditor } from './poetry/legacyIdeaEditorBridge.js';
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
@@ -108,4 +109,8 @@ export function startLegacyTags() {
 /** Vue form fields and Lyrics/Style; original storage and text processing retained. */
 export function startLegacyIdeaEditor() {
   return activateLegacyIdeaEditor({ mountVueFeature });
+}
+
+export function startLegacyIdeaCollections() {
+  return activateLegacyIdeaCollections({ mountVueFeature });
 }
