@@ -82,6 +82,24 @@ async function checkLayout(mobile) {
       throw new Error('Duplicate or overlong Mixer label in the navigation');
     }
     if (mobile) {
+      // Verify text inside the SAME button, not merely the number of buttons.
+      // Regression: iPhone showed a desktop 'Миксер' beside the icon and a
+      // second 'Миксер' underneath, although the route existed only once.
+      const mixerButton = page.locator('.mobile-nav button[data-nav="mixer"]');
+      const structure = await mixerButton.evaluate(button => ({
+        captionCount: button.querySelectorAll(':scope > .sb-vue-nav-label').length,
+        caption: button.querySelector(':scope > .sb-vue-nav-label')?.textContent?.trim(),
+        allText: button.textContent.replace(/\\s+/g, ' ').trim(),
+        accessibleTextOccurrences: (button.textContent.match(/миксер/gi) || []).length,
+        iconText: button.querySelector(':scope > .sb-vue-nav-icon')?.textContent?.trim()
+      }));
+      if (structure.captionCount !== 1 || structure.caption !== 'Миксер' ||
+          structure.accessibleTextOccurrences !== 1 || structure.iconText !== '') {
+        throw new Error('Mobile Mixer rendered two captions in one button: ' +
+          JSON.stringify(structure));
+      }
+    }
+    if (mobile) {
       const menuBounds = await page.locator(nav + ' button[data-nav]').evaluateAll(buttons =>
         buttons.map(button => {
           const rect = button.getBoundingClientRect();
@@ -747,6 +765,17 @@ async function checkLayout(mobile) {
 
     // Vue 3 poetry editor and performance tags (v0.105) are on the original
     // "My ideas" route; native fields retain the original text-processing handlers.
+    // Without the Vue bundle the original mobile navigation still carries
+    // exactly one Mixer caption (single text node beneath its SVG icon).
+    const legacyMixer = await page.locator('.mobile-nav button[data-nav="mixer"]').evaluate(button => ({
+      text: button.textContent.trim(),
+      spans: button.querySelectorAll(':scope > span').length,
+      repetitions: (button.textContent.match(/миксер/gi) || []).length
+    }));
+    if (legacyMixer.text !== 'Миксер' || legacyMixer.spans !== 1 ||
+        legacyMixer.repetitions !== 1) {
+      throw new Error('Legacy Mixer caption duplicated: ' + JSON.stringify(legacyMixer));
+    }
     await page.evaluate(() => go('myideas'));
     const poetryMountState = await page.evaluate(() => ({
       route: view.nav,
