@@ -162,3 +162,12 @@ npm run build:vue
 ## Этап 17 — список «Мои промпты» (v0.108)
 - `account/PromptCollection.vue` + `account/legacyPromptCollectionBridge.js` заменяют только `#sb-vue-prompts-list`.
 - Legacy форма `#prompt-editor`, аудитор, actions, `data.savedPrompts` и HTML fallback сохранены; браузерный CRUD тест в `tests/vue-browser-smoke.mjs`.
+
+
+## Этап 19 — Vue 3: форма «Мои промпты» (v0.110)
+
+- `account/PromptEditor.vue` переносит название, жанр, текст и счётчик символов в Vue; исходные ID полей и ограничение в 1000 символов сохранены.
+- `account/legacyPromptEditorBridge.js` монтируется только внутрь `#sb-vue-prompt-form` и забирает реальные значения HTML-полей при отложенной загрузке Vue.
+- `SUNOBOOM_LEGACY_PROMPT_EDITOR.snapshot()` читает действующие `data.savedPrompts` и `GENRES`. Нового хранилища нет.
+- Кнопки сохранения/отмены, проверка в аудиторе, переход в Studio и `data-action` остаются за старым JavaScript; HTML-разметка формы остаётся fallback при недоступном Vue.
+- Проверка: Playwright на мобильной и десктопной ширине проверяет монтирование, счётчик, добавление, редактирование и работу аудитора.

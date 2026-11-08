@@ -87,15 +87,22 @@ async function checkLayout(mobile) {
     await page.locator(nav + ' button[data-nav="account"].active').waitFor({ timeout: 10000 });
 
 
-    // v0.108: Vue list, legacy editor, actions and auditor entry coexist.
+    // v0.110: Vue prompt form and saved list coexist with legacy save, cancel and auditor actions.
     await page.evaluate(() => go('myprompts'));
     await page.locator('#sb-vue-prompts-list[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    await page.locator('#sb-vue-prompt-form[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    if (await page.locator('#custom-prompt-text').getAttribute('maxlength') !== '1000') {
+      throw new Error('Vue prompt form lost the 1000-character input limit');
+    }
     if (await page.locator('#prompt-editor').count() !== 1 ||
         await page.locator('#prompt-editor [data-sbpa-action="from-editor"]').count() !== 1) {
       throw new Error('Prompt editor or auditor link was lost');
     }
     await page.locator('#custom-prompt-title').fill('Vue test <title>');
     await page.locator('#custom-prompt-text').fill('Russian indie pop, clear vocals');
+    if (!(await page.locator('#sb-prompt-char-count').textContent()).includes('29 / 1000')) {
+      throw new Error('Vue prompt character counter did not update');
+    }
     await page.locator('#prompt-editor [data-action="save-manual-prompt"]').click();
     await page.locator('#sb-vue-prompts-list[data-v-app]').waitFor({ state: 'attached' });
     const idPrompt = await page.evaluate(() => data.savedPrompts.at(-1)?.id);
@@ -103,8 +110,9 @@ async function checkLayout(mobile) {
       throw new Error('Vue prompt collection did not render the saved record');
     }
     await page.locator('#sb-vue-prompts-list [data-action="edit-manual-prompt"][data-id="' + idPrompt + '"]').click();
+    await page.locator('#sb-vue-prompt-form[data-v-app]').waitFor({ state: 'attached' });
     if (await page.locator('#custom-prompt-title').inputValue() !== 'Vue test <title>') {
-      throw new Error('Legacy edit prompt action was lost');
+      throw new Error('Vue prompt edit did not restore the saved title');
     }
     await page.locator('#custom-prompt-text').fill('Russian indie pop, 118 BPM');
     await page.locator('#prompt-editor [data-action="save-manual-prompt"]').click();

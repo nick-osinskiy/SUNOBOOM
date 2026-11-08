@@ -1,5 +1,6 @@
 import { activateLegacyIdeaCollections } from './poetry/legacyIdeaCollectionsBridge.js';
 import { activateLegacyPromptCollection } from './account/legacyPromptCollectionBridge.js';
+import { activateLegacyPromptEditor } from './account/legacyPromptEditorBridge.js';
 import { activateLegacyLibrary } from './account/legacyLibraryBridge.js';
 import { activateLegacyIdeaEditor } from './poetry/legacyIdeaEditorBridge.js';
 import { createApp } from 'vue';
@@ -117,7 +118,12 @@ export function startLegacyIdeaCollections() {
   return activateLegacyIdeaCollections({ mountVueFeature });
 }
 
-/** Vue saved prompt list with legacy editor and source data retained. */
+/** Vue prompt form fields; original save, cancel and auditor handlers retained. */
+export function startLegacyPromptEditor() {
+  return activateLegacyPromptEditor({ mountVueFeature });
+}
+
+/** Vue saved prompt list with original source data and handlers retained. */
 export function startLegacyPromptCollection() {
   return activateLegacyPromptCollection({ mountVueFeature });
 }
