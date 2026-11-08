@@ -118,8 +118,8 @@ async function checkLayout(mobile) {
     await page.locator('#catalog-cards .genre-grid[data-sb-vue-academy][data-v-app]').first()
       .waitFor({ state: 'attached', timeout: 10000 });
     await ska.click();
-    await page.locator('.detail-head h1').waitFor({ timeout: 10000 });
-    const genreTitle = await page.locator('.detail-head h1').textContent();
+    await page.locator('.genre-bright h1.gb-title').waitFor({ timeout: 10000 });
+    const genreTitle = await page.locator('.genre-bright h1.gb-title').textContent();
     if (!genreTitle?.toLocaleLowerCase('ru').includes('ска')) {
       throw new Error('Genre card did not open the expected detail page: ' + genreTitle);
     }
