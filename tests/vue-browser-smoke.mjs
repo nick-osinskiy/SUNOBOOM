@@ -100,7 +100,7 @@ async function checkLayout(mobile) {
     }
     await page.locator('#custom-prompt-title').fill('Vue test <title>');
     await page.locator('#custom-prompt-text').fill('Russian indie pop, clear vocals');
-    if (!(await page.locator('#sb-prompt-char-count').textContent()).includes('29 / 1000')) {
+    if (!(await page.locator('#sb-prompt-char-count').textContent()).includes('31 / 1000')) {
       throw new Error('Vue prompt character counter did not update');
     }
     await page.locator('#prompt-editor [data-action="save-manual-prompt"]').click();
