@@ -8,6 +8,8 @@ import { activateLegacyStudio } from './studio/legacyStudioBridge.js';
 import { activateLegacyMixer } from './studio/legacyMixerBridge.js';
 import { activateLegacyAuditor } from './studio/legacyAuditorBridge.js';
 import { activateLegacyArranger } from './studio/legacyArrangerBridge.js';
+import { activateLegacyPoetry } from './poetry/legacyPoetryBridge.js';
+import { activateLegacyTags } from './poetry/legacyTagsBridge.js';
 
 // Vue components are mounted only into explicitly handed-off feature containers.
 // Importing this module never replaces the existing SUNOBOOM application shell.
@@ -89,4 +91,14 @@ export function startLegacyAuditor() {
 /** Vue 3 arrangement cards, snake, transition hub and energy curve. */
 export function startLegacyArranger() {
   return activateLegacyArranger({ mountVueFeature });
+}
+
+/** Vue 3 song poetry analytics and homograph choice list. */
+export function startLegacyPoetry() {
+  return activateLegacyPoetry({ mountVueFeature });
+}
+
+/** Vue 3 vocal performance tag controls and editable confirmation preview. */
+export function startLegacyTags() {
+  return activateLegacyTags({ mountVueFeature });
 }

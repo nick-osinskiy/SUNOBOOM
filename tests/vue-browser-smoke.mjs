@@ -660,6 +660,100 @@ async function checkLayout(mobile) {
       throw new Error('Vue arrangement views did not update after selecting an Academy preset');
     }
 
+    // Vue 3 poetry editor and performance tags (v0.105) are on the original
+    // "My ideas" route; the actual song text always remains outside Vue.
+    await page.evaluate(() => go('myideas'));
+    await page.locator('#sb-poetry-result[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    await page.locator('#sb-vt-workbench[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    const lyricText = [
+      'Куплет 1:', 'Я вижу замок на холме', 'И снова мысли обо мне',
+      '', 'Припев:', 'Я слышу музыку во мне', 'И вижу город в тишине'
+    ].join('\n');
+    await page.locator('#custom-idea-lyrics').fill(lyricText);
+    await page.locator('[data-action="sb-poetry-analyze"]').click();
+    await page.waitForFunction(() =>
+      document.querySelector('#sb-poetry-result .sb-poetry-stats') &&
+      document.querySelectorAll('#sb-poetry-result .sb-poetry-line').length === 4);
+    const poetryState = await page.evaluate(() => ({
+      source: document.getElementById('custom-idea-lyrics').value,
+      stats: document.querySelector('#sb-poetry-result .sb-poetry-stats')?.textContent,
+      original: document.querySelector('#sb-poetry-result').dataset.analyzed,
+      lyricCount: window.SUNOBOOM_LEGACY_POETRY.analysis()?.rowCount
+    }));
+    if (poetryState.source !== lyricText || poetryState.original !== 'true' ||
+        poetryState.lyricCount !== 4 || !poetryState.stats?.includes('4')) {
+      throw new Error('Vue poetry analysis changed original lyrics or lost rows: ' + JSON.stringify(poetryState));
+    }
+    await page.locator('#custom-idea-lyrics').fill(lyricText + '\nНовая строка');
+    await page.waitForFunction(() =>
+      document.querySelector('#sb-poetry-result .sb-poetry-empty')?.textContent?.includes('Текст изменён'));
+    await page.locator('#custom-idea-lyrics').fill(lyricText);
+    await page.locator('[data-action="sb-poetry-analyze"]').click();
+
+    // Auto-stress still loads the original FSA dictionary and highlights
+    // unresolved homographs; Vue renders only the safe choice list.
+    await page.locator('[data-action="sb-poetry-auto-stress"]').click();
+    await page.locator('#sb-poetry-stress-preview').waitFor({ state: 'visible', timeout: 20000 });
+    await page.locator('#sb-poetry-ambiguous-choices[data-v-app]').waitFor({ state: 'attached' });
+    const ambiguity = page.locator(
+      '#sb-poetry-ambiguous-choices [data-action="sb-poetry-stress-choice"][data-word="замок"]');
+    if (await ambiguity.count() < 2 ||
+        await page.locator('.sb-stress-ambiguous-word').count() < 1) {
+      throw new Error('Vue homograph choices or original red stress highlighting are missing');
+    }
+    await ambiguity.first().click();
+    await page.waitForFunction(() =>
+      !document.querySelector('#sb-poetry-ambiguous-choices [data-word="замок"]'));
+    if (await page.locator('#custom-idea-lyrics').inputValue() !== lyricText) {
+      throw new Error('Choosing stress changed the original text before confirmation');
+    }
+    await page.locator('[data-action="sb-poetry-stress-apply"]').click();
+    await page.waitForFunction(() =>
+      document.getElementById('custom-idea-lyrics')?.value?.includes('замо\u0301к') ||
+      document.getElementById('custom-idea-lyrics')?.value?.includes('за\u0301мок'));
+    const stressedLyrics = await page.locator('#custom-idea-lyrics').inputValue();
+    if (stressedLyrics === lyricText || !(stressedLyrics.includes('за\u0301мок') || stressedLyrics.includes('замо\u0301к'))) {
+      throw new Error('Stress confirmation was not applied to the original song editor');
+    }
+
+    // Vue performance tags remain fully rules-based when no Gemini server is
+    // configured, and only modify the generated Lyrics field upon approval.
+    const tags = page.locator('#sb-vt-workbench[data-v-app]');
+    await tags.locator('#sb-vt-mode').selectOption('rules');
+    await tags.locator('#sb-vt-source').selectOption('original');
+    await tags.locator('#sb-vt-intensity').evaluate(input => {
+      input.value = '4';
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    await page.waitForFunction(() =>
+      data.performanceTagSettings?.mode === 'rules' &&
+      data.performanceTagSettings?.source === 'original' &&
+      data.performanceTagSettings?.intensity === 4);
+    const originalBeforeTags = await page.locator('#custom-idea-lyrics').inputValue();
+    const taggedBefore = await page.locator('#custom-idea-tagged').inputValue();
+    await tags.locator('[data-action="vt-generate"]').click();
+    await tags.locator('#sb-vt-preview').waitFor({ state: 'visible' });
+    if (await tags.locator('.sb-vt-section').count() < 2 ||
+        await page.locator('#custom-idea-tagged').inputValue() !== taggedBefore ||
+        await page.locator('#custom-idea-lyrics').inputValue() !== originalBeforeTags) {
+      throw new Error('Vue vocal tags preview overwrote either source field before approval');
+    }
+    const defaultTag = await tags.locator('#sb-vt-preview').inputValue();
+    if (!defaultTag.includes('Vocal delivery:')) {
+      throw new Error('Local performance tags did not generate section delivery cues');
+    }
+    await tags.locator('[data-vt-cue="0"]').fill('Warm Emotional Vocals');
+    await tags.locator('[data-action="vt-refresh"]').click();
+    await page.waitForFunction(() =>
+      document.getElementById('sb-vt-preview')?.value?.includes('Warm Emotional Vocals'));
+    await tags.locator('[data-action="vt-apply"]').click();
+    await page.waitForFunction(() =>
+      document.getElementById('custom-idea-tagged')?.value?.includes('Warm Emotional Vocals'));
+    if (await page.locator('#custom-idea-lyrics').inputValue() !== originalBeforeTags ||
+        await tags.locator('#sb-vt-preview').count() !== 0) {
+      throw new Error('Applying performance tags changed original words or failed to close the preview');
+    }
+
     const version = await page.locator('.sb-app-version').first().textContent();
     if (!/^v?\d+\.\d+$/.test(String(version || '').trim())) throw new Error('Version display missing or malformed');
 

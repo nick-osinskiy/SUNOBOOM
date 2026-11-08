@@ -23,6 +23,9 @@
  const E=s=>escapeHTML(s);
  const prefs=()=>({...prefDefaults,...(data.performanceTagSettings&&typeof data.performanceTagSettings==='object'?data.performanceTagSettings:{})});
  let draft=null, requestSerial=0, busy=false;
+ let notice={text:'',kind:'info'};
+ let previewState='Текст в оригинальном редакторе не изменён.';
+ const emit=()=>window.dispatchEvent(new Event('sunoboom:tags-updated'));
  const lyricId='custom-idea-lyrics', taggedId='custom-idea-tagged';
  const el=id=>document.getElementById(id);
  const get=id=>el(id)?.value||'';
@@ -33,7 +36,7 @@
  function savePrefs(changes){
   const next={...prefs(),...changes};
   next.intensity=clamp(next.intensity,1,5);
-  data.performanceTagSettings=next;persist();return next;
+  data.performanceTagSettings=next;persist();emit();return next;
  }
  function artistList(){return Array.isArray(data.artistDNAs)?data.artistDNAs:[]}
  function selectedArtist(p){return artistList().find(a=>a.id===p.artistId)||null}
@@ -248,7 +251,18 @@
    </div>
   </div>`;
  }
- function showNotice(t,kind='info'){const box=el('sb-vt-notice');if(box){box.className='sb-vt-notice '+kind;box.textContent=t}}
+ function showNotice(t,kind='info'){
+  notice={text:t,kind};
+  const box=el('sb-vt-notice');
+  if(box&&!box.closest('#sb-vt-workbench[data-v-app]')){box.className='sb-vt-notice '+kind;box.textContent=t;}
+  emit();
+ }
+ function showPreviewState(t){
+  previewState=t;
+  const node=el('sb-vt-preview-state');
+  if(node&&!node.closest('#sb-vt-workbench[data-v-app]'))node.textContent=t;
+  emit();
+ }
  function draftValid(){
   if(!draft)return false;
   if(draft.settingsSnapshot!==JSON.stringify(prefs())){showNotice('Настройки исполнения изменились. Создай новый предпросмотр, чтобы учесть их.','warning');return false}
@@ -261,11 +275,11 @@
  }
  function updatePreview(force=false){
   if(!draft)return;
-  if(draft.previewEdited&&!force){setText('sb-vt-preview-state','Есть ручные изменения в предпросмотре. Чтобы собрать новую версию из тегов, нажми «Обновить предпросмотр».');return}
+  if(draft.previewEdited&&!force){showPreviewState('Есть ручные изменения в предпросмотре. Чтобы собрать новую версию из тегов, нажми «Обновить предпросмотр».');return}
   const next=compose({lines:linesOf(draft.source),sections:draft.sections},draft.tags,prefs());
   draft.preview=next;draft.previewEdited=false;
   const preview=el('sb-vt-preview');if(preview)preview.value=next;
-  setText('sb-vt-preview-state','Предпросмотр собран. Исходный текст не изменён.');
+  showPreviewState('Предпросмотр собран. Исходный текст не изменён.');
  }
  function validateOutput(candidate){
   if(candidate.length>25000){showNotice('Слишком длинная версия Lyrics (предел — 25 000 символов).','warning');return false}
@@ -278,7 +292,8 @@
  function setBusy(active){
   busy=active;
   const button=document.querySelector('[data-action="vt-generate"]');
-  if(button){button.disabled=active;button.textContent=active?'Анализируем…':'✨ Создать предпросмотр'}
+  if(button&&!button.closest('#sb-vt-workbench[data-v-app]')){button.disabled=active;button.textContent=active?'Анализируем…':'✨ Создать предпросмотр'}
+  emit();
  }
  async function geminiCues(parsed,p,raw){
   const url=endpoint();
@@ -337,7 +352,10 @@
   const output=compose(parsed,tags,p);
   if(baselineLyrics(output)!==lyricOriginal){showNotice('Ошибка сверки исходных слов. Применение отменено.','warning');return}
   draft={source:text,sourceId,targetSnapshot,sections:parsed.sections,tags,method,preview:output,previewEdited:false,settingsSnapshot:JSON.stringify(p)};
-  const region=el('sb-vt-result');if(region)region.innerHTML=renderDraft();
+  const region=el('sb-vt-result');
+  if(region&&!region.closest('#sb-vt-workbench[data-v-app]'))region.innerHTML=renderDraft();
+  previewState='Текст в оригинальном редакторе не изменён.';
+  emit();
   showNotice(method==='Gemini'?'Теги предложены Gemini. Проверь и подтверди применение.':method.includes('Gemini')||method.includes('согласия')?'Предпросмотр создан локально: Gemini не вызывался.':'Предпросмотр готов. Проверь теги и нажми «Применить к Lyrics».',method==='Gemini'?'success':'info');
   el('sb-vt-result')?.scrollIntoView({behavior:'smooth',block:'nearest'});
  }
@@ -350,7 +368,8 @@
   target.value=candidate;
   target.dispatchEvent(new Event('input',{bubbles:true}));
   draft=null;
-  if(el('sb-vt-result'))el('sb-vt-result').innerHTML='';
+  if(el('sb-vt-result')&&!el('sb-vt-result').closest('#sb-vt-workbench[data-v-app]'))el('sb-vt-result').innerHTML='';
+  emit();
   showNotice('Теги применены к полю Lyrics. Исходный текст песни не изменён. Нажми «Сохранить идею», чтобы записать изменения.','success');
   toast('Теги исполнения применены к Lyrics');
  }
@@ -363,12 +382,13 @@
   if(!draft||index<0||index>=draft.tags.length)return;
   draft.tags[index]=allowedCue(value,prefs());
   updatePreview();
+  emit();
  }
  function onAction(button){
   const a=button.dataset.action;
   if(!a?.startsWith('vt-'))return false;
   if(a==='vt-generate'){generate().catch(err=>{setBusy(false);showNotice('Не удалось создать предпросмотр. Повтори попытку.','warning');console.warn(err)});return true}
-  if(a==='vt-cancel'){requestSerial++;draft=null;setText('sb-vt-notice','');if(el('sb-vt-result'))el('sb-vt-result').innerHTML='';return true}
+  if(a==='vt-cancel'){requestSerial++;draft=null;const result=el('sb-vt-result');if(result&&!result.closest('#sb-vt-workbench[data-v-app]'))result.innerHTML='';showNotice('');return true}
   if(a==='vt-apply'){apply();return true}
   if(a==='vt-copy'){copy();return true}
   if(a==='vt-refresh'){
@@ -397,7 +417,7 @@
   if(t.dataset.vtPref==='intensity'){savePrefs({intensity:clamp(t.value,1,5)});setText('sb-vt-intensity-label',prefs().intensity+' / 5');return}
   if(t.dataset.vtPref && t.type==='checkbox'){savePrefs({[t.dataset.vtPref]:t.checked});return}
   if(t.hasAttribute('data-vt-cue')){setTag(Number(t.dataset.vtCue),t.value);return}
-  if(t.id==='sb-vt-preview' && draft){draft.previewEdited=true;setText('sb-vt-preview-state','Предпросмотр изменён вручную. Проверь слова и теги перед применением.');return}
+  if(t.id==='sb-vt-preview' && draft){draft.preview=t.value;draft.previewEdited=true;showPreviewState('Предпросмотр изменён вручную. Проверь слова и теги перед применением.');return}
   if((t.id===lyricId||t.id===taggedId)&&draft && (get(draft.sourceId)!==draft.source||get(taggedId)!==draft.targetSnapshot)){
    showNotice('Текст изменён. Этот предпросмотр устарел; создай новый.','warning');
   }
@@ -409,7 +429,7 @@
    savePrefs({[k]:t.value});
    if(k==='mode'){setText('sb-vt-mode-hint',modeHint(prefs()));}
    if(k==='mode'||k==='source'||k==='artistId'){
-    draft=null;if(el('sb-vt-result'))el('sb-vt-result').innerHTML='';
+    draft=null;const result=el('sb-vt-result');if(result&&!result.closest('#sb-vt-workbench[data-v-app]'))result.innerHTML='';
     showNotice('Настройки обновлены. Создай новый предпросмотр.');
    }
    return;
@@ -419,6 +439,23 @@
    const input=el('sb-vt-result')?.querySelector(`[data-vt-cue="${i}"]`);
    if(input)input.value=t.value;
    setTag(i,t.value);
+  }
+ });
+ window.SUNOBOOM_LEGACY_TAGS=Object.freeze({
+  snapshot(){
+   if(view.nav!=='myideas')return null;
+   return {
+    prefs:prefs(),modeHint:modeHint(prefs()),
+    hasEndpoint:!!endpoint(),busy,
+    artists:artistList().map(a=>({id:a.id,name:a.name||'Без названия'})),
+    presets:tagPresets,
+    notice:{...notice},previewState,
+    draft:draft?{
+     method:draft.method,
+     sections:draft.sections.map(x=>({id:x.id,label:x.label})),
+     tags:draft.tags.slice(),preview:draft.preview
+    }:null
+   };
   }
  });
  // The editor wrapper takes effect on the next render. Do not reset any saved lyrics.
