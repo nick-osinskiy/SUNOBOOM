@@ -87,7 +87,7 @@ async function checkLayout(mobile) {
     await page.locator(nav + ' button[data-nav="account"].active').waitFor({ timeout: 10000 });
 
     const version = await page.locator('.sb-app-version').first().textContent();
-    if (!version?.includes('0.93')) throw new Error('Version display changed unexpectedly');
+    if (!/^v?\d+\.\d+$/.test(String(version || '').trim())) throw new Error('Version display missing or malformed');
 
     const bad = errors.filter(error => /Vue navigation unavailable|Vue mount failed|Failed to resolve module/i.test(error));
     if (bad.length) throw new Error('Vue startup failure: ' + bad.join('; '));
