@@ -661,7 +661,7 @@ async function checkLayout(mobile) {
     }
 
     // Vue 3 poetry editor and performance tags (v0.105) are on the original
-    // "My ideas" route; the actual song text always remains outside Vue.
+    // "My ideas" route; native fields retain the original text-processing handlers.
     await page.evaluate(() => go('myideas'));
     const poetryMountState = await page.evaluate(() => ({
       route: view.nav,
@@ -676,6 +676,9 @@ async function checkLayout(mobile) {
     }
     await page.locator('#sb-poetry-result[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
     await page.locator('#sb-vt-workbench[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    for (const id of ['sb-vue-idea-fields', 'sb-vue-lyrics-source', 'sb-vue-lyrics-tools']) {
+      await page.locator('#' + id + '[data-v-app]').waitFor({ state: 'attached' });
+    }
     const lyricText = [
       'Куплет 1:', 'Я вижу замок на холме', 'И снова мысли обо мне',
       '', 'Припев:', 'Я слышу музыку во мне', 'И вижу город в тишине'
@@ -765,6 +768,58 @@ async function checkLayout(mobile) {
       throw new Error('Applying performance tags changed original words or failed to close the preview');
     }
 
+    // v0.106: generated and manually edited output survives reactive updates,
+    // persistence, reload and cancelled edits. Source text must stay independent.
+    await page.locator('#custom-idea-title').fill('Vue editor persistence');
+    await page.locator('#custom-idea-text').fill('Сюжет тестовой песни');
+    await page.locator('#custom-idea-hook').fill('Припев остаётся с нами');
+    await page.locator('#lyrics-tag-preset').selectOption('emotional');
+    // General-format replacement has its existing explicit confirmation.
+    page.once('dialog', dialog => dialog.accept());
+    await page.locator('[data-action="format-idea-lyrics"]').click();
+    const generatedOutput = await page.evaluate(() => ({
+      lyrics: document.getElementById('custom-idea-tagged').value,
+      style: document.getElementById('custom-idea-style').value,
+      source: document.getElementById('custom-idea-lyrics').value
+    }));
+    if (!generatedOutput.lyrics.includes('[Verse') || !generatedOutput.style ||
+        generatedOutput.source !== originalBeforeTags) throw new Error('Lyrics/Style generation lost text');
+    await page.locator('#lyrics-harmonies').check();
+    if (await page.locator('#custom-idea-tagged').inputValue() !== generatedOutput.lyrics ||
+        await page.locator('#custom-idea-style').inputValue() !== generatedOutput.style) {
+      throw new Error('Vue rerender overwrote programmatically generated output');
+    }
+    const manualLyrics = generatedOutput.lyrics + '\nРучная строка <без HTML>';
+    const manualStyle = 'clean studio vocals, warm piano';
+    await page.locator('#custom-idea-tagged').fill(manualLyrics);
+    await page.locator('#custom-idea-style').fill(manualStyle);
+    await page.locator('#lyrics-tag-preset').selectOption('soft');
+    await page.locator('[data-action="save-manual-idea"]').click();
+    const stored = await page.evaluate(() =>
+      JSON.parse(localStorage.getItem('sunoboom-v1')).manualIdeas.find(x => x.title === 'Vue editor persistence'));
+    if (!stored || stored.lyrics !== originalBeforeTags || stored.sunoLyrics !== manualLyrics ||
+        stored.sunoStyle !== manualStyle || stored.hook !== 'Припев остаётся с нами') {
+      throw new Error('Vue editor persistence changed the existing song schema or content');
+    }
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.locator('[data-sb-vue-sidebar][data-v-app]').waitFor({ state: 'attached' });
+    await page.evaluate(() => go('myideas'));
+    await page.locator('[data-action="edit-manual-idea"][data-id="' + stored.id + '"]').click();
+    await page.locator('#sb-vue-lyrics-tools[data-v-app]').waitFor({ state: 'attached' });
+    if (await page.locator('#custom-idea-tagged').inputValue() !== manualLyrics ||
+        await page.locator('#custom-idea-style').inputValue() !== manualStyle ||
+        await page.locator('#custom-idea-lyrics').inputValue() !== originalBeforeTags) {
+      throw new Error('Reloading an edited song lost saved fields');
+    }
+    await page.locator('#custom-idea-style').fill('Unsaved change');
+    await page.locator('[data-action="cancel-manual-idea"]').click();
+    await page.locator('[data-action="edit-manual-idea"][data-id="' + stored.id + '"]').click();
+    await page.locator('#sb-vue-lyrics-tools[data-v-app]').waitFor({ state: 'attached' });
+    if (await page.locator('#custom-idea-style').inputValue() !== manualStyle ||
+        await page.locator('#custom-idea-lyrics').count() !== 1) {
+      throw new Error('Cancel changed saved data or duplicated the editor');
+    }
+
     const version = await page.locator('.sb-app-version').first().textContent();
     if (!/^v?\d+\.\d+$/.test(String(version || '').trim())) throw new Error('Version display missing or malformed');
 
@@ -776,12 +831,35 @@ async function checkLayout(mobile) {
   }
 }
 
+async function checkEditorFallback() {
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  await page.route('**/dist/vue/**', route => route.abort());
+  try {
+    await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+    await page.evaluate(() => go('myideas'));
+    await page.locator('#custom-idea-title').fill('Fallback song');
+    await page.locator('#custom-idea-lyrics').fill('Куплет 1:\nНаши слова остаются с нами');
+    await page.locator('[data-action="format-idea-lyrics"]').click();
+    const output = await page.locator('#custom-idea-tagged').inputValue();
+    await page.locator('[data-action="save-manual-idea"]').click();
+    const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-v1')).manualIdeas.at(-1));
+    if (!output.includes('Наши слова') || saved.sunoLyrics !== output ||
+        await page.locator('#sb-vue-idea-fields[data-v-app]').count()) {
+      throw new Error('Original editor fallback failed without the Vue bundle');
+    }
+    console.log('Original song editor without Vue PASS');
+  } finally { await context.close(); }
+}
+
 try {
   await ready();
   browser = await chromium.launch({ headless: true });
   await checkLayout(false);
   await checkLayout(true);
+  await checkEditorFallback();
 } finally {
   await browser?.close();
   server.kill('SIGTERM');
 }
+

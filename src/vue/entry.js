@@ -1,3 +1,4 @@
+import { activateLegacyIdeaEditor } from './poetry/legacyIdeaEditorBridge.js';
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import VueFeatureHost from './VueFeatureHost.vue';
@@ -101,4 +102,10 @@ export function startLegacyPoetry() {
 /** Vue 3 vocal performance tag controls and editable confirmation preview. */
 export function startLegacyTags() {
   return activateLegacyTags({ mountVueFeature });
+}
+
+
+/** Vue form fields and Lyrics/Style; original storage and text processing retained. */
+export function startLegacyIdeaEditor() {
+  return activateLegacyIdeaEditor({ mountVueFeature });
 }
