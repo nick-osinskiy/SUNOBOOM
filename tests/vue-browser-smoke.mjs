@@ -1433,6 +1433,39 @@ async function checkLayout(mobile) {
         await page.locator('#sbs-name').inputValue() !== 'Vue Settings 118') {
       throw new Error('Vue profile editor did not preserve original save handler');
     }
+    // v0.123: the same saved setting drives dark, light and OS appearance.
+    await page.locator('#sbs-theme').selectOption('light');
+    if (await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-ui-settings-v1')).theme) !== 'light' ||
+        !await page.evaluate(() => document.documentElement.classList.contains('sb-theme-light')) ||
+        await page.evaluate(() getComputedStyle(document.documentElement).colorScheme) !== 'light') {
+      throw new Error('Vue light theme did not apply or persist');
+    }
+    const lightBackground = await page.locator('.side').evaluate(el => getComputedStyle(el).backgroundColor);
+    if (lightBackground !== 'rgb(255, 255, 255)') {
+      throw new Error('Light theme did not recolor the app navigation: ' + lightBackground);
+    }
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    if (!await page.evaluate(() => document.documentElement.classList.contains('sb-theme-light'))) {
+      throw new Error('Saved light theme was not restored on page load');
+    }
+    await page.evaluate(() => go('account'));
+    await page.locator('[data-sbs-action="open"]').click();
+    await page.locator('#sb-vue-account-settings[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    if (await page.locator('#sbs-theme').inputValue() !== 'light') {
+      throw new Error('Vue theme selector lost the saved preference');
+    }
+    await page.locator('#sbs-theme').selectOption('system');
+    await page.emulateMedia({ colorScheme: 'light' });
+    if (!await page.evaluate(() => document.documentElement.classList.contains('sb-theme-light'))) {
+      throw new Error('System theme did not follow light device appearance');
+    }
+    await page.emulateMedia({ colorScheme: 'dark' });
+    if (await page.evaluate(() => document.documentElement.classList.contains('sb-theme-light')) ||
+        await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-ui-settings-v1')).theme) !== 'system') {
+      throw new Error('System theme did not follow dark device appearance');
+    }
+    await page.locator('#sbs-theme').selectOption('light');
+
     await page.locator('[data-sbs-action="reset"]').click();
     await page.locator('#sb-vue-account-settings[data-v-app]').waitFor({ state: 'attached' });
     await page.locator('[data-sbs-action="cancel-reset"]').click();
@@ -1443,6 +1476,11 @@ async function checkLayout(mobile) {
     await page.locator('[data-sbs-action="confirm-reset"]').click();
     await page.locator('#sb-vue-account-settings[data-v-app]').waitFor({ state: 'attached' });
     const resetPrefs118 = await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-ui-settings-v1')));
+    if (resetPrefs118.theme !== 'dark' ||
+        await page.evaluate(() => document.documentElement.classList.contains('sb-theme-light')) ||
+        await page.locator('#sbs-theme').inputValue() !== 'dark') {
+      throw new Error('Reset preferences did not restore the default dark theme');
+    }
     if (resetPrefs118.compact || resetPrefs118.largeText || resetPrefs118.startPage !== 'home' ||
         await page.locator('#sbs-compact').isChecked() ||
         await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-v1')).profileName) !== 'Vue Settings 118') {
@@ -1748,6 +1786,14 @@ async function checkEditorFallback() {
         await page.locator('#sb-vue-account-settings #sbs-compact').count() !== 1) {
       throw new Error('Legacy settings page fallback is missing');
     }
+    if (await page.locator('#sbs-theme option').count() !== 3) {
+      throw new Error('HTML settings fallback is missing theme options');
+    }
+    await page.locator('#sbs-theme').selectOption('light');
+    if (await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-ui-settings-v1')).theme) !== 'light' ||
+        !await page.evaluate(() => document.documentElement.classList.contains('sb-theme-light'))) {
+      throw new Error('HTML fallback theme selector failed to save light appearance');
+    }
     await page.locator('#sbs-reduceMotion').check();
     if (await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-ui-settings-v1')).reduceMotion) !== true) {
       throw new Error('Legacy settings fallback failed to persist checkbox changes');
@@ -1756,6 +1802,10 @@ async function checkEditorFallback() {
     await page.locator('[data-sbs-action="confirm-reset"]').click();
     if (await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-ui-settings-v1')).reduceMotion) !== false) {
       throw new Error('Legacy settings fallback reset failed');
+    }
+    if (await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-ui-settings-v1')).theme) !== 'dark' ||
+        await page.evaluate(() => document.documentElement.classList.contains('sb-theme-light'))) {
+      throw new Error('Legacy settings fallback failed to restore dark theme');
     }
     await page.locator('[data-sbs-action="close"]').click();
     if (await page.locator('.account-settings [data-action="export"]').count() !== 1) {
