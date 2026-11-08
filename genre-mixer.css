@@ -59,8 +59,6 @@
 .gm-studio-banner span{flex:1 1 230px;color:#c1c6db;font-size:12px}
 .gm-studio-banner .btn{white-space:nowrap}
 .gm-studio-active{border-color:#9a6ac2}
-.mobile-nav button[data-nav="mixer"] span{font-size:0}
-.mobile-nav button[data-nav="mixer"] span:after{content:"Миксер";font-size:10px;line-height:1.2}
 @media(max-width:1100px){.gm-layout{grid-template-columns:1fr}.gm-output-panel{position:static}}
 @media(max-width:700px){.gm-panel{padding:16px}.gm-form-grid{gap:11px}.gm-row{padding:12px}.gm-row-top{gap:7px}.gm-rank{font-size:16px}.gm-percent{font-size:16px;min-width:40px}.gm-remove{width:29px;min-width:29px}.gm-output-actions{grid-template-columns:1fr}.gm-checks{grid-template-columns:1fr}.gm-section-head p{font-size:11px}.gm-studio-banner .btn{flex:1 1 auto}}
 @media(max-width:380px){.gm-form-grid{grid-template-columns:1fr}.gm-page .gm-row-top{flex-wrap:wrap}.gm-genre-select{flex:1 1 calc(100% - 45px)}.gm-percent{margin-left:27px;text-align:left}.gm-row-top .gm-remove{margin-left:auto}.gm-panel{padding:13px}}
