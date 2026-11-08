@@ -17,7 +17,7 @@
   }catch(e){}
   const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(settings));}catch(e){}};
   const tracks=[];
-  let cursor=-1, counter=0, dragCounter=0, hasPlayIntent=false, inPlayer=false;
+  let cursor=-1, counter=0, dragCounter=0, hasPlayIntent=false, inPlayer=false, lastNotice="";
   const audio=new Audio();
   audio.preload="metadata";
   audio.volume=settings.volume;
@@ -31,6 +31,10 @@
   };
   const current=()=>tracks[cursor]||null;
   const notice=message=>{
+    lastNotice=message;
+    if(document.getElementById("sb-vue-player-lab")?.hasAttribute("data-v-app")){
+      window.dispatchEvent(new Event("sunoboom:player-lab-update"));return;
+    }
     const node=document.getElementById("sbp-message");
     if(node){node.textContent=message;node.hidden=!message;}
     else if(typeof toast==="function")toast(message);
@@ -41,7 +45,7 @@
   function page(){
     return '<section class="sbp-wrap" id="sbp-page">'+
       '<header class="sbp-hero"><div><span class="sbp-eyebrow">SUNOBOOM · ЭКСПЕРИМЕНТАЛЬНАЯ ЗОНА</span><h1>Аудиоплеер <em>LAB</em></h1><p>Тестируем музыкальный плеер перед интеграцией с проектами и паспортами треков. Здесь можно слушать свои аудиофайлы прямо на устройстве.</p></div><span class="sbp-test-badge">🧪 ТЕСТОВАЯ ВЕРСИЯ</span></header>'+
-      '<div class="sbp-layout"><section class="sbp-main" aria-label="Плеер">'+
+      '<div id="sb-vue-player-lab"><div class="sbp-layout"><section class="sbp-main" aria-label="Плеер">'+
         '<div class="sbp-art"><div class="sbp-art-orb">♫</div><div class="sbp-bars" aria-hidden="true">'+waveform+'</div><span>SONIC LAB / PRIVATE PREVIEW</span></div>'+
         '<div class="sbp-title-area"><div><div id="sbp-now-tag" class="sbp-now-tag">НЕТ ТРЕКА</div><h2 id="sbp-title">Добавь аудиофайл</h2><p id="sbp-artist">или попробуй встроенный демо-звук</p></div><span id="sbp-counter" class="sbp-counter">0 / 0</span></div>'+
         '<div class="sbp-progress"><label for="sbp-seek" class="sbp-sr">Позиция воспроизведения</label><input id="sbp-seek" type="range" min="0" max="1000" step="1" value="0" aria-label="Перемотка трека" disabled><div class="sbp-times"><span id="sbp-time-current">0:00</span><span id="sbp-time-total">0:00</span></div></div>'+
@@ -52,12 +56,15 @@
         '<div class="sbp-dropzone" id="sbp-dropzone"><div class="sbp-drop-icon">'+icon("upload")+'</div><strong>Загрузи свои треки</strong><p>MP3, WAV, M4A, AAC, OGG, FLAC — если формат поддерживается браузером. Файлы никуда не отправляются.</p><label class="sbp-upload-label" for="sbp-file">Выбрать аудиофайлы</label><input id="sbp-file" type="file" accept="audio/*,.mp3,.m4a,.aac,.wav,.ogg,.flac,.opus" multiple></div>'+
         '<div class="sbp-demo-box"><div><strong>Нет аудиофайлов?</strong><p>Создать 3 коротких оригинальных демо-сигнала для проверки управления.</p></div><button type="button" data-sbp-action="demo" id="sbp-demo">+ Демо-треки</button></div>'+
         '<div class="sbp-track-list" id="sbp-list" aria-label="Список треков"></div>'+
-      '</aside></div>'+
+      '</aside></div></div>'+
       '<section class="sbp-bottom"><div><strong>🔒 Приватность</strong><p>Локальные аудиофайлы воспроизводятся из памяти браузера и не загружаются на сервер SUNOBOOM.</p></div><div><strong>💾 Сохранение</strong><p>После обновления вкладки файлы нужно добавить заново. Сохраняются только настройки громкости, скорости и повтора.</p></div><div><strong>🔧 Тестовый режим</strong><p>Плеер пока не привязан к «Паспорту трека», «Моим проектам» и другим инструментам сайта.</p></div></section>'+
     '</section>';
   }
 
   function renderList(){
+    // Vue owns the queue when mounted; the same Audio objects and
+    // track list remain the only source of truth.
+    if(document.getElementById("sb-vue-player-lab")?.hasAttribute("data-v-app"))return;
     const list=document.getElementById("sbp-list");
     if(!list)return;
     const count=document.getElementById("sbp-list-count");
@@ -73,6 +80,11 @@
   }
   function sync(){
     if(view.nav!=="player")return;
+    // Avoid direct DOM mutations in Vue's subtree. The state is still read
+    // synchronously from this unchanged player engine.
+    if(document.getElementById("sb-vue-player-lab")?.hasAttribute("data-v-app")){
+      window.dispatchEvent(new Event("sunoboom:player-lab-update"));return;
+    }
     const t=current(),playing=!!t&&!audio.paused&&!audio.ended;
     const put=(id,value)=>{const n=document.getElementById(id);if(n)n.textContent=value;};
     put("sbp-title",t?t.name:"Добавь аудиофайл");
@@ -310,6 +322,33 @@
   });
   window.addEventListener("pagehide",()=>{
     audio.pause();tracks.forEach(t=>URL.revokeObjectURL(t.url));tracks.length=0;cursor=-1;
+  });
+  // Vue's UI reads snapshots only; audio/file ownership never leaves this
+  // module. In particular player-ab.js keeps its independent A/B engines.
+  window.SUNOBOOM_LEGACY_PLAYER_LAB=Object.freeze({
+    snapshot(){
+      if(view.nav!=="player")return null;
+      const t=current(),playing=!!t&&!audio.paused&&!audio.ended;
+      const duration=Number.isFinite(audio.duration)?audio.duration:(t?.duration||0);
+      const canSeek=!!t&&Number.isFinite(audio.duration)&&audio.duration>0;
+      return {
+        tracks:tracks.map((item,i)=>({
+          id:item.id,index:i,name:item.name,artist:item.artist,
+          sourceLabel:item.source==="demo"?"Демо-сигнал":"Локальный файл",
+          durationLabel:Number.isFinite(item.duration)?formatTime(item.duration):"—",
+          isCurrent:i===cursor,playLabel:i===cursor&&!audio.paused?"♫":String(i+1).padStart(2,"0")
+        })),
+        count:tracks.length,currentIndex:cursor,title:t?t.name:"Добавь аудиофайл",
+        artist:t?t.artist:"или попробуй встроенный демо-звук",
+        counter:t?(cursor+1)+" / "+tracks.length:"0 / "+tracks.length,
+        playing,nowTag:t?(playing?"● ВОСПРОИЗВЕДЕНИЕ":audio.ended?"● ЗАВЕРШЕНО":"● ГОТОВ К ПРОСЛУШИВАНИЮ"):"НЕТ ТРЕКА",
+        currentTime:formatTime(audio.currentTime),totalTime:formatTime(duration),
+        seekDisabled:!canSeek,seekValue:canSeek?Math.round(audio.currentTime/audio.duration*1000):0,
+        volume:Math.round(audio.volume*100),rate:String(audio.playbackRate),
+        repeat:settings.repeat,repeatLabel:prefsLabel(),shuffle:settings.shuffle,
+        ios:IS_IOS,message:lastNotice
+      };
+    }
   });
   /* Expose a read-only diagnostics surface for future integration and test scripts. */
   window.SUNOBOOM_PLAYER_LAB=Object.freeze({version:"0.60",getTrackCount:()=>tracks.length,getCurrentTitle:()=>current()?.name||"",getPlaying:()=>!audio.paused&&!!current(),getAudioElement:()=>audio});

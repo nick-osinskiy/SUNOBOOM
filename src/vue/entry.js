@@ -9,6 +9,7 @@ import { activateLegacyArtistManager } from './account/legacyArtistManagerBridge
 import { activateLegacyArtistDNA } from './account/legacyArtistDNABridge.js';
 import { activateLegacyArtistDNAEditor } from './account/legacyArtistDNAEditorBridge.js';
 import { activateLegacyAccountSettings } from './account/legacyAccountSettingsBridge.js';
+import { activateLegacyPlayerLab } from './player/legacyPlayerLabBridge.js';
 import { activateLegacyIdeaEditor } from './poetry/legacyIdeaEditorBridge.js';
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
@@ -173,4 +174,9 @@ export function startLegacyArtistDNAEditor() {
 /** Vue settings screen, with original local preferences and profile handlers. */
 export function startLegacyAccountSettings() {
   return activateLegacyAccountSettings({ mountVueFeature });
+}
+
+/** Vue Player LAB, retaining the original audio engine, local files and A/B. */
+export function startLegacyPlayerLab() {
+  return activateLegacyPlayerLab({ mountVueFeature });
 }

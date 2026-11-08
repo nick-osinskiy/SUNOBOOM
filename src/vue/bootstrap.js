@@ -8,7 +8,7 @@ const moduleUrl = productionEnabled ? '../../dist/vue/sunoboom-vue.js?v=118' : l
 
 if (moduleUrl && window.SUNOBOOM_LEGACY_NAV) {
   import(moduleUrl)
-    .then(({ startLegacyNavigation, startLegacyAcademy, startLegacyGenreDetail, startLegacyStudio, startLegacyMixer, startLegacyAuditor, startLegacyArranger, startLegacyPoetry, startLegacyTags, startLegacyIdeaEditor, startLegacyIdeaCollections, startLegacyPromptCollection, startLegacyPromptEditor, startLegacyLibrary, startLegacySongCards, startLegacySongDetail, startLegacySongEditor, startLegacyArtistManager, startLegacyArtistDNA, startLegacyArtistDNAEditor, startLegacyAccountSettings }) => {
+    .then(({ startLegacyNavigation, startLegacyAcademy, startLegacyGenreDetail, startLegacyStudio, startLegacyMixer, startLegacyAuditor, startLegacyArranger, startLegacyPoetry, startLegacyTags, startLegacyIdeaEditor, startLegacyIdeaCollections, startLegacyPromptCollection, startLegacyPromptEditor, startLegacyLibrary, startLegacySongCards, startLegacySongDetail, startLegacySongEditor, startLegacyArtistManager, startLegacyArtistDNA, startLegacyArtistDNAEditor, startLegacyAccountSettings, startLegacyPlayerLab }) => {
       if (typeof startLegacyNavigation === 'function') startLegacyNavigation();
       if (typeof startLegacyAcademy === 'function') startLegacyAcademy();
       if (typeof startLegacyGenreDetail === 'function') startLegacyGenreDetail();
@@ -27,6 +27,7 @@ if (moduleUrl && window.SUNOBOOM_LEGACY_NAV) {
       if (typeof startLegacyArtistDNA === 'function') startLegacyArtistDNA();
       if (typeof startLegacyArtistDNAEditor === 'function') startLegacyArtistDNAEditor();
       if (typeof startLegacyAccountSettings === 'function') startLegacyAccountSettings();
+      if (typeof startLegacyPlayerLab === 'function') startLegacyPlayerLab();
       if (typeof startLegacyIdeaEditor === 'function') startLegacyIdeaEditor();
       if (typeof startLegacyPoetry === 'function') startLegacyPoetry();
       if (typeof startLegacyTags === 'function') startLegacyTags();
