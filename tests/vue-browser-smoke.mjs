@@ -553,6 +553,113 @@ async function checkLayout(mobile) {
       throw new Error('Lyrics preview or Academy arrangement recommendations disappeared');
     }
 
+    // Vue 3 template picker and full Academy sound library (v0.104).
+    await page.locator('.sba-preset-picker[data-v-app]').waitFor({ state: 'attached' });
+    await page.locator('.sba-result[data-v-app]').waitFor({ state: 'attached' });
+    await page.locator('#sba-cards .sba-block').first()
+      .locator('[data-sba-action="sound-toggle"]').click();
+    const soundPanel = page.locator('#sba-cards .sba-block').first().locator('.sba-sound-panel');
+    await soundPanel.waitFor({ state: 'visible' });
+    const manualInstruments = await page.locator('#sba-cards .sba-block').first()
+      .locator('[data-sba-field="instruments"]').inputValue();
+    await soundPanel.locator('[data-sba-action="sound-switch-mode"]').first().click();
+    const soundSearch = soundPanel.locator('[data-sba-sound-search="genres"]');
+    await soundSearch.waitFor({ state: 'visible' });
+    await soundSearch.fill('ска');
+    await soundPanel.locator('[data-genre-id="reggae-ska"]').waitFor({ state: 'visible' });
+    await soundPanel.locator('[data-genre-id="reggae-ska"]').click();
+    await soundPanel.locator('[data-sba-sound-search="sounds"]').waitFor();
+    if (!(await soundPanel.locator('.sba-sound-genre-trigger').textContent())?.includes('Ска')) {
+      throw new Error('Vue sound library did not switch to the Academy ska genre');
+    }
+    if (await page.locator('#sba-cards .sba-block').first()
+        .locator('[data-sba-field="instruments"]').inputValue() !== manualInstruments) {
+      throw new Error('Changing the sound library genre overwrote the user instruments');
+    }
+    const suggestion = soundPanel.locator('.sba-sound-option:not([disabled])').first();
+    await suggestion.waitFor();
+    const addedSound = (await suggestion.locator('span').textContent())?.trim();
+    await suggestion.click();
+    await page.waitForFunction(sound =>
+      SUNOBOOM_ARRANGER.exportDraft().blocks[0]?.instruments.includes(sound), addedSound);
+    await soundPanel.locator('[data-sba-action="sound-close"]').click();
+    await soundPanel.waitFor({ state: 'detached' });
+
+    // Lyrics and Style share the canonical generator, not a duplicated Vue algorithm.
+    await page.locator('.sba-result [data-sba-action="tab"][data-tab="style"]').click();
+    await page.waitForFunction(() => document.getElementById('sba-preview')?.value === SUNOBOOM_ARRANGER.getStyle());
+    if (!((await page.locator('#sba-preview').inputValue()) || '').includes('Arrangement:')) {
+      throw new Error('Vue Style preview lost arrangement information');
+    }
+    await page.locator('.sba-result [data-sba-action="tab"][data-tab="lyrics"]').click();
+    await page.waitForFunction(() => document.getElementById('sba-preview')?.value === SUNOBOOM_ARRANGER.getLyrics());
+
+    // Disable mixer handoff to test the normal Studio style limit/confirmation.
+    if (await page.locator('.gm-studio-banner [data-action="gm-unlink"]').count()) {
+      await page.locator('.gm-studio-banner [data-action="gm-unlink"]').click();
+      await page.locator('.sba-result[data-v-app]').waitFor();
+    }
+    await page.locator('#b-theme').fill('');
+    await page.locator('#b-extra').fill('keep original instructions');
+    const beforeStyleTransfer = await page.locator('#b-extra').inputValue();
+    await page.locator('.sba-result [data-sba-action="prepare-transfer"]').click();
+    await page.locator('.sba-result .sba-transfer-preview').waitFor({ state: 'visible' });
+    if (await page.locator('#b-extra').inputValue() !== beforeStyleTransfer) {
+      throw new Error('Vue arrangement transfer changed Studio data before confirmation');
+    }
+    await page.locator('.sba-result [data-sba-action="transfer-cancel"]').click();
+    await page.locator('.sba-transfer-preview').waitFor({ state: 'detached' });
+    if (await page.locator('#b-extra').inputValue() !== beforeStyleTransfer) {
+      throw new Error('Canceling a transfer modified Studio instructions');
+    }
+    await page.locator('.sba-result [data-sba-action="prepare-transfer"]').click();
+    await page.locator('.sba-result [data-sba-action="transfer-accept"]').click();
+    await page.waitForFunction(() =>
+      builder.extra.startsWith('keep original instructions') &&
+      builder.extra.includes('Arrangement:'));
+    if (await page.locator('#b-extra').inputValue() !== await page.evaluate(() => builder.extra)) {
+      throw new Error('The Vue Studio extra field lost the approved style transfer');
+    }
+
+    // Search the full Academy hierarchy through the Vue preset-picker UI.
+    const picker = page.locator('.sba-preset-picker[data-v-app]');
+    await picker.locator('#sba-presets').click();
+    await picker.locator('#sba-preset-menu:not([hidden])').waitFor();
+    await picker.locator('[data-sba-action="menu-filter"][data-filter="genres"]').click();
+    await picker.locator('#sba-preset-search').fill('ска');
+    const genreChoice = picker.locator('[data-choice="genre:reggae-ska"]');
+    await genreChoice.waitFor({ state: 'visible' });
+    if (await picker.locator('#sba-preset-results [data-sba-action="menu-choose"]').count() < 1) {
+      throw new Error('Vue genre search returned no matches');
+    }
+    await genreChoice.click();
+    await picker.locator('#sba-preset-menu[hidden]').waitFor();
+    if (!(await picker.locator('#sba-picked-label').textContent())?.includes('Ска')) {
+      throw new Error('Vue picker did not select the requested genre');
+    }
+    const oldCount = await page.evaluate(() => SUNOBOOM_ARRANGER.getBlockCount());
+    await page.locator('.sba-toolbar [data-sba-action="request-preset"]').click();
+    await page.locator('#sba-preset-confirm [data-sba-action="preset-cancel"]').waitFor();
+    await page.locator('#sba-preset-confirm [data-sba-action="preset-cancel"]').click();
+    if (await page.evaluate(() => SUNOBOOM_ARRANGER.getBlockCount()) !== oldCount) {
+      throw new Error('Canceling the Vue genre preset modified the arrangement');
+    }
+    await page.locator('.sba-toolbar [data-sba-action="request-preset"]').click();
+    await page.locator('#sba-preset-confirm [data-sba-action="preset-accept"]').click();
+    const applied = await page.evaluate(() => ({
+      preset: SUNOBOOM_ARRANGER.exportDraft().activePreset,
+      draft: JSON.parse(localStorage.getItem('sunoboom-arrangement-v066') || '{}').activePreset,
+      count: SUNOBOOM_ARRANGER.getBlockCount()
+    }));
+    if (applied.preset !== 'genre:reggae-ska' ||
+        applied.draft !== applied.preset || applied.count < 1) {
+      throw new Error('Academy preset not applied through the Vue picker: ' + JSON.stringify(applied));
+    }
+    if (await page.locator('#sba-cards .sba-block').count() !== applied.count ||
+        !(await page.locator('#sba-preview').inputValue()).trim()) {
+      throw new Error('Vue arrangement views did not update after selecting an Academy preset');
+    }
+
     const version = await page.locator('.sb-app-version').first().textContent();
     if (!/^v?\d+\.\d+$/.test(String(version || '').trim())) throw new Error('Version display missing or malformed');
 

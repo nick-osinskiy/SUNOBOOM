@@ -1,10 +1,14 @@
 import ArrangementPanel from './ArrangementPanel.vue';
+import ArrangementPicker from './ArrangementPicker.vue';
+import ArrangementResult from './ArrangementResult.vue';
 
 const targets = [
   ['#sba-cards', 'cards'],
   ['#sba-snake-track', 'snake'],
   ['#sba-transition-hub-list', 'transitions'],
-  ['#sba-energy-chart', 'energy']
+  ['#sba-energy-chart', 'energy'],
+  ['.sba-preset-picker', 'picker', ArrangementPicker],
+  ['.sba-result', 'result', ArrangementResult]
 ];
 
 /** Keep the existing composer, Academy recommendations and drag handlers. */
@@ -17,13 +21,13 @@ export function activateLegacyArranger({ mountVueFeature }) {
   let disposed = false;
   function sync() {
     if (disposed) return;
-    for (const [selector, kind] of targets) {
+    for (const [selector, kind, component = ArrangementPanel] of targets) {
       const target = root.querySelector(selector);
       const old = active.get(kind);
       if (old?.target === target) continue;
       if (old) { old.unmount(); active.delete(kind); }
       if (!target || !api.snapshot()) continue;
-      const unmount = mountVueFeature(target, ArrangementPanel, { api, kind });
+      const unmount = mountVueFeature(target, component, component === ArrangementPanel ? { api, kind } : { api });
       if (unmount) active.set(kind, { target, unmount });
     }
   }

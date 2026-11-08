@@ -95,7 +95,71 @@ const snakeSummary = computed(() => visibleSnake.value.map((b, i) =>
             </div>
             <!-- The Academy smart recommendations remain owned by their proven rule engine. -->
             <div class="sba-quick-sounds" :id="'sba-quick-' + item.id" v-html="item.quickSounds"></div>
-            <div v-if="item.soundPanel" v-html="item.soundPanel" style="display:contents"></div>
+            <div v-if="item.soundPanel" class="sba-sound-panel"
+              :id="'sba-sound-panel-' + item.id" aria-label="Выбор инструментов и приёмов">
+              <div class="sba-sound-head">
+                <strong>Библиотека инструментов и приёмов</strong>
+                <button type="button" data-sba-action="sound-close" :data-id="item.id"
+                  aria-label="Закрыть подбор">×</button>
+              </div>
+              <button type="button" class="sba-sound-genre-trigger"
+                data-sba-action="sound-switch-mode" :data-id="item.id">
+                Жанр: <b>{{ item.soundPanel.genreName }}</b><span>⌄</span>
+              </button>
+              <div :id="'sba-sound-body-' + item.id">
+                <div v-if="item.soundPanel.mode === 'genres'" class="sba-sound-back">
+                  <button type="button" data-sba-action="sound-switch-mode" :data-id="item.id">
+                    ← К инструментам
+                  </button>
+                </div>
+                <input type="search" class="sba-sound-search"
+                  :data-sba-sound-search="item.soundPanel.mode" :data-id="item.id"
+                  :value="item.soundPanel.query"
+                  :placeholder="item.soundPanel.mode === 'genres'
+                    ? 'Поиск по всей Академии...' : 'Поиск инструмента или приёма...'"
+                  autocomplete="off" aria-label="Поиск инструментов или жанров">
+                <div class="sba-sound-list" :id="'sba-sound-results-' + item.id">
+                  <template v-if="item.soundPanel.mode === 'genres'">
+                    <div class="sba-sound-info">
+                      Найдено жанров: {{ item.soundPanel.total }}
+                      <span v-if="item.soundPanel.total > item.soundPanel.matches.length">
+                        · уточни запрос
+                      </span>
+                    </div>
+                    <button v-for="genre in item.soundPanel.matches" :key="genre.id"
+                      type="button" class="sba-sound-genre-row"
+                      data-sba-action="sound-set-genre" :data-id="item.id"
+                      :data-genre-id="genre.id">
+                      <span>{{ genre.name }}</span><small>{{ genre.family }}</small>
+                    </button>
+                    <p v-if="!item.soundPanel.matches.length" class="sba-sound-none">
+                      Жанр не найден
+                    </p>
+                  </template>
+                  <template v-else>
+                    <template v-for="group in item.soundPanel.groups" :key="group.title">
+                      <div class="sba-sound-group">{{ group.title }}</div>
+                      <button v-for="sound in group.items" :key="sound.name"
+                        type="button" class="sba-sound-option" :disabled="sound.added"
+                        :aria-disabled="sound.added" data-sba-action="sound-add"
+                        :data-id="item.id" :data-sound-value="sound.name">
+                        <span>{{ sound.name }}</span>
+                        <small>{{ sound.added ? '✓ Добавлено' : '+ Добавить' }}</small>
+                      </button>
+                    </template>
+                    <p v-if="!item.soundPanel.groups.length" class="sba-sound-none">
+                      Совпадений нет. Можно ввести инструмент вручную.
+                    </p>
+                  </template>
+                </div>
+                <div v-if="item.soundPanel.mode !== 'genres'" class="sba-sound-foot">
+                  <span>Нажми «Добавить», чтобы дополнить поле. Свой текст сохраняется.</span>
+                  <button type="button" data-sba-action="sound-clear" :data-id="item.id">
+                    Очистить поле
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
           <label v-if="item.type === 'custom'" class="sba-custom-label">Своё название
             <input type="text" maxlength="48" data-sba-field="customName"
