@@ -6,6 +6,7 @@ import { activateLegacySongCards } from './account/legacySongCardsBridge.js';
 import { activateLegacySongDetail } from './account/legacySongDetailBridge.js';
 import { activateLegacySongEditor } from './account/legacySongEditorBridge.js';
 import { activateLegacyArtistManager } from './account/legacyArtistManagerBridge.js';
+import { activateLegacyArtistDNA } from './account/legacyArtistDNABridge.js';
 import { activateLegacyIdeaEditor } from './poetry/legacyIdeaEditorBridge.js';
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
@@ -155,4 +156,9 @@ export function startLegacySongEditor() {
 /** Vue personal artist manager; original artist catalog, DNA and song references are retained. */
 export function startLegacyArtistManager() {
   return activateLegacyArtistManager({ mountVueFeature });
+}
+
+/** Vue artist DNA collection and detail; original editor and Studio links remain legacy. */
+export function startLegacyArtistDNA() {
+  return activateLegacyArtistDNA({ mountVueFeature });
 }

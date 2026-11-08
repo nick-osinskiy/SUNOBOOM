@@ -4524,6 +4524,43 @@ function sbDnaDetail(a){
  (related.length?related.map(t=>'<button type="button" class="sb-dna-tracklink" data-action="dna-track" data-id="'+escapeHTML(t.id)+'"><strong>'+escapeHTML(t.title)+'</strong><span>'+escapeHTML(sbTrackStage(t.status))+' →</span></button>').join(''):'<p>Пока нет привязанных треков. В «Паспорте трека» можно выбрать этого артиста.</p>')+
  '</div></div>';
 }
+// Vue receives a read-only snapshot of the artist DNA collection and selected
+// profile. The original DNA editor, persistence, Style builder, track links and
+// delegated actions remain the only owners of the data.
+window.SUNOBOOM_LEGACY_DNA=Object.freeze({
+ snapshot(){
+  if(view.nav!=='artists'||view.sbDnaEdit)return null;
+  const profiles=sbDnaItems().slice().sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)).map(a=>({
+   id:a.id,name:a.name,genre:GENRES.find(g=>g.id===a.genre)?.name||'Без жанра',
+   timbre:a.timbre||'Профиль звучания артиста',portrait:sbDnaSafeUrl(a.portrait)
+  }));
+  const a=sbDnaGet(view.sbDnaSelected);
+  if(!a)return {profiles,detail:null};
+  const project=(data.projects||[]).find(p=>p.id===a.projectId);
+  const related=sbTrackItems().filter(t=>t.artistDnaId===a.id)
+   .map(t=>({id:t.id,title:t.title,status:sbTrackStage(t.status)}));
+  const textFields=[
+   ['Тембр и голос',a.timbre],['Манера исполнения',a.delivery],
+   ['Фирменные инструменты',a.instruments],['Продакшн',a.production],
+   ['Музыкальная подпись',a.signature],['Темы песен',a.themes],
+   ['Визуальный образ',a.visual]
+  ].filter(row=>row[1]).map(([label,value])=>({label,value}));
+  const forbids=[
+   a.noWhisper?'Без шёпота':'',a.noRasp?'Без хрипотцы':'',
+   a.noLive?'Без концертного шума':'',a.noChoir?'Без хора':''
+  ].filter(Boolean);
+  return {profiles,detail:{
+   id:a.id,name:a.name,portrait:sbDnaSafeUrl(a.portrait),
+   subtitle:(GENRES.find(g=>g.id===a.genre)?.name||'Жанр не указан')+
+    (project?' · '+project.title:''),
+   facts:[
+    {label:'Вокал',value:sbDnaVoiceName[a.vocal]||'Не указано'},
+    {label:'Язык',value:sbDnaLangName[a.language]||'Не указано'},
+    {label:'Темп',value:a.tempoMin&&a.tempoMax?a.tempoMin+'–'+a.tempoMax+' BPM':'Не указан'}
+   ],textFields,forbids,style:sbDnaStyle(a),related
+  }};
+ }
+});
 function sbDnaPage(){
  const all=sbDnaItems().slice().sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
  const selected=sbDnaGet(view.sbDnaSelected);
@@ -4537,7 +4574,7 @@ function sbDnaPage(){
  return '<div class="account-back"><button class="btn ghost small" data-action="workspace-back">'+workspaceBackLabel()+'</button></div>'+
  '<header class="heading"><div class="eyebrow">ПОСТОЯННОЕ ЗВУЧАНИЕ И ОБРАЗ</div><h1>🧬 ДНК артиста</h1><p>Храни характер вокала, музыкальный стиль, инструменты, запреты и визуальную идентичность каждого исполнителя.</p></header>'+
  summary+'<div class="sb-dna-toolbar"><button type="button" class="btn primary" data-action="dna-new">+ Создать ДНК артиста</button><span>Профили доступны в Suno Studio и Паспорте трека</span></div>'+
- (view.sbDnaEdit?sbDnaForm(editing):selected?sbDnaDetail(selected):list);
+ (view.sbDnaEdit?sbDnaForm(editing):'<div id="sb-vue-dna-view">'+(selected?sbDnaDetail(selected):list)+'</div>');
 }
 function sbDnaApply(a){
  if(!a)return;
