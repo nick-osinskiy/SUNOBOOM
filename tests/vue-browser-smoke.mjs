@@ -24,7 +24,7 @@ async function ready() {
 
 async function checkLayout(mobile) {
   const context = await browser.newContext({
-    viewport: mobile ? { width: 390, height: 844 } : { width: 1440, height: 900 },
+    viewport: mobile ? { width: 375, height: 812 } : { width: 1440, height: 900 },
     isMobile: mobile,
     hasTouch: mobile
   });
@@ -80,6 +80,20 @@ async function checkLayout(mobile) {
     if (await mixerEntries.count() !== 1 ||
         (mobile && (await mixerEntries.first().innerText()).trim() !== 'Миксер')) {
       throw new Error('Duplicate or overlong Mixer label in the navigation');
+    }
+    if (mobile) {
+      const menuBounds = await page.locator(nav + ' button[data-nav]').evaluateAll(buttons =>
+        buttons.map(button => {
+          const rect = button.getBoundingClientRect();
+          return { left: rect.left, right: rect.right, width: rect.width };
+        })
+      );
+      const viewportWidth = page.viewportSize().width;
+      if (menuBounds.some((item, index) =>
+        item.width < 1 || item.left < -0.5 || item.right > viewportWidth + 0.5 ||
+        (index > 0 && item.left < menuBounds[index - 1].right - 0.5))) {
+        throw new Error('Mobile navigation items overlap or overflow at 375px');
+      }
     }
     await master.waitFor();
     if (await master.count() !== 1) throw new Error('Master link missing or duplicated');
