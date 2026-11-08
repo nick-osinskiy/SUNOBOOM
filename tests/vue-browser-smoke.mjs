@@ -1611,6 +1611,59 @@ async function checkLayout(mobile) {
         await page.evaluate(() => data.productions.some(w => w.title === 'Vue Master 122')) !== true) {
       throw new Error('Master failed to create a working card through the old storage');
     }
+    // v0.125: the complete Master workspace is Vue-owned while the original
+    // saving, link validation, stage transitions and history remain functional.
+    const masterDetail = page.locator('#sb-vue-producer-detail[data-v-app]');
+    await masterDetail.waitFor({ state: 'attached', timeout: 10000 });
+    if (await masterDetail.locator('[data-sb-vue-producer-detail]').count() !== 1 ||
+        await masterDetail.locator('.sbpc-panel').count() !== 5 ||
+        await masterDetail.locator('[data-pc-stage]').count() !== 6 ||
+        await masterDetail.locator('[data-pc-link]').count() !== 6 ||
+        await masterDetail.locator('[data-pc-action="capture-arrangement"]').count() !== 1 ||
+        await masterDetail.locator('[data-pc-action="restore-arrangement"]').count() !== 0) {
+      throw new Error('Vue Master detail omitted panels, stages, links or arrangement controls');
+    }
+    const masterId125 = await page.evaluate(() =>
+      data.productions.find(w => w.title === 'Vue Master 122')?.id);
+    await masterDetail.locator('#sbpc-title').fill('Vue Master 122 Revised');
+    await masterDetail.locator('#sbpc-artist').fill('Artist Vue 125');
+    await masterDetail.locator('#sbpc-notes').fill('Сохраняем реальный текст карточки через старые обработчики.');
+    await masterDetail.locator('[data-pc-action="save-details"]').click();
+    await page.locator('#sb-vue-producer-detail[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    const savedMasterDetails = await page.evaluate(id => {
+      const w = data.productions.find(p => p.id === id);
+      return { title:w?.title, artist:w?.artist, notes:w?.notes };
+    }, masterId125);
+    if (savedMasterDetails.title !== 'Vue Master 122 Revised' ||
+        savedMasterDetails.artist !== 'Artist Vue 125' ||
+        !savedMasterDetails.notes.includes('реальный текст') ||
+        await page.locator('#sbpc-title').inputValue() !== 'Vue Master 122 Revised') {
+      throw new Error('Vue Master detail did not save and restore original song fields');
+    }
+    await page.locator('#sbpc-history-note').fill('Контрольная заметка Vue 125');
+    await page.locator('[data-pc-action="add-note"]').click();
+    if (!(await page.locator('#sb-vue-producer-detail .sbpc-log').textContent()).includes('Контрольная заметка Vue 125') ||
+        !await page.evaluate(id => data.productions.find(w => w.id === id)?.history?.[0]?.text.includes('Контрольная заметка Vue 125'), masterId125)) {
+      throw new Error('Vue Master history editor failed to persist the note');
+    }
+    await page.evaluate(() => {
+      data.projects.push({ id: 'vue-master-project-125', title: 'Проект Vue 125' });
+      persist();
+      render();
+    });
+    await page.locator('#sb-vue-producer-detail[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    await page.locator('#sbpc-projectId').selectOption('vue-master-project-125');
+    await page.locator('[data-pc-action="save-links"]').click();
+    if (await page.evaluate(id => data.productions.find(w => w.id === id)?.projectId, masterId125) !== 'vue-master-project-125' ||
+        await page.locator('#sbpc-projectId').inputValue() !== 'vue-master-project-125') {
+      throw new Error('Vue Master linked materials were not saved through legacy validation');
+    }
+    await page.locator('[data-pc-stage="lyrics"]').selectOption('working');
+    if (await page.evaluate(id => data.productions.find(w => w.id === id)?.steps?.lyrics, masterId125) !== 'working') {
+      throw new Error('Vue Master stage selector did not update the original record');
+    }
+    await page.locator('[data-pc-stage="lyrics"]').selectOption('todo');
+
     await page.locator('#sbpc-search').fill('no-match-vue-122');
     if (await page.locator('#sbpc-list .sbpc-song').count() ||
         !(await page.locator('#sbpc-list .sbpc-empty').textContent()).includes('Поиск не дал результатов')) {
@@ -1628,7 +1681,7 @@ async function checkLayout(mobile) {
     }
     page.once('dialog', dialog => { void dialog.accept(); });
     await page.locator('[data-pc-action="delete"]').click();
-    if (await page.evaluate(() => data.productions.some(w => w.title === 'Vue Master 122')) ||
+    if (await page.evaluate(id => data.productions.some(w => w.id === id), masterId125) ||
         await page.locator('#sbpc-list[data-v-app]').count() !== 1) {
       throw new Error('Master deletion or Vue remount did not preserve the workflow');
     }
@@ -1900,6 +1953,24 @@ async function checkEditorFallback() {
     if (await page.locator('#sbpc-list .sbpc-song.active').count() !== 1 ||
         await page.evaluate(() => data.productions.some(w => w.title === 'Fallback Master 122')) !== true) {
       throw new Error('Master fallback creation failed');
+    }
+    // The complete original detail must remain editable without the Vue bundle.
+    const legacyDetail = page.locator('#sb-vue-producer-detail');
+    if (await legacyDetail.count() !== 1 ||
+        await page.locator('#sb-vue-producer-detail[data-v-app]').count() ||
+        await legacyDetail.locator('[data-pc-stage]').count() !== 6 ||
+        await legacyDetail.locator('[data-pc-link]').count() !== 6) {
+      throw new Error('Original Master detail fallback lost stages or link selectors');
+    }
+    await legacyDetail.locator('#sbpc-artist').fill('Fallback Artist 125');
+    await legacyDetail.locator('#sbpc-notes').fill('Backup detail editing works');
+    await legacyDetail.locator('[data-pc-action="save-details"]').click();
+    if (await page.evaluate(() => data.productions.find(w => w.title === 'Fallback Master 122')?.artist) !== 'Fallback Artist 125') {
+      throw new Error('Original Master fallback failed to save song details');
+    }
+    await page.locator('[data-pc-stage="idea"]').selectOption('done');
+    if (await page.evaluate(() => data.productions.find(w => w.title === 'Fallback Master 122')?.steps?.idea) !== 'done') {
+      throw new Error('Original Master fallback failed to update stage status');
     }
     await page.locator('#sbpc-search').fill('not-in-master-122');
     if (await page.locator('#sbpc-list .sbpc-song').count() ||
