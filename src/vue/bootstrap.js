@@ -4,11 +4,11 @@
 // and <meta name="sunoboom-vue-nav" content="enabled"> is explicitly added.
 const localDev = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 const productionEnabled = !!document.querySelector('meta[name="sunoboom-vue-nav"][content="enabled"]');
-const moduleUrl = productionEnabled ? '../../dist/vue/sunoboom-vue.js?v=128' : localDev ? './entry.js' : null;
+const moduleUrl = productionEnabled ? '../../dist/vue/sunoboom-vue.js?v=129' : localDev ? './entry.js' : null;
 
 if (moduleUrl && window.SUNOBOOM_LEGACY_NAV) {
   import(moduleUrl)
-    .then(({ startLegacyNavigation, startLegacyAcademy, startLegacyGenreDetail, startLegacyStudio, startLegacyMixer, startLegacyAuditor, startLegacyArranger, startLegacyPoetry, startLegacyTags, startLegacyIdeaEditor, startLegacyIdeaCollections, startLegacyPromptCollection, startLegacyPromptEditor, startLegacyLibrary, startLegacySongCards, startLegacySongDetail, startLegacySongEditor, startLegacyArtistManager, startLegacyArtistDNA, startLegacyArtistDNAEditor, startLegacyAccountSettings, startLegacyPlayerLab, startLegacyPlayerAB, startLegacyProducerSongList, startLegacyProducerSongDetail }) => {
+    .then(({ startLegacyNavigation, startLegacyAcademy, startLegacyGenreDetail, startLegacyStudio, startLegacyMixer, startLegacyAuditor, startLegacyArranger, startLegacyPoetry, startLegacyTags, startLegacyIdeaEditor, startLegacyIdeaCollections, startLegacyPromptCollection, startLegacyPromptEditor, startLegacyLibrary, startLegacySongCards, startLegacySongDetail, startLegacySongEditor, startLegacyArtistManager, startLegacyArtistDNA, startLegacyArtistDNAEditor, startLegacyAccountSettings, startLegacyPlayerLab, startLegacyPlayerAB, startLegacyProducerSongList, startLegacyProducerSongDetail, startLegacyTrackPassportList }) => {
       if (typeof startLegacyNavigation === 'function') startLegacyNavigation();
       if (typeof startLegacyAcademy === 'function') startLegacyAcademy();
       if (typeof startLegacyGenreDetail === 'function') startLegacyGenreDetail();
@@ -31,6 +31,7 @@ if (moduleUrl && window.SUNOBOOM_LEGACY_NAV) {
       if (typeof startLegacyPlayerAB === 'function') startLegacyPlayerAB();
       if (typeof startLegacyProducerSongList === 'function') startLegacyProducerSongList();
       if (typeof startLegacyProducerSongDetail === 'function') startLegacyProducerSongDetail();
+      if (typeof startLegacyTrackPassportList === 'function') startLegacyTrackPassportList();
       if (typeof startLegacyIdeaEditor === 'function') startLegacyIdeaEditor();
       if (typeof startLegacyPoetry === 'function') startLegacyPoetry();
       if (typeof startLegacyTags === 'function') startLegacyTags();

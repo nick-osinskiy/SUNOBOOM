@@ -13,6 +13,7 @@ import { activateLegacyPlayerLab } from './player/legacyPlayerLabBridge.js';
 import { activateLegacyPlayerAB } from './player/legacyPlayerABBridge.js';
 import { activateLegacyProducerSongList } from './producer/legacyProducerSongListBridge.js';
 import { activateLegacyProducerSongDetail } from './producer/legacyProducerSongDetailBridge.js';
+import { activateLegacyTrackPassportList } from './account/legacyTrackPassportListBridge.js';
 import { activateLegacyIdeaEditor } from './poetry/legacyIdeaEditorBridge.js';
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
@@ -197,4 +198,9 @@ export function startLegacyProducerSongList() {
 /** Vue 3 Master detail; every mutation and storage call stays in producer-center.js. */
 export function startLegacyProducerSongDetail() {
   return activateLegacyProducerSongDetail({ mountVueFeature });
+}
+
+/** Vue 3 list of track passports; legacy detail, editor and calendar stay unchanged. */
+export function startLegacyTrackPassportList() {
+  return activateLegacyTrackPassportList({ mountVueFeature });
 }

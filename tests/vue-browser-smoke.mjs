@@ -1686,6 +1686,72 @@ async function checkLayout(mobile) {
       throw new Error('Master deletion or Vue remount did not preserve the workflow');
     }
 
+    // v0.126: Vue owns only passport filters/cards; the old editor, detail,
+    // version manager, release calculation and persistence must still work.
+    await page.evaluate(() => go('tracks'));
+    const trackList = page.locator('#sb-vue-track-list');
+    await page.locator('#sb-vue-track-list[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    if (await trackList.locator('[data-action="tp-filter"]').count() !== 8 ||
+        await page.locator('[data-action="tp-new"]').count() !== 1 ||
+        await page.evaluate(() => typeof window.SUNOBOOM_LEGACY_TRACK_LIST?.snapshot) !== 'function') {
+      throw new Error('Vue passport list is not mounted or original actions missing');
+    }
+    await page.locator('[data-action="tp-new"]').click();
+    if (await page.locator('#sb-vue-track-list').count() !== 0 ||
+        await page.locator('#sb-track-form #tp-title').count() !== 1) {
+      throw new Error('Legacy passport editor was replaced instead of preserved');
+    }
+    await page.locator('#tp-title').fill('Vue Passport 126');
+    await page.locator('#tp-artist').fill('Исполнитель Vue');
+    await page.locator('#tp-status').selectOption('publisher');
+    await page.locator('#tp-submitted').fill('2026-11-12');
+    await page.locator('[data-action="tp-save"]').click();
+    const track126 = await page.evaluate(() => {
+      const item = data.tracks.find(t => t.title === 'Vue Passport 126');
+      const saved = JSON.parse(localStorage.getItem('sunoboom-v1') || '{}');
+      return { id:item?.id, status:item?.status, release:item?.releaseAt,
+        persisted:saved.tracks?.some(t => t.id === item?.id && t.title === 'Vue Passport 126') };
+    });
+    if (!track126.id || track126.status !== 'publisher' ||
+        track126.release !== '2026-11-19' || !track126.persisted ||
+        await page.locator('.sb-track-detail').count() !== 1) {
+      throw new Error('Original passport save, release and persistence failed: '+JSON.stringify(track126));
+    }
+    await page.locator('#tp-version-title').fill('Финальная версия 126');
+    await page.locator('#tp-version-url').fill('https://example.com/track126.wav');
+    await page.locator('[data-action="tp-version-add"]').click();
+    if (!await page.evaluate(id =>
+      data.tracks.find(t => t.id === id)?.versions?.some(v => v.label === 'Финальная версия 126'), track126.id)) {
+      throw new Error('Original passport version add failed');
+    }
+    await page.locator('[data-action="tp-list"]').click();
+    await page.locator('#sb-vue-track-list[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    if (await trackList.locator('.sb-track-tile[data-id="'+track126.id+'"]').count() !== 1) {
+      throw new Error('Vue passport list did not show the saved track');
+    }
+    await trackList.locator('[data-filter="released"]').click();
+    await page.locator('#sb-vue-track-list[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    if (await trackList.locator('.sb-track-tile[data-id="'+track126.id+'"]').count() ||
+        await trackList.locator('[data-filter="released"]').getAttribute('aria-pressed') !== 'true') {
+      throw new Error('Vue passport filter did not honor legacy state');
+    }
+    await trackList.locator('[data-filter="publisher"]').click();
+    await page.locator('#sb-vue-track-list[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    if (await trackList.locator('.sb-track-tile[data-id="'+track126.id+'"]').count() !== 1) {
+      throw new Error('Vue passport filter could not restore the track');
+    }
+    await trackList.locator('.sb-track-tile[data-id="'+track126.id+'"]').click();
+    if (await page.locator('.sb-track-detail .sb-track-version').count() !== 1 ||
+        await page.locator('#sb-vue-track-list').count() !== 0) {
+      throw new Error('Legacy passport detail/versions did not open from Vue list');
+    }
+    page.once('dialog', dialog => { void dialog.accept(); });
+    await page.locator('[data-action="tp-delete"]').click();
+    if (await page.evaluate(id => data.tracks.some(t => t.id === id), track126.id) ||
+        await page.locator('#sb-vue-track-list[data-v-app]').count() !== 1) {
+      throw new Error('Original passport delete did not remount Vue list');
+    }
+
     // v0.124: gear shortcut next to notifications opens the existing settings.
     await page.evaluate(() => go('studio'));
     const headerButtons = page.locator('.top .top-right');
@@ -1978,7 +2044,28 @@ async function checkEditorFallback() {
       throw new Error('Master legacy fallback search failed');
     }
     await page.locator('#sbpc-search').fill('');
-    console.log('Original song editor, library, My Songs, artist manager, DNA, settings player and Master without Vue PASS');
+    // v0.126: blocked Vue bundle leaves working passport filters and editor.
+    await page.evaluate(() => go('tracks'));
+    if (await page.locator('#sb-vue-track-list[data-v-app]').count() !== 0 ||
+        await page.locator('#sb-vue-track-list [data-action="tp-filter"]').count() !== 8) {
+      throw new Error('Original passport list fallback is missing');
+    }
+    await page.locator('[data-action="tp-new"]').click();
+    await page.locator('#tp-title').fill('Fallback Passport 126');
+    await page.locator('#tp-status').selectOption('lyrics');
+    await page.locator('[data-action="tp-save"]').click();
+    if (await page.evaluate(() =>
+      data.tracks.some(t => t.title === 'Fallback Passport 126' && t.status === 'lyrics')) !== true ||
+        await page.locator('.sb-track-detail').count() !== 1) {
+      throw new Error('Original passport fallback could not save/display a track');
+    }
+    await page.locator('[data-action="tp-list"]').click();
+    await page.locator('#sb-vue-track-list [data-filter="lyrics"]').click();
+    if (await page.locator('#sb-vue-track-list [data-action="tp-open"]').count() !== 1 ||
+        !(await page.locator('#sb-vue-track-list').textContent()).includes('Fallback Passport 126')) {
+      throw new Error('Original passport filter fallback did not work');
+    }
+    console.log('Original song editor, library, My Songs, artist manager, DNA, settings, player, Master and passports without Vue PASS');
   } finally { await context.close(); }
 }
 

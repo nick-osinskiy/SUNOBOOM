@@ -227,3 +227,12 @@ npm run test:vue-browser
 - `#sb-vue-player-lab` охватывает только основной `.sbp-layout`. Внешние `.sbp-hero`, `.sbab-modes` и `#sbab-compare` оставлены за исходным кодом `player-ab.js`; A/B в v0.119 **не переносится**.
 - Данные аудио/локальные Blob URL/MediaSession/drag-drop/клавиши/настройки остались в `player-lab.js`. Vue читает `SUNOBOOM_LEGACY_PLAYER_LAB.snapshot()` и реагирует на `sunoboom:player-lab-update`; исходный `renderList/sync` не обновляет Vue-owned DOM. Сохранение предпочтений без миграции.
 - HTML fallback встроен в исходный `page()`, доступен при отсутствии Vue. Smoke на десктопе/телефоне проверяет WAV, демо, проигрывание/выбор, режимы и A/B, настройки и резервный режим.
+
+
+## Этап v0.126 — список паспортов треков на Vue 3 (9 ноября 2026)
+
+- `src/vue/account/TrackPassportList.vue` и `legacyTrackPassportListBridge.js` подключаются только к `#sb-vue-track-list` на экране `tracks`, когда открыт список. Исходный HTML фильтров и карточек формируется прежде Vue и работает как fallback.
+- `window.SUNOBOOM_LEGACY_TRACK_LIST.snapshot()` читает `data.tracks` и `view.sbTrackFilter` без создания второго хранилища: сортировка по обновлению, семь этапов, фильтры, карточки и пустые состояния сохранены.
+- Все `data-action="tp-*"`, редактор, 7-дневный расчёт релиза, проверка HTTPS, связи с материалами, версии и календарь остаются в прежней логике. Формат localStorage и IndexedDB не менялся.
+- `entry.js`, `bootstrap.js`, публичная версия 0.126 и параметры кеша обновлены; smoke проверяет desktop/mobile и резервный экран без Vue, создание, сохранение, фильтрацию, версии и удаление.
+- Проверять GitHub Actions и Pages для актуального HEAD перед утверждением о публикации.
