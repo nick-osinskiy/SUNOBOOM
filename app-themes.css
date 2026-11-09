@@ -366,3 +366,46 @@ html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"
 }
 /* The genre illustration layer keeps its individual accent; its card surface
    underneath adopts the chosen palette. */
+
+
+/* v0.143 — player and A/B comparison follow the active color palette. */
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"]) .sbp-wrap{
+ --sbp-ink:var(--text);--sbp-muted:var(--muted);--sbp-line:var(--stroke);
+ --sbp-cyan:var(--cyan);--sbp-pink:var(--sb-theme-accent);
+ --ab-txt:var(--text);--ab-mute:var(--muted);--ab-pink:var(--sb-theme-accent);--ab-cyan:var(--cyan);
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.sbp-hero,.sbab-heading){
+ background:radial-gradient(circle at 85% 12%,var(--sb-theme-glow),transparent 55%),linear-gradient(125deg,var(--panel2),var(--panel))!important;
+ border-color:var(--sb-theme-accent-border)!important;color:var(--text)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.sbp-main,.sbp-side,.sbp-bottom,.sbab-file-card,.sbab-console,.sbab-modes,.sbab-demo-row,.sbab-player,.sbab-track,.sbab-panel,.sbab-metrics,.sbab-info,.sbab-status){
+ background:var(--panel)!important;border-color:var(--stroke)!important;color:var(--text)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.sbp-art,.sbab-lab-badge,.sbab-loaded){
+ background:linear-gradient(140deg,var(--panel3),var(--panel2))!important;
+ border-color:var(--sb-theme-accent-border)!important;color:var(--text)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.sbp-art-orb,.sbab-modes button[aria-pressed="true"],.sbab-upload,.sbp-play){
+ background:linear-gradient(125deg,var(--sb-theme-accent),var(--violet))!important;
+ color:var(--bg)!important;border-color:var(--sb-theme-accent-border)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.sbp-secondary,.sbab-remove,.sbab-demo-row button,.sbab-modes button:not([aria-pressed="true"])){
+ background:var(--panel2)!important;color:var(--text)!important;border-color:var(--stroke)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.sbp-progress input[type="range"],.sbp-volume input[type="range"],.sbab-shell input[type="range"]){
+ accent-color:var(--sb-theme-accent)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.sbp-hero p,.sbab-heading p,.sbab-filesub,.sbab-demo-row p,.sbp-title-area p,.sbp-times,.sbab-length){
+ color:var(--muted)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.sbp-eyebrow,.sbp-now-tag,.sbab-kicker,.sbab-side-label){
+ color:var(--sb-theme-accent)!important;
+}
