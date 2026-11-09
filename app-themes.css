@@ -443,3 +443,27 @@ html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"
 :is(.list-pills .filter,.home-card,.dashboard-card):hover{
  border-color:var(--sb-theme-accent-border)!important;
 }
+
+
+/* v0.145 — REAL home dashboard selectors, verified against dashboardHome().
+   Earlier home overrides targeted the old home() view, not dash-* classes. */
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"]) :is(.dash-head,.dash-metric,.dash-panel,.dash-entry,.dash-empty){
+ background:linear-gradient(135deg,var(--panel2),var(--panel))!important;
+ border-color:var(--stroke)!important;color:var(--text)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"]) .dash-head{
+ background:radial-gradient(circle at 86% 10%,var(--sb-theme-glow),transparent 52%),linear-gradient(120deg,var(--panel3),var(--panel))!important;
+ border-color:var(--sb-theme-accent-border)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"]) :is(.dash-eyebrow,.dash-kicker,.dash-head h1 span,.dash-metric b,.dash-view-all,.dash-entry-link,.dash-copy,.dash-entry-meta){
+ color:var(--sb-theme-accent)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"]) :is(.dash-head p,.dash-metric span,.dash-entry p,.dash-empty p){
+ color:var(--muted)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"]) :is(.dash-actions .btn.primary,.dash-actions .btn.ghost,.dash-empty .btn){
+ background:var(--sb-theme-accent-soft)!important;border-color:var(--sb-theme-accent-border)!important;color:var(--text)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"]) :is(.dash-panel,.dash-metric,.dash-entry):hover{
+ border-color:var(--sb-theme-accent-border)!important;
+}
