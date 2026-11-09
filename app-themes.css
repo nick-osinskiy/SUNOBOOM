@@ -296,3 +296,26 @@ html[data-sb-theme="sunset"],html[data-sb-theme="amethyst"]{
 @media(prefers-reduced-motion:reduce){
  html :is(.main,.app,.sbs-page) select:not([multiple]){transition:none}
 }
+
+
+/* v0.141 — shared floating searchable dropdown */
+.sb-dropdown{
+ position:fixed;z-index:2147483000;display:flex;flex-direction:column;
+ padding:8px;border:1px solid var(--sb-menu-border,var(--stroke));
+ border-radius:16px;background:var(--sb-menu-bg,var(--panel2));
+ color:var(--sb-menu-text,var(--text));box-shadow:0 18px 48px #0008;
+ overflow:hidden;min-width:0;font:13px/1.45 Inter,system-ui,sans-serif;
+}
+.sb-dropdown-toolbar{display:flex;gap:6px;align-items:center;padding:3px 3px 9px}
+.sb-dropdown-search{flex:1;min-width:0;min-height:38px;border:1px solid var(--sb-menu-border,var(--stroke));border-radius:10px;background:var(--panel,var(--bg));color:var(--sb-menu-text,var(--text));padding:8px 10px;font:inherit}
+.sb-dropdown-search::placeholder{color:var(--muted);opacity:1}
+.sb-dropdown-sort,.sb-dropdown-close{flex:none;min-height:38px;border:1px solid var(--sb-menu-border,var(--stroke));border-radius:10px;background:var(--panel,var(--bg));color:var(--sb-menu-text,var(--text));padding:0 9px;font:inherit;cursor:pointer}
+.sb-dropdown-close{font-size:20px;min-width:34px}
+.sb-dropdown-list{overflow:auto;min-height:0;overscroll-behavior:contain;display:grid;gap:3px}
+.sb-dropdown-option{display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;padding:10px 12px;min-height:39px;text-align:left;border:1px solid transparent;border-radius:9px;background:transparent;color:var(--sb-menu-text,var(--text));font:inherit;cursor:pointer}
+.sb-dropdown-option small{font-size:10px;color:var(--muted)}
+.sb-dropdown-option:hover,.sb-dropdown-option:focus-visible{background:var(--panel3);border-color:var(--sb-menu-accent,var(--violet));outline:none}
+.sb-dropdown-option.is-selected{background:var(--panel3);color:var(--sb-menu-accent,var(--violet));font-weight:750}
+.sb-dropdown-option:disabled{opacity:.45;cursor:not-allowed}
+.sb-dropdown-empty{padding:18px 12px;text-align:center;color:var(--muted)}
+.sb-dropdown :is(button,input):focus-visible{outline:2px solid var(--sb-menu-accent,var(--violet));outline-offset:1px}
