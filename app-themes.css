@@ -246,3 +246,53 @@ html[data-sb-theme="sunset"] :is(.sbs-primary,.sbs-switch input:checked+.sbs-swi
 html[data-sb-theme="amethyst"] :is(.sbs-primary,.sbs-switch input:checked+.sbs-switch-track){
  background:var(--sb-theme-accent-soft);border-color:var(--sb-theme-accent-border);color:var(--text);
 }
+
+
+/* v0.140 — unified dropdown design for all native selects (Vue + legacy).
+   Keep native controls for keyboard, touch, screen readers and change handlers. */
+:root{
+ --sb-menu-bg:var(--panel2,#1b2032);
+ --sb-menu-text:var(--text,#f6f3ff);
+ --sb-menu-border:var(--stroke,#30354c);
+ --sb-menu-accent:var(--violet,#8d76ff);
+}
+html :is(.main,.app,.sbs-page) select:not([multiple]){
+ appearance:none;-webkit-appearance:none;
+ color:var(--sb-menu-text)!important;
+ background-color:var(--sb-menu-bg)!important;
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%239ea9c4' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")!important;
+ background-repeat:no-repeat!important;background-position:right 12px center!important;
+ background-size:18px!important;
+ border:1px solid var(--sb-menu-border)!important;
+ border-radius:11px!important;
+ min-height:43px;padding:9px 38px 9px 13px!important;
+ font:inherit;line-height:1.4;
+ box-shadow:0 2px 10px #00000014;
+ cursor:pointer;transition:border-color .15s,box-shadow .15s;
+}
+html :is(.main,.app,.sbs-page) select:not([multiple]):hover{
+ border-color:var(--sb-menu-accent)!important;
+}
+html :is(.main,.app,.sbs-page) select:not([multiple]):focus-visible{
+ outline:2px solid var(--sb-menu-accent)!important;outline-offset:2px;
+ box-shadow:0 0 0 4px color-mix(in srgb,var(--sb-menu-accent) 18%,transparent);
+}
+html :is(.main,.app,.sbs-page) select:not([multiple]):disabled{
+ opacity:.55;cursor:not-allowed;
+}
+html :is(.main,.app,.sbs-page) select:not([multiple]) option,
+html :is(.main,.app,.sbs-page) select:not([multiple]) optgroup{
+ background:var(--sb-menu-bg);color:var(--sb-menu-text);
+}
+html.sb-theme-light{
+ --sb-menu-bg:#fff;--sb-menu-text:#27304c;
+ --sb-menu-border:#bcc8dc;--sb-menu-accent:#6549ba;
+}
+html[data-sb-theme="ocean"],html[data-sb-theme="forest"],
+html[data-sb-theme="sunset"],html[data-sb-theme="amethyst"]{
+ --sb-menu-bg:var(--panel2);--sb-menu-text:var(--text);
+ --sb-menu-border:var(--stroke);--sb-menu-accent:var(--sb-theme-accent);
+}
+@media(prefers-reduced-motion:reduce){
+ html :is(.main,.app,.sbs-page) select:not([multiple]){transition:none}
+}
