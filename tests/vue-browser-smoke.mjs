@@ -71,6 +71,21 @@ async function checkLayout(mobile) {
       throw error;
     }
     await page.locator('[data-sb-vue-mobile][data-v-app]').waitFor({ state: 'attached', timeout: 20000 });
+    const history136 = page.locator('[data-sb-vue-history][data-v-app]');
+    await history136.waitFor({ state: 'attached', timeout: 10000 });
+    const back136 = history136.locator('button[data-sb-history-back]');
+    const forward136 = history136.locator('button[data-sb-history-forward]');
+    if (await back136.count() !== 1 || await forward136.count() !== 1 ||
+        !(await back136.isDisabled()) || !(await forward136.isDisabled()) ||
+        await back136.getAttribute('aria-label') !== 'Назад по разделам' ||
+        await forward136.getAttribute('aria-label') !== 'Вперёд по разделам') {
+      throw new Error('Vue history toolbar buttons missing, duplicated or enabled on startup');
+    }
+    // Toolbar lives in the content area, never in the narrow mobile bottom bar.
+    if (await page.locator('.mobile-nav [data-sb-history-back]').count() ||
+        await page.locator('.top [data-sb-history-back]').count()) {
+      throw new Error('History controls overlap mobile navigation or top shortcuts');
+    }
 
     // v0.130: both Vue menus share one read-only legacy route observer.
     // v0.131: Vue Router follows legacy navigation in MEMORY only.
@@ -244,30 +259,42 @@ async function checkLayout(mobile) {
 
     // v0.135: explicit memory Back/Forward safely restores ONLY valid
     // top-level routes using the existing go(), never browser history.
-    const back135 = await page.evaluate(async () => {
-      const before = window.SUNOBOOM_VUE_ROUTE.routerSnapshot();
-      const ok = await window.SUNOBOOM_VUE_ROUTE.back();
-      return { before, ok, legacyRoute: view.nav,
-        after: window.SUNOBOOM_VUE_ROUTE.routerSnapshot() };
+    // v0.136 exercises actual Vue toolbar clicks, not only the diagnostic API.
+    await page.waitForFunction(() => {
+      const buttons = document.querySelectorAll('[data-sb-vue-history] button');
+      return buttons.length === 2 && !buttons[0].disabled && buttons[1].disabled;
     });
-    if (!back135.ok || !back135.before.canGoBack ||
-        back135.legacyRoute !== 'producer' ||
-        back135.after.path !== '/producer' ||
-        back135.after.transition !== 'back' || !back135.after.canGoForward ||
+    await back136.click();
+    await page.waitForFunction(() => {
+      const route = window.SUNOBOOM_VUE_ROUTE?.routerSnapshot();
+      return route?.path === '/producer' && route.transition === 'back' &&
+        view.nav === 'producer';
+    });
+    const back135 = await page.evaluate(() => ({
+      after: window.SUNOBOOM_VUE_ROUTE.routerSnapshot(),
+      legacyRoute: view.nav
+    }));
+    if (back135.legacyRoute !== 'producer' || !back135.after.canGoForward ||
         back135.after.menuPushes !== beforeMenuPush134 + 2) {
-      throw new Error('Memory Back did not safely restore Master: ' + JSON.stringify(back135));
+      throw new Error('Vue Back button did not restore Master: ' + JSON.stringify(back135));
     }
     await page.locator(nav + ' button[data-nav="producer"].active').waitFor({ timeout: 10000 });
-    const forward135 = await page.evaluate(async () => {
-      const ok = await window.SUNOBOOM_VUE_ROUTE.forward();
-      return { ok, legacyRoute: view.nav,
-        after: window.SUNOBOOM_VUE_ROUTE.routerSnapshot() };
+    await forward136.waitFor({ state: 'visible', timeout: 10000 });
+    await page.waitForFunction(() =>
+      !document.querySelector('[data-sb-vue-history] button[data-sb-history-forward]')?.disabled);
+    await forward136.click();
+    await page.waitForFunction(() => {
+      const route = window.SUNOBOOM_VUE_ROUTE?.routerSnapshot();
+      return route?.path === '/studio' && route.transition === 'forward' &&
+        view.nav === 'studio';
     });
-    if (!forward135.ok || forward135.legacyRoute !== 'studio' ||
-        forward135.after.path !== '/studio' || forward135.after.transition !== 'forward' ||
+    const forward135 = await page.evaluate(() => ({
+      after: window.SUNOBOOM_VUE_ROUTE.routerSnapshot(), legacyRoute: view.nav
+    }));
+    if (forward135.legacyRoute !== 'studio' ||
         forward135.after.canGoForward || forward135.after.menuPushes !== beforeMenuPush134 + 2 ||
         page.url() !== BASE) {
-      throw new Error('Memory Forward changed site URL or failed: ' + JSON.stringify(forward135));
+      throw new Error('Vue Forward button changed URL or failed: ' + JSON.stringify(forward135));
     }
     await page.locator(nav + ' button[data-nav="studio"].active').waitFor({ timeout: 10000 });
     if (await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE?.snapshot()?.route) !== 'studio') {
@@ -2070,6 +2097,10 @@ async function checkEditorFallback() {
   await page.route('**/dist/vue/**', route => route.abort());
   try {
     await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+    // The optional Vue toolbar is never a prerequisite for the HTML fallback.
+    if (await page.locator('[data-sb-vue-history] button').count()) {
+      throw new Error('History Vue buttons appeared with the compiled bundle blocked');
+    }
     // Gear shortcut also opens the original settings with the bundle blocked.
     if (await page.locator('.top .sb-settings-shortcut').count() !== 1) {
       throw new Error('Settings gear missing in legacy header');

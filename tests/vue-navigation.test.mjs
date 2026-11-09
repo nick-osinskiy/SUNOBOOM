@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { activeNavigationRoute, navigationSnapshot } from '../src/vue/navigation/nav-model.js';
 import { currentRoute, syncLegacyRoute } from '../src/vue/navigation/route-state.js';
 import { navigateFromVueMenu } from '../src/vue/navigation/navigation-dispatch.js';
-import { restoreLegacyMenuHistory } from '../src/vue/navigation/legacy-history-restore.js';
+import { canRestoreLegacyMenuHistory, restoreLegacyMenuHistory } from '../src/vue/navigation/legacy-history-restore.js';
 import {
   activeRouteFromMemoryPath, legacyMemoryHistoryCandidate, legacyRouteFromMemoryPath,
   legacyMirrorRouter, legacyRouterSnapshot, routeToMemoryPath, whenLegacyRouterSettled
@@ -293,4 +293,35 @@ test('memory restore refuses nested or unknown routes without navigating legacy 
   assert.equal(legacyRouteFromMemoryPath('/%broken'), null);
   assert.equal(await restoreLegacyMenuHistory('sideways', {}), false);
   assert.equal(await restoreLegacyMenuHistory('back', {}), false);
+});
+
+test('history toolbar availability matches guarded restore rules', async () => {
+  syncLegacyRoute('home');
+  await whenLegacyRouterSettled();
+  let active = 'home';
+  const api = {
+    snapshot: () => ({ active, items: [
+      { id: 'home' }, { id: 'producer' }, { id: 'studio' }
+    ] }),
+    navigate: id => { active = id; }
+  };
+  navigateFromVueMenu('producer', { router: legacyMirrorRouter, legacyApi: api });
+  await whenLegacyRouterSettled();
+  navigateFromVueMenu('studio', { router: legacyMirrorRouter, legacyApi: api });
+  await whenLegacyRouterSettled();
+  assert.equal(canRestoreLegacyMenuHistory('back', { legacyApi: api }), true);
+  assert.equal(canRestoreLegacyMenuHistory('forward', { legacyApi: api }), false);
+
+  // An editor or programmatic legacy transition makes the history out of sync.
+  active = 'tracks';
+  assert.equal(canRestoreLegacyMenuHistory('back', { legacyApi: api }), false);
+  active = 'studio';
+  assert.equal(await restoreLegacyMenuHistory('back', { legacyApi: api }), true);
+  await whenLegacyRouterSettled();
+  assert.equal(canRestoreLegacyMenuHistory('forward', { legacyApi: api }), true);
+  assert.equal(canRestoreLegacyMenuHistory('back', { legacyApi: {
+    snapshot: () => ({ active: 'producer', items: [{ id: 'studio' }] })
+  } }), false);
+  syncLegacyRoute('home');
+  await whenLegacyRouterSettled();
 });

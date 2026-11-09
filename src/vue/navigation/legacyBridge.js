@@ -1,9 +1,10 @@
 import NavigationMenu from './NavigationMenu.vue';
+import VueHistoryControls from './VueHistoryControls.vue';
 import { navigationSnapshot } from './nav-model.js';
 import { currentRoute, syncLegacyRoute } from './route-state.js';
 import { legacyRouterSnapshot, whenLegacyRouterSettled } from './legacy-router-mirror.js';
 import { navigateFromVueMenu } from './navigation-dispatch.js';
-import { restoreLegacyMenuHistory } from './legacy-history-restore.js';
+import { canRestoreLegacyMenuHistory, restoreLegacyMenuHistory } from './legacy-history-restore.js';
 
 const SELECTORS = [
   { key: 'sidebar', selector: '[data-sb-vue-sidebar]', mobile: false },
@@ -38,6 +39,21 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature })
     const items = navigationSnapshot(raw);
     // Only the menu's structure, not its reactive active state, needs remounting.
     const signature = JSON.stringify(items.map(({ active, ...item }) => item));
+
+    // Separate toolbar outside the narrow mobile bottom bar and app header.
+    const historyHost = root.querySelector('[data-sb-vue-history]');
+    const priorHistory = instances.get('history');
+    if (!historyHost) {
+      priorHistory?.unmount();
+      instances.delete('history');
+    } else if (priorHistory?.target !== historyHost) {
+      priorHistory?.unmount();
+      const unmount = mountVueFeature(historyHost, VueHistoryControls, {
+        canRestore: direction => canRestoreLegacyMenuHistory(direction, { legacyApi: api }),
+        onRestore: direction => restoreLegacyMenuHistory(direction, { legacyApi: api })
+      }, { vueRouter: true });
+      if (unmount) instances.set('history', { target: historyHost, unmount });
+    }
 
     for (const { key, selector, mobile } of SELECTORS) {
       const target = root.querySelector(selector);
