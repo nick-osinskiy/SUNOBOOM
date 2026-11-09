@@ -73,6 +73,13 @@ async function checkLayout(mobile) {
     await page.locator('[data-sb-vue-mobile][data-v-app]').waitFor({ state: 'attached', timeout: 20000 });
 
     // v0.130: both Vue menus share one read-only legacy route observer.
+    // v0.131: Vue Router follows legacy navigation in MEMORY only.
+    // It must never alter location/history or become a second source of pages.
+    await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.routerSnapshot()?.path === '/home');
+    if (await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.routerSnapshot().active) !== 'home' ||
+        page.url() !== BASE) {
+      throw new Error('Vue Router memory mirror changed initial browser URL or route');
+    }
     const initialRoute130 = await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE?.snapshot());
     if (!initialRoute130 || initialRoute130.route !== 'home' || initialRoute130.active !== 'home' ||
         await page.locator('[data-sb-vue-sidebar] button.active').count() !== 1 ||
@@ -173,6 +180,10 @@ async function checkLayout(mobile) {
     await master.click();
     await page.locator(nav + ' button[data-nav="producer"].active').waitFor({ timeout: 10000 });
     await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.snapshot()?.route === 'producer');
+    await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.routerSnapshot()?.path === '/producer');
+    if (page.url() !== BASE) {
+      throw new Error('Vue Router memory mirror modified browser history on Master navigation');
+    }
     if (await page.locator('[data-sb-vue-sidebar] button[data-nav="producer"][aria-current="page"]').count() !== 1 ||
         await page.locator('[data-sb-vue-mobile] button[data-nav="producer"][aria-current="page"]').count() !== 1) {
       throw new Error('Both Vue menus did not follow the Master route');
@@ -312,6 +323,7 @@ async function checkLayout(mobile) {
     }
 
     const genreRoute130 = await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE?.snapshot());
+    await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.routerSnapshot()?.path === '/catalog/detail');
     if (genreRoute130?.route !== 'detail' || genreRoute130.active !== 'catalog' ||
         await page.locator('[data-sb-vue-sidebar] button[data-nav="catalog"][aria-current="page"]').count() !== 1 ||
         await page.locator('[data-sb-vue-mobile] button[data-nav="catalog"][aria-current="page"]').count() !== 1) {
@@ -1762,6 +1774,7 @@ async function checkLayout(mobile) {
       const route = window.SUNOBOOM_VUE_ROUTE?.snapshot();
       return route?.route === 'tracks' && route.active === 'account';
     });
+    await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.routerSnapshot()?.path === '/account/tracks');
     if (await page.locator('[data-sb-vue-sidebar] button[data-nav="account"][aria-current="page"]').count() !== 1 ||
         await page.locator('[data-sb-vue-mobile] button[data-nav="account"][aria-current="page"]').count() !== 1) {
       throw new Error('Nested track page failed to activate Account in both Vue menus');

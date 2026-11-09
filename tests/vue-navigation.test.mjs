@@ -2,6 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { activeNavigationRoute, navigationSnapshot } from '../src/vue/navigation/nav-model.js';
 import { currentRoute, syncLegacyRoute } from '../src/vue/navigation/route-state.js';
+import {
+  legacyMirrorRouter, legacyRouterSnapshot, routeToMemoryPath, whenLegacyRouterSettled
+} from '../src/vue/navigation/legacy-router-mirror.js';
 
 test('genre details highlight the Academy menu', () => {
   assert.equal(activeNavigationRoute('detail'), 'catalog');
@@ -78,4 +81,35 @@ test('the shared route defaults to home and allows future legacy route IDs', () 
   assert.equal(syncLegacyRoute(null).active, 'home');
   assert.equal(syncLegacyRoute('future-route').active, 'future-route');
   syncLegacyRoute('home');
+});
+
+test('Vue Router resolves the legacy screens without touching browser history', () => {
+  assert.equal(routeToMemoryPath('home'), '/home');
+  assert.equal(routeToMemoryPath('catalog'), '/catalog');
+  assert.equal(routeToMemoryPath('detail'), '/catalog/detail');
+  assert.equal(routeToMemoryPath('tracks'), '/account/tracks');
+  assert.equal(routeToMemoryPath('myideas'), '/account/myideas');
+  assert.equal(routeToMemoryPath('producer'), '/producer');
+  assert.equal(routeToMemoryPath('future-section'), '/future-section');
+  assert.equal(routeToMemoryPath(''), '/home');
+});
+
+test('Vue Router mirrors rapid legacy transitions using memory history', async () => {
+  syncLegacyRoute('home');
+  await whenLegacyRouterSettled();
+  assert.equal(legacyMirrorRouter.currentRoute.value.path, '/home');
+  syncLegacyRoute('studio');
+  syncLegacyRoute('detail');
+  syncLegacyRoute('tracks');
+  await whenLegacyRouterSettled();
+  assert.equal(legacyMirrorRouter.currentRoute.value.path, '/account/tracks');
+  assert.equal(legacyRouterSnapshot().active, 'account');
+  assert.equal(legacyRouterSnapshot().name, 'legacy-view');
+  syncLegacyRoute('detail');
+  await whenLegacyRouterSettled();
+  assert.equal(legacyRouterSnapshot().path, '/catalog/detail');
+  assert.equal(legacyRouterSnapshot().active, 'catalog');
+  syncLegacyRoute('home');
+  await whenLegacyRouterSettled();
+  assert.equal(legacyRouterSnapshot().path, '/home');
 });

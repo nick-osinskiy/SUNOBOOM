@@ -1,5 +1,6 @@
 import { readonly, shallowRef } from 'vue';
 import { activeNavigationRoute } from './nav-model.js';
+import { syncLegacyRouterMirror } from './legacy-router-mirror.js';
 
 // One reactive view of the EXISTING legacy route shared by every independent
 // Vue island. No second router history or persisted user data.
@@ -8,6 +9,8 @@ export const currentRoute = readonly(state);
 
 export function syncLegacyRoute(route) {
   const id = typeof route === 'string' && route ? route : 'home';
+  // The Vue Router memory mirror observes legacy routing but never drives it.
+  void syncLegacyRouterMirror(id);
   if (id === state.value.route) return state.value;
   const next = Object.freeze({
     route: id,

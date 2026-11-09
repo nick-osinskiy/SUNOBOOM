@@ -1,6 +1,7 @@
 import NavigationMenu from './NavigationMenu.vue';
 import { navigationSnapshot } from './nav-model.js';
 import { currentRoute, syncLegacyRoute } from './route-state.js';
+import { legacyRouterSnapshot } from './legacy-router-mirror.js';
 
 const SELECTORS = [
   { key: 'sidebar', selector: '[data-sb-vue-sidebar]', mobile: false },
@@ -19,7 +20,10 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature })
   const instances = new Map();
   let disposed = false;
   // Read-only diagnostics; no navigation mutation is exposed.
-  window.SUNOBOOM_VUE_ROUTE = Object.freeze({ snapshot: () => currentRoute.value });
+  window.SUNOBOOM_VUE_ROUTE = Object.freeze({
+    snapshot: () => currentRoute.value,
+    routerSnapshot: () => legacyRouterSnapshot()
+  });
 
   function sync() {
     if (disposed) return;
