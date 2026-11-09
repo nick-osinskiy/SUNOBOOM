@@ -1921,6 +1921,43 @@ async function checkLayout(mobile) {
       throw new Error('Master deletion or Vue remount did not preserve the workflow');
     }
 
+    // v0.152: Master history records each working song separately and keeps
+    // the list search when navigating between two song cards.
+    await page.locator('#sbpc-search').fill('');
+    await page.locator('#sbpc-new-title').fill('History Master 152 A');
+    await page.locator('[data-pc-action="create"]').click();
+    const masterA152 = await page.evaluate(() => data.productions.find(
+      work => work.title === 'History Master 152 A')?.id);
+    await page.waitForFunction(id => window.SUNOBOOM_VUE_ROUTE?.routerSnapshot()?.path ===
+      '/producer/detail/' + id, masterA152);
+    await page.locator('#sbpc-new-title').fill('History Master 152 B');
+    await page.locator('[data-pc-action="create"]').click();
+    const masterB152 = await page.evaluate(() => data.productions.find(
+      work => work.title === 'History Master 152 B')?.id);
+    await page.waitForFunction(id => window.SUNOBOOM_VUE_ROUTE?.routerSnapshot()?.path ===
+      '/producer/detail/' + id, masterB152);
+    await page.locator('#sbpc-search').fill('History Master 152');
+    if (await page.locator('#sbpc-list .sbpc-song').count() !== 2) {
+      throw new Error('Master history fixture search must show both working cards');
+    }
+    await page.locator('#sbpc-list .sbpc-song[data-id="' + masterA152 + '"]').click();
+    await page.waitForFunction(id => window.SUNOBOOM_VUE_ROUTE?.routerSnapshot()?.context?.id === id &&
+      window.SUNOBOOM_VUE_ROUTE.routerSnapshot().path === '/producer/detail/' + id, masterA152);
+    await page.locator('[data-sb-vue-history] [data-sb-history-back]').click();
+    await page.waitForFunction(id => window.SUNOBOOM_VUE_ROUTE?.routerSnapshot()?.context?.id === id &&
+      document.querySelector('#sbpc-title')?.value === 'History Master 152 B', masterB152);
+    if (await page.locator('#sbpc-search').inputValue() !== 'History Master 152') {
+      throw new Error('Master Back lost the list search');
+    }
+    await page.locator('[data-sb-vue-history] [data-sb-history-forward]').click();
+    await page.waitForFunction(id => window.SUNOBOOM_VUE_ROUTE?.routerSnapshot()?.context?.id === id &&
+      document.querySelector('#sbpc-title')?.value === 'History Master 152 A', masterA152);
+    await page.evaluate(ids => {
+      data.productions = data.productions.filter(work => !ids.includes(work.id));
+      persist();
+      go('studio');
+    }, [masterA152, masterB152]);
+
     // v0.126: Vue owns only passport filters/cards; the old editor, detail,
     // version manager, release calculation and persistence must still work.
     const beforeLegacyReplace134 = await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE?.routerSnapshot().menuPushes);

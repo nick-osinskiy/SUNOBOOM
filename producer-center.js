@@ -121,7 +121,9 @@
      history:[event("Начата работа над песней «"+title+"»","create")],createdAt:now,updatedAt:now};
    if(!write([rec,...items()]))return;
    state.selectedId=rec.id;state.query="";state.notice="Новая рабочая карточка создана.";
-   go("producer");window.scrollTo({top:0,behavior:"instant"});
+   go("producer");
+   window.SUNOBOOM_VUE_ROUTE?.recordProduction?.(rec.id,"push");
+   window.scrollTo({top:0,behavior:"instant"});
  }
  function options(type,value){
    const list=listFor(type),selected=String(value||"");

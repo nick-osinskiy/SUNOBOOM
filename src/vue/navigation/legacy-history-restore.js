@@ -30,7 +30,10 @@ function restoreTarget(candidate, api) {
       typeof api.restoreGenre === 'function') {
     return { kind: 'genre', id: context.id, tab: context.tab };
   }
-  if (candidate.path === '/producer/detail' && context?.kind === 'production' && api.canRestoreProduction?.(context.id) === true) return {kind:'production',id:context.id};
+  if (context?.kind === 'production' && candidate.path === routeToMemoryPath('producer', context) &&
+      api.canRestoreProduction?.(context.id) === true &&
+      typeof api.restoreProduction === 'function')
+    return {kind:'production',id:context.id};
   if (candidate.path === '/account/tracks' &&
       api.canRestoreTrackList?.() === true &&
       typeof api.restoreTrackList === 'function') {

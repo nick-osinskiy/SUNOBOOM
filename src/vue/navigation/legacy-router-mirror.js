@@ -16,7 +16,9 @@ const accountViews = new Set([
 export function routeToMemoryPath(route, context = null) {
   const id = typeof route === 'string' && route ? route : 'home';
   // A passport detail is a distinct memory route, never a browser URL.
-  if (id === 'producer' && context?.kind === 'production') return '/producer/detail';
+  if (id === 'producer' && context?.kind === 'production' && typeof context.id === 'string' &&
+      /^[a-zA-Z0-9_-]{1,128}$/.test(context.id))
+    return '/producer/detail/' + encodeURIComponent(context.id);
   if (id === 'tracks' && context?.kind === 'track') return '/account/tracks/detail';
   if (id === 'detail') return '/catalog/detail';
   if (accountViews.has(id)) return '/account/' + id;
@@ -26,6 +28,7 @@ export function routeToMemoryPath(route, context = null) {
 // Only the actual settled memory route is reported to Vue components.
 export function activeRouteFromMemoryPath(path) {
   if (path === '/catalog/detail') return 'catalog';
+  if (path === '/producer/detail' || path.startsWith('/producer/detail/')) return 'producer';
   if (path.startsWith('/account/')) return 'account';
   try { return decodeURIComponent(path.slice(1)) || 'home'; }
   catch { return 'home'; }

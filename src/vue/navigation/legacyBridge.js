@@ -116,7 +116,8 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature })
   // Otherwise a first-install bootstrap could overwrite the legacy route.
   const initial = api.snapshot();
   syncLegacyRoute(initial.active, { context: initial.track?.id
-    ? { kind: 'track', id: initial.track.id } : null });
+    ? { kind: 'track', id: initial.track.id } : initial.active === 'producer' && initial.production?.id
+      ? { kind: 'production', id: initial.production.id } : null });
   void whenLegacyRouterSettled().then(() => {
     if (disposed) return;
     observer.observe(root, { childList: true });

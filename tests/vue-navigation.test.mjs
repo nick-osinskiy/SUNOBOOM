@@ -460,6 +460,51 @@ test('passport detail memory history returns to filtered list and restores only 
   await whenLegacyRouterSettled();
 });
 
+test('Master history creates separate entries per song and refuses deleted records', async () => {
+  syncLegacyRoute('home');
+  await whenLegacyRouterSettled();
+  const first = 'production-first-152', second = 'production-second-152';
+  const records = new Set([first, second]);
+  let selected = first;
+  let query = 'автор';
+  const api = {
+    snapshot: () => ({ active: 'producer', production: { id: selected },
+      items: [{ id: 'producer' }] }),
+    navigate: () => { throw new Error('Master history must use the guarded detail restorer'); },
+    canRestoreProduction: id => records.has(id),
+    restoreProduction: id => {
+      if (!records.has(id)) return false;
+      selected = id;
+      return true;
+    }
+  };
+  assert.equal(routeToMemoryPath('producer', { kind: 'production', id: first }),
+    '/producer/detail/' + first);
+  assert.equal(activeRouteFromMemoryPath('/producer/detail/' + first), 'producer');
+  syncLegacyRoute('producer', { historyMode: 'push', context: { kind: 'production', id: first } });
+  await whenLegacyRouterSettled();
+  selected = second;
+  syncLegacyRoute('producer', { historyMode: 'push', context: { kind: 'production', id: second } });
+  await whenLegacyRouterSettled();
+  assert.equal(legacyRouterSnapshot().path, '/producer/detail/' + second);
+  assert.deepEqual(legacyRouterSnapshot().context, { kind: 'production', id: second });
+  assert.equal(canRestoreLegacyMenuHistory('back', { legacyApi: api }), true);
+  assert.equal(await restoreLegacyMenuHistory('back', { legacyApi: api }), true);
+  await whenLegacyRouterSettled();
+  assert.equal(selected, first);
+  assert.equal(legacyRouterSnapshot().path, '/producer/detail/' + first);
+  assert.equal(canRestoreLegacyMenuHistory('forward', { legacyApi: api }), true);
+  assert.equal(await restoreLegacyMenuHistory('forward', { legacyApi: api }), true);
+  await whenLegacyRouterSettled();
+  assert.equal(selected, second);
+  assert.equal(query, 'автор');
+  records.delete(first);
+  assert.equal(canRestoreLegacyMenuHistory('back', { legacyApi: api }), false);
+  assert.equal(routeToMemoryPath('producer', { kind: 'production', id: '../invalid' }), '/producer');
+  syncLegacyRoute('home');
+  await whenLegacyRouterSettled();
+});
+
 test('invalid passport context is not retained as a restorable memory entry', async () => {
   syncLegacyRoute('tracks');
   await whenLegacyRouterSettled();
