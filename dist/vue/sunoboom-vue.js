@@ -5568,8 +5568,72 @@ function em({ mountVueFeature: e }) {
 		i = !0, o.disconnect(), r?.unmount(), r = null;
 	};
 }
+// src/vue/account/TrackPassportList.vue
+var tm = {
+	class: "sb-track-filters",
+	role: "group",
+	"aria-label": "Фильтр паспортов по этапу"
+}, nm = ["data-filter", "aria-pressed"], rm = {
+	key: 0,
+	class: "sb-track-list"
+}, im = ["data-id"], am = {
+	key: 1,
+	class: "sb-track-empty"
+}, om = {
+	__name: "TrackPassportList",
+	props: { model: {
+		type: Object,
+		required: !0
+	} },
+	setup(e) {
+		return (t, n) => (W(), G(U, null, [K("div", tm, [(W(!0), G(U, null, B(e.model.filters, (t) => (W(), G("button", {
+			key: t.key,
+			type: "button",
+			"data-action": "tp-filter",
+			"data-filter": t.key,
+			class: D({ active: e.model.active === t.key }),
+			"aria-pressed": e.model.active === t.key
+		}, O(t.label), 11, nm))), 128))]), e.model.records.length ? (W(), G("div", rm, [(W(!0), G(U, null, B(e.model.records, (e) => (W(), G("button", {
+			key: e.id,
+			type: "button",
+			class: "sb-track-tile",
+			"data-action": "tp-open",
+			"data-id": e.id
+		}, [
+			n[0] ||= K("span", { class: "sb-track-note" }, "♫", -1),
+			K("span", null, [
+				K("strong", null, O(e.title), 1),
+				K("small", null, O(e.artist), 1),
+				K("small", null, O(e.statusLabel) + O(e.releaseLabel ? " · " + e.releaseLabel : ""), 1)
+			]),
+			n[1] ||= K("i", { "aria-hidden": "true" }, "→", -1)
+		], 8, im))), 128))])) : (W(), G("div", am, O(e.model.hasRecords ? "В этой категории пока нет треков." : "Паспортов пока нет. Создай первый, чтобы объединить материалы песни."), 1))], 64));
+	}
+};
+// src/vue/account/legacyTrackPassportListBridge.js
+function sm({ mountVueFeature: e }) {
+	let t = window.SUNOBOOM_LEGACY_TRACK_LIST, n = document.getElementById("app");
+	if (!t || typeof t.snapshot != "function" || !n) return () => {};
+	let r = null, i = !1;
+	function a() {
+		if (i) return;
+		let a = n.querySelector("#sb-vue-track-list[data-sb-vue-track-list]");
+		if (r?.node === a || (r &&= (r.unmount(), null), !a)) return;
+		let o = t.snapshot();
+		if (!o) return;
+		let s = e(a, om, { model: o });
+		s && (r = {
+			node: a,
+			unmount: s
+		});
+	}
+	let o = new MutationObserver(a);
+	return o.observe(n, { childList: !0 }), a(), () => {
+		i = !0, o.disconnect(), r?.unmount(), r = null;
+	};
+}
 // src/vue/poetry/IdeaFields.vue
-var tm = { class: "field" }, nm = { class: "field" }, rm = ["value"], im = { class: "field" }, am = { class: "field" }, om = {
+var cm = { class: "field" }, lm = { class: "field" }, um = ["value"], dm = { class: "field" }, fm = { class: "field" }, pm = {
 	__name: "IdeaFields",
 	props: { initial: {
 		type: Object,
@@ -5578,27 +5642,27 @@ var tm = { class: "field" }, nm = { class: "field" }, rm = ["value"], im = { cla
 	setup(e) {
 		let t = /* @__PURE__ */ M({ ...e.initial.values });
 		return (n, r) => (W(), G(U, null, [
-			K("div", tm, [r[4] ||= K("label", { for: "custom-idea-title" }, "Название песни", -1), R(K("input", {
+			K("div", cm, [r[4] ||= K("label", { for: "custom-idea-title" }, "Название песни", -1), R(K("input", {
 				id: "custom-idea-title",
 				"onUpdate:modelValue": r[0] ||= (e) => t.title = e,
 				maxlength: "100",
 				placeholder: "Например, Город на ладони"
 			}, null, 512), [[Q, t.title]])]),
-			K("div", nm, [r[5] ||= K("label", { for: "custom-idea-genre" }, "Музыкальный жанр", -1), R(K("select", {
+			K("div", lm, [r[5] ||= K("label", { for: "custom-idea-genre" }, "Музыкальный жанр", -1), R(K("select", {
 				id: "custom-idea-genre",
 				"onUpdate:modelValue": r[1] ||= (e) => t.genre = e
 			}, [(W(!0), G(U, null, B(e.initial.genres, (e) => (W(), G("option", {
 				key: e.id,
 				value: e.id
-			}, O(e.name), 9, rm))), 128))], 512), [[wo, t.genre]])]),
-			K("div", im, [r[6] ||= K("label", { for: "custom-idea-text" }, "Сюжет и основная идея", -1), R(K("textarea", {
+			}, O(e.name), 9, um))), 128))], 512), [[wo, t.genre]])]),
+			K("div", dm, [r[6] ||= K("label", { for: "custom-idea-text" }, "Сюжет и основная идея", -1), R(K("textarea", {
 				id: "custom-idea-text",
 				"onUpdate:modelValue": r[2] ||= (e) => t.text = e,
 				rows: "5",
 				maxlength: "3000",
 				placeholder: "О чём песня и что происходит с героем?"
 			}, null, 512), [[Q, t.text]])]),
-			K("div", am, [r[7] ||= K("label", { for: "custom-idea-hook" }, "Фраза для припева (необязательно)", -1), R(K("input", {
+			K("div", fm, [r[7] ||= K("label", { for: "custom-idea-hook" }, "Фраза для припева (необязательно)", -1), R(K("input", {
 				id: "custom-idea-hook",
 				"onUpdate:modelValue": r[3] ||= (e) => t.hook = e,
 				maxlength: "240",
@@ -5606,7 +5670,7 @@ var tm = { class: "field" }, nm = { class: "field" }, rm = ["value"], im = { cla
 			}, null, 512), [[Q, t.hook]])])
 		], 64));
 	}
-}, sm = ["value"], cm = {
+}, mm = ["value"], hm = {
 	__name: "LyricsSource",
 	props: {
 		initial: {
@@ -5630,17 +5694,17 @@ var tm = { class: "field" }, nm = { class: "field" }, rm = ["value"], im = { cla
 			rows: "12",
 			maxlength: "20000",
 			placeholder: "Куплет 1:\nТекст первого куплета...\n\nПрипев:\nТекст припева..."
-		}, null, 8, sm)], 64));
+		}, null, 8, mm)], 64));
 	}
-}, lm = { class: "field" }, um = ["value"], dm = { class: "workbench-switches" }, fm = ["id", "onUpdate:modelValue"], pm = { class: "field" }, mm = { class: "detail-actions" }, hm = {
+}, gm = { class: "field" }, _m = ["value"], vm = { class: "workbench-switches" }, ym = ["id", "onUpdate:modelValue"], bm = { class: "field" }, xm = { class: "detail-actions" }, Sm = {
 	type: "button",
 	class: "btn ghost",
 	"data-action": "copy-current-lyrics"
-}, gm = ["innerHTML"], _m = { class: "field" }, vm = { class: "detail-actions" }, ym = {
+}, Cm = ["innerHTML"], wm = { class: "field" }, Tm = { class: "detail-actions" }, Em = {
 	type: "button",
 	class: "btn ghost",
 	"data-action": "copy-current-style"
-}, bm = ["innerHTML"], xm = {
+}, Dm = ["innerHTML"], Om = {
 	__name: "LyricsTools",
 	props: { initial: {
 		type: Object,
@@ -5661,53 +5725,53 @@ var tm = { class: "field" }, nm = { class: "field" }, rm = ["value"], im = { cla
 			["short", "Короткое вступление"]
 		];
 		return (t, o) => (W(), G(U, null, [
-			K("div", lm, [o[3] ||= K("label", { for: "lyrics-tag-preset" }, "Характер аранжировки", -1), R(K("select", {
+			K("div", gm, [o[3] ||= K("label", { for: "lyrics-tag-preset" }, "Характер аранжировки", -1), R(K("select", {
 				id: "lyrics-tag-preset",
 				"onUpdate:modelValue": o[0] ||= (e) => n.preset = e
 			}, [(W(), G(U, null, B(i, ([e, t]) => K("option", {
 				key: e,
 				value: e
-			}, O(t), 9, um)), 64))], 512), [[wo, n.preset]])]),
-			K("div", dm, [(W(), G(U, null, B(a, ([e, t]) => K("label", { key: e }, [R(K("input", {
+			}, O(t), 9, _m)), 64))], 512), [[wo, n.preset]])]),
+			K("div", vm, [(W(), G(U, null, B(a, ([e, t]) => K("label", { key: e }, [R(K("input", {
 				id: "lyrics-" + e,
 				"onUpdate:modelValue": (t) => r[e] = t,
 				type: "checkbox"
-			}, null, 8, fm), [[So, r[e]]]), J(" " + O(t), 1)])), 64))]),
+			}, null, 8, ym), [[So, r[e]]]), J(" " + O(t), 1)])), 64))]),
 			o[8] ||= K("button", {
 				type: "button",
 				class: "btn ghost",
 				"data-action": "format-idea-lyrics"
 			}, "✨ Создать теги и усилители", -1),
 			o[9] ||= K("p", { class: "workbench-note" }, "Разметка примерная: если в тексте нет названий секций, куплеты и припевы определяются по абзацам. Проверь расположение тегов перед копированием.", -1),
-			K("div", pm, [o[4] ||= K("label", { for: "custom-idea-tagged" }, "Готовая версия для поля Lyrics в Suno (можно исправить вручную)", -1), R(K("textarea", {
+			K("div", bm, [o[4] ||= K("label", { for: "custom-idea-tagged" }, "Готовая версия для поля Lyrics в Suno (можно исправить вручную)", -1), R(K("textarea", {
 				id: "custom-idea-tagged",
 				"onUpdate:modelValue": o[1] ||= (e) => n.tagged = e,
 				rows: "13",
 				maxlength: "25000",
 				placeholder: "[Verse 1]\n...\n\n[Chorus - powerful melodic hook]\n..."
 			}, null, 512), [[Q, n.tagged]])]),
-			K("div", mm, [K("button", hm, [K("span", { innerHTML: e.initial.copyIcon }, null, 8, gm), o[5] ||= J(" Копировать Lyrics", -1)])]),
-			K("div", _m, [o[6] ||= K("label", { for: "custom-idea-style" }, "Дополнительное описание для поля Style (до 1000 символов)", -1), R(K("textarea", {
+			K("div", xm, [K("button", Sm, [K("span", { innerHTML: e.initial.copyIcon }, null, 8, Cm), o[5] ||= J(" Копировать Lyrics", -1)])]),
+			K("div", wm, [o[6] ||= K("label", { for: "custom-idea-style" }, "Дополнительное описание для поля Style (до 1000 символов)", -1), R(K("textarea", {
 				id: "custom-idea-style",
 				"onUpdate:modelValue": o[2] ||= (e) => n.style = e,
 				rows: "4",
 				maxlength: "1000",
 				placeholder: "Описание жанра, вокала и динамики для Suno"
 			}, null, 512), [[Q, n.style]])]),
-			K("div", vm, [K("button", ym, [K("span", { innerHTML: e.initial.copyIcon }, null, 8, bm), o[7] ||= J(" Копировать Style", -1)])])
+			K("div", Tm, [K("button", Em, [K("span", { innerHTML: e.initial.copyIcon }, null, 8, Dm), o[7] ||= J(" Копировать Style", -1)])])
 		], 64));
 	}
 };
 // src/vue/poetry/legacyIdeaEditorBridge.js
-function Sm({ mountVueFeature: e }) {
+function km({ mountVueFeature: e }) {
 	let t = window.SUNOBOOM_LEGACY_IDEA_EDITOR, n = document.getElementById("app");
 	if (!t || !n) return () => {};
 	let r = /* @__PURE__ */ new Map(), i = !1;
 	function a() {
 		if (!i) for (let [i, a] of [
-			["sb-vue-idea-fields", om],
-			["sb-vue-lyrics-source", cm],
-			["sb-vue-lyrics-tools", xm]
+			["sb-vue-idea-fields", pm],
+			["sb-vue-lyrics-source", hm],
+			["sb-vue-lyrics-tools", Om]
 		]) {
 			let o = n.querySelector("#" + i), s = r.get(i);
 			if (s?.node === o || (s && (s.unmount(), r.delete(i)), !o)) continue;
@@ -5731,23 +5795,23 @@ function Sm({ mountVueFeature: e }) {
 	};
 }
 // node_modules/pinia/dist/pinia.mjs
-var Cm = typeof window < "u", wm = Symbol(), Tm;
+var Am = typeof window < "u", jm = Symbol(), Mm;
 (function(e) {
 	e.direct = "direct", e.patchObject = "patch object", e.patchFunction = "patch function";
-})(Tm ||= {});
-var Em = typeof window == "object" && window.window === window ? window : typeof self == "object" && self.self === self ? self : typeof global == "object" && global.global === global ? global : typeof globalThis == "object" ? globalThis : { HTMLElement: null };
-function Dm(e, { autoBom: t = !1 } = {}) {
+})(Mm ||= {});
+var Nm = typeof window == "object" && window.window === window ? window : typeof self == "object" && self.self === self ? self : typeof global == "object" && global.global === global ? global : typeof globalThis == "object" ? globalThis : { HTMLElement: null };
+function Pm(e, { autoBom: t = !1 } = {}) {
 	return t && /^\s*(?:text\/\S*|application\/xml|\S*\/\S*\+xml)\s*;.*charset\s*=\s*utf-8/i.test(e.type) ? new Blob(["﻿", e], { type: e.type }) : e;
 }
-function Om(e, t, n) {
+function Fm(e, t, n) {
 	let r = new XMLHttpRequest();
 	r.open("GET", e), r.responseType = "blob", r.onload = function() {
-		Nm(r.response, t, n);
+		Bm(r.response, t, n);
 	}, r.onerror = function() {
 		console.error("could not download file");
 	}, r.send();
 }
-function km(e) {
+function Im(e) {
 	let t = new XMLHttpRequest();
 	t.open("HEAD", e, !1);
 	try {
@@ -5755,7 +5819,7 @@ function km(e) {
 	} catch {}
 	return t.status >= 200 && t.status <= 299;
 }
-function Am(e) {
+function Lm(e) {
 	try {
 		e.dispatchEvent(new MouseEvent("click"));
 	} catch {
@@ -5778,30 +5842,30 @@ function Am(e) {
 		e.dispatchEvent(t);
 	}
 }
-var jm = typeof navigator == "object" ? navigator : { userAgent: "" }, Mm = /Macintosh/.test(jm.userAgent) && /AppleWebKit/.test(jm.userAgent) && !/Safari/.test(jm.userAgent), Nm = Cm ? typeof HTMLAnchorElement < "u" && "download" in HTMLAnchorElement.prototype && !Mm ? Pm : "msSaveOrOpenBlob" in jm ? Fm : Im : () => {};
-function Pm(e, t = "download", n) {
+var Rm = typeof navigator == "object" ? navigator : { userAgent: "" }, zm = /Macintosh/.test(Rm.userAgent) && /AppleWebKit/.test(Rm.userAgent) && !/Safari/.test(Rm.userAgent), Bm = Am ? typeof HTMLAnchorElement < "u" && "download" in HTMLAnchorElement.prototype && !zm ? Vm : "msSaveOrOpenBlob" in Rm ? Hm : Um : () => {};
+function Vm(e, t = "download", n) {
 	let r = document.createElement("a");
-	r.download = t, r.rel = "noopener", typeof e == "string" ? (r.href = e, r.origin === location.origin ? Am(r) : km(r.href) ? Om(e, t, n) : (r.target = "_blank", Am(r))) : (r.href = URL.createObjectURL(e), setTimeout(function() {
+	r.download = t, r.rel = "noopener", typeof e == "string" ? (r.href = e, r.origin === location.origin ? Lm(r) : Im(r.href) ? Fm(e, t, n) : (r.target = "_blank", Lm(r))) : (r.href = URL.createObjectURL(e), setTimeout(function() {
 		URL.revokeObjectURL(r.href);
 	}, 4e4), setTimeout(function() {
-		Am(r);
+		Lm(r);
 	}, 0));
 }
-function Fm(e, t = "download", n) {
+function Hm(e, t = "download", n) {
 	if (typeof e == "string") {
-		if (km(e)) Om(e, t, n);
+		if (Im(e)) Fm(e, t, n);
 		else {
 			let t = document.createElement("a");
 			t.href = e, t.target = "_blank", setTimeout(function() {
-				Am(t);
+				Lm(t);
 			});
 		}
-	} else navigator.msSaveOrOpenBlob(Dm(e, n), t);
+	} else navigator.msSaveOrOpenBlob(Pm(e, n), t);
 }
-function Im(e, t, n, r) {
-	if (r ||= open("", "_blank"), r && (r.document.title = r.document.body.innerText = "downloading..."), typeof e == "string") return Om(e, t, n);
-	let i = e.type === "application/octet-stream", a = /constructor/i.test(String(Em.HTMLElement)) || "safari" in Em, o = /CriOS\/[\d]+/.test(navigator.userAgent);
-	if ((o || i && a || Mm) && typeof FileReader < "u") {
+function Um(e, t, n, r) {
+	if (r ||= open("", "_blank"), r && (r.document.title = r.document.body.innerText = "downloading..."), typeof e == "string") return Fm(e, t, n);
+	let i = e.type === "application/octet-stream", a = /constructor/i.test(String(Nm.HTMLElement)) || "safari" in Nm, o = /CriOS\/[\d]+/.test(navigator.userAgent);
+	if ((o || i && a || zm) && typeof FileReader < "u") {
 		let t = new FileReader();
 		t.onloadend = function() {
 			let e = t.result;
@@ -5815,11 +5879,11 @@ function Im(e, t, n, r) {
 		}, 4e4);
 	}
 }
-var { assign: Lm } = Object;
-function Rm() {
+var { assign: Wm } = Object;
+function Gm() {
 	let e = Ae(!0), t = e.run(() => /* @__PURE__ */ F({})), n = [], r = [], i = qt({
 		install(e) {
-			i._a = e, e.provide(wm, i), e.config.globalProperties.$pinia = i, r.forEach((e) => n.push(e)), r = [];
+			i._a = e, e.provide(jm, i), e.config.globalProperties.$pinia = i, r.forEach((e) => n.push(e)), r = [];
 		},
 		use(e) {
 			return this._a ? n.push(e) : r.push(e), this;
@@ -5832,7 +5896,7 @@ function Rm() {
 	});
 	return i;
 }
-var { assign: zm } = Object, Bm = {
+var { assign: Km } = Object, qm = {
 	__name: "VueFeatureHost",
 	props: {
 		component: {
@@ -5847,13 +5911,13 @@ var { assign: zm } = Object, Bm = {
 	setup(e) {
 		return (t, n) => (W(), Ki(xr(e.component), _e(Qi(e.componentProps)), null, 16));
 	}
-}, Vm = [
+}, Jm = [
 	"data-nav",
 	"aria-current",
 	"aria-label",
 	"title",
 	"onClick"
-], Hm = ["innerHTML"], Um = { class: "sb-vue-nav-label" }, Wm = {
+], Ym = ["innerHTML"], Xm = { class: "sb-vue-nav-label" }, Zm = {
 	__name: "NavigationMenu",
 	props: {
 		items: {
@@ -5883,9 +5947,9 @@ var { assign: zm } = Object, Bm = {
 			class: "sb-vue-nav-icon",
 			"aria-hidden": "true",
 			innerHTML: t.iconHtml
-		}, null, 8, Hm), K("span", Um, O(e.mobile ? t.shortLabel : t.label), 1)], 10, Vm))), 128));
+		}, null, 8, Ym), K("span", Xm, O(e.mobile ? t.shortLabel : t.label), 1)], 10, Jm))), 128));
 	}
-}, Gm = /* @__PURE__ */ new Set([
+}, Qm = /* @__PURE__ */ new Set([
 	"projects",
 	"saved",
 	"myideas",
@@ -5894,11 +5958,11 @@ var { assign: zm } = Object, Bm = {
 	"tracks",
 	"artists"
 ]);
-function Km(e) {
-	return e === "detail" ? "catalog" : Gm.has(e) ? "account" : e;
+function $m(e) {
+	return e === "detail" ? "catalog" : Qm.has(e) ? "account" : e;
 }
-function qm(e) {
-	let t = Km(e?.active), n = /* @__PURE__ */ new Set(), r = !1, i = [];
+function eh(e) {
+	let t = $m(e?.active), n = /* @__PURE__ */ new Set(), r = !1, i = [];
 	for (let a of Array.isArray(e?.items) ? e.items : []) {
 		let e = typeof a?.id == "string" ? a.id : "", o = typeof a?.label == "string" ? a.label : "";
 		if (!e || !o || n.has(e)) continue;
@@ -5914,7 +5978,7 @@ function qm(e) {
 	return i;
 }
 // src/vue/navigation/legacyBridge.js
-var Jm = [{
+var th = [{
 	key: "sidebar",
 	selector: "[data-sb-vue-sidebar]",
 	mobile: !1
@@ -5923,14 +5987,14 @@ var Jm = [{
 	selector: "[data-sb-vue-mobile]",
 	mobile: !0
 }];
-function Ym({ mountVueFeature: e, unmountVueFeature: t }) {
+function nh({ mountVueFeature: e, unmountVueFeature: t }) {
 	let n = window.SUNOBOOM_LEGACY_NAV, r = document.getElementById("app");
 	if (!n || !r || typeof n.snapshot != "function") return () => {};
 	let i = /* @__PURE__ */ new Map(), a = !1;
 	function o() {
 		if (a) return;
-		let t = qm(n.snapshot()), o = JSON.stringify(t);
-		for (let { key: a, selector: s, mobile: c } of Jm) {
+		let t = eh(n.snapshot()), o = JSON.stringify(t);
+		for (let { key: a, selector: s, mobile: c } of th) {
 			let l = r.querySelector(s), u = i.get(a);
 			if (!l) {
 				u?.unmount(), i.delete(a);
@@ -5938,7 +6002,7 @@ function Ym({ mountVueFeature: e, unmountVueFeature: t }) {
 			}
 			if (u?.target === l && u.signature === o) continue;
 			u?.unmount();
-			let d = e(l, Wm, {
+			let d = e(l, Zm, {
 				items: t,
 				mobile: c,
 				onNavigate: (e) => n.navigate(e)
@@ -5960,7 +6024,7 @@ function Ym({ mountVueFeature: e, unmountVueFeature: t }) {
 	};
 }
 // src/vue/academy/GenreCards.vue
-var Xm = ["data-id"], Zm = { class: "genre-content" }, Qm = { class: "kicker" }, $m = { class: "foot" }, eh = {
+var rh = ["data-id"], ih = { class: "genre-content" }, ah = { class: "kicker" }, oh = { class: "foot" }, sh = {
 	__name: "GenreCards",
 	props: { genres: {
 		type: Array,
@@ -5977,49 +6041,49 @@ var Xm = ["data-id"], Zm = { class: "genre-content" }, Qm = { class: "kicker" },
 		}, [n[1] ||= K("div", {
 			class: "art",
 			"aria-hidden": "true"
-		}, null, -1), K("div", Zm, [K("div", null, [
-			K("div", Qm, O(e.family) + " · " + O(e.bpm[0]) + "–" + O(e.bpm[1]) + " BPM", 1),
+		}, null, -1), K("div", ih, [K("div", null, [
+			K("div", ah, O(e.family) + " · " + O(e.bpm[0]) + "–" + O(e.bpm[1]) + " BPM", 1),
 			K("h3", null, O(e.name), 1),
 			K("p", null, O(e.tagline), 1)
-		]), K("div", $m, [K("span", null, O(e.era), 1), n[0] ||= K("span", { style: { color: "#ffacd9" } }, "Открыть →", -1)])])], 12, Xm))), 128));
+		]), K("div", oh, [K("span", null, O(e.era), 1), n[0] ||= K("span", { style: { color: "#ffacd9" } }, "Открыть →", -1)])])], 12, rh))), 128));
 	}
-}, th = { class: "genre-family-toolbar" }, nh = { class: "search-box" }, rh = ["innerHTML"], ih = { class: "hint" }, ah = { class: "genre-family-summary" }, oh = { id: "catalog-count" }, sh = {
+}, ch = { class: "genre-family-toolbar" }, lh = { class: "search-box" }, uh = ["innerHTML"], dh = { class: "hint" }, fh = { class: "genre-family-summary" }, ph = { id: "catalog-count" }, mh = {
 	class: "hint",
 	id: "sb-academy-search-hint"
-}, ch = {
+}, hh = {
 	id: "catalog-cards",
 	class: "genre-families"
-}, lh = [
+}, gh = [
 	"data-family",
 	"open",
 	"onToggle"
-], uh = {
+], _h = {
 	class: "genre-family-icon",
 	"aria-hidden": "true"
-}, dh = { class: "genre-family-heading" }, fh = { class: "genre-family-right" }, ph = { class: "genre-family-count" }, mh = { class: "genre-family-body" }, hh = {
+}, vh = { class: "genre-family-heading" }, yh = { class: "genre-family-right" }, bh = { class: "genre-family-count" }, xh = { class: "genre-family-body" }, Sh = {
 	key: 0,
 	class: "sb-sacred-index"
-}, gh = {
+}, Ch = {
 	key: 0,
 	class: "sb-sacred-overview"
-}, _h = { class: "genre-grid" }, vh = { class: "sb-sacred-religions" }, yh = [
+}, wh = { class: "genre-grid" }, Th = { class: "sb-sacred-religions" }, Eh = [
 	"data-sb-religion",
 	"open",
 	"onToggle"
-], bh = { class: "sb-sacred-religion-header" }, xh = {
+], Dh = { class: "sb-sacred-religion-header" }, Oh = {
 	class: "sb-sacred-religion-icon",
 	"aria-hidden": "true"
-}, Sh = { class: "sb-sacred-religion-label" }, Ch = { class: "sb-sacred-count" }, wh = { class: "sb-sacred-religion-content" }, Th = [
+}, kh = { class: "sb-sacred-religion-label" }, Ah = { class: "sb-sacred-count" }, jh = { class: "sb-sacred-religion-content" }, Mh = [
 	"data-sb-branch",
 	"open",
 	"onToggle"
-], Eh = { class: "sb-sacred-branch-header" }, Dh = { class: "sb-sacred-branch-label" }, Oh = { class: "sb-sacred-count" }, kh = { class: "sb-sacred-branch-content" }, Ah = { class: "genre-grid" }, jh = {
+], Nh = { class: "sb-sacred-branch-header" }, Ph = { class: "sb-sacred-branch-label" }, Fh = { class: "sb-sacred-count" }, Ih = { class: "sb-sacred-branch-content" }, Lh = { class: "genre-grid" }, Rh = {
 	key: 1,
 	class: "genre-grid"
-}, Mh = {
+}, zh = {
 	key: 1,
 	class: "genre-family-empty"
-}, Nh = {
+}, Bh = {
 	__name: "AcademyCatalog",
 	props: {
 		snapshot: {
@@ -6085,10 +6149,10 @@ var Xm = ["data-id"], Zm = { class: "genre-content" }, Qm = { class: "kicker" },
 			return e === 1 ? "направление" : e >= 2 && e <= 4 ? "направления" : "направлений";
 		}
 		return (t, r) => (W(), G(U, null, [
-			K("div", th, [K("label", nh, [K("span", {
+			K("div", ch, [K("label", lh, [K("span", {
 				innerHTML: e.searchIcon,
 				"aria-hidden": "true"
-			}, null, 8, rh), R(K("input", {
+			}, null, 8, uh), R(K("input", {
 				id: "genre-search",
 				"onUpdate:modelValue": r[0] ||= (e) => n.value = e,
 				type: "search",
@@ -6098,9 +6162,9 @@ var Xm = ["data-id"], Zm = { class: "genre-content" }, Qm = { class: "kicker" },
 				"aria-label": "Поиск жанров",
 				placeholder: "Поиск жанра, поджанра или исполнителя…",
 				autocomplete: "off"
-			}, null, 512), [[Q, n.value]])]), K("span", ih, O(e.snapshot.families.length) + " разделов · " + O(e.snapshot.families.reduce((e, t) => e + t.genres.length, 0)) + " жанров", 1)]),
-			K("div", ah, [K("h2", oh, O(a.value ? "Найдено жанров" : "Музыкальные жанры") + " · " + O(s.value), 1), K("span", sh, O(c.value), 1)]),
-			K("div", ch, [o.value.length ? (W(!0), G(U, { key: 0 }, B(o.value, (e) => (W(), G("details", {
+			}, null, 512), [[Q, n.value]])]), K("span", dh, O(e.snapshot.families.length) + " разделов · " + O(e.snapshot.families.reduce((e, t) => e + t.genres.length, 0)) + " жанров", 1)]),
+			K("div", fh, [K("h2", ph, O(a.value ? "Найдено жанров" : "Музыкальные жанры") + " · " + O(s.value), 1), K("span", mh, O(c.value), 1)]),
+			K("div", hh, [o.value.length ? (W(!0), G(U, { key: 0 }, B(o.value, (e) => (W(), G("details", {
 				key: e.name,
 				class: "genre-family",
 				"data-family": e.name,
@@ -6108,9 +6172,9 @@ var Xm = ["data-id"], Zm = { class: "genre-content" }, Qm = { class: "kicker" },
 				open: f("family", e.name),
 				onToggle: (t) => p("family", e.name, t)
 			}, [K("summary", null, [
-				K("span", uh, O(e.meta.icon), 1),
-				K("span", dh, [K("strong", null, O(e.name), 1), K("small", null, O(e.meta.desc), 1)]),
-				K("span", fh, [K("span", ph, O(e.genres.length) + " " + O(m(e.genres.length)), 1), r[1] ||= K("svg", {
+				K("span", _h, O(e.meta.icon), 1),
+				K("span", vh, [K("strong", null, O(e.name), 1), K("small", null, O(e.meta.desc), 1)]),
+				K("span", yh, [K("span", bh, O(e.genres.length) + " " + O(m(e.genres.length)), 1), r[1] ||= K("svg", {
 					class: "genre-family-chevron",
 					viewBox: "0 0 24 24",
 					fill: "none",
@@ -6118,47 +6182,47 @@ var Xm = ["data-id"], Zm = { class: "genre-content" }, Qm = { class: "kicker" },
 					"stroke-width": "2",
 					"aria-hidden": "true"
 				}, [K("path", { d: "m5 9 7 7 7-7" })], -1)])
-			]), K("div", mh, [e.name === "Религиозная музыка" ? (W(), G("div", hh, [
+			]), K("div", xh, [e.name === "Религиозная музыка" ? (W(), G("div", Sh, [
 				r[5] ||= K("div", { class: "sb-sacred-intro" }, [
 					K("span", { class: "sb-sacred-eyebrow" }, "МУЗЫКА МИРОВЫХ РЕЛИГИЙ"),
 					K("h3", null, "Религии и музыкальные традиции"),
 					K("p", null, "Открой религию, затем её направление или течение. Здесь представлены музыкальные традиции — их границы не всегда совпадают с конфессиональными.")
 				], -1),
-				u.value ? (W(), G("div", gh, [r[2] ||= K("div", { class: "sb-sacred-overview-label" }, "📖 Обзор раздела", -1), K("div", _h, [q(eh, { genres: [u.value] }, null, 8, ["genres"])])])) : Y("", !0),
-				K("div", vh, [(W(!0), G(U, null, B(d.value, (e) => (W(), G("details", {
+				u.value ? (W(), G("div", Ch, [r[2] ||= K("div", { class: "sb-sacred-overview-label" }, "📖 Обзор раздела", -1), K("div", wh, [q(sh, { genres: [u.value] }, null, 8, ["genres"])])])) : Y("", !0),
+				K("div", Th, [(W(!0), G(U, null, B(d.value, (e) => (W(), G("details", {
 					key: e.id,
 					class: "sb-sacred-religion",
 					"data-sb-religion": e.id,
 					open: f("religion", e.id),
 					onToggle: (t) => p("religion", e.id, t)
-				}, [K("summary", bh, [
-					K("span", xh, O(e.icon), 1),
-					K("span", Sh, [K("strong", null, O(e.name), 1), K("small", null, O(e.description), 1)]),
-					K("span", Ch, O(e.count), 1),
+				}, [K("summary", Dh, [
+					K("span", Oh, O(e.icon), 1),
+					K("span", kh, [K("strong", null, O(e.name), 1), K("small", null, O(e.description), 1)]),
+					K("span", Ah, O(e.count), 1),
 					r[3] ||= K("span", {
 						class: "sb-sacred-chevron",
 						"aria-hidden": "true"
 					}, "⌄", -1)
-				]), K("div", wh, [(W(!0), G(U, null, B(e.branches, (e) => (W(), G("details", {
+				]), K("div", jh, [(W(!0), G(U, null, B(e.branches, (e) => (W(), G("details", {
 					key: e.id,
 					class: "sb-sacred-branch",
 					"data-sb-branch": e.id,
 					open: f("branch", e.id),
 					onToggle: (t) => p("branch", e.id, t)
-				}, [K("summary", Eh, [
-					K("span", Dh, [K("strong", null, O(e.name), 1), K("small", null, O(e.description), 1)]),
-					K("span", Oh, O(e.genres.length) + " " + O(h(e.genres.length)), 1),
+				}, [K("summary", Nh, [
+					K("span", Ph, [K("strong", null, O(e.name), 1), K("small", null, O(e.description), 1)]),
+					K("span", Fh, O(e.genres.length) + " " + O(h(e.genres.length)), 1),
 					r[4] ||= K("span", {
 						class: "sb-sacred-chevron",
 						"aria-hidden": "true"
 					}, "⌄", -1)
-				]), K("div", kh, [K("div", Ah, [q(eh, { genres: e.genres }, null, 8, ["genres"])])])], 40, Th))), 128))])], 40, yh))), 128))])
-			])) : (W(), G("div", jh, [q(eh, { genres: e.genres }, null, 8, ["genres"])]))])], 44, lh))), 128)) : (W(), G("div", Mh, "Ничего не найдено. Попробуй другой запрос."))])
+				]), K("div", Ih, [K("div", Lh, [q(sh, { genres: e.genres }, null, 8, ["genres"])])])], 40, Mh))), 128))])], 40, Eh))), 128))])
+			])) : (W(), G("div", Rh, [q(sh, { genres: e.genres }, null, 8, ["genres"])]))])], 44, gh))), 128)) : (W(), G("div", zh, "Ничего не найдено. Попробуй другой запрос."))])
 		], 64));
 	}
 };
 // src/vue/academy/legacyAcademyBridge.js
-function Ph({ mountVueFeature: e }) {
+function Vh({ mountVueFeature: e }) {
 	let t = window.SUNOBOOM_LEGACY_ACADEMY, n = document.getElementById("app");
 	if (!t || !n || typeof t.snapshot != "function") return () => {};
 	let r = null, i = !1;
@@ -6168,7 +6232,7 @@ function Ph({ mountVueFeature: e }) {
 		if (r?.target === a || (r &&= (r.unmount(), null), !a)) return;
 		let o = t.snapshot();
 		if (!o?.families?.length) return;
-		let s = e(a, Nh, {
+		let s = e(a, Bh, {
 			snapshot: o,
 			search: (e) => t.search(e),
 			searchIcon: n.querySelector("#sb-vue-academy-root label.search-box > svg")?.outerHTML || "",
@@ -6185,14 +6249,14 @@ function Ph({ mountVueFeature: e }) {
 	};
 }
 // src/vue/academy/GenreOverview.vue
-var Fh = {
+var Hh = {
 	class: "gb-grid",
 	"data-sb-vue-overview": ""
-}, Ih = { class: "gb-column" }, Lh = { class: "gb-panel pink" }, Rh = { class: "gb-unit" }, zh = { class: "gb-unit" }, Bh = { class: "gb-unit" }, Vh = { class: "gb-panel" }, Hh = ["innerHTML"], Uh = { class: "gb-column" }, Wh = { class: "gb-panel blue" }, Gh = { style: {
+}, Uh = { class: "gb-column" }, Wh = { class: "gb-panel pink" }, Gh = { class: "gb-unit" }, Kh = { class: "gb-unit" }, qh = { class: "gb-unit" }, Jh = { class: "gb-panel" }, Yh = ["innerHTML"], Xh = { class: "gb-column" }, Zh = { class: "gb-panel blue" }, Qh = { style: {
 	"font-size": "26px",
 	"font-weight": "900",
 	color: "#ffe2b0"
-} }, Kh = { class: "gb-artists" }, qh = { class: "gb-panel pink" }, Jh = ["data-id"], Yh = ["innerHTML"], Xh = {
+} }, $h = { class: "gb-artists" }, eg = { class: "gb-panel pink" }, tg = ["data-id"], ng = ["innerHTML"], rg = {
 	__name: "GenreOverview",
 	props: { genre: {
 		type: Object,
@@ -6200,15 +6264,15 @@ var Fh = {
 	} },
 	emits: ["select-tab"],
 	setup(e) {
-		return (t, n) => (W(), G("div", Fh, [K("div", Ih, [K("section", Lh, [
+		return (t, n) => (W(), G("div", Hh, [K("div", Uh, [K("section", Wh, [
 			n[7] ||= K("div", { class: "gb-sup" }, "01 / ЗНАКОМСТВО С ЖАНРОМ", -1),
 			n[8] ||= K("h2", null, "Характер и звучание", -1),
 			K("p", null, [K("strong", null, O(e.genre.tagline), 1)]),
 			K("p", null, O(e.genre.description), 1),
-			K("div", Rh, [n[2] ||= K("b", null, "🎸", -1), K("div", null, [n[1] ||= K("strong", null, "Инструменты", -1), K("span", null, O(e.genre.instruments) + ".", 1)])]),
-			K("div", zh, [n[4] ||= K("b", null, "🎛️", -1), K("div", null, [n[3] ||= K("strong", null, "Саунд", -1), K("span", null, O(e.genre.style) + ".", 1)])]),
-			K("div", Bh, [n[6] ||= K("b", null, "✍️", -1), K("div", null, [n[5] ||= K("strong", null, "Тематика песен", -1), K("span", null, O(e.genre.themes) + ".", 1)])])
-		]), K("section", Vh, [
+			K("div", Gh, [n[2] ||= K("b", null, "🎸", -1), K("div", null, [n[1] ||= K("strong", null, "Инструменты", -1), K("span", null, O(e.genre.instruments) + ".", 1)])]),
+			K("div", Kh, [n[4] ||= K("b", null, "🎛️", -1), K("div", null, [n[3] ||= K("strong", null, "Саунд", -1), K("span", null, O(e.genre.style) + ".", 1)])]),
+			K("div", qh, [n[6] ||= K("b", null, "✍️", -1), K("div", null, [n[5] ||= K("strong", null, "Тематика песен", -1), K("span", null, O(e.genre.themes) + ".", 1)])])
+		]), K("section", Jh, [
 			n[10] ||= K("div", { class: "gb-sup" }, "03 / ИДЕИ ДЛЯ СТАРТА", -1),
 			n[11] ||= K("h2", null, "Что можно спеть", -1),
 			(W(!0), G(U, null, B(e.genre.ideas, (e, t) => (W(), G("div", {
@@ -6222,17 +6286,17 @@ var Fh = {
 			}, [n[9] ||= J(" Все идеи ", -1), K("span", {
 				"aria-hidden": "true",
 				innerHTML: e.genre.icons.arrow
-			}, null, 8, Hh)])
-		])]), K("div", Uh, [K("section", Wh, [
+			}, null, 8, Yh)])
+		])]), K("div", Xh, [K("section", Zh, [
 			n[12] ||= K("div", { class: "gb-sup" }, "02 / ПАСПОРТ НАПРАВЛЕНИЯ", -1),
 			n[13] ||= K("h2", null, "История и сцена", -1),
 			n[14] ||= K("div", { class: "info-label" }, "Эпоха", -1),
 			K("p", null, O(e.genre.era), 1),
 			n[15] ||= K("div", { class: "info-label" }, "Диапазон темпа", -1),
-			K("p", Gh, O(e.genre.bpm[0]) + "–" + O(e.genre.bpm[1]) + " BPM", 1),
+			K("p", Qh, O(e.genre.bpm[0]) + "–" + O(e.genre.bpm[1]) + " BPM", 1),
 			n[16] ||= K("div", { class: "info-label" }, "Исполнители для знакомства", -1),
-			K("div", Kh, [(W(!0), G(U, null, B(e.genre.artists, (e) => (W(), G("span", { key: e }, O(e), 1))), 128))])
-		]), K("section", qh, [n[18] ||= ea("<div class=\"gb-sup\">04 / ТВОЯ МУЗЫКА</div><h2>Преврати знания в трек</h2><p>Выбери вокал, настроение и темп, затем создай промпт и структуру песни в Suno Studio.</p><div class=\"gb-unit\"><b>🎤</b><div><strong>Вокал</strong><span>Мужской, женский или дуэт; можно использовать русский язык.</span></div></div><div class=\"gb-unit\"><b>⚡</b><div><strong>Динамика</strong><span>Настрой энергию и характер припева под историю.</span></div></div>", 5), K("button", {
+			K("div", $h, [(W(!0), G(U, null, B(e.genre.artists, (e) => (W(), G("span", { key: e }, O(e), 1))), 128))])
+		]), K("section", eg, [n[18] ||= ea("<div class=\"gb-sup\">04 / ТВОЯ МУЗЫКА</div><h2>Преврати знания в трек</h2><p>Выбери вокал, настроение и темп, затем создай промпт и структуру песни в Suno Studio.</p><div class=\"gb-unit\"><b>🎤</b><div><strong>Вокал</strong><span>Мужской, женский или дуэт; можно использовать русский язык.</span></div></div><div class=\"gb-unit\"><b>⚡</b><div><strong>Динамика</strong><span>Настрой энергию и характер припева под историю.</span></div></div>", 5), K("button", {
 			type: "button",
 			class: "btn primary small",
 			"data-action": "use-genre",
@@ -6240,42 +6304,42 @@ var Fh = {
 		}, [K("span", {
 			innerHTML: e.genre.icons.studio,
 			"aria-hidden": "true"
-		}, null, 8, Yh), n[17] ||= J(" Открыть студию ", -1)], 8, Jh)])])]));
+		}, null, 8, ng), n[17] ||= J(" Открыть студию ", -1)], 8, tg)])])]));
 	}
-}, Zh = {
+}, ig = {
 	key: 0,
 	id: "sb-artist-expanded",
 	class: "ahx-wrap",
 	"data-sb-vue-artists": ""
-}, Qh = { class: "ahx-intro" }, $h = { class: "gb-eyebrow" }, eg = {
+}, ag = { class: "ahx-intro" }, og = { class: "gb-eyebrow" }, sg = {
 	class: "ahx-toolbar",
 	role: "group",
 	"aria-label": "Музыкальные сцены"
-}, tg = ["aria-pressed"], ng = ["aria-pressed"], rg = { class: "ahx-filters" }, ig = { class: "ahx-search" }, ag = ["innerHTML"], og = {
+}, cg = ["aria-pressed"], lg = ["aria-pressed"], ug = { class: "ahx-filters" }, dg = { class: "ahx-search" }, fg = ["innerHTML"], pg = {
 	class: "ahx-filter-buttons",
 	role: "group",
 	"aria-label": "Фильтр исполнителей"
-}, sg = [
+}, mg = [
 	"data-vue-artist-filter",
 	"aria-pressed",
 	"onClick"
-], cg = {
+], hg = {
 	id: "ahx-count",
 	class: "ahx-count",
 	"aria-live": "polite"
-}, lg = { class: "ahx-section-head" }, ug = { class: "ahx-eyebrow" }, dg = { class: "ahx-num" }, fg = { class: "ahx-grid" }, pg = ["data-ahx-group"], mg = { class: "ahx-card-top" }, hg = {
+}, gg = { class: "ahx-section-head" }, _g = { class: "ahx-eyebrow" }, vg = { class: "ahx-num" }, yg = { class: "ahx-grid" }, bg = ["data-ahx-group"], xg = { class: "ahx-card-top" }, Sg = {
 	class: "ahx-avatar",
 	"aria-hidden": "true"
-}, gg = { class: "ahx-title" }, _g = { class: "ahx-era" }, vg = {
+}, Cg = { class: "ahx-title" }, wg = { class: "ahx-era" }, Tg = {
 	key: 0,
 	class: "ahx-track"
-}, yg = {
+}, Eg = {
 	id: "ahx-no-results",
 	class: "ahx-no-results"
-}, bg = {
+}, Dg = {
 	key: 1,
 	class: "ahx-empty"
-}, xg = {
+}, Og = {
 	__name: "GenreArtists",
 	props: {
 		genre: {
@@ -6308,36 +6372,36 @@ var Fh = {
 		async function l(e) {
 			(e === "ru" || e === "world") && (n.value = e, t.catalog.setScene(e), r.value = "", i.value = "all", await xn(), t.enhanceProfiles?.());
 		}
-		return z(() => t.enhanceProfiles?.()), fr(() => t.enhanceProfiles?.()), (t, u) => a.value ? (W(), G("div", Zh, [
-			K("div", Qh, [
-				K("div", $h, "АКАДЕМИЯ SUNOBOOM · " + O(e.genre.name), 1),
+		return z(() => t.enhanceProfiles?.()), fr(() => t.enhanceProfiles?.()), (t, u) => a.value ? (W(), G("div", ig, [
+			K("div", ag, [
+				K("div", og, "АКАДЕМИЯ SUNOBOOM · " + O(e.genre.name), 1),
 				u[4] ||= K("h2", null, "Исполнители и композиторы", -1),
 				K("p", null, O(a.value.description), 1)
 			]),
-			K("div", eg, [K("button", {
+			K("div", sg, [K("button", {
 				type: "button",
 				"data-vue-artist-scene": "world",
 				"aria-pressed": n.value === "world",
 				class: D({ on: n.value === "world" }),
 				onClick: u[0] ||= (e) => l("world")
-			}, [u[5] ||= J(" 🌍 Мировая сцена ", -1), K("span", null, O(a.value.worldCount), 1)], 10, tg), K("button", {
+			}, [u[5] ||= J(" 🌍 Мировая сцена ", -1), K("span", null, O(a.value.worldCount), 1)], 10, cg), K("button", {
 				type: "button",
 				"data-vue-artist-scene": "ru",
 				"aria-pressed": n.value === "ru",
 				class: D({ on: n.value === "ru" }),
 				onClick: u[1] ||= (e) => l("ru")
-			}, [u[6] ||= J(" 🎤 Русскоязычные ", -1), K("span", null, O(a.value.ruCount), 1)], 10, ng)]),
+			}, [u[6] ||= J(" 🎤 Русскоязычные ", -1), K("span", null, O(a.value.ruCount), 1)], 10, lg)]),
 			c.value ? (W(), G(U, { key: 0 }, [
-				K("div", rg, [K("label", ig, [K("span", {
+				K("div", ug, [K("label", dg, [K("span", {
 					"aria-hidden": "true",
 					innerHTML: e.genre.icons.overview
-				}, null, 8, ag), R(K("input", {
+				}, null, 8, fg), R(K("input", {
 					"onUpdate:modelValue": u[2] ||= (e) => r.value = e,
 					type: "search",
 					"data-vue-artist-search": "",
 					placeholder: "Найти исполнителя или произведение…",
 					"aria-label": "Поиск по исполнителям"
-				}, null, 512), [[Q, r.value]])]), K("div", og, [(W(), G(U, null, B([
+				}, null, 512), [[Q, r.value]])]), K("div", pg, [(W(), G(U, null, B([
 					{
 						id: "all",
 						label: "Все"
@@ -6356,24 +6420,24 @@ var Fh = {
 					"data-vue-artist-filter": e.id,
 					"aria-pressed": i.value === e.id,
 					onClick: (t) => i.value = e.id
-				}, O(e.label), 9, sg)), 64))])]),
-				K("p", cg, "Показано " + O(s.value) + " из " + O(c.value) + " исполнителей.", 1),
+				}, O(e.label), 9, mg)), 64))])]),
+				K("p", hg, "Показано " + O(s.value) + " из " + O(c.value) + " исполнителей.", 1),
 				(W(!0), G(U, null, B(o.value, (e) => R((W(), G("section", {
 					key: e.index,
 					class: "ahx-section",
 					"data-ahx-section": ""
-				}, [K("div", lg, [K("div", null, [K("span", ug, "0" + O(e.index + 1) + " / ИСПОЛНИТЕЛИ", 1), K("h3", null, O(e.index ? "Современная сцена и продолжатели" : "Классика и предшественники"), 1)]), K("span", dg, O(e.artists.length), 1)]), K("div", fg, [(W(!0), G(U, null, B(e.artists, (e) => (W(), G("article", {
+				}, [K("div", gg, [K("div", null, [K("span", _g, "0" + O(e.index + 1) + " / ИСПОЛНИТЕЛИ", 1), K("h3", null, O(e.index ? "Современная сцена и продолжатели" : "Классика и предшественники"), 1)]), K("span", vg, O(e.artists.length), 1)]), K("div", yg, [(W(!0), G(U, null, B(e.artists, (e) => (W(), G("article", {
 					key: e.key,
 					class: "ahx-card",
 					"data-ahx-group": e.group
 				}, [
-					K("div", mg, [K("span", hg, O(e.initials), 1), K("div", gg, [K("h4", null, O(e.name), 1), K("span", _g, O(e.period || "Музыкальная сцена"), 1)])]),
+					K("div", xg, [K("span", Sg, O(e.initials), 1), K("div", Cg, [K("h4", null, O(e.name), 1), K("span", wg, O(e.period || "Музыкальная сцена"), 1)])]),
 					K("span", { class: D(["ahx-role", { "ahx-role-neighbor": e.group === "adjacent" }]) }, O(e.label), 3),
 					K("p", null, O(e.bio || "Музыкальное направление и характерный творческий почерк."), 1),
-					e.track ? (W(), G("div", vg, [u[7] ||= K("small", null, "Ориентир для прослушивания", -1), K("strong", null, "♫ " + O(e.track), 1)])) : Y("", !0)
-				], 8, pg))), 128))])])), [[Ba, e.artists.length]])), 128)),
-				R(K("div", yg, " По заданному поиску исполнители не найдены. Попробуй другой запрос или выбери «Все». ", 512), [[Ba, s.value === 0]])
-			], 64)) : (W(), G("div", bg, [
+					e.track ? (W(), G("div", Tg, [u[7] ||= K("small", null, "Ориентир для прослушивания", -1), K("strong", null, "♫ " + O(e.track), 1)])) : Y("", !0)
+				], 8, bg))), 128))])])), [[Ba, e.artists.length]])), 128)),
+				R(K("div", Eg, " По заданному поиску исполнители не найдены. Попробуй другой запрос или выбери «Все». ", 512), [[Ba, s.value === 0]])
+			], 64)) : (W(), G("div", Dg, [
 				u[8] ||= K("strong", null, "Русскоязычная подборка ещё уточняется", -1),
 				u[9] ||= K("p", null, "Для этого узкого направления пока нет достаточно подтверждённых примеров. Мы не будем подставлять артистов из других жанров без пояснения.", -1),
 				K("button", {
@@ -6385,28 +6449,28 @@ var Fh = {
 			u[10] ||= K("p", { class: "ahx-footnote" }, "В подборках могут встречаться близкие стили, кино- и игровая музыка, инструментальные коллективы. Их связь с жанром поясняется в карточке. Указанные произведения — ориентиры для знакомства, а не ссылки на конкретные релизы.", -1)
 		])) : Y("", !0);
 	}
-}, Sg = {
+}, kg = {
 	class: "idea-grid",
 	"data-sb-vue-ideas": ""
-}, Cg = { class: "idea-badge" }, wg = { class: "actions" }, Tg = ["data-id", "data-i"], Eg = ["innerHTML"], Dg = [
+}, Ag = { class: "idea-badge" }, jg = { class: "actions" }, Mg = ["data-id", "data-i"], Ng = ["innerHTML"], Pg = [
 	"data-id",
 	"data-i",
 	"aria-pressed"
-], Og = ["innerHTML"], kg = {
+], Fg = ["innerHTML"], Ig = {
 	__name: "GenreIdeas",
 	props: { genre: {
 		type: Object,
 		required: !0
 	} },
 	setup(e) {
-		return (t, n) => (W(), G("div", Sg, [(W(!0), G(U, null, B(e.genre.allIdeas, (t) => (W(), G("div", {
+		return (t, n) => (W(), G("div", kg, [(W(!0), G(U, null, B(e.genre.allIdeas, (t) => (W(), G("div", {
 			key: t.index,
 			class: "idea"
 		}, [
-			K("div", Cg, O(e.genre.name) + " · " + O(t.mood), 1),
+			K("div", Ag, O(e.genre.name) + " · " + O(t.mood), 1),
 			K("h3", null, O(t.title), 1),
 			K("p", null, O(t.pitch), 1),
-			K("div", wg, [K("button", {
+			K("div", jg, [K("button", {
 				type: "button",
 				class: "btn primary small",
 				"data-action": "idea-use",
@@ -6415,7 +6479,7 @@ var Fh = {
 			}, [K("span", {
 				"aria-hidden": "true",
 				innerHTML: e.genre.icons.studio
-			}, null, 8, Eg), n[0] ||= J(" В студию ", -1)], 8, Tg), K("button", {
+			}, null, 8, Ng), n[0] ||= J(" В студию ", -1)], 8, Mg), K("button", {
 				type: "button",
 				class: "btn ghost small",
 				"data-action": "idea-save",
@@ -6425,23 +6489,23 @@ var Fh = {
 			}, [K("span", {
 				"aria-hidden": "true",
 				innerHTML: e.genre.icons.heart
-			}, null, 8, Og), J(" " + O(t.saved ? "Сохранено" : "Сохранить"), 1)], 8, Dg)])
+			}, null, 8, Fg), J(" " + O(t.saved ? "Сохранено" : "Сохранить"), 1)], 8, Pg)])
 		]))), 128))]));
 	}
-}, Ag = {
+}, Lg = {
 	class: "panel",
 	"data-sb-vue-prompts": ""
-}, jg = { class: "idea-grid" }, Mg = { class: "idea" }, Ng = ["data-id"], Pg = ["innerHTML"], Fg = { class: "idea" }, Ig = ["data-id"], Lg = ["innerHTML"], Rg = {
+}, Rg = { class: "idea-grid" }, zg = { class: "idea" }, Bg = ["data-id"], Vg = ["innerHTML"], Hg = { class: "idea" }, Ug = ["data-id"], Wg = ["innerHTML"], Gg = {
 	__name: "GenrePrompts",
 	props: { genre: {
 		type: Object,
 		required: !0
 	} },
 	setup(e) {
-		return (t, n) => (W(), G("div", Ag, [
+		return (t, n) => (W(), G("div", Lg, [
 			n[5] ||= K("h3", null, "Шаблоны звучания", -1),
 			n[6] ||= K("p", null, "Начни с одного из вариантов. Он перенесёт настройки жанра в конструктор — там можно выбрать вокал, настроение и язык.", -1),
-			K("div", jg, [K("div", Mg, [
+			K("div", Rg, [K("div", zg, [
 				n[1] ||= K("div", { class: "idea-badge" }, "Оригинальное звучание", -1),
 				K("h3", null, O(e.genre.name), 1),
 				K("p", null, O(e.genre.style) + ".", 1),
@@ -6453,8 +6517,8 @@ var Fh = {
 				}, [n[0] ||= J(" Настроить в студии ", -1), K("span", {
 					"aria-hidden": "true",
 					innerHTML: e.genre.icons.arrow
-				}, null, 8, Pg)], 8, Ng)
-			]), K("div", Fg, [
+				}, null, 8, Vg)], 8, Bg)
+			]), K("div", Hg, [
 				n[3] ||= K("div", { class: "idea-badge" }, "Альтернативная версия", -1),
 				n[4] ||= K("h3", null, "Мягкая атмосфера", -1),
 				K("p", null, O(e.genre.style) + ", restrained dynamics, warm intimate production, emotional melodies.", 1),
@@ -6466,28 +6530,28 @@ var Fh = {
 				}, [n[2] ||= J(" Настроить в студии ", -1), K("span", {
 					"aria-hidden": "true",
 					innerHTML: e.genre.icons.arrow
-				}, null, 8, Lg)], 8, Ig)
+				}, null, 8, Wg)], 8, Ug)
 			])])
 		]));
 	}
-}, zg = { class: "gb-hero" }, Bg = { class: "gb-content" }, Vg = { class: "gb-eyebrow" }, Hg = { class: "gb-title" }, Ug = { class: "gb-desc" }, Wg = { class: "gb-tags" }, Gg = { class: "gb-buttons" }, Kg = ["data-id"], qg = ["innerHTML"], Jg = ["data-id"], Yg = ["innerHTML"], Xg = {
+}, Kg = { class: "gb-hero" }, qg = { class: "gb-content" }, Jg = { class: "gb-eyebrow" }, Yg = { class: "gb-title" }, Xg = { class: "gb-desc" }, Zg = { class: "gb-tags" }, Qg = { class: "gb-buttons" }, $g = ["data-id"], e_ = ["innerHTML"], t_ = ["data-id"], n_ = ["innerHTML"], r_ = {
 	class: "gb-vinyl",
 	"aria-hidden": "true"
-}, Zg = { class: "gb-equalizer" }, Qg = { class: "gb-facts" }, $g = { class: "gb-fact" }, e_ = { class: "gb-fact" }, t_ = { class: "gb-fact" }, n_ = { class: "gb-fact" }, r_ = { class: "genre-detail-layout" }, i_ = {
+}, i_ = { class: "gb-equalizer" }, a_ = { class: "gb-facts" }, o_ = { class: "gb-fact" }, s_ = { class: "gb-fact" }, c_ = { class: "gb-fact" }, l_ = { class: "gb-fact" }, u_ = { class: "genre-detail-layout" }, d_ = {
 	class: "genre-side-nav",
 	"aria-label": "ЖАНР-НАВ — меню жанра"
-}, a_ = {
+}, f_ = {
 	class: "genre-side-links",
 	"aria-label": "Разделы жанра"
-}, o_ = [
+}, p_ = [
 	"data-tab",
 	"aria-current",
 	"onClick"
-], s_ = ["innerHTML"], c_ = {
+], m_ = ["innerHTML"], h_ = {
 	class: "genre-detail-content",
 	id: "genre-nav-content",
 	"aria-label": "Содержимое раздела жанра"
-}, l_ = ["innerHTML"], u_ = {
+}, g_ = ["innerHTML"], __ = {
 	__name: "GenreDetail",
 	props: {
 		genre: {
@@ -6537,23 +6601,23 @@ var Fh = {
 		return (t, o) => (W(), G("div", {
 			class: "genre-bright",
 			style: E({ "--accent": e.genre.color })
-		}, [K("div", zg, [
+		}, [K("div", Kg, [
 			o[5] ||= K("div", { class: "gb-top" }, [K("button", {
 				type: "button",
 				class: "back",
 				"data-action": "academy-back",
 				"aria-label": "Назад к разделу Академии"
 			}, "← Назад"), K("small", null, "SUNOBOOM · MUSIC ATLAS")], -1),
-			K("div", Bg, [K("div", null, [
-				K("div", Vg, O(e.genre.family) + " · " + O(e.genre.era), 1),
-				K("h1", Hg, O(e.genre.name), 1),
-				K("p", Ug, O(e.genre.description), 1),
-				K("div", Wg, [
+			K("div", qg, [K("div", null, [
+				K("div", Jg, O(e.genre.family) + " · " + O(e.genre.era), 1),
+				K("h1", Yg, O(e.genre.name), 1),
+				K("p", Xg, O(e.genre.description), 1),
+				K("div", Zg, [
 					K("span", null, O(e.genre.tagline), 1),
 					K("span", null, O(e.genre.bpm[0]) + "–" + O(e.genre.bpm[1]) + " BPM", 1),
 					K("span", null, O(e.genre.ideasCount) + " идеи", 1)
 				]),
-				K("div", Gg, [K("button", {
+				K("div", Qg, [K("button", {
 					type: "button",
 					class: "btn primary",
 					"data-action": "use-genre",
@@ -6561,7 +6625,7 @@ var Fh = {
 				}, [K("span", {
 					innerHTML: e.genre.icons.studio,
 					"aria-hidden": "true"
-				}, null, 8, qg), o[0] ||= J(" Создать в Suno ", -1)], 8, Kg), K("button", {
+				}, null, 8, e_), o[0] ||= J(" Создать в Suno ", -1)], 8, $g), K("button", {
 					type: "button",
 					class: "btn ghost",
 					"data-action": "favorite",
@@ -6569,15 +6633,15 @@ var Fh = {
 				}, [K("span", {
 					innerHTML: e.genre.icons.heart,
 					"aria-hidden": "true"
-				}, null, 8, Yg), J(" " + O(e.genre.favorite ? "В избранном" : "В избранное"), 1)], 8, Jg)])
-			]), K("div", Xg, [K("div", Zg, [(W(), G(U, null, B(9, (e) => K("i", { key: e })), 64))])])]),
-			K("div", Qg, [
-				K("div", $g, [o[1] ||= K("small", null, "История", -1), K("strong", null, O(e.genre.era), 1)]),
-				K("div", e_, [o[2] ||= K("small", null, "Темп", -1), K("strong", null, O(e.genre.bpm[0]) + "–" + O(e.genre.bpm[1]) + " BPM", 1)]),
-				K("div", t_, [o[3] ||= K("small", null, "Треки", -1), K("strong", null, O(e.genre.ideasCount) + " сюжетных идеи", 1)]),
-				K("div", n_, [o[4] ||= K("small", null, "Артисты", -1), K("strong", null, O(e.genre.artistCount) + " ориентиров", 1)])
+				}, null, 8, n_), J(" " + O(e.genre.favorite ? "В избранном" : "В избранное"), 1)], 8, t_)])
+			]), K("div", r_, [K("div", i_, [(W(), G(U, null, B(9, (e) => K("i", { key: e })), 64))])])]),
+			K("div", a_, [
+				K("div", o_, [o[1] ||= K("small", null, "История", -1), K("strong", null, O(e.genre.era), 1)]),
+				K("div", s_, [o[2] ||= K("small", null, "Темп", -1), K("strong", null, O(e.genre.bpm[0]) + "–" + O(e.genre.bpm[1]) + " BPM", 1)]),
+				K("div", c_, [o[3] ||= K("small", null, "Треки", -1), K("strong", null, O(e.genre.ideasCount) + " сюжетных идеи", 1)]),
+				K("div", l_, [o[4] ||= K("small", null, "Артисты", -1), K("strong", null, O(e.genre.artistCount) + " ориентиров", 1)])
 			])
-		]), K("div", r_, [K("aside", i_, [o[7] ||= K("div", { class: "genre-side-head" }, [K("span", null, "ЖАНР-НАВ"), K("small", null, "Разделы карточки")], -1), K("nav", a_, [(W(), G(U, null, B(n, (t) => K("button", {
+		]), K("div", u_, [K("aside", d_, [o[7] ||= K("div", { class: "genre-side-head" }, [K("span", null, "ЖАНР-НАВ"), K("small", null, "Разделы карточки")], -1), K("nav", f_, [(W(), G(U, null, B(n, (t) => K("button", {
 			key: t.id,
 			type: "button",
 			class: D(["genre-side-item", { active: r.value === t.id }]),
@@ -6590,17 +6654,17 @@ var Fh = {
 				class: "genre-side-icon",
 				innerHTML: e.genre.icons[t.id],
 				"aria-hidden": "true"
-			}, null, 8, s_),
+			}, null, 8, m_),
 			K("span", null, O(t.label), 1),
 			o[6] ||= K("span", {
 				class: "genre-side-chevron",
 				"aria-hidden": "true"
 			}, "›", -1)
-		], 10, o_)), 64))])]), K("section", c_, [r.value === "overview" ? (W(), Ki(Xh, {
+		], 10, p_)), 64))])]), K("section", h_, [r.value === "overview" ? (W(), Ki(rg, {
 			key: 0,
 			genre: e.genre,
 			onSelectTab: a
-		}, null, 8, ["genre"])) : r.value === "artists" && e.artistCatalog ? (W(), Ki(xg, {
+		}, null, 8, ["genre"])) : r.value === "artists" && e.artistCatalog ? (W(), Ki(Og, {
 			key: 1,
 			genre: e.genre,
 			catalog: e.artistCatalog,
@@ -6609,20 +6673,20 @@ var Fh = {
 			"genre",
 			"catalog",
 			"enhance-profiles"
-		])) : r.value === "ideas" ? (W(), Ki(kg, {
+		])) : r.value === "ideas" ? (W(), Ki(Ig, {
 			key: 2,
 			genre: e.genre
-		}, null, 8, ["genre"])) : r.value === "prompts" ? (W(), Ki(Rg, {
+		}, null, 8, ["genre"])) : r.value === "prompts" ? (W(), Ki(Gg, {
 			key: 3,
 			genre: e.genre
 		}, null, 8, ["genre"])) : (W(), G("div", {
 			key: 4,
 			innerHTML: i.value
-		}, null, 8, l_))])])], 4));
+		}, null, 8, g_))])])], 4));
 	}
 };
 // src/vue/academy/legacyGenreDetailBridge.js
-function d_({ mountVueFeature: e }) {
+function v_({ mountVueFeature: e }) {
 	let t = window.SUNOBOOM_LEGACY_GENRE, n = document.getElementById("app");
 	if (!n || !t || typeof t.snapshot != "function") return () => {};
 	let r = null, i = !1;
@@ -6632,7 +6696,7 @@ function d_({ mountVueFeature: e }) {
 		if (r?.target === a || (r &&= (r.unmount(), null), !a)) return;
 		let o = t.snapshot();
 		if (!o?.id) return;
-		let s = e(a, u_, {
+		let s = e(a, __, {
 			genre: o,
 			tabContent: (e, n) => t.tabContent(e, n),
 			artistCatalog: window.SUNOBOOM_ARTIST_CATALOG || null,
@@ -6649,30 +6713,30 @@ function d_({ mountVueFeature: e }) {
 	};
 }
 // src/vue/studio/StudioBuilder.vue
-var f_ = { class: "panel" }, p_ = { class: "field" }, m_ = ["value"], h_ = ["value"], g_ = { class: "form-grid" }, __ = { class: "field" }, v_ = ["value"], y_ = ["value"], b_ = { class: "field" }, x_ = ["value"], S_ = ["value"], C_ = { class: "field" }, w_ = ["value"], T_ = ["value"], E_ = { class: "field" }, D_ = ["value"], O_ = ["value"], k_ = { class: "field" }, A_ = { for: "b-tempo" }, j_ = {
+var y_ = { class: "panel" }, b_ = { class: "field" }, x_ = ["value"], S_ = ["value"], C_ = { class: "form-grid" }, w_ = { class: "field" }, T_ = ["value"], E_ = ["value"], D_ = { class: "field" }, O_ = ["value"], k_ = ["value"], A_ = { class: "field" }, j_ = ["value"], M_ = ["value"], N_ = { class: "field" }, P_ = ["value"], F_ = ["value"], I_ = { class: "field" }, L_ = { for: "b-tempo" }, R_ = {
 	id: "tempo-num",
 	style: { color: "#ffa8d5" }
-}, M_ = { class: "range" }, N_ = ["value"], P_ = { id: "bpm-output" }, F_ = {
+}, z_ = { class: "range" }, B_ = ["value"], V_ = { id: "bpm-output" }, H_ = {
 	class: "muted",
 	style: { "font-size": "11px" }
-}, I_ = { class: "field" }, L_ = ["value"], R_ = { class: "field" }, z_ = ["value"], B_ = { class: "checkrow" }, V_ = ["checked", "onChange"], H_ = {
+}, U_ = { class: "field" }, W_ = ["value"], G_ = { class: "field" }, K_ = ["value"], q_ = { class: "checkrow" }, J_ = ["checked", "onChange"], Y_ = {
 	class: "panel",
 	style: {
 		position: "sticky",
 		top: "20px"
 	}
-}, U_ = {
+}, X_ = {
 	class: "output",
 	id: "prompt-output"
-}, W_ = { class: "counter" }, G_ = { id: "prompt-count" }, K_ = { class: "two-col" }, q_ = {
+}, Z_ = { class: "counter" }, Q_ = { id: "prompt-count" }, $_ = { class: "two-col" }, ev = {
 	class: "btn primary",
 	type: "button",
 	"data-action": "copy-prompt"
-}, J_ = ["innerHTML"], Y_ = {
+}, tv = ["innerHTML"], nv = {
 	class: "btn ghost",
 	type: "button",
 	"data-action": "save-prompt"
-}, X_ = ["innerHTML"], Z_ = { class: "list-pills" }, Q_ = {
+}, rv = ["innerHTML"], iv = { class: "list-pills" }, av = {
 	__name: "StudioBuilder",
 	props: { api: {
 		type: Object,
@@ -6719,57 +6783,57 @@ var f_ = { class: "panel" }, p_ = { class: "field" }, m_ = ["value"], h_ = ["val
 		function f(e, n) {
 			t.api.update(e, n), d();
 		}
-		return z(() => window.addEventListener("sunoboom:studio-updated", d)), mr(() => window.removeEventListener("sunoboom:studio-updated", d)), (e, t) => (W(), G(U, null, [K("div", f_, [
+		return z(() => window.addEventListener("sunoboom:studio-updated", d)), mr(() => window.removeEventListener("sunoboom:studio-updated", d)), (e, t) => (W(), G(U, null, [K("div", y_, [
 			t[17] ||= K("h3", null, "Параметры трека", -1),
-			K("div", p_, [t[8] ||= K("label", { for: "b-genre" }, "Жанр", -1), K("select", {
+			K("div", b_, [t[8] ||= K("label", { for: "b-genre" }, "Жанр", -1), K("select", {
 				id: "b-genre",
 				value: r.value.genre,
 				onChange: t[0] ||= (e) => f("genre", e.target.value)
 			}, [(W(!0), G(U, null, B(n.value.genres, (e) => (W(), G("option", {
 				key: e.id,
 				value: e.id
-			}, O(e.name), 9, h_))), 128))], 40, m_)]),
-			K("div", g_, [
-				K("div", __, [t[9] ||= K("label", { for: "b-mood" }, "Настроение", -1), K("select", {
+			}, O(e.name), 9, S_))), 128))], 40, x_)]),
+			K("div", C_, [
+				K("div", w_, [t[9] ||= K("label", { for: "b-mood" }, "Настроение", -1), K("select", {
 					id: "b-mood",
 					value: r.value.mood,
 					onChange: t[1] ||= (e) => f("mood", e.target.value)
 				}, [(W(), G(U, null, B(o, ([e, t]) => K("option", {
 					key: e,
 					value: e
-				}, O(t), 9, y_)), 64))], 40, v_)]),
-				K("div", b_, [t[10] ||= K("label", { for: "b-vocal" }, "Вокал", -1), K("select", {
+				}, O(t), 9, E_)), 64))], 40, T_)]),
+				K("div", D_, [t[10] ||= K("label", { for: "b-vocal" }, "Вокал", -1), K("select", {
 					id: "b-vocal",
 					value: r.value.vocal,
 					onChange: t[2] ||= (e) => f("vocal", e.target.value)
 				}, [(W(), G(U, null, B(s, ([e, t]) => K("option", {
 					key: e,
 					value: e
-				}, O(t), 9, S_)), 64))], 40, x_)]),
-				K("div", C_, [t[11] ||= K("label", { for: "b-lang" }, "Язык текста", -1), K("select", {
+				}, O(t), 9, k_)), 64))], 40, O_)]),
+				K("div", A_, [t[11] ||= K("label", { for: "b-lang" }, "Язык текста", -1), K("select", {
 					id: "b-lang",
 					value: r.value.language,
 					onChange: t[3] ||= (e) => f("language", e.target.value)
 				}, [(W(), G(U, null, B(c, ([e, t]) => K("option", {
 					key: e,
 					value: e
-				}, O(t), 9, T_)), 64))], 40, w_)]),
-				K("div", E_, [t[12] ||= K("label", { for: "b-energy" }, "Энергия", -1), K("select", {
+				}, O(t), 9, M_)), 64))], 40, j_)]),
+				K("div", N_, [t[12] ||= K("label", { for: "b-energy" }, "Энергия", -1), K("select", {
 					id: "b-energy",
 					value: r.value.energy,
 					onChange: t[4] ||= (e) => f("energy", e.target.value)
 				}, [(W(), G(U, null, B(l, ([e, t]) => K("option", {
 					key: e,
 					value: e
-				}, O(t), 9, O_)), 64))], 40, D_)])
+				}, O(t), 9, F_)), 64))], 40, P_)])
 			]),
-			K("div", k_, [
-				K("label", A_, [
+			K("div", I_, [
+				K("label", L_, [
 					t[13] ||= J("Темп · ", -1),
-					K("span", j_, O(r.value.tempo), 1),
+					K("span", R_, O(r.value.tempo), 1),
 					t[14] ||= J(" BPM", -1)
 				]),
-				K("div", M_, [K("input", {
+				K("div", z_, [K("input", {
 					type: "range",
 					id: "b-tempo",
 					min: "65",
@@ -6777,45 +6841,45 @@ var f_ = { class: "panel" }, p_ = { class: "field" }, m_ = ["value"], h_ = ["val
 					step: "1",
 					value: r.value.tempo,
 					onInput: t[5] ||= (e) => f("tempo", Number(e.target.value))
-				}, null, 40, N_), K("output", P_, O(r.value.tempo) + " BPM", 1)]),
-				K("span", F_, " Обычно для «" + O(i.value.name) + "»: " + O(i.value.bpm[0]) + "–" + O(i.value.bpm[1]) + " BPM ", 1)
+				}, null, 40, B_), K("output", V_, O(r.value.tempo) + " BPM", 1)]),
+				K("span", H_, " Обычно для «" + O(i.value.name) + "»: " + O(i.value.bpm[0]) + "–" + O(i.value.bpm[1]) + " BPM ", 1)
 			]),
-			K("div", I_, [t[15] ||= K("label", { for: "b-theme" }, "Тема / история трека", -1), K("textarea", {
+			K("div", U_, [t[15] ||= K("label", { for: "b-theme" }, "Тема / история трека", -1), K("textarea", {
 				id: "b-theme",
 				rows: "2",
 				value: r.value.theme,
 				onInput: t[6] ||= (e) => f("theme", e.target.value),
 				placeholder: "О чём будет песня?"
-			}, null, 40, L_)]),
-			K("div", R_, [t[16] ||= K("label", { for: "b-extra" }, "Дополнительные инструкции (необязательно)", -1), K("textarea", {
+			}, null, 40, W_)]),
+			K("div", G_, [t[16] ||= K("label", { for: "b-extra" }, "Дополнительные инструкции (необязательно)", -1), K("textarea", {
 				id: "b-extra",
 				rows: "2",
 				value: r.value.extra,
 				onInput: t[7] ||= (e) => f("extra", e.target.value),
 				placeholder: "Например: memorable chorus, short guitar solo"
-			}, null, 40, z_)]),
-			K("div", B_, [(W(), G(U, null, B(u, ([e, t]) => K("label", { key: e }, [K("input", {
+			}, null, 40, K_)]),
+			K("div", q_, [(W(), G(U, null, B(u, ([e, t]) => K("label", { key: e }, [K("input", {
 				type: "checkbox",
 				checked: r.value[e],
 				onChange: (t) => f(e, t.target.checked)
-			}, null, 40, V_), J(O(t), 1)])), 64))])
-		]), K("div", H_, [
+			}, null, 40, J_), J(O(t), 1)])), 64))])
+		]), K("div", Y_, [
 			t[21] ||= K("div", { class: "eyebrow" }, "Готово к Suno", -1),
 			t[22] ||= K("h3", null, "Твой промпт", -1),
-			K("div", U_, O(a.value), 1),
-			K("div", W_, [t[18] ||= K("span", null, "Максимум 1000 символов", -1), K("b", G_, O(a.value.length) + " / 1000", 1)]),
-			K("div", K_, [K("button", q_, [K("span", {
+			K("div", X_, O(a.value), 1),
+			K("div", Z_, [t[18] ||= K("span", null, "Максимум 1000 символов", -1), K("b", Q_, O(a.value.length) + " / 1000", 1)]),
+			K("div", $_, [K("button", ev, [K("span", {
 				"aria-hidden": "true",
 				innerHTML: n.value.icons.copy
-			}, null, 8, J_), t[19] ||= J(" Копировать ", -1)]), K("button", Y_, [K("span", {
+			}, null, 8, tv), t[19] ||= J(" Копировать ", -1)]), K("button", nv, [K("span", {
 				"aria-hidden": "true",
 				innerHTML: n.value.icons.save
-			}, null, 8, X_), t[20] ||= J(" Сохранить ", -1)])]),
+			}, null, 8, rv), t[20] ||= J(" Сохранить ", -1)])]),
 			t[23] ||= K("div", { class: "spacer" }, null, -1),
 			t[24] ||= K("div", { class: "notice" }, [K("strong", null, "Подсказка:"), J(" промпт задаёт стиль, а текст песни можно вводить отдельно в Suno. Результат генерации может отличаться от запроса.")], -1),
 			t[25] ||= K("div", { class: "spacer" }, null, -1),
 			t[26] ||= K("div", { class: "info-label" }, "Музыкальный профиль", -1),
-			K("div", Z_, [
+			K("div", iv, [
 				K("span", null, O(i.value.name), 1),
 				K("span", null, O(i.value.family), 1),
 				K("span", null, O(i.value.bpm[0]) + "–" + O(i.value.bpm[1]) + " BPM", 1)
@@ -6824,7 +6888,7 @@ var f_ = { class: "panel" }, p_ = { class: "field" }, m_ = ["value"], h_ = ["val
 	}
 };
 // src/vue/studio/legacyStudioBridge.js
-function $_({ mountVueFeature: e }) {
+function ov({ mountVueFeature: e }) {
 	let t = window.SUNOBOOM_LEGACY_STUDIO, n = document.getElementById("app");
 	if (!n || !t || typeof t.snapshot != "function") return () => {};
 	let r = null, i = !1;
@@ -6832,7 +6896,7 @@ function $_({ mountVueFeature: e }) {
 		if (i) return;
 		let a = n.querySelector(".studio-grid");
 		if (r?.target === a || (r &&= (r.unmount(), null), !a || !t.snapshot())) return;
-		let o = e(a, Q_, { api: t });
+		let o = e(a, av, { api: t });
 		o && (a.dataset.sbVueStudio = "true", r = {
 			target: a,
 			unmount: o
@@ -6844,34 +6908,34 @@ function $_({ mountVueFeature: e }) {
 	};
 }
 // src/vue/studio/GenreMixer.vue
-var ev = { class: "gm-layout" }, tv = { class: "gm-panel" }, nv = { class: "gm-stack" }, rv = { class: "gm-row-top" }, iv = { class: "gm-rank" }, av = { class: "gm-field gm-genre-select" }, ov = ["for"], sv = [
+var sv = { class: "gm-layout" }, cv = { class: "gm-panel" }, lv = { class: "gm-stack" }, uv = { class: "gm-row-top" }, dv = { class: "gm-rank" }, fv = { class: "gm-field gm-genre-select" }, pv = ["for"], mv = [
 	"id",
 	"value",
 	"data-gm-genre"
-], cv = ["label"], lv = ["value"], uv = ["data-gm-value"], dv = [
+], hv = ["label"], gv = ["value"], _v = ["data-gm-value"], vv = [
 	"data-slot",
 	"aria-label",
 	"disabled"
-], fv = { class: "gm-slider-line" }, pv = [
+], yv = { class: "gm-slider-line" }, bv = [
 	"max",
 	"value",
 	"data-gm-weight",
 	"aria-label"
-], mv = { class: "gm-meter" }, hv = ["data-gm-meter"], gv = { class: "gm-sub" }, _v = { class: "gm-actions" }, vv = ["disabled"], yv = {
+], xv = { class: "gm-meter" }, Sv = ["data-gm-meter"], Cv = { class: "gm-sub" }, wv = { class: "gm-actions" }, Tv = ["disabled"], Ev = {
 	class: "gm-mixture",
 	"aria-label": "Доли музыкальных жанров"
-}, bv = ["data-gm-mixbar", "title"], xv = { class: "gm-form-grid" }, Sv = ["for"], Cv = [
+}, Dv = ["data-gm-mixbar", "title"], Ov = { class: "gm-form-grid" }, kv = ["for"], Av = [
 	"id",
 	"value",
 	"data-gm-setting"
-], wv = ["value"], Tv = { class: "gm-tempo" }, Ev = ["checked"], Dv = { class: "gm-tempo-row" }, Ov = ["value", "disabled"], kv = { id: "gm-bpm" }, Av = { class: "gm-field" }, jv = ["value"], Mv = { class: "gm-checks" }, Nv = ["data-gm-setting", "checked"], Pv = { class: "gm-panel gm-output-panel" }, Fv = {
+], jv = ["value"], Mv = { class: "gm-tempo" }, Nv = ["checked"], Pv = { class: "gm-tempo-row" }, Fv = ["value", "disabled"], Iv = { id: "gm-bpm" }, Lv = { class: "gm-field" }, Rv = ["value"], zv = { class: "gm-checks" }, Bv = ["data-gm-setting", "checked"], Vv = { class: "gm-panel gm-output-panel" }, Hv = {
 	class: "gm-output",
 	id: "gm-prompt",
 	"aria-live": "polite"
-}, Iv = { class: "gm-prompt-meta" }, Lv = { id: "gm-count" }, Rv = { class: "gm-field" }, zv = ["value"], Bv = { class: "gm-saved-list" }, Vv = {
+}, Uv = { class: "gm-prompt-meta" }, Wv = { id: "gm-count" }, Gv = { class: "gm-field" }, Kv = ["value"], qv = { class: "gm-saved-list" }, Jv = {
 	key: 0,
 	class: "gm-muted"
-}, Hv = { class: "gm-saved-actions" }, Uv = ["data-id"], Wv = ["data-id", "aria-label"], Gv = {
+}, Yv = { class: "gm-saved-actions" }, Xv = ["data-id"], Zv = ["data-id", "aria-label"], Qv = {
 	__name: "GenreMixer",
 	props: { api: {
 		type: Object,
@@ -6928,16 +6992,16 @@ var ev = { class: "gm-layout" }, tv = { class: "gm-panel" }, nv = { class: "gm-s
 			K("div", { class: "eyebrow" }, "Suno Studio · новый инструмент"),
 			K("h1", null, [J("Жанровый "), K("span", { class: "gm-highlight" }, "миксер")]),
 			K("p", null, "Соединяй от 2 до 4 жанров из Академии SUNOBOOM, задавай пропорции и создавай готовый Style-промпт для Suno.")
-		], -1), K("div", ev, [K("section", tv, [
+		], -1), K("div", sv, [K("section", cv, [
 			t[3] ||= K("div", { class: "gm-section-head" }, [K("div", null, [K("h2", null, "Формула звучания"), K("p", null, "Меняй жанры и двигай ползунки — сумма всегда равна 100%.")]), K("span", { class: "gm-total" }, "Σ 100%")], -1),
-			K("div", nv, [(W(!0), G(U, null, B(r.value, (e, t) => (W(), G("article", {
+			K("div", lv, [(W(!0), G(U, null, B(r.value, (e, t) => (W(), G("article", {
 				key: e.id,
 				class: "gm-row",
 				style: E({ "--gm-color": e.color })
 			}, [
-				K("div", rv, [
-					K("span", iv, O(String(t + 1).padStart(2, "0")), 1),
-					K("div", av, [K("label", { for: "gm-genre-" + t }, "Музыкальное направление", 8, ov), K("select", {
+				K("div", uv, [
+					K("span", dv, O(String(t + 1).padStart(2, "0")), 1),
+					K("div", fv, [K("label", { for: "gm-genre-" + t }, "Музыкальное направление", 8, pv), K("select", {
 						id: "gm-genre-" + t,
 						value: e.id,
 						"data-gm-genre": t
@@ -6947,11 +7011,11 @@ var ev = { class: "gm-layout" }, tv = { class: "gm-panel" }, nv = { class: "gm-s
 					}, [(W(!0), G(U, null, B(e.items, (e) => (W(), G("option", {
 						key: e.id,
 						value: e.id
-					}, O(e.name), 9, lv))), 128))], 8, cv))), 128))], 8, sv)]),
+					}, O(e.name), 9, gv))), 128))], 8, hv))), 128))], 8, mv)]),
 					K("span", {
 						class: "gm-percent",
 						"data-gm-value": t
-					}, O(e.weight) + "%", 9, uv),
+					}, O(e.weight) + "%", 9, _v),
 					K("button", {
 						type: "button",
 						class: "gm-remove",
@@ -6960,9 +7024,9 @@ var ev = { class: "gm-layout" }, tv = { class: "gm-panel" }, nv = { class: "gm-s
 						"aria-label": "Убрать жанр " + e.name,
 						title: "Убрать жанр",
 						disabled: r.value.length <= 2
-					}, "×", 8, dv)
+					}, "×", 8, vv)
 				]),
-				K("div", fv, [K("input", {
+				K("div", yv, [K("input", {
 					type: "range",
 					min: "5",
 					max: 100 - 5 * (r.value.length - 1),
@@ -6970,23 +7034,23 @@ var ev = { class: "gm-layout" }, tv = { class: "gm-panel" }, nv = { class: "gm-s
 					value: e.weight,
 					"data-gm-weight": t,
 					"aria-label": "Доля жанра " + e.name
-				}, null, 8, pv), K("div", mv, [K("span", {
+				}, null, 8, bv), K("div", xv, [K("span", {
 					"data-gm-meter": t,
 					style: E({ width: e.weight + "%" })
-				}, null, 12, hv)])]),
-				K("p", gv, O(e.family) + " · " + O(e.tagline) + " · " + O(e.instruments), 1)
+				}, null, 12, Sv)])]),
+				K("p", Cv, O(e.family) + " · " + O(e.tagline) + " · " + O(e.instruments), 1)
 			], 4))), 128))]),
-			K("div", _v, [K("button", {
+			K("div", wv, [K("button", {
 				type: "button",
 				class: "btn ghost",
 				"data-action": "gm-add",
 				disabled: r.value.length >= 4
-			}, "＋ Добавить жанр", 8, vv), t[0] ||= K("button", {
+			}, "＋ Добавить жанр", 8, Tv), t[0] ||= K("button", {
 				type: "button",
 				class: "btn ghost",
 				"data-action": "gm-equal"
 			}, "Поровну", -1)]),
-			K("div", yv, [(W(!0), G(U, null, B(r.value, (e) => (W(), G("span", {
+			K("div", Ev, [(W(!0), G(U, null, B(r.value, (e) => (W(), G("span", {
 				key: e.id,
 				"data-gm-mixbar": e.id,
 				style: E({
@@ -6994,26 +7058,26 @@ var ev = { class: "gm-layout" }, tv = { class: "gm-panel" }, nv = { class: "gm-s
 					background: e.color
 				}),
 				title: e.name + ": " + e.weight + "%"
-			}, null, 12, bv))), 128))]),
+			}, null, 12, Dv))), 128))]),
 			t[4] ||= K("p", { class: "gm-muted" }, "Проценты — творческий ориентир для генерации, а не гарантия точного соотношения в готовой музыке.", -1),
 			t[5] ||= K("div", { class: "gm-divider" }, null, -1),
 			t[6] ||= K("h2", null, "Характер композиции", -1),
-			K("div", xv, [(W(!0), G(U, null, B(p.value, (e) => (W(), G("div", {
+			K("div", Ov, [(W(!0), G(U, null, B(p.value, (e) => (W(), G("div", {
 				key: e.key,
 				class: "gm-field"
-			}, [K("label", { for: "gm-" + e.key }, O(e.label), 9, Sv), K("select", {
+			}, [K("label", { for: "gm-" + e.key }, O(e.label), 9, kv), K("select", {
 				id: "gm-" + e.key,
 				value: a.value[e.key],
 				"data-gm-setting": e.key
 			}, [(W(!0), G(U, null, B(e.choices, ([e, t]) => (W(), G("option", {
 				key: e,
 				value: e
-			}, O(t), 9, wv))), 128))], 8, Cv)]))), 128))]),
-			K("div", Tv, [K("label", null, [K("input", {
+			}, O(t), 9, jv))), 128))], 8, Av)]))), 128))]),
+			K("div", Mv, [K("label", null, [K("input", {
 				type: "checkbox",
 				"data-gm-setting": "autoTempo",
 				checked: a.value.autoTempo
-			}, null, 8, Ev), t[1] ||= J(" Определять темп по жанрам", -1)]), K("div", Dv, [K("input", {
+			}, null, 8, Nv), t[1] ||= J(" Определять темп по жанрам", -1)]), K("div", Pv, [K("input", {
 				id: "gm-tempo",
 				type: "range",
 				min: "65",
@@ -7021,60 +7085,60 @@ var ev = { class: "gm-layout" }, tv = { class: "gm-panel" }, nv = { class: "gm-s
 				value: l.value,
 				"data-gm-setting": "tempo",
 				disabled: a.value.autoTempo
-			}, null, 8, Ov), K("b", kv, O(l.value) + " BPM", 1)])]),
-			K("div", Av, [t[2] ||= K("label", { for: "gm-theme" }, "Тема песни (необязательно)", -1), K("textarea", {
+			}, null, 8, Fv), K("b", Iv, O(l.value) + " BPM", 1)])]),
+			K("div", Lv, [t[2] ||= K("label", { for: "gm-theme" }, "Тема песни (необязательно)", -1), K("textarea", {
 				id: "gm-theme",
 				rows: "2",
 				maxlength: "170",
 				"data-gm-setting": "theme",
 				value: a.value.theme,
 				placeholder: "Например: ночной город, встреча после долгой разлуки"
-			}, null, 8, jv)]),
-			K("div", Mv, [(W(), G(U, null, B(m, ([e, t]) => K("label", { key: e }, [K("input", {
+			}, null, 8, Rv)]),
+			K("div", zv, [(W(), G(U, null, B(m, ([e, t]) => K("label", { key: e }, [K("input", {
 				type: "checkbox",
 				"data-gm-setting": e,
 				checked: a.value[e]
-			}, null, 8, Nv), J(" " + O(t), 1)])), 64))])
-		]), K("aside", Pv, [
+			}, null, 8, Bv), J(" " + O(t), 1)])), 64))])
+		]), K("aside", Vv, [
 			t[9] ||= K("div", { class: "eyebrow" }, "Результат микширования", -1),
 			t[10] ||= K("h2", null, "Гибридный Style-промпт", -1),
-			K("div", Fv, O(c.value), 1),
-			K("div", Iv, [t[7] ||= K("span", null, "На английском · готово для Suno", -1), K("b", Lv, O(c.value.length) + " / 1000", 1)]),
+			K("div", Hv, O(c.value), 1),
+			K("div", Uv, [t[7] ||= K("span", null, "На английском · готово для Suno", -1), K("b", Wv, O(c.value.length) + " / 1000", 1)]),
 			t[11] ||= ea("<div class=\"gm-output-actions\"><button type=\"button\" class=\"btn primary\" data-action=\"gm-copy\">Копировать</button><button type=\"button\" class=\"btn ghost\" data-action=\"gm-to-studio\">В Suno Studio</button></div><button type=\"button\" class=\"btn ghost gm-full\" data-action=\"gm-save-prompt\">Сохранить в «Мои промпты»</button><div class=\"gm-divider\"></div><h3>Мои сочетания</h3>", 4),
-			K("div", Rv, [t[8] ||= K("label", { for: "gm-title" }, "Название сочетания", -1), K("input", {
+			K("div", Gv, [t[8] ||= K("label", { for: "gm-title" }, "Название сочетания", -1), K("input", {
 				id: "gm-title",
 				type: "text",
 				maxlength: "90",
 				"data-gm-title": "",
 				value: u.value,
 				placeholder: "Например: Северный электро-фолк"
-			}, null, 8, zv)]),
+			}, null, 8, Kv)]),
 			t[12] ||= K("button", {
 				type: "button",
 				class: "btn ghost gm-full",
 				"data-action": "gm-save-mix"
 			}, "Сохранить формулу", -1),
-			K("div", Bv, [s.value.length ? Y("", !0) : (W(), G("p", Vv, "Сохранённых сочетаний пока нет. Придумай свой микс и сохрани его.")), (W(!0), G(U, null, B(s.value, (e) => (W(), G("article", {
+			K("div", qv, [s.value.length ? Y("", !0) : (W(), G("p", Jv, "Сохранённых сочетаний пока нет. Придумай свой микс и сохрани его.")), (W(!0), G(U, null, B(s.value, (e) => (W(), G("article", {
 				key: e.id,
 				class: "gm-saved"
-			}, [K("div", null, [K("strong", null, O(e.title), 1), K("small", null, O(e.summary), 1)]), K("div", Hv, [K("button", {
+			}, [K("div", null, [K("strong", null, O(e.title), 1), K("small", null, O(e.summary), 1)]), K("div", Yv, [K("button", {
 				type: "button",
 				class: "btn ghost small",
 				"data-action": "gm-load",
 				"data-id": e.id
-			}, "Открыть", 8, Uv), K("button", {
+			}, "Открыть", 8, Xv), K("button", {
 				type: "button",
 				class: "btn danger small",
 				"data-action": "gm-delete",
 				"data-id": e.id,
 				"aria-label": "Удалить " + e.title
-			}, "×", 8, Wv)])]))), 128))]),
+			}, "×", 8, Zv)])]))), 128))]),
 			t[13] ||= K("p", { class: "gm-muted" }, "Сохраняется в этом браузере и входит в общую JSON-копию данных SUNOBOOM. Подключение к ИИ для смешивания не требуется.", -1)
 		])])], 64));
 	}
 };
 // src/vue/studio/legacyMixerBridge.js
-function Kv({ mountVueFeature: e }) {
+function $v({ mountVueFeature: e }) {
 	let t = window.SUNOBOOM_LEGACY_MIXER, n = document.getElementById("app");
 	if (!t || !n || typeof t.snapshot != "function") return () => {};
 	let r = null, i = !1;
@@ -7082,7 +7146,7 @@ function Kv({ mountVueFeature: e }) {
 		if (i) return;
 		let a = n.querySelector("#sb-vue-mixer-root");
 		if (r?.target === a || (r &&= (r.unmount(), null), !a || !t.snapshot())) return;
-		let o = e(a, Gv, { api: t });
+		let o = e(a, Qv, { api: t });
 		o && (r = {
 			target: a,
 			unmount: o
@@ -7094,39 +7158,39 @@ function Kv({ mountVueFeature: e }) {
 	};
 }
 // src/vue/studio/PromptAuditor.vue
-var qv = {
+var ey = {
 	class: "sbpa-tabs",
 	role: "group",
 	"aria-label": "Источник промпта"
-}, Jv = ["aria-pressed"], Yv = ["aria-pressed"], Xv = {
+}, ty = ["aria-pressed"], ny = ["aria-pressed"], ry = {
 	key: 0,
 	class: "sbpa-manual"
-}, Zv = ["value"], Qv = ["value"], $v = ["value"], ey = {
+}, iy = ["value"], ay = ["value"], oy = ["value"], sy = {
 	key: 1,
 	class: "sbpa-context"
-}, ty = {
+}, cy = {
 	id: "sbpa-results",
 	"aria-live": "polite"
-}, ny = { class: "sbpa-scoreline" }, ry = {
+}, ly = { class: "sbpa-scoreline" }, uy = {
 	class: "sbpa-score",
 	"aria-label": "Эвристическая оценка промпта"
-}, iy = { class: "sbpa-score-info" }, ay = ["aria-valuenow"], oy = {
+}, dy = { class: "sbpa-score-info" }, fy = ["aria-valuenow"], py = {
 	key: 0,
 	class: "sbpa-issues"
-}, sy = {
+}, my = {
 	key: 1,
 	class: "sbpa-clear"
-}, cy = { class: "sbpa-actions" }, ly = {
+}, hy = { class: "sbpa-actions" }, gy = {
 	key: 0,
 	type: "button",
 	"data-sbpa-action": "load-studio"
-}, uy = { id: "sbpa-proposal-slot" }, dy = {
+}, _y = { id: "sbpa-proposal-slot" }, vy = {
 	key: 0,
 	class: "sbpa-proposal"
-}, fy = { key: 0 }, py = { key: 1 }, my = { key: 2 }, hy = {
+}, yy = { key: 0 }, by = { key: 1 }, xy = { key: 2 }, Sy = {
 	key: 3,
 	class: "sbpa-alert"
-}, gy = ["value"], _y = {
+}, Cy = ["value"], wy = {
 	__name: "PromptAuditor",
 	props: { api: {
 		type: Object,
@@ -7153,18 +7217,18 @@ var qv = {
 				K("h2", null, "Интеллектуальный аудитор промптов"),
 				K("p", null, "Ищет повторы, противоречия, перегрузку и особенности жанра до отправки в Suno.")
 			]), K("span", { class: "sbpa-local" }, "Проверка по правилам · без API")], -1),
-			K("div", qv, [K("button", {
+			K("div", ey, [K("button", {
 				type: "button",
 				"data-sbpa-action": "studio",
 				class: D({ active: !r.value }),
 				"aria-pressed": !r.value
-			}, "Текущий промпт Studio", 10, Jv), K("button", {
+			}, "Текущий промпт Studio", 10, ty), K("button", {
 				type: "button",
 				"data-sbpa-action": "manual",
 				class: D({ active: r.value }),
 				"aria-pressed": r.value
-			}, "Свой текст / вставка", 10, Yv)]),
-			r.value ? (W(), G("div", Xv, [
+			}, "Свой текст / вставка", 10, ny)]),
+			r.value ? (W(), G("div", ry, [
 				t[0] ||= K("label", { for: "sbpa-text" }, "Текст промпта", -1),
 				K("textarea", {
 					id: "sbpa-text",
@@ -7172,7 +7236,7 @@ var qv = {
 					spellcheck: "false",
 					placeholder: "Вставь текст на русском или английском…",
 					value: n.value.manual
-				}, null, 8, Zv),
+				}, null, 8, iy),
 				t[1] ||= K("label", { for: "sbpa-genre" }, "Жанр для сопоставления с Академией", -1),
 				K("select", {
 					id: "sbpa-genre",
@@ -7180,11 +7244,11 @@ var qv = {
 				}, [(W(!0), G(U, null, B(o.value, (e) => (W(), G("option", {
 					key: e.id,
 					value: e.id
-				}, O(e.name), 9, $v))), 128))], 8, Qv)
-			])) : (W(), G("p", ey, " Проверяется актуальный промпт конструктора. Изменения настроек Studio отражаются здесь автоматически. ")),
-			K("div", ty, [K("div", ny, [
-				K("div", ry, [J(O(i.value.score), 1), t[2] ||= K("small", null, "/ 100", -1)]),
-				K("div", iy, [
+				}, O(e.name), 9, oy))), 128))], 8, ay)
+			])) : (W(), G("p", sy, " Проверяется актуальный промпт конструктора. Изменения настроек Studio отражаются здесь автоматически. ")),
+			K("div", cy, [K("div", ly, [
+				K("div", uy, [J(O(i.value.score), 1), t[2] ||= K("small", null, "/ 100", -1)]),
+				K("div", dy, [
 					K("strong", null, O(i.value.status), 1),
 					t[3] ||= K("span", null, "Оценка ориентировочная: проверяется структура текста, а не качество будущей музыки.", -1),
 					K("div", {
@@ -7194,34 +7258,34 @@ var qv = {
 						"aria-valuenow": i.value.score,
 						"aria-valuemin": "0",
 						"aria-valuemax": "100"
-					}, [K("span", { style: E({ width: i.value.score + "%" }) }, null, 4)], 8, ay)
+					}, [K("span", { style: E({ width: i.value.score + "%" }) }, null, 4)], 8, fy)
 				]),
 				K("div", { class: D(["sbpa-limit", { over: i.value.length > 1e3 }]) }, O(i.value.length) + " / 1000 символов ", 3)
-			]), i.value.issues?.length ? (W(), G("ul", oy, [(W(!0), G(U, null, B(i.value.issues, (e, t) => (W(), G("li", {
+			]), i.value.issues?.length ? (W(), G("ul", py, [(W(!0), G(U, null, B(i.value.issues, (e, t) => (W(), G("li", {
 				key: t,
 				class: D(["sbpa-item", "sbpa-" + e.kind])
 			}, [K("div", null, [
 				K("strong", null, O(e.title), 1),
 				K("p", null, O(e.detail), 1),
 				K("small", null, O(e.fix), 1)
-			])], 2))), 128))])) : (W(), G("p", sy, " Явных противоречий и повторов по проверяемым правилам не найдено. "))]),
-			K("div", cy, [t[4] ||= K("button", {
+			])], 2))), 128))])) : (W(), G("p", my, " Явных противоречий и повторов по проверяемым правилам не найдено. "))]),
+			K("div", hy, [t[4] ||= K("button", {
 				type: "button",
 				"data-sbpa-action": "preview",
 				class: "sbpa-primary"
-			}, " Показать улучшенный вариант ", -1), r.value ? (W(), G("button", ly, " Вставить текущий промпт Studio ")) : Y("", !0)]),
-			K("div", uy, [s.value ? (W(), G("div", dy, [
+			}, " Показать улучшенный вариант ", -1), r.value ? (W(), G("button", gy, " Вставить текущий промпт Studio ")) : Y("", !0)]),
+			K("div", _y, [s.value ? (W(), G("div", vy, [
 				K("h4", null, [t[5] ||= J("Предлагаемый вариант ", -1), K("small", null, O(c.value.text.length) + " / 1000", 1)]),
-				c.value.removed.length ? (W(), G("p", py, "Удалено фрагментов: " + O(c.value.removed.length) + ". Проверь смысл до копирования.", 1)) : (W(), G("p", fy, "Удалять нечего: текст уже без точных повторов.")),
-				c.value.removed.length ? (W(), G("details", my, [t[6] ||= K("summary", null, "Что изменилось", -1), K("ul", null, [(W(!0), G(U, null, B(c.value.removed, (e, t) => (W(), G("li", { key: t }, [K("b", null, O(e.reason) + ":", 1), J(" " + O(e.part), 1)]))), 128))])])) : Y("", !0),
-				c.value.complete ? Y("", !0) : (W(), G("p", hy, " Автоматического сокращения недостаточно. Уменьши текст вручную минимум на " + O(c.value.text.length - 1e3) + " символов. ", 1)),
+				c.value.removed.length ? (W(), G("p", by, "Удалено фрагментов: " + O(c.value.removed.length) + ". Проверь смысл до копирования.", 1)) : (W(), G("p", yy, "Удалять нечего: текст уже без точных повторов.")),
+				c.value.removed.length ? (W(), G("details", xy, [t[6] ||= K("summary", null, "Что изменилось", -1), K("ul", null, [(W(!0), G(U, null, B(c.value.removed, (e, t) => (W(), G("li", { key: t }, [K("b", null, O(e.reason) + ":", 1), J(" " + O(e.part), 1)]))), 128))])])) : Y("", !0),
+				c.value.complete ? Y("", !0) : (W(), G("p", Sy, " Автоматического сокращения недостаточно. Уменьши текст вручную минимум на " + O(c.value.text.length - 1e3) + " символов. ", 1)),
 				t[7] ||= K("label", { for: "sbpa-preview-text" }, "Редактируемый предпросмотр", -1),
 				K("textarea", {
 					id: "sbpa-preview-text",
 					rows: "5",
 					spellcheck: "false",
 					value: c.value.text
-				}, null, 8, gy),
+				}, null, 8, Cy),
 				t[8] ||= K("div", { class: "sbpa-actions" }, [K("button", {
 					type: "button",
 					"data-sbpa-action": "copy-preview",
@@ -7237,7 +7301,7 @@ var qv = {
 	}
 };
 // src/vue/studio/legacyAuditorBridge.js
-function vy({ mountVueFeature: e }) {
+function Ty({ mountVueFeature: e }) {
 	let t = window.SUNOBOOM_LEGACY_AUDITOR, n = document.getElementById("app");
 	if (!t || !n || typeof t.snapshot != "function") return () => {};
 	let r = null, i = !1;
@@ -7245,7 +7309,7 @@ function vy({ mountVueFeature: e }) {
 		if (i) return;
 		let a = n.querySelector("#sbpa-auditor");
 		if (r?.target === a || (r &&= (r.unmount(), null), !a || !t.snapshot())) return;
-		let o = e(a, _y, { api: t });
+		let o = e(a, wy, { api: t });
 		o && (r = {
 			target: a,
 			unmount: o
@@ -7257,71 +7321,71 @@ function vy({ mountVueFeature: e }) {
 	};
 }
 // src/vue/studio/ArrangementPanel.vue
-var yy = ["data-sba-id", "data-sba-energy"], by = { class: "sba-block-head" }, xy = ["data-sba-drag", "aria-label"], Sy = { class: "sba-index" }, Cy = {
+var Ey = ["data-sba-id", "data-sba-energy"], Dy = { class: "sba-block-head" }, Oy = ["data-sba-drag", "aria-label"], ky = { class: "sba-index" }, Ay = {
 	class: "sba-emoji",
 	"aria-hidden": "true"
-}, wy = { class: "sba-head-energy" }, Ty = { class: "sba-block-actions" }, Ey = ["data-id", "disabled"], Dy = ["data-id", "disabled"], Oy = ["data-id"], ky = ["data-id"], Ay = { class: "sba-block-fields" }, jy = ["data-id", "value"], My = ["value"], Ny = ["data-id", "value"], Py = ["value"], Fy = ["data-id", "value"], Iy = ["value"], Ly = { class: "sba-energy-field" }, Ry = ["data-sba-output"], zy = ["value", "data-id"], By = { class: "sba-instrument-field" }, Vy = ["for"], Hy = { class: "sba-instrument-row" }, Uy = [
+}, jy = { class: "sba-head-energy" }, My = { class: "sba-block-actions" }, Ny = ["data-id", "disabled"], Py = ["data-id", "disabled"], Fy = ["data-id"], Iy = ["data-id"], Ly = { class: "sba-block-fields" }, Ry = ["data-id", "value"], zy = ["value"], By = ["data-id", "value"], Vy = ["value"], Hy = ["data-id", "value"], Uy = ["value"], Wy = { class: "sba-energy-field" }, Gy = ["data-sba-output"], Ky = ["value", "data-id"], qy = { class: "sba-instrument-field" }, Jy = ["for"], Yy = { class: "sba-instrument-row" }, Xy = [
 	"id",
 	"data-id",
 	"value"
-], Wy = ["id", "innerHTML"], Gy = ["id"], Ky = { class: "sba-sound-head" }, qy = ["data-id"], Jy = ["data-id"], Yy = ["id"], Xy = {
+], Zy = ["id", "innerHTML"], Qy = ["id"], $y = { class: "sba-sound-head" }, eb = ["data-id"], tb = ["data-id"], nb = ["id"], rb = {
 	key: 0,
 	class: "sba-sound-back"
-}, Zy = ["data-id"], Qy = [
+}, ib = ["data-id"], ab = [
 	"data-sba-sound-search",
 	"data-id",
 	"value",
 	"placeholder"
-], $y = ["id"], eb = { class: "sba-sound-info" }, tb = { key: 0 }, nb = ["data-id", "data-genre-id"], rb = {
+], ob = ["id"], sb = { class: "sba-sound-info" }, cb = { key: 0 }, lb = ["data-id", "data-genre-id"], ub = {
 	key: 0,
 	class: "sba-sound-none"
-}, ib = { class: "sba-sound-group" }, ab = [
+}, db = { class: "sba-sound-group" }, fb = [
 	"disabled",
 	"aria-disabled",
 	"data-id",
 	"data-sound-value"
-], ob = {
+], pb = {
 	key: 0,
 	class: "sba-sound-none"
-}, sb = {
+}, mb = {
 	key: 1,
 	class: "sba-sound-foot"
-}, cb = ["data-id"], lb = {
+}, hb = ["data-id"], gb = {
 	key: 0,
 	class: "sba-custom-label"
-}, ub = ["data-id", "value"], db = ["innerHTML"], fb = ["data-id", "aria-label"], pb = {
+}, _b = ["data-id", "value"], vb = ["innerHTML"], yb = ["data-id", "aria-label"], bb = {
 	key: 0,
 	class: "sba-empty"
-}, mb = ["aria-label"], hb = [
+}, xb = ["aria-label"], Sb = [
 	"data-sba-snake-id",
 	"data-sba-energy",
 	"aria-label",
 	"title"
-], gb = { class: "sba-snake-num" }, _b = {
+], Cb = { class: "sba-snake-num" }, wb = {
 	class: "sba-snake-icon",
 	"aria-hidden": "true"
-}, vb = { class: "sba-snake-title" }, yb = { class: "sba-snake-level" }, bb = ["title"], xb = {
+}, Tb = { class: "sba-snake-title" }, Eb = { class: "sba-snake-level" }, Db = ["title"], Ob = {
 	key: 0,
 	class: "sba-snake-more"
-}, Sb = {
+}, kb = {
 	key: 1,
 	class: "sba-snake-empty"
-}, Cb = ["data-sba-hub-from"], wb = { class: "sba-transition-hub-route" }, Tb = { class: "sba-transition-hub-number" }, Eb = { class: "sba-transition-hub-names" }, Db = { class: "sba-transition-hub-controls" }, Ob = [
+}, Ab = ["data-sba-hub-from"], jb = { class: "sba-transition-hub-route" }, Mb = { class: "sba-transition-hub-number" }, Nb = { class: "sba-transition-hub-names" }, Pb = { class: "sba-transition-hub-controls" }, Fb = [
 	"data-id",
 	"value",
 	"aria-label"
-], kb = ["value"], Ab = [
+], Ib = ["value"], Lb = [
 	"data-id",
 	"value",
 	"aria-label"
-], jb = ["value"], Mb = [
+], Rb = ["value"], zb = [
 	"data-id",
 	"value",
 	"aria-label"
-], Nb = ["value"], Pb = { class: "sba-transition-hub-actions" }, Fb = ["data-id", "title"], Ib = ["data-id"], Lb = {
+], Bb = ["value"], Vb = { class: "sba-transition-hub-actions" }, Hb = ["data-id", "title"], Ub = ["data-id"], Wb = {
 	key: 1,
 	class: "sba-transition-hub-empty"
-}, Rb = ["title"], zb = { class: "sba-chart-column" }, Bb = {
+}, Gb = ["title"], Kb = { class: "sba-chart-column" }, qb = {
 	__name: "ArrangementPanel",
 	props: {
 		api: {
@@ -7364,47 +7428,47 @@ var yy = ["data-sba-id", "data-sba-energy"], by = { class: "sba-block-head" }, x
 				class: "sba-block",
 				"data-sba-id": e.id,
 				"data-sba-energy": e.energy
-			}, [K("div", by, [
+			}, [K("div", Dy, [
 				K("span", {
 					class: "sba-drag",
 					draggable: "true",
 					"data-sba-drag": e.id,
 					title: "Перетащить блок",
 					"aria-label": "Перетащить " + e.sectionName
-				}, "⠿", 8, xy),
-				K("span", Sy, O(String(t + 1).padStart(2, "0")), 1),
-				K("span", Cy, O(e.icon), 1),
+				}, "⠿", 8, Oy),
+				K("span", ky, O(String(t + 1).padStart(2, "0")), 1),
+				K("span", Ay, O(e.icon), 1),
 				K("strong", null, O(e.label), 1),
-				K("span", wy, "Энергия " + O(e.energy) + "/5", 1),
-				K("div", Ty, [
+				K("span", jy, "Энергия " + O(e.energy) + "/5", 1),
+				K("div", My, [
 					K("button", {
 						type: "button",
 						"data-sba-action": "up",
 						"data-id": e.id,
 						"aria-label": "Переместить вверх",
 						disabled: t === 0
-					}, "↑", 8, Ey),
+					}, "↑", 8, Ny),
 					K("button", {
 						type: "button",
 						"data-sba-action": "down",
 						"data-id": e.id,
 						"aria-label": "Переместить вниз",
 						disabled: t === r.value.length - 1
-					}, "↓", 8, Dy),
+					}, "↓", 8, Py),
 					K("button", {
 						type: "button",
 						"data-sba-action": "duplicate",
 						"data-id": e.id,
 						"aria-label": "Дублировать блок"
-					}, "⧉", 8, Oy),
+					}, "⧉", 8, Fy),
 					K("button", {
 						type: "button",
 						"data-sba-action": "remove",
 						"data-id": e.id,
 						"aria-label": "Удалить блок"
-					}, "×", 8, ky)
+					}, "×", 8, Iy)
 				])
-			]), K("div", Ay, [
+			]), K("div", Ly, [
 				K("label", null, [n[0] ||= J("Раздел ", -1), K("select", {
 					"data-sba-field": "type",
 					"data-id": e.id,
@@ -7412,7 +7476,7 @@ var yy = ["data-sba-id", "data-sba-energy"], by = { class: "sba-block-head" }, x
 				}, [(W(!0), G(U, null, B(i.value, (e) => (W(), G("option", {
 					key: e.id,
 					value: e.id
-				}, O(e.name), 9, My))), 128))], 8, jy)]),
+				}, O(e.name), 9, zy))), 128))], 8, Ry)]),
 				K("label", null, [n[1] ||= J("Тактов ", -1), K("select", {
 					"data-sba-field": "bars",
 					"data-id": e.id,
@@ -7420,7 +7484,7 @@ var yy = ["data-sba-id", "data-sba-energy"], by = { class: "sba-block-head" }, x
 				}, [(W(), G(U, null, B(p, (e) => K("option", {
 					key: e,
 					value: e
-				}, O(e), 9, Py)), 64))], 8, Ny)]),
+				}, O(e), 9, Vy)), 64))], 8, By)]),
 				K("label", null, [n[2] ||= J("Вокал ", -1), K("select", {
 					"data-sba-field": "vocal",
 					"data-id": e.id,
@@ -7428,10 +7492,10 @@ var yy = ["data-sba-id", "data-sba-energy"], by = { class: "sba-block-head" }, x
 				}, [(W(!0), G(U, null, B(a.value, (e) => (W(), G("option", {
 					key: e.id,
 					value: e.id
-				}, O(e.name), 9, Iy))), 128))], 8, Fy)]),
-				K("label", Ly, [
+				}, O(e.name), 9, Uy))), 128))], 8, Hy)]),
+				K("label", Wy, [
 					n[3] ||= J("Энергия ", -1),
-					K("output", { "data-sba-output": e.id }, O(e.energy) + "/5 · " + O(o.value[e.energy]), 9, Ry),
+					K("output", { "data-sba-output": e.id }, O(e.energy) + "/5 · " + O(o.value[e.energy]), 9, Gy),
 					K("input", {
 						type: "range",
 						min: "1",
@@ -7440,11 +7504,11 @@ var yy = ["data-sba-id", "data-sba-energy"], by = { class: "sba-block-head" }, x
 						value: e.energy,
 						"data-sba-field": "energy",
 						"data-id": e.id
-					}, null, 8, zy)
+					}, null, 8, Ky)
 				]),
-				K("div", By, [
-					K("label", { for: "sba-instruments-" + e.id }, "Инструменты / приём", 8, Vy),
-					K("div", Hy, [K("input", {
+				K("div", qy, [
+					K("label", { for: "sba-instruments-" + e.id }, "Инструменты / приём", 8, Jy),
+					K("div", Yy, [K("input", {
 						type: "text",
 						id: "sba-instruments-" + e.id,
 						maxlength: "300",
@@ -7453,24 +7517,24 @@ var yy = ["data-sba-id", "data-sba-energy"], by = { class: "sba-block-head" }, x
 						value: e.instruments,
 						placeholder: "Введи вручную или выбери рекомендацию",
 						autocomplete: "off"
-					}, null, 8, Uy)]),
+					}, null, 8, Xy)]),
 					K("div", {
 						class: "sba-quick-sounds",
 						id: "sba-quick-" + e.id,
 						innerHTML: e.quickSounds
-					}, null, 8, Wy),
+					}, null, 8, Zy),
 					e.soundPanel ? (W(), G("div", {
 						key: 0,
 						class: "sba-sound-panel",
 						id: "sba-sound-panel-" + e.id,
 						"aria-label": "Выбор инструментов и приёмов"
 					}, [
-						K("div", Ky, [n[4] ||= K("strong", null, "Библиотека инструментов и приёмов", -1), K("button", {
+						K("div", $y, [n[4] ||= K("strong", null, "Библиотека инструментов и приёмов", -1), K("button", {
 							type: "button",
 							"data-sba-action": "sound-close",
 							"data-id": e.id,
 							"aria-label": "Закрыть подбор"
-						}, "×", 8, qy)]),
+						}, "×", 8, eb)]),
 						K("button", {
 							type: "button",
 							class: "sba-sound-genre-trigger",
@@ -7480,13 +7544,13 @@ var yy = ["data-sba-id", "data-sba-energy"], by = { class: "sba-block-head" }, x
 							n[5] ||= J(" Жанр: ", -1),
 							K("b", null, O(e.soundPanel.genreName), 1),
 							n[6] ||= K("span", null, "⌄", -1)
-						], 8, Jy),
+						], 8, tb),
 						K("div", { id: "sba-sound-body-" + e.id }, [
-							e.soundPanel.mode === "genres" ? (W(), G("div", Xy, [K("button", {
+							e.soundPanel.mode === "genres" ? (W(), G("div", rb, [K("button", {
 								type: "button",
 								"data-sba-action": "sound-switch-mode",
 								"data-id": e.id
-							}, " ← К инструментам ", 8, Zy)])) : Y("", !0),
+							}, " ← К инструментам ", 8, ib)])) : Y("", !0),
 							K("input", {
 								type: "search",
 								class: "sba-sound-search",
@@ -7496,12 +7560,12 @@ var yy = ["data-sba-id", "data-sba-energy"], by = { class: "sba-block-head" }, x
 								placeholder: e.soundPanel.mode === "genres" ? "Поиск по всей Академии..." : "Поиск инструмента или приёма...",
 								autocomplete: "off",
 								"aria-label": "Поиск инструментов или жанров"
-							}, null, 8, Qy),
+							}, null, 8, ab),
 							K("div", {
 								class: "sba-sound-list",
 								id: "sba-sound-results-" + e.id
 							}, [e.soundPanel.mode === "genres" ? (W(), G(U, { key: 0 }, [
-								K("div", eb, [J(" Найдено жанров: " + O(e.soundPanel.total) + " ", 1), e.soundPanel.total > e.soundPanel.matches.length ? (W(), G("span", tb, " · уточни запрос ")) : Y("", !0)]),
+								K("div", sb, [J(" Найдено жанров: " + O(e.soundPanel.total) + " ", 1), e.soundPanel.total > e.soundPanel.matches.length ? (W(), G("span", cb, " · уточни запрос ")) : Y("", !0)]),
 								(W(!0), G(U, null, B(e.soundPanel.matches, (t) => (W(), G("button", {
 									key: t.id,
 									type: "button",
@@ -7509,9 +7573,9 @@ var yy = ["data-sba-id", "data-sba-energy"], by = { class: "sba-block-head" }, x
 									"data-sba-action": "sound-set-genre",
 									"data-id": e.id,
 									"data-genre-id": t.id
-								}, [K("span", null, O(t.name), 1), K("small", null, O(t.family), 1)], 8, nb))), 128)),
-								e.soundPanel.matches.length ? Y("", !0) : (W(), G("p", rb, " Жанр не найден "))
-							], 64)) : (W(), G(U, { key: 1 }, [(W(!0), G(U, null, B(e.soundPanel.groups, (t) => (W(), G(U, { key: t.title }, [K("div", ib, O(t.title), 1), (W(!0), G(U, null, B(t.items, (t) => (W(), G("button", {
+								}, [K("span", null, O(t.name), 1), K("small", null, O(t.family), 1)], 8, lb))), 128)),
+								e.soundPanel.matches.length ? Y("", !0) : (W(), G("p", ub, " Жанр не найден "))
+							], 64)) : (W(), G(U, { key: 1 }, [(W(!0), G(U, null, B(e.soundPanel.groups, (t) => (W(), G(U, { key: t.title }, [K("div", db, O(t.title), 1), (W(!0), G(U, null, B(t.items, (t) => (W(), G("button", {
 								key: t.name,
 								type: "button",
 								class: "sba-sound-option",
@@ -7520,37 +7584,37 @@ var yy = ["data-sba-id", "data-sba-energy"], by = { class: "sba-block-head" }, x
 								"data-sba-action": "sound-add",
 								"data-id": e.id,
 								"data-sound-value": t.name
-							}, [K("span", null, O(t.name), 1), K("small", null, O(t.added ? "✓ Добавлено" : "+ Добавить"), 1)], 8, ab))), 128))], 64))), 128)), e.soundPanel.groups.length ? Y("", !0) : (W(), G("p", ob, " Совпадений нет. Можно ввести инструмент вручную. "))], 64))], 8, $y),
-							e.soundPanel.mode === "genres" ? Y("", !0) : (W(), G("div", sb, [n[7] ||= K("span", null, "Нажми «Добавить», чтобы дополнить поле. Свой текст сохраняется.", -1), K("button", {
+							}, [K("span", null, O(t.name), 1), K("small", null, O(t.added ? "✓ Добавлено" : "+ Добавить"), 1)], 8, fb))), 128))], 64))), 128)), e.soundPanel.groups.length ? Y("", !0) : (W(), G("p", pb, " Совпадений нет. Можно ввести инструмент вручную. "))], 64))], 8, ob),
+							e.soundPanel.mode === "genres" ? Y("", !0) : (W(), G("div", mb, [n[7] ||= K("span", null, "Нажми «Добавить», чтобы дополнить поле. Свой текст сохраняется.", -1), K("button", {
 								type: "button",
 								"data-sba-action": "sound-clear",
 								"data-id": e.id
-							}, " Очистить поле ", 8, cb)]))
-						], 8, Yy)
-					], 8, Gy)) : Y("", !0)
+							}, " Очистить поле ", 8, hb)]))
+						], 8, nb)
+					], 8, Qy)) : Y("", !0)
 				]),
-				e.type === "custom" ? (W(), G("label", lb, [n[8] ||= J("Своё название ", -1), K("input", {
+				e.type === "custom" ? (W(), G("label", gb, [n[8] ||= J("Своё название ", -1), K("input", {
 					type: "text",
 					maxlength: "48",
 					"data-sba-field": "customName",
 					"data-id": e.id,
 					value: e.customName,
 					placeholder: "Название для тега Suno"
-				}, null, 8, ub)])) : Y("", !0)
-			])], 8, yy),
+				}, null, 8, _b)])) : Y("", !0)
+			])], 8, Ey),
 			e.transitionHTML ? (W(), G("div", {
 				key: 0,
 				style: { display: "contents" },
 				innerHTML: e.transitionHTML
-			}, null, 8, db)) : Y("", !0),
+			}, null, 8, vb)) : Y("", !0),
 			K("button", {
 				type: "button",
 				class: "sba-between-add",
 				"data-sba-action": "insert-after",
 				"data-id": e.id,
 				"aria-label": "Добавить блок после " + e.label
-			}, [...n[9] ||= [K("span", { "aria-hidden": "true" }, "＋", -1), J(" Добавить после ", -1)]], 8, fb)
-		], 64))), 128)), r.value.length ? Y("", !0) : (W(), G("div", pb, "Пока нет блоков. Добавь первый фрагмент снизу."))], 64)) : e.kind === "snake" ? (W(), G(U, { key: 1 }, [r.value.length ? (W(), G(U, { key: 0 }, [(W(), G(U, null, B([6, 3], (e) => K("div", {
+			}, [...n[9] ||= [K("span", { "aria-hidden": "true" }, "＋", -1), J(" Добавить после ", -1)]], 8, yb)
+		], 64))), 128)), r.value.length ? Y("", !0) : (W(), G("div", bb, "Пока нет блоков. Добавь первый фрагмент снизу."))], 64)) : e.kind === "snake" ? (W(), G(U, { key: 1 }, [r.value.length ? (W(), G(U, { key: 0 }, [(W(), G(U, null, B([6, 3], (e) => K("div", {
 			key: e,
 			class: D(e === 6 ? "sba-snake-desktop" : "sba-snake-mobile"),
 			role: "group",
@@ -7571,27 +7635,27 @@ var yy = ["data-sba-id", "data-sba-energy"], by = { class: "sba-block-head" }, x
 			"aria-label": "Переместить " + e.snakeLabel + ", позиция " + (e.index + 1) + " из " + r.value.length + ", энергия " + e.energy + "/5",
 			title: e.index + 1 + ". " + e.snakeLabel + " · энергия " + e.energy + "/5 · перетащи для перестановки"
 		}, [
-			K("span", gb, O(e.index + 1), 1),
-			K("span", _b, O(e.icon), 1),
-			K("span", vb, O(e.snakeLabel), 1),
-			K("span", yb, O(e.energy) + "/5", 1),
+			K("span", Cb, O(e.index + 1), 1),
+			K("span", wb, O(e.icon), 1),
+			K("span", Tb, O(e.snakeLabel), 1),
+			K("span", Eb, O(e.energy) + "/5", 1),
 			e.hasTransition ? (W(), G("span", {
 				key: 0,
 				class: "sba-snake-transition",
 				title: "Переход: " + e.transitionLabel,
 				"aria-hidden": "true"
-			}, "↝", 8, bb)) : Y("", !0)
-		], 8, hb))), 128))], 2))), 128))], 10, mb)), 64)), d.value.length < r.value.length ? (W(), G("p", xb, " … и ещё " + O(r.value.length - d.value.length) + " блоков ", 1)) : Y("", !0)], 64)) : (W(), G("p", Sb, "Добавь первый блок, и здесь появится схема композиции."))], 64)) : e.kind === "transitions" ? (W(), G(U, { key: 2 }, [s.value.length ? (W(!0), G(U, { key: 0 }, B(f.value, (e) => (W(), G("div", {
+			}, "↝", 8, Db)) : Y("", !0)
+		], 8, Sb))), 128))], 2))), 128))], 10, xb)), 64)), d.value.length < r.value.length ? (W(), G("p", Ob, " … и ещё " + O(r.value.length - d.value.length) + " блоков ", 1)) : Y("", !0)], 64)) : (W(), G("p", kb, "Добавь первый блок, и здесь появится схема композиции."))], 64)) : e.kind === "transitions" ? (W(), G(U, { key: 2 }, [s.value.length ? (W(!0), G(U, { key: 0 }, B(f.value, (e) => (W(), G("div", {
 			key: e.id,
 			class: D(["sba-transition-hub-row", { "sba-transition-hub-active": e.current.type !== "none" }]),
 			"data-sba-hub-from": e.id
 		}, [
-			K("div", wb, [K("span", Tb, O(e.index + 1) + " → " + O(e.index + 2), 1), K("span", Eb, [
+			K("div", jb, [K("span", Mb, O(e.index + 1) + " → " + O(e.index + 2), 1), K("span", Nb, [
 				J(O(e.from) + " ", 1),
 				n[10] ||= K("b", null, "→", -1),
 				J(" " + O(e.to), 1)
 			])]),
-			K("div", Db, [
+			K("div", Pb, [
 				K("label", null, [n[11] ||= J("Эффект ", -1), K("select", {
 					"data-sba-transition": "type",
 					"data-id": e.id,
@@ -7600,7 +7664,7 @@ var yy = ["data-sba-id", "data-sba-energy"], by = { class: "sba-block-head" }, x
 				}, [(W(!0), G(U, null, B(c.value, (e) => (W(), G("option", {
 					key: e.id,
 					value: e.id
-				}, O(e.name), 9, kb))), 128))], 8, Ob)]),
+				}, O(e.name), 9, Ib))), 128))], 8, Fb)]),
 				K("label", null, [n[12] ||= J("Длина ", -1), K("select", {
 					"data-sba-transition": "length",
 					"data-id": e.id,
@@ -7609,7 +7673,7 @@ var yy = ["data-sba-id", "data-sba-energy"], by = { class: "sba-block-head" }, x
 				}, [(W(!0), G(U, null, B(l.value, (e) => (W(), G("option", {
 					key: e.id,
 					value: e.id
-				}, O(e.name), 9, jb))), 128))], 8, Ab)]),
+				}, O(e.name), 9, Rb))), 128))], 8, Lb)]),
 				K("label", null, [n[13] ||= J("Сила ", -1), K("select", {
 					"data-sba-transition": "strength",
 					"data-id": e.id,
@@ -7618,19 +7682,19 @@ var yy = ["data-sba-id", "data-sba-energy"], by = { class: "sba-block-head" }, x
 				}, [(W(!0), G(U, null, B(u.value, (e) => (W(), G("option", {
 					key: e.id,
 					value: e.id
-				}, O(e.name), 9, Nb))), 128))], 8, Mb)])
+				}, O(e.name), 9, Bb))), 128))], 8, zb)])
 			]),
-			K("div", Pb, [K("button", {
+			K("div", Vb, [K("button", {
 				type: "button",
 				"data-sba-action": "transition-suggest",
 				"data-id": e.id,
 				title: "Совет: " + e.advice
-			}, "✧ Совет", 8, Fb), K("button", {
+			}, "✧ Совет", 8, Hb), K("button", {
 				type: "button",
 				"data-sba-action": "transition-hub-jump",
 				"data-id": e.id
-			}, "Подробнее ↓", 8, Ib)])
-		], 10, Cb))), 128)) : (W(), G("p", Lb, "Добавь второй блок, и здесь можно будет настроить переходы."))], 64)) : e.kind === "energy" ? (W(!0), G(U, { key: 3 }, B(r.value, (e) => (W(), G("div", {
+			}, "Подробнее ↓", 8, Ub)])
+		], 10, Ab))), 128)) : (W(), G("p", Wb, "Добавь второй блок, и здесь можно будет настроить переходы."))], 64)) : e.kind === "energy" ? (W(!0), G(U, { key: 3 }, B(r.value, (e) => (W(), G("div", {
 			key: e.id,
 			class: "sba-chart-step",
 			title: e.label + " · " + e.energy + "/5",
@@ -7638,21 +7702,21 @@ var yy = ["data-sba-id", "data-sba-energy"], by = { class: "sba-block-head" }, x
 				"--energy": e.energy,
 				"--bar-width": 100 / r.value.length + "%"
 			})
-		}, [K("div", zb, [K("i", { style: E({ "--level": e.energy }) }, null, 4)]), K("small", null, O(e.icon), 1)], 12, Rb))), 128)) : Y("", !0);
+		}, [K("div", Kb, [K("i", { style: E({ "--level": e.energy }) }, null, 4)]), K("small", null, O(e.icon), 1)], 12, Gb))), 128)) : Y("", !0);
 	}
-}, Vb = ["aria-expanded"], Hb = { id: "sba-picked-label" }, Ub = ["hidden"], Wb = { class: "sba-preset-search-row" }, Gb = ["value"], Kb = {
+}, Jb = ["aria-expanded"], Yb = { id: "sba-picked-label" }, Xb = ["hidden"], Zb = { class: "sba-preset-search-row" }, Qb = ["value"], $b = {
 	class: "sba-preset-filters",
 	role: "group",
 	"aria-label": "Тип вариантов"
-}, qb = ["data-filter", "aria-pressed"], Jb = {
+}, ex = ["data-filter", "aria-pressed"], tx = {
 	id: "sba-preset-results",
 	class: "sba-preset-results",
 	role: "listbox",
 	"aria-label": "Доступные шаблоны и жанры"
-}, Yb = { class: "sba-preset-group-title" }, Xb = { key: 0 }, Zb = ["aria-selected", "data-choice"], Qb = {
+}, nx = { class: "sba-preset-group-title" }, rx = { key: 0 }, ix = ["aria-selected", "data-choice"], ax = {
 	key: 0,
 	class: "sba-preset-no-results"
-}, $b = {
+}, ox = {
 	__name: "ArrangementPicker",
 	props: { api: {
 		type: Object,
@@ -7681,10 +7745,10 @@ var yy = ["data-sba-id", "data-sba-energy"], by = { class: "sba-block-head" }, x
 				"aria-haspopup": "dialog",
 				"aria-expanded": r.value.open,
 				"aria-controls": "sba-preset-menu"
-			}, [K("span", Hb, O(r.value.selected), 1), t[0] ||= K("span", {
+			}, [K("span", Yb, O(r.value.selected), 1), t[0] ||= K("span", {
 				class: "sba-preset-chevron",
 				"aria-hidden": "true"
-			}, "⌄", -1)], 8, Vb),
+			}, "⌄", -1)], 8, Jb),
 			K("div", {
 				id: "sba-preset-menu",
 				class: "sba-preset-menu",
@@ -7692,19 +7756,19 @@ var yy = ["data-sba-id", "data-sba-energy"], by = { class: "sba-block-head" }, x
 				"aria-label": "Поиск шаблона или жанра",
 				hidden: !r.value.open
 			}, [
-				K("div", Wb, [K("input", {
+				K("div", Zb, [K("input", {
 					type: "search",
 					id: "sba-preset-search",
 					autocomplete: "off",
 					value: r.value.query,
 					placeholder: "Найти жанр или шаблон...",
 					"aria-label": "Поиск жанра"
-				}, null, 8, Gb), t[1] ||= K("button", {
+				}, null, 8, Qb), t[1] ||= K("button", {
 					type: "button",
 					"data-sba-action": "menu-close",
 					"aria-label": "Закрыть меню"
 				}, "×", -1)]),
-				K("div", Kb, [(W(!0), G(U, null, B([
+				K("div", $b, [(W(!0), G(U, null, B([
 					{
 						id: "all",
 						title: "Все"
@@ -7723,32 +7787,32 @@ var yy = ["data-sba-id", "data-sba-energy"], by = { class: "sba-block-head" }, x
 					"data-sba-action": "menu-filter",
 					"data-filter": e.id,
 					"aria-pressed": r.value.filter === e.id
-				}, O(e.title), 9, qb))), 128))]),
-				K("div", Jb, [(W(!0), G(U, null, B(r.value.groups, (e) => (W(), G(U, { key: e.title }, [K("div", Yb, [J(O(e.title) + " ", 1), e.count === null ? Y("", !0) : (W(), G("small", Xb, O(e.count), 1))]), (W(!0), G(U, null, B(e.items, (e) => (W(), G("button", {
+				}, O(e.title), 9, ex))), 128))]),
+				K("div", tx, [(W(!0), G(U, null, B(r.value.groups, (e) => (W(), G(U, { key: e.title }, [K("div", nx, [J(O(e.title) + " ", 1), e.count === null ? Y("", !0) : (W(), G("small", rx, O(e.count), 1))]), (W(!0), G(U, null, B(e.items, (e) => (W(), G("button", {
 					key: e.key,
 					type: "button",
 					role: "option",
 					"aria-selected": e.key === r.value.selectedKey,
 					"data-sba-action": "menu-choose",
 					"data-choice": e.key
-				}, [K("span", null, O(e.title), 1), K("small", null, O(e.subtitle), 1)], 8, Zb))), 128))], 64))), 128)), r.value.groups.length ? Y("", !0) : (W(), G("p", Qb, " Ничего не найдено. Попробуй другое название или направление. "))])
-			], 8, Ub)
+				}, [K("span", null, O(e.title), 1), K("small", null, O(e.subtitle), 1)], 8, ix))), 128))], 64))), 128)), r.value.groups.length ? Y("", !0) : (W(), G("p", ax, " Ничего не найдено. Попробуй другое название или направление. "))])
+			], 8, Xb)
 		], 64));
 	}
-}, ex = {
+}, sx = {
 	class: "sba-preview-tabs",
 	role: "group",
 	"aria-label": "Тип результата"
-}, tx = ["aria-pressed"], nx = ["aria-pressed"], rx = ["value"], ix = {
+}, cx = ["aria-pressed"], lx = ["aria-pressed"], ux = ["value"], dx = {
 	class: "sba-preview-count",
 	id: "sba-preview-count"
-}, ax = {
+}, fx = {
 	id: "sba-transfer-confirm",
 	"aria-live": "polite"
-}, ox = {
+}, px = {
 	key: 0,
 	class: "sba-transfer-preview"
-}, sx = ["hidden"], cx = [
+}, mx = ["hidden"], hx = [
 	["#sba-cards", "cards"],
 	["#sba-snake-track", "snake"],
 	["#sba-transition-hub-list", "transitions"],
@@ -7756,7 +7820,7 @@ var yy = ["data-sba-id", "data-sba-energy"], by = { class: "sba-block-head" }, x
 	[
 		".sba-preset-picker",
 		"picker",
-		$b
+		ox
 	],
 	[
 		".sba-result",
@@ -7785,25 +7849,25 @@ var yy = ["data-sba-id", "data-sba-energy"], by = { class: "sba-block-head" }, x
 						K("h3", null, "Результат для Suno"),
 						K("p", null, "Lyrics — теги по секциям; Style — короткое описание динамики.")
 					], -1),
-					K("div", ex, [K("button", {
+					K("div", sx, [K("button", {
 						type: "button",
 						"data-sba-action": "tab",
 						"data-tab": "lyrics",
 						"aria-pressed": r.value.tab === "lyrics"
-					}, "Теги Lyrics", 8, tx), K("button", {
+					}, "Теги Lyrics", 8, cx), K("button", {
 						type: "button",
 						"data-sba-action": "tab",
 						"data-tab": "style",
 						"aria-pressed": r.value.tab === "style"
-					}, "Style", 8, nx)]),
+					}, "Style", 8, lx)]),
 					K("textarea", {
 						id: "sba-preview",
 						readonly: "",
 						spellcheck: "false",
 						"aria-label": "Готовые теги структуры песни",
 						value: r.value.text
-					}, null, 8, rx),
-					K("div", ix, O(r.value.count), 1),
+					}, null, 8, ux),
+					K("div", dx, O(r.value.count), 1),
 					t[4] ||= K("div", { class: "sba-result-actions" }, [K("button", {
 						type: "button",
 						class: "sba-btn sba-copy-btn",
@@ -7813,7 +7877,7 @@ var yy = ["data-sba-id", "data-sba-energy"], by = { class: "sba-block-head" }, x
 						class: "sba-btn sba-transfer-btn",
 						"data-sba-action": "prepare-transfer"
 					}, " Перенести стиль в Studio ")], -1),
-					K("div", ax, [r.value.transfer ? (W(), G("div", ox, [
+					K("div", fx, [r.value.transfer ? (W(), G("div", px, [
 						t[0] ||= K("strong", null, "Предпросмотр переноса в Style", -1),
 						t[1] ||= K("p", null, "Добавим описание аранжировки в дополнительные инструкции Suno Studio, не удаляя твои записи.", -1),
 						K("code", null, O(r.value.transfer.candidate), 1),
@@ -7832,7 +7896,7 @@ var yy = ["data-sba-id", "data-sba-energy"], by = { class: "sba-block-head" }, x
 						role: "status",
 						"aria-live": "polite",
 						hidden: !r.value.message
-					}, O(r.value.message), 9, sx),
+					}, O(r.value.message), 9, mx),
 					t[5] ||= K("div", { class: "sba-help" }, [
 						K("strong", null, "Как применять"),
 						K("p", null, [
@@ -7849,15 +7913,15 @@ var yy = ["data-sba-id", "data-sba-energy"], by = { class: "sba-block-head" }, x
 		}
 	]
 ];
-function lx({ mountVueFeature: e }) {
+function gx({ mountVueFeature: e }) {
 	let t = window.SUNOBOOM_LEGACY_ARRANGER, n = document.getElementById("app");
 	if (!n || !t || typeof t.snapshot != "function") return () => {};
 	let r = /* @__PURE__ */ new Map(), i = !1;
 	function a() {
-		if (!i) for (let [i, a, o = Bb] of cx) {
+		if (!i) for (let [i, a, o = qb] of hx) {
 			let s = n.querySelector(i), c = r.get(a);
 			if (c?.target === s || (c && (c.unmount(), r.delete(a)), !s || !t.snapshot())) continue;
-			let l = e(s, o, o === Bb ? {
+			let l = e(s, o, o === qb ? {
 				api: t,
 				kind: a
 			} : { api: t });
@@ -7877,19 +7941,19 @@ function lx({ mountVueFeature: e }) {
 	};
 }
 // src/vue/poetry/PoetryAnalysis.vue
-var ux = {
+var _x = {
 	key: 0,
 	class: "sb-poetry-empty"
-}, dx = { class: "sb-poetry-stats" }, fx = { class: "sb-poetry-subline" }, px = { class: "sb-poetry-sections" }, mx = { class: "sb-poetry-stanzas" }, hx = { class: "sb-poetry-stanza-name" }, gx = { class: "sb-poetry-stanza-data" }, _x = { class: "sb-poetry-lines" }, vx = { class: "sb-poetry-line-main" }, yx = { class: "sb-poetry-index" }, bx = { class: "sb-poetry-verse" }, xx = {
+}, vx = { class: "sb-poetry-stats" }, yx = { class: "sb-poetry-subline" }, bx = { class: "sb-poetry-sections" }, xx = { class: "sb-poetry-stanzas" }, Sx = { class: "sb-poetry-stanza-name" }, Cx = { class: "sb-poetry-stanza-data" }, wx = { class: "sb-poetry-lines" }, Tx = { class: "sb-poetry-line-main" }, Ex = { class: "sb-poetry-index" }, Dx = { class: "sb-poetry-verse" }, Ox = {
 	class: "sb-poetry-syllable",
 	title: "Оценка слогов"
-}, Sx = ["title"], Cx = {
+}, kx = ["title"], Ax = {
 	key: 0,
 	class: "sb-poetry-footnote"
-}, wx = {
+}, jx = {
 	key: 1,
 	class: "sb-poetry-words"
-}, Tx = { class: "sb-poetry-tips" }, Ex = {
+}, Mx = { class: "sb-poetry-tips" }, Nx = {
 	__name: "PoetryAnalysis",
 	props: { api: {
 		type: Object,
@@ -7905,44 +7969,44 @@ var ux = {
 			e && (n.value = e);
 		}
 		return z(() => window.addEventListener("sunoboom:poetry-updated", i)), mr(() => window.removeEventListener("sunoboom:poetry-updated", i)), (e, t) => r.value.analyzed ? (W(), G(U, { key: 1 }, [
-			K("div", dx, [(W(!0), G(U, null, B(r.value.stats, (e) => (W(), G("div", {
+			K("div", vx, [(W(!0), G(U, null, B(r.value.stats, (e) => (W(), G("div", {
 				key: e.label,
 				class: "sb-poetry-stat"
 			}, [K("strong", null, O(e.value), 1), K("span", null, O(e.label), 1)]))), 128))]),
-			K("p", fx, " Диапазон: " + O(r.value.lower) + "–" + O(r.value.upper) + " слогов на строку · меток ударения: " + O(r.value.markedStress) + ". ", 1),
-			K("div", px, [t[1] ||= K("h4", null, "Строфы и предполагаемая рифмовка", -1), K("div", mx, [(W(!0), G(U, null, B(r.value.stanzas, (e) => (W(), G("div", {
+			K("p", yx, " Диапазон: " + O(r.value.lower) + "–" + O(r.value.upper) + " слогов на строку · меток ударения: " + O(r.value.markedStress) + ". ", 1),
+			K("div", bx, [t[1] ||= K("h4", null, "Строфы и предполагаемая рифмовка", -1), K("div", xx, [(W(!0), G(U, null, B(r.value.stanzas, (e) => (W(), G("div", {
 				key: e.id,
 				class: "sb-poetry-stanza"
-			}, [K("div", hx, O(e.section) + " · строфа " + O(e.position), 1), K("div", gx, [
+			}, [K("div", Sx, O(e.section) + " · строфа " + O(e.position), 1), K("div", Cx, [
 				J(" Схема " + O(e.scheme) + " ", 1),
 				t[0] ||= K("span", null, "·", -1),
 				J(" разброс " + O(e.spread) + " сл. ", 1)
 			])]))), 128))])]),
 			t[4] ||= K("div", { class: "sb-poetry-lines-head" }, [K("strong", null, "Построчный анализ"), K("span", null, "Слоги · рифма")], -1),
-			K("div", _x, [(W(!0), G(U, null, B(r.value.lines, (e) => (W(), G("div", {
+			K("div", wx, [(W(!0), G(U, null, B(r.value.lines, (e) => (W(), G("div", {
 				key: e.number,
 				class: "sb-poetry-line"
 			}, [
-				K("div", vx, [K("span", yx, O(e.number) + ".", 1), K("span", bx, O(e.text), 1)]),
-				K("div", xx, [K("span", null, O(e.syllables) + " сл.", 1), K("i", { style: E({ width: e.width + "%" }) }, null, 4)]),
+				K("div", Tx, [K("span", Ex, O(e.number) + ".", 1), K("span", Dx, O(e.text), 1)]),
+				K("div", Ox, [K("span", null, O(e.syllables) + " сл.", 1), K("i", { style: E({ width: e.width + "%" }) }, null, 4)]),
 				K("span", {
 					class: D(["sb-poetry-letter", { "sb-poetry-letter-match": e.rhyme }]),
 					title: e.repeat ? "Совпадение последнего слова" : e.rhyme ? "Предполагаемая рифма" : "Метка окончания"
-				}, O(e.mark), 11, Sx)
+				}, O(e.mark), 11, kx)
 			]))), 128))]),
-			r.value.rowCount > 120 ? (W(), G("p", Cx, " Показаны первые 120 строк из " + O(r.value.rowCount) + "; статистика рассчитана по всему тексту. ", 1)) : Y("", !0),
-			r.value.frequent.length ? (W(), G("div", wx, [t[2] ||= K("strong", null, "Повторяющиеся слова:", -1), (W(!0), G(U, null, B(r.value.frequent, (e) => (W(), G("span", { key: e.word }, O(e.word) + " · " + O(e.count), 1))), 128))])) : Y("", !0),
-			K("div", Tx, [t[3] ||= K("h4", null, "На что обратить внимание", -1), K("ul", null, [(W(!0), G(U, null, B(r.value.suggestions, (e, t) => (W(), G("li", { key: t }, O(e), 1))), 128))])]),
+			r.value.rowCount > 120 ? (W(), G("p", Ax, " Показаны первые 120 строк из " + O(r.value.rowCount) + "; статистика рассчитана по всему тексту. ", 1)) : Y("", !0),
+			r.value.frequent.length ? (W(), G("div", jx, [t[2] ||= K("strong", null, "Повторяющиеся слова:", -1), (W(!0), G(U, null, B(r.value.frequent, (e) => (W(), G("span", { key: e.word }, O(e.word) + " · " + O(e.count), 1))), 128))])) : Y("", !0),
+			K("div", Mx, [t[3] ||= K("h4", null, "На что обратить внимание", -1), K("ul", null, [(W(!0), G(U, null, B(r.value.suggestions, (e, t) => (W(), G("li", { key: t }, O(e), 1))), 128))])]),
 			t[5] ||= K("p", { class: "sb-poetry-footnote" }, " Анализ ориентировочный: счёт гласных не равен точной метрической скансии, совпадение окончаний не гарантирует рифму, а вокальная удобность зависит от темпа и мелодии. Исходный текст автоматически не изменяется. ", -1)
-		], 64)) : (W(), G("p", ux, O(r.value.message), 1));
+		], 64)) : (W(), G("p", _x, O(r.value.message), 1));
 	}
-}, Dx = {
+}, Px = {
 	key: 0,
 	class: "sb-stress-ambig-clear"
-}, Ox = { class: "sb-stress-ambig-heading" }, kx = { class: "sb-stress-ambig-variants" }, Ax = ["data-word", "data-variant"], jx = {
+}, Fx = { class: "sb-stress-ambig-heading" }, Ix = { class: "sb-stress-ambig-variants" }, Lx = ["data-word", "data-variant"], Rx = {
 	key: 0,
 	class: "sb-poetry-small"
-}, Mx = {
+}, zx = {
 	__name: "PoetryAmbiguities",
 	props: { api: {
 		type: Object,
@@ -7958,24 +8022,24 @@ var ux = {
 			n.value = t.api.ambiguities();
 		}
 		return z(() => window.addEventListener("sunoboom:poetry-stress-updated", i)), mr(() => window.removeEventListener("sunoboom:poetry-stress-updated", i)), (e, t) => r.value.count ? (W(), G(U, { key: 1 }, [
-			K("div", Ox, " 🔴 Требуют проверки: " + O(r.value.count) + " вхождений (" + O(r.value.total) + " разных слов). Нажми нужный вариант для каждого вхождения. ", 1),
+			K("div", Fx, " 🔴 Требуют проверки: " + O(r.value.count) + " вхождений (" + O(r.value.total) + " разных слов). Нажми нужный вариант для каждого вхождения. ", 1),
 			(W(!0), G(U, null, B(r.value.words, (e) => (W(), G("div", {
 				key: e.key,
 				class: "sb-stress-ambig-choice"
-			}, [K("strong", null, O(e.key) + O(e.count > 1 ? " ×" + e.count : ""), 1), K("div", kx, [(W(!0), G(U, null, B(e.variants, (t) => (W(), G("button", {
+			}, [K("strong", null, O(e.key) + O(e.count > 1 ? " ×" + e.count : ""), 1), K("div", Ix, [(W(!0), G(U, null, B(e.variants, (t) => (W(), G("button", {
 				key: t,
 				type: "button",
 				"data-action": "sb-poetry-stress-choice",
 				"data-word": e.key,
 				"data-variant": t,
 				title: "Указать ударение для следующего вхождения"
-			}, O(t), 9, Ax))), 128))])]))), 128)),
-			r.value.total > 30 ? (W(), G("p", jx, " Показаны первые 30 разных слов; другие можно исправить вручную. ")) : Y("", !0)
-		], 64)) : (W(), G("p", Dx, " ✓ Все найденные неоднозначные слова проверены. "));
+			}, O(t), 9, Lx))), 128))])]))), 128)),
+			r.value.total > 30 ? (W(), G("p", Rx, " Показаны первые 30 разных слов; другие можно исправить вручную. ")) : Y("", !0)
+		], 64)) : (W(), G("p", Px, " ✓ Все найденные неоднозначные слова проверены. "));
 	}
 };
 // src/vue/poetry/legacyPoetryBridge.js
-function Nx({ mountVueFeature: e }) {
+function Bx({ mountVueFeature: e }) {
 	let t = window.SUNOBOOM_LEGACY_POETRY, n = document.getElementById("app");
 	if (!t || !n) return () => {};
 	let r = !1, i = /* @__PURE__ */ new Map();
@@ -7984,11 +8048,11 @@ function Nx({ mountVueFeature: e }) {
 		let a = [[
 			"analysis",
 			"#sb-poetry-result",
-			Ex
+			Nx
 		], [
 			"ambiguities",
 			"#sb-poetry-ambiguous-choices",
-			Mx
+			zx
 		]];
 		for (let [r, o, s] of a) {
 			let a = n.querySelector(o), c = i.get(r);
@@ -8008,34 +8072,34 @@ function Nx({ mountVueFeature: e }) {
 	};
 }
 // src/vue/poetry/PerformanceTags.vue
-var Px = { class: "sb-vt-field" }, Fx = ["value"], Ix = ["value"], Lx = {
+var Vx = { class: "sb-vt-field" }, Hx = ["value"], Ux = ["value"], Wx = {
 	class: "sb-vt-hint",
 	id: "sb-vt-mode-hint"
-}, Rx = { class: "sb-vt-grid" }, zx = { class: "sb-vt-field" }, Bx = ["value"], Vx = ["value"], Hx = { class: "sb-vt-field" }, Ux = ["value"], Wx = ["value"], Gx = {
+}, Gx = { class: "sb-vt-grid" }, Kx = { class: "sb-vt-field" }, qx = ["value"], Jx = ["value"], Yx = { class: "sb-vt-field" }, Xx = ["value"], Zx = ["value"], Qx = {
 	key: 0,
 	class: "sb-vt-field"
-}, Kx = ["value"], qx = ["value"], Jx = { class: "sb-vt-intensity" }, Yx = { class: "sb-vt-between" }, Xx = { id: "sb-vt-intensity-label" }, Zx = ["value"], Qx = { class: "sb-vt-options" }, $x = ["data-vt-pref", "checked"], eS = {
+}, $x = ["value"], eS = ["value"], tS = { class: "sb-vt-intensity" }, nS = { class: "sb-vt-between" }, rS = { id: "sb-vt-intensity-label" }, iS = ["value"], aS = { class: "sb-vt-options" }, oS = ["data-vt-pref", "checked"], sS = {
 	key: 1,
 	class: "sb-vt-consent",
 	id: "sb-vt-consent-row"
-}, tS = { class: "sb-vt-buttons" }, nS = ["disabled"], rS = {
+}, cS = { class: "sb-vt-buttons" }, lS = ["disabled"], uS = {
 	id: "sb-vt-result",
 	"aria-live": "polite"
-}, iS = {
+}, dS = {
 	key: 0,
 	class: "sb-vt-draft"
-}, aS = { class: "sb-vt-draft-head" }, oS = { class: "sb-vt-method" }, sS = { class: "sb-vt-section-list" }, cS = { class: "sb-vt-section-heading" }, lS = { class: "sb-vt-section-controls" }, uS = [
+}, fS = { class: "sb-vt-draft-head" }, pS = { class: "sb-vt-method" }, mS = { class: "sb-vt-section-list" }, hS = { class: "sb-vt-section-heading" }, gS = { class: "sb-vt-section-controls" }, _S = [
 	"data-vt-preset",
 	"value",
 	"aria-label"
-], dS = ["value"], fS = [
+], vS = ["value"], yS = [
 	"data-vt-cue",
 	"value",
 	"aria-label"
-], pS = { class: "sb-vt-field" }, mS = ["value"], hS = {
+], bS = { class: "sb-vt-field" }, xS = ["value"], SS = {
 	class: "sb-vt-small",
 	id: "sb-vt-preview-state"
-}, gS = {
+}, CS = {
 	__name: "PerformanceTags",
 	props: { api: {
 		type: Object,
@@ -8067,40 +8131,40 @@ var Px = { class: "sb-vt-field" }, Fx = ["value"], Ix = ["value"], Lx = {
 		}
 		return z(() => window.addEventListener("sunoboom:tags-updated", l)), mr(() => window.removeEventListener("sunoboom:tags-updated", l)), (e, t) => (W(), G(U, null, [
 			t[12] ||= K("div", { class: "sb-vt-header" }, [K("span", { class: "sb-vt-symbol" }, "🎭"), K("div", null, [K("h3", null, "Генератор тегов исполнения"), K("p", null, "Вокальная драматургия по секциям. Без изменения слов песни; результат можно проверить и применить только вручную.")])], -1),
-			K("div", Px, [t[0] ||= K("label", { for: "sb-vt-mode" }, "Способ генерации", -1), K("select", {
+			K("div", Vx, [t[0] ||= K("label", { for: "sb-vt-mode" }, "Способ генерации", -1), K("select", {
 				id: "sb-vt-mode",
 				"data-vt-pref": "mode",
 				value: r.value.mode
 			}, [(W(), G(U, null, B(a, ([e, t]) => K("option", {
 				key: e,
 				value: e
-			}, O(t), 9, Ix)), 64))], 8, Fx)]),
-			K("p", Lx, O(n.value.modeHint), 1),
-			K("div", Rx, [K("div", zx, [t[1] ||= K("label", { for: "sb-vt-source" }, "Источник текста", -1), K("select", {
+			}, O(t), 9, Ux)), 64))], 8, Hx)]),
+			K("p", Wx, O(n.value.modeHint), 1),
+			K("div", Gx, [K("div", Kx, [t[1] ||= K("label", { for: "sb-vt-source" }, "Источник текста", -1), K("select", {
 				id: "sb-vt-source",
 				"data-vt-pref": "source",
 				value: r.value.source
 			}, [(W(), G(U, null, B(s, ([e, t]) => K("option", {
 				key: e,
 				value: e
-			}, O(t), 9, Vx)), 64))], 8, Bx)]), K("div", Hx, [t[2] ||= K("label", { for: "sb-vt-density" }, "Детализация метатегов", -1), K("select", {
+			}, O(t), 9, Jx)), 64))], 8, qx)]), K("div", Yx, [t[2] ||= K("label", { for: "sb-vt-density" }, "Детализация метатегов", -1), K("select", {
 				id: "sb-vt-density",
 				"data-vt-pref": "density",
 				value: r.value.density
 			}, [(W(), G(U, null, B(o, ([e, t]) => K("option", {
 				key: e,
 				value: e
-			}, O(t), 9, Wx)), 64))], 8, Ux)])]),
-			n.value.artists?.length ? (W(), G("div", Gx, [t[4] ||= K("label", { for: "sb-vt-artist" }, "Учесть «ДНК артиста» (необязательно)", -1), K("select", {
+			}, O(t), 9, Zx)), 64))], 8, Xx)])]),
+			n.value.artists?.length ? (W(), G("div", Qx, [t[4] ||= K("label", { for: "sb-vt-artist" }, "Учесть «ДНК артиста» (необязательно)", -1), K("select", {
 				id: "sb-vt-artist",
 				"data-vt-pref": "artistId",
 				value: r.value.artistId
 			}, [t[3] ||= K("option", { value: "" }, "Без привязки к артисту", -1), (W(!0), G(U, null, B(n.value.artists, (e) => (W(), G("option", {
 				key: e.id,
 				value: e.id
-			}, O(e.name), 9, qx))), 128))], 8, Kx)])) : Y("", !0),
-			K("div", Jx, [
-				K("div", Yx, [t[5] ||= K("label", { for: "sb-vt-intensity" }, "Максимальная интенсивность исполнения", -1), K("strong", Xx, O(r.value.intensity) + " / 5", 1)]),
+			}, O(e.name), 9, eS))), 128))], 8, $x)])) : Y("", !0),
+			K("div", tS, [
+				K("div", nS, [t[5] ||= K("label", { for: "sb-vt-intensity" }, "Максимальная интенсивность исполнения", -1), K("strong", rS, O(r.value.intensity) + " / 5", 1)]),
 				K("input", {
 					type: "range",
 					id: "sb-vt-intensity",
@@ -8109,65 +8173,65 @@ var Px = { class: "sb-vt-field" }, Fx = ["value"], Ix = ["value"], Lx = {
 					step: "1",
 					value: r.value.intensity,
 					"data-vt-pref": "intensity"
-				}, null, 8, Zx),
+				}, null, 8, iS),
 				t[6] ||= K("div", { class: "sb-vt-between sb-vt-scale" }, [K("span", null, "Сдержанная"), K("span", null, "Экспрессивная")], -1)
 			]),
-			K("div", Qx, [(W(), G(U, null, B(c, ([e, t]) => K("label", { key: e }, [K("input", {
+			K("div", aS, [(W(), G(U, null, B(c, ([e, t]) => K("label", { key: e }, [K("input", {
 				type: "checkbox",
 				"data-vt-pref": e,
 				checked: r.value[e]
-			}, null, 8, $x), J(" " + O(t), 1)])), 64))]),
-			n.value.hasEndpoint ? (W(), G("label", eS, [...t[7] ||= [K("input", {
+			}, null, 8, oS), J(" " + O(t), 1)])), 64))]),
+			n.value.hasEndpoint ? (W(), G("label", sS, [...t[7] ||= [K("input", {
 				type: "checkbox",
 				id: "sb-vt-consent"
 			}, null, -1), J(" Разрешаю отправить выбранный текст песни на защищённый сервер для анализа Gemini. ", -1)]])) : Y("", !0),
-			K("div", tS, [K("button", {
+			K("div", cS, [K("button", {
 				type: "button",
 				class: "btn primary",
 				"data-action": "vt-generate",
 				disabled: n.value.busy
-			}, "✨ Создать предпросмотр", 8, nS), t[8] ||= K("span", { class: "sb-vt-note" }, "Никакого автоматического применения к Lyrics.", -1)]),
+			}, "✨ Создать предпросмотр", 8, lS), t[8] ||= K("span", { class: "sb-vt-note" }, "Никакого автоматического применения к Lyrics.", -1)]),
 			K("div", {
 				id: "sb-vt-notice",
 				class: D(["sb-vt-notice", n.value.notice?.kind]),
 				role: "status",
 				"aria-live": "polite"
 			}, O(n.value.notice?.text), 3),
-			K("div", rS, [i.value ? (W(), G("div", iS, [
-				K("div", aS, [K("h4", null, "Предпросмотр · " + O(i.value.sections.length) + " секций", 1), K("span", oS, O(i.value.method), 1)]),
+			K("div", uS, [i.value ? (W(), G("div", dS, [
+				K("div", fS, [K("h4", null, "Предпросмотр · " + O(i.value.sections.length) + " секций", 1), K("span", pS, O(i.value.method), 1)]),
 				t[10] ||= K("p", { class: "sb-vt-small" }, " Проверь каждую секцию. Теги можно выбрать из списка или переписать вручную. Оригинальные строки песни остаются неизменными. ", -1),
-				K("div", sS, [(W(!0), G(U, null, B(i.value.sections, (e, t) => (W(), G("div", {
+				K("div", mS, [(W(!0), G(U, null, B(i.value.sections, (e, t) => (W(), G("div", {
 					key: e.id,
 					class: "sb-vt-section"
-				}, [K("div", cS, [K("strong", null, O(e.label), 1), K("span", null, O(t + 1) + "/" + O(i.value.sections.length), 1)]), K("div", lS, [K("select", {
+				}, [K("div", hS, [K("strong", null, O(e.label), 1), K("span", null, O(t + 1) + "/" + O(i.value.sections.length), 1)]), K("div", gS, [K("select", {
 					"data-vt-preset": t,
 					value: i.value.tags[t],
 					"aria-label": "Готовые теги для " + e.label
 				}, [(W(!0), G(U, null, B(n.value.presets, ([e, t]) => (W(), G("option", {
 					key: e,
 					value: e
-				}, O(t), 9, dS))), 128))], 8, uS), K("input", {
+				}, O(t), 9, vS))), 128))], 8, _S), K("input", {
 					"data-vt-cue": t,
 					value: i.value.tags[t],
 					maxlength: "165",
 					placeholder: "Например: Warm Emotional Vocals",
 					"aria-label": "Тег исполнения " + e.label
-				}, null, 8, fS)])]))), 128))]),
-				K("div", pS, [t[9] ||= K("label", { for: "sb-vt-preview" }, " Готовый Lyrics — разрешено редактировать только инструкции, не слова песни ", -1), K("textarea", {
+				}, null, 8, yS)])]))), 128))]),
+				K("div", bS, [t[9] ||= K("label", { for: "sb-vt-preview" }, " Готовый Lyrics — разрешено редактировать только инструкции, не слова песни ", -1), K("textarea", {
 					id: "sb-vt-preview",
 					spellcheck: "false",
 					rows: "13",
 					maxlength: "25000",
 					value: i.value.preview
-				}, null, 8, mS)]),
-				K("p", hS, O(n.value.previewState), 1),
+				}, null, 8, xS)]),
+				K("p", SS, O(n.value.previewState), 1),
 				t[11] ||= ea("<div class=\"sb-vt-draft-actions\"><button type=\"button\" class=\"btn primary\" data-action=\"vt-apply\"> ✓ Применить к Lyrics </button><button type=\"button\" class=\"btn ghost\" data-action=\"vt-copy\"> Копировать предпросмотр </button><button type=\"button\" class=\"btn ghost\" data-action=\"vt-refresh\"> Обновить предпросмотр </button><button type=\"button\" class=\"btn ghost\" data-action=\"vt-cancel\"> Отменить </button></div>", 1)
 			])) : Y("", !0)])
 		], 64));
 	}
 };
 // src/vue/poetry/legacyTagsBridge.js
-function _S({ mountVueFeature: e }) {
+function wS({ mountVueFeature: e }) {
 	let t = window.SUNOBOOM_LEGACY_TAGS, n = document.getElementById("app");
 	if (!t || !n || typeof t.snapshot != "function") return () => {};
 	let r = null, i = !1;
@@ -8175,7 +8239,7 @@ function _S({ mountVueFeature: e }) {
 		if (i) return;
 		let a = n.querySelector("#sb-vt-workbench");
 		if (r?.target === a || (r &&= (r.unmount(), null), !a || !t.snapshot())) return;
-		let o = e(a, gS, { api: t });
+		let o = e(a, CS, { api: t });
 		o && (r = {
 			target: a,
 			unmount: o
@@ -8187,111 +8251,114 @@ function _S({ mountVueFeature: e }) {
 	};
 }
 // src/vue/entry.js
-var vS = Rm(), yS = /* @__PURE__ */ new WeakMap();
-function bS(e) {
+var TS = Gm(), ES = /* @__PURE__ */ new WeakMap();
+function DS(e) {
 	return typeof document > "u" ? null : typeof e == "string" ? document.querySelector(e) : e;
 }
 function $(e, t, n = {}) {
-	let r = bS(e);
+	let r = DS(e);
 	if (!r || r.nodeType !== 1 || !t) return null;
-	let i = yS.get(r);
+	let i = ES.get(r);
 	i && i.unmount();
-	let a = r.innerHTML, o = Lo(Bm, {
+	let a = r.innerHTML, o = Lo(qm, {
 		component: t,
 		componentProps: n
 	});
-	o.use(vS);
+	o.use(TS);
 	try {
 		o.mount(r);
 	} catch (e) {
 		return r.innerHTML = a, console.warn("[SUNOBOOM] Vue mount failed; legacy navigation retained.", e), null;
 	}
-	return yS.set(r, o), () => {
-		yS.get(r) === o && (o.unmount(), yS.delete(r));
+	return ES.set(r, o), () => {
+		ES.get(r) === o && (o.unmount(), ES.delete(r));
 	};
 }
-function xS(e) {
-	let t = bS(e);
+function OS(e) {
+	let t = DS(e);
 	if (!t) return;
-	let n = yS.get(t);
-	n && (n.unmount(), yS.delete(t));
-}
-function SS() {
-	return Ym({
-		mountVueFeature: $,
-		unmountVueFeature: xS
-	});
-}
-function CS() {
-	return Ph({ mountVueFeature: $ });
-}
-function wS() {
-	return d_({ mountVueFeature: $ });
-}
-function TS() {
-	return $_({ mountVueFeature: $ });
-}
-function ES() {
-	return Kv({ mountVueFeature: $ });
-}
-function DS() {
-	return vy({ mountVueFeature: $ });
-}
-function OS() {
-	return lx({ mountVueFeature: $ });
+	let n = ES.get(t);
+	n && (n.unmount(), ES.delete(t));
 }
 function kS() {
-	return Nx({ mountVueFeature: $ });
+	return nh({
+		mountVueFeature: $,
+		unmountVueFeature: OS
+	});
 }
 function AS() {
-	return _S({ mountVueFeature: $ });
+	return Vh({ mountVueFeature: $ });
 }
 function jS() {
-	return Sm({ mountVueFeature: $ });
+	return v_({ mountVueFeature: $ });
 }
 function MS() {
-	return es({ mountVueFeature: $ });
+	return ov({ mountVueFeature: $ });
 }
 function NS() {
-	return xs({ mountVueFeature: $ });
+	return $v({ mountVueFeature: $ });
 }
 function PS() {
-	return ms({ mountVueFeature: $ });
+	return Ty({ mountVueFeature: $ });
 }
 function FS() {
-	return lc({ mountVueFeature: $ });
+	return gx({ mountVueFeature: $ });
 }
 function IS() {
-	return Sc({ mountVueFeature: $ });
+	return Bx({ mountVueFeature: $ });
 }
 function LS() {
-	return _l({ mountVueFeature: $ });
+	return wS({ mountVueFeature: $ });
 }
 function RS() {
-	return $l({ mountVueFeature: $ });
+	return km({ mountVueFeature: $ });
 }
 function zS() {
-	return ou({ mountVueFeature: $ });
+	return es({ mountVueFeature: $ });
 }
 function BS() {
-	return Mu({ mountVueFeature: $ });
+	return xs({ mountVueFeature: $ });
 }
 function VS() {
-	return od({ mountVueFeature: $ });
+	return ms({ mountVueFeature: $ });
 }
 function HS() {
-	return Od({ mountVueFeature: $ });
+	return lc({ mountVueFeature: $ });
 }
 function US() {
-	return mf({ mountVueFeature: $ });
+	return Sc({ mountVueFeature: $ });
 }
 function WS() {
-	return cp({ mountVueFeature: $ });
+	return _l({ mountVueFeature: $ });
 }
 function GS() {
-	return hp({ mountVueFeature: $ });
+	return $l({ mountVueFeature: $ });
 }
 function KS() {
+	return ou({ mountVueFeature: $ });
+}
+function qS() {
+	return Mu({ mountVueFeature: $ });
+}
+function JS() {
+	return od({ mountVueFeature: $ });
+}
+function YS() {
+	return Od({ mountVueFeature: $ });
+}
+function XS() {
+	return mf({ mountVueFeature: $ });
+}
+function ZS() {
+	return cp({ mountVueFeature: $ });
+}
+function QS() {
+	return hp({ mountVueFeature: $ });
+}
+function $S() {
 	return em({ mountVueFeature: $ });
 }
-export { $ as mountVueFeature, CS as startLegacyAcademy, HS as startLegacyAccountSettings, OS as startLegacyArranger, BS as startLegacyArtistDNA, VS as startLegacyArtistDNAEditor, zS as startLegacyArtistManager, DS as startLegacyAuditor, wS as startLegacyGenreDetail, MS as startLegacyIdeaCollections, jS as startLegacyIdeaEditor, FS as startLegacyLibrary, ES as startLegacyMixer, SS as startLegacyNavigation, WS as startLegacyPlayerAB, US as startLegacyPlayerLab, kS as startLegacyPoetry, KS as startLegacyProducerSongDetail, GS as startLegacyProducerSongList, PS as startLegacyPromptCollection, NS as startLegacyPromptEditor, IS as startLegacySongCards, LS as startLegacySongDetail, RS as startLegacySongEditor, TS as startLegacyStudio, AS as startLegacyTags, xS as unmountVueFeature };
+function eC() {
+	return sm({ mountVueFeature: $ });
+}
+export { $ as mountVueFeature, AS as startLegacyAcademy, YS as startLegacyAccountSettings, FS as startLegacyArranger, qS as startLegacyArtistDNA, JS as startLegacyArtistDNAEditor, KS as startLegacyArtistManager, PS as startLegacyAuditor, jS as startLegacyGenreDetail, zS as startLegacyIdeaCollections, RS as startLegacyIdeaEditor, HS as startLegacyLibrary, NS as startLegacyMixer, kS as startLegacyNavigation, ZS as startLegacyPlayerAB, XS as startLegacyPlayerLab, IS as startLegacyPoetry, $S as startLegacyProducerSongDetail, QS as startLegacyProducerSongList, VS as startLegacyPromptCollection, BS as startLegacyPromptEditor, US as startLegacySongCards, WS as startLegacySongDetail, GS as startLegacySongEditor, MS as startLegacyStudio, LS as startLegacyTags, eC as startLegacyTrackPassportList, OS as unmountVueFeature };
