@@ -192,6 +192,7 @@ export function legacyRouterSnapshot() {
     canGoForward: historyPosition >= 0 && historyPosition < historyEntries.length - 1,
     historyDepth: historyEntries.length,
     historyPosition,
+    previousPath: historyPosition > 0 ? historyEntries[historyPosition - 1] : null,
     // Only tiny validated context, no saved songs, editor data or audio.
     context: historyContexts[historyPosition] || null
   });
