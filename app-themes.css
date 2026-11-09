@@ -539,3 +539,61 @@ html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"
  border-color:var(--sb-theme-accent-border)!important;background:var(--panel3)!important;
 }
 /* Relation colors, svg paths, and node-family accents intentionally remain distinct. */
+
+
+/* v0.148 — consistent, theme-specific layered gradients throughout SUNOBOOM.
+   Color themes only; the original dark and light designs remain untouched. */
+html[data-sb-theme="ocean"]{
+ --sb-gradient-hero:radial-gradient(ellipse at 88% 12%,#137f9270,transparent 57%),linear-gradient(125deg,#12344f,#12536a 54%,#193c65);
+ --sb-gradient-card:linear-gradient(135deg,#173e54,#123248 57%,#16485c);
+ --sb-gradient-raised:linear-gradient(125deg,#1a5367,#173a53);
+ --sb-gradient-action:linear-gradient(115deg,#188b9b,#2871bb);
+}
+html[data-sb-theme="forest"]{
+ --sb-gradient-hero:radial-gradient(ellipse at 88% 12%,#6b985050,transparent 57%),linear-gradient(125deg,#1b3b31,#245b43 56%,#344e32);
+ --sb-gradient-card:linear-gradient(135deg,#244b3a,#19392e 57%,#305441);
+ --sb-gradient-raised:linear-gradient(125deg,#336449,#254638);
+ --sb-gradient-action:linear-gradient(115deg,#338b68,#658f49);
+}
+html[data-sb-theme="sunset"]{
+ --sb-gradient-hero:radial-gradient(ellipse at 88% 12%,#e18b684a,transparent 57%),linear-gradient(125deg,#48263b,#87465c 54%,#5e3449);
+ --sb-gradient-card:linear-gradient(135deg,#593047,#40283c 57%,#713c50);
+ --sb-gradient-raised:linear-gradient(125deg,#85445e,#563048);
+ --sb-gradient-action:linear-gradient(115deg,#c45978,#e48b64);
+}
+html[data-sb-theme="amethyst"]{
+ --sb-gradient-hero:radial-gradient(ellipse at 88% 12%,#ad8be459,transparent 57%),linear-gradient(125deg,#30234e,#63468b 54%,#3b315f);
+ --sb-gradient-card:linear-gradient(135deg,#473366,#302747 57%,#584277);
+ --sb-gradient-raised:linear-gradient(125deg,#7652a2,#463467);
+ --sb-gradient-action:linear-gradient(115deg,#855bc2,#af7dd4);
+}
+/* Hero areas use a richer layered gradient, not the flat card surface. */
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.dash-head,.genre-family-intro,.v3-hero,.sbp-hero,.sbab-heading,.hero){
+ background:var(--sb-gradient-hero)!important;
+ border-color:var(--sb-theme-accent-border)!important;
+}
+/* Actual card families: landing, Academy, tree, studio, master, player, library. */
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.dash-metric,.dash-panel,.dash-entry,.dash-empty,.encyclopedia-section,.genre-family,.genre-family-body,.genre-card,.v3-card,
+.account-tile,.panel,.studio-panel,.studio-section,.sbs-panel,.sbpc-panel,.sbpc-song,.sbpc-stage,.gm-panel,.ahx-card,
+.sbp-main,.sbp-side,.sbp-bottom,.sbab-panel,.sbab-console,.sbab-player,.sbab-track,
+.sb-gt-section,.sb-gt-inner,.sb-gt-detail,.sb-gt-extra,.sb-gt-search-results,.sb-gt-search-links,.sb-gt-node,.sb-gt-related-btn,.sb-gt-count){
+ background:var(--sb-gradient-card)!important;
+ border-color:var(--stroke)!important;
+}
+/* Nested headings and tree controls have their own slightly brighter gradient. */
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.encyclopedia-section-active,.genre-family summary,.sb-gt-section>summary,.sb-gt-viewport,.sb-gt-controls select,.sb-gt-search-label,.sb-gt-intro,.sb-gt-zoom button,.sb-gt-controls button,.sbp-secondary,.sbab-modes){
+ background:var(--sb-gradient-raised)!important;
+ border-color:var(--sb-theme-accent-border)!important;
+}
+/* Prominent actions use a vivid gradient while retaining readable text. */
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.dash-actions .btn.primary,.sbp-play,.sbab-upload){
+ background:var(--sb-gradient-action)!important;
+ color:#fff!important;
+ border-color:var(--sb-theme-accent-border)!important;
+}
+/* Genre artwork, user covers, SVG relationship lines and genre-specific
+   accent colors are intentionally excluded from gradient recoloring. */
