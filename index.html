@@ -2349,6 +2349,11 @@ function sbVisibleNavs(){
   restoreGenre:(id,tab)=>{
    if(!GENRES.some(g=>g.id===id)||!['overview','ideas','prompts','artists'].includes(tab))return false;
    openGenre(id,tab,true);return true;
+  },
+  returnToAcademy:()=>{
+   if(view.nav!=='detail'||typeof academyGoBack!=='function')return false;
+   academyGoBack();
+   return view.nav==='catalog';
   }
  });
 const toast=(t)=>{const a=document.getElementById('toast');a.textContent=t;a.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>a.classList.remove('show'),2400)};
@@ -3808,7 +3813,7 @@ render();
 /* SUNOBOOM v0.28 — Context-aware Academy back navigation */
 let academyBackState=null;
 const academyPreviousOpenGenre=openGenre;
-openGenre=function(id,tab='overview'){
+openGenre=function(id,tab='overview',fromHistory=false){
  if(view.nav==='catalog'){
   const sections={};
   document.querySelectorAll('details.genre-family[data-family]').forEach(el=>{sections[el.dataset.family]=el.open});
@@ -3820,7 +3825,7 @@ openGenre=function(id,tab='overview'){
  }else{
   academyBackState=null;
  }
- academyPreviousOpenGenre(id,tab);
+ academyPreviousOpenGenre(id,tab,fromHistory);
 };
 function academyGoBack(){
  const g=findGenre(view.selected);

@@ -62,6 +62,15 @@ export async function restoreLegacyMenuHistory(direction, {
         syncRoute(legacyApi.snapshot()?.active);
         return false;
       }
+    } else if (target.id === 'catalog' && before.active === 'detail' &&
+               typeof legacyApi.returnToAcademy === 'function') {
+      // The original Academy back logic restores search, accordion expansion
+      // and scroll position. Do not replace it with go('catalog'), which
+      // deliberately clears the catalog search.
+      if (legacyApi.returnToAcademy() !== true) {
+        syncRoute(legacyApi.snapshot()?.active);
+        return false;
+      }
     } else {
       legacyApi.navigate(target.id); // original go() executes once
     }

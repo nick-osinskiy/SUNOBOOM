@@ -380,3 +380,32 @@ test('unrecorded or invalid nested context never enables history restoration', a
   assert.equal(canRestoreLegacyMenuHistory('sideways', { legacyApi: api }), false);
   assert.equal(canRestoreLegacyMenuHistory('forward', { legacyApi: api }), false);
 });
+
+test('history Back from a genre uses the Academy context-preserving return', async () => {
+  syncLegacyRoute('catalog');
+  await whenLegacyRouterSettled();
+  const state = { active: 'catalog', id: 'reggae-ska', tab: 'overview', search: 'ска' };
+  const events = [];
+  const api = {
+    snapshot() { return {
+      active: state.active,
+      detail: state.active === 'detail' ? { id: state.id, tab: state.tab } : null,
+      items: [{ id: 'catalog' }, { id: 'home' }]
+    }; },
+    navigate(id) { events.push(['navigate', id]); state.active = id; state.search = ''; },
+    canRestoreGenre: (id, tab) => id === 'reggae-ska' && tab === 'overview',
+    restoreGenre: (id, tab) => { state.active = 'detail'; state.id = id; state.tab = tab; return true; },
+    returnToAcademy() { events.push(['academyBack']); state.active = 'catalog'; return true; }
+  };
+  api.restoreGenre('reggae-ska', 'overview');
+  syncLegacyRoute('detail', { historyMode: 'push',
+    context: { kind: 'genre', id: 'reggae-ska', tab: 'overview' } });
+  await whenLegacyRouterSettled();
+  assert.equal(await restoreLegacyMenuHistory('back', { legacyApi: api }), true);
+  await whenLegacyRouterSettled();
+  assert.equal(state.active, 'catalog');
+  assert.equal(state.search, 'ска');
+  assert.deepEqual(events, [['academyBack']]);
+  syncLegacyRoute('home');
+  await whenLegacyRouterSettled();
+});

@@ -508,6 +508,9 @@ async function checkLayout(mobile) {
     // the DOM but are intentionally hidden until the family is expanded.
     await page.locator('#catalog-cards details.genre-family').first()
       .waitFor({ state: 'attached', timeout: 10000 });
+    if (await page.locator('#genre-search').inputValue() !== 'ска') {
+      throw new Error('History Back lost the Academy search context');
+    }
     await page.waitForFunction(() =>
       !document.querySelector('[data-sb-vue-history] [data-sb-history-forward]')?.disabled);
     await genreHistoryForward137.click();
