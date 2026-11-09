@@ -4680,7 +4680,7 @@ var pd = {
 						key: e.id,
 						value: e.id
 					}, O(e.title), 9, vd))), 128))], 512), [[J, n.theme]])]),
-					a[6] ||= H("p", { class: "sbs-help sbs-theme-help" }, "Тёмная, светлая или тема устройства. Изменяется сразу и сохраняется после перезагрузки.", -1),
+					a[6] ||= H("p", { class: "sbs-help sbs-theme-help" }, "Выбери палитру: тёмную, светлую, системную или одну из четырёх цветных тем. Изменения сохраняются.", -1),
 					(B(), V(z, null, R(i, (e) => H("label", {
 						key: e.key,
 						class: "sbs-option",
@@ -7359,10 +7359,11 @@ var ev = Z_({
 ]);
 function nv(e, t = null) {
 	let n = typeof e == "string" && e ? e : "home";
-	return n === "tracks" && t?.kind === "track" ? "/account/tracks/detail" : n === "detail" ? "/catalog/detail" : tv.has(n) ? "/account/" + n : "/" + encodeURIComponent(n);
+	return n === "producer" && t?.kind === "production" && typeof t.id == "string" && /^[a-zA-Z0-9_-]{1,128}$/.test(t.id) ? "/producer/detail/" + encodeURIComponent(t.id) : n === "tracks" && t?.kind === "track" ? "/account/tracks/detail" : n === "detail" ? "/catalog/detail" : tv.has(n) ? "/account/" + n : "/" + encodeURIComponent(n);
 }
 function rv(e) {
 	if (e === "/catalog/detail") return "catalog";
+	if (e === "/producer/detail" || e.startsWith("/producer/detail/")) return "producer";
 	if (e.startsWith("/account/")) return "account";
 	try {
 		return decodeURIComponent(e.slice(1)) || "home";
@@ -7394,7 +7395,10 @@ function hv(e) {
 	});
 }
 function gv(e) {
-	return mv(e) || hv(e);
+	return mv(e) || hv(e) || (e?.kind === "production" && typeof e.id == "string" && /^[a-zA-Z0-9_-]{1,128}$/.test(e.id) ? Object.freeze({
+		kind: "production",
+		id: e.id
+	}) : null);
 }
 function _v(e, t, n = null) {
 	let r = gv(n);
@@ -7678,6 +7682,10 @@ function Vv(e, { router: t, legacyApi: n, syncRoute: r = jv } = {}) {
 }
 // src/vue/navigation/legacy-history-restore.js
 function Hv(e) {
+	if (e?.active === "producer" && e?.production?.id) return nv("producer", {
+		kind: "production",
+		id: e.production.id
+	});
 	let t = e?.track;
 	return nv(e?.active, t?.id ? {
 		kind: "track",
@@ -7698,6 +7706,9 @@ function Uv(e, t) {
 		kind: "genre",
 		id: i.id,
 		tab: i.tab
+	} : i?.kind === "production" && e.path === nv("producer", i) && t.canRestoreProduction?.(i.id) === !0 && typeof t.restoreProduction == "function" ? {
+		kind: "production",
+		id: i.id
 	} : e.path === "/account/tracks" && t.canRestoreTrackList?.() === !0 && typeof t.restoreTrackList == "function" ? { kind: "track-list" } : e.path === "/account/tracks/detail" && i?.kind === "track" && t.canRestoreTrack?.(i.id) === !0 && typeof t.restoreTrack == "function" ? {
 		kind: "track",
 		id: i.id
@@ -7718,6 +7729,8 @@ async function Kv(e, { legacyApi: t, syncRoute: n = jv } = {}) {
 		if (!r || wv().path !== Hv(i) || !await Cv(e)) return !1;
 		if (r.kind === "genre") {
 			if (t.restoreGenre(r.id, r.tab) !== !0) return n(t.snapshot()?.active), !1;
+		} else if (r.kind === "production") {
+			if (t.restoreProduction(r.id) !== !0) return n(t.snapshot()?.active), !1;
 		} else if (r.kind === "track-list") {
 			if (t.restoreTrackList() !== !0) return n(t.snapshot()?.active), !1;
 		} else if (r.kind === "track") {
@@ -7729,7 +7742,10 @@ async function Kv(e, { legacyApi: t, syncRoute: n = jv } = {}) {
 		return n(o, { context: r.kind === "track" ? {
 			kind: "track",
 			id: r.id
-		} : null }), r.kind === "track" ? o === "tracks" && a?.track?.id === r.id : r.kind === "track-list" ? o === "tracks" && !a?.track && !a?.trackEditing : o === (r.kind === "genre" ? "detail" : r.id);
+		} : r.kind === "production" ? {
+			kind: "production",
+			id: r.id
+		} : null }), r.kind === "production" ? o === "producer" && a?.production?.id === r.id : r.kind === "track" ? o === "tracks" && a?.track?.id === r.id : r.kind === "track-list" ? o === "tracks" && !a?.track && !a?.trackEditing : o === (r.kind === "genre" ? "detail" : r.id);
 	} catch (e) {
 		return console.warn("[SUNOBOOM] Vue history restore skipped; legacy navigation remains active.", e), !1;
 	} finally {
@@ -7766,6 +7782,16 @@ function Jv({ mountVueFeature: e, unmountVueFeature: t }) {
 				}
 			}), !0);
 		},
+		recordProduction: (e, t = "push") => {
+			let r = n.snapshot();
+			return r.active !== "producer" || r.production?.id !== e || !n.canRestoreProduction?.(e) ? !1 : (jv("producer", {
+				historyMode: t,
+				context: {
+					kind: "production",
+					id: e
+				}
+			}), !0);
+		},
 		recordTrackList: () => {
 			let e = n.snapshot();
 			return e.active !== "tracks" || e.track?.id || e.trackEditing ? !1 : (jv("tracks"), !0);
@@ -7787,6 +7813,9 @@ function Jv({ mountVueFeature: e, unmountVueFeature: t }) {
 		jv(t.active, { context: t.track?.id ? {
 			kind: "track",
 			id: t.track.id
+		} : t.active === "producer" && t.production?.id ? {
+			kind: "production",
+			id: t.production.id
 		} : null });
 		let o = Ov(t), s = JSON.stringify(o.map(({ active: e, ...t }) => t)), c = r.querySelector("[data-sb-vue-history]"), l = i.get("history");
 		if (!c) l?.unmount(), i.delete("history");
@@ -7828,6 +7857,9 @@ function Jv({ mountVueFeature: e, unmountVueFeature: t }) {
 	return jv(c.active, { context: c.track?.id ? {
 		kind: "track",
 		id: c.track.id
+	} : c.active === "producer" && c.production?.id ? {
+		kind: "production",
+		id: c.production.id
 	} : null }), Sv().then(() => {
 		a || (s.observe(r, { childList: !0 }), o());
 	}), function() {
