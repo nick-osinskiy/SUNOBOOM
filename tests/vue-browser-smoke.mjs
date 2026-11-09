@@ -1735,14 +1735,41 @@ async function checkLayout(mobile) {
       throw new Error('Vue passport list is not mounted or original actions missing');
     }
     await page.locator('[data-action="tp-new"]').click();
+    // v0.129: Vue owns only the passport form; old save and validation remain.
+    const trackEditor129 = page.locator('#sb-vue-track-editor[data-v-app]');
+    await trackEditor129.waitFor({ state: 'attached', timeout: 10000 });
+    if (await trackEditor129.locator('#sb-track-form[data-sb-vue-track-editor-view]').count() !== 1 ||
+        await trackEditor129.locator('#tp-status option').count() !== 7 ||
+        await trackEditor129.locator('#tp-genre option').count() < 20 ||
+        await trackEditor129.locator('#tp-project option').count() < 1 ||
+        await trackEditor129.locator('#tp-idea option').count() < 1 ||
+        await trackEditor129.locator('#tp-prompt option').count() < 1 ||
+        await page.evaluate(() => typeof window.SUNOBOOM_LEGACY_TRACK_EDITOR?.date7) !== 'function') {
+      throw new Error('Vue track passport editor missing fields/options or original date engine');
+    }
     if (await page.locator('#sb-vue-track-list').count() !== 0 ||
         await page.locator('#sb-track-form #tp-title').count() !== 1) {
-      throw new Error('Legacy passport editor was replaced instead of preserved');
+      throw new Error('Passport form fields missing from the Vue editor');
     }
     await page.locator('#tp-title').fill('Vue Passport 126');
     await page.locator('#tp-artist').fill('Исполнитель Vue');
     await page.locator('#tp-status').selectOption('publisher');
     await page.locator('#tp-submitted').fill('2026-11-12');
+    if (await trackEditor129.locator('#tp-release').inputValue() !== '2026-11-19' ||
+        await trackEditor129.locator('#tp-release').isEnabled() ||
+        !(await trackEditor129.locator('#tp-date-hint').textContent()).includes('19.11.2026')) {
+      throw new Error('Vue passport date preview did not use the legacy 7-day rule');
+    }
+    await trackEditor129.locator('#tp-override').check();
+    if (!await trackEditor129.locator('#tp-release').isEnabled()) {
+      throw new Error('Vue passport manual date toggle did not enable release input');
+    }
+    await trackEditor129.locator('#tp-release').fill('2026-11-21');
+    await trackEditor129.locator('#tp-override').uncheck();
+    if (await trackEditor129.locator('#tp-release').inputValue() !== '2026-11-19' ||
+        await trackEditor129.locator('#tp-release').isEnabled()) {
+      throw new Error('Vue passport editor did not restore automatic release after manual selection');
+    }
     await page.locator('#tp-cover').fill('https://example.com/cover-vue128.png');
     await page.locator('#tp-audio').fill('https://example.com/audio-vue128.wav');
     await page.locator('#tp-authors').fill('Автор Vue 128');
@@ -1794,12 +1821,23 @@ async function checkLayout(mobile) {
     }
     // The existing editor remains HTML and must return to the Vue detail.
     await trackDetail128.locator('[data-action="tp-edit"]').click();
-    if (await page.locator('#sb-track-form #tp-title').count() !== 1 ||
+    await trackEditor129.waitFor({ state: 'attached', timeout: 10000 });
+    if (await trackEditor129.locator('#tp-title').inputValue() !== 'Vue Passport 126' ||
+        await trackEditor129.locator('#tp-submitted').inputValue() !== '2026-11-12' ||
+        await trackEditor129.locator('#tp-release').inputValue() !== '2026-11-19' ||
+        await page.locator('#sb-track-form #tp-title').count() !== 1 ||
         await page.locator('#sb-vue-track-detail').count() !== 0) {
-      throw new Error('Passport editor or its HTML fallback was replaced by Vue');
+      throw new Error('Vue passport editor did not restore saved values');
     }
     await page.locator('#tp-artist').fill('Исполнитель Vue 128');
-    await page.locator('[data-action="tp-save"]').click();
+    await trackEditor129.locator('#tp-cover').fill('http://invalid.example/cover.png');
+    await trackEditor129.locator('[data-action="tp-save"]').click();
+    if (await page.locator('#sb-vue-track-editor[data-v-app]').count() !== 1 ||
+        await page.evaluate(id => data.tracks.find(t => t.id === id)?.artist, track126.id) === 'Исполнитель Vue 128') {
+      throw new Error('Original HTTPS validation was bypassed by the Vue editor');
+    }
+    await trackEditor129.locator('#tp-cover').fill('https://example.com/cover-vue128.png');
+    await trackEditor129.locator('[data-action="tp-save"]').click();
     await trackDetail128.waitFor({ state: 'attached', timeout: 10000 });
     if (await trackDetail128.locator('.sb-track-hero p').textContent() !== 'Исполнитель Vue 128' ||
         await page.evaluate(id => data.tracks.find(t => t.id === id)?.artist, track126.id) !== 'Исполнитель Vue 128') {
@@ -2133,6 +2171,15 @@ async function checkEditorFallback() {
       throw new Error('Original passport list fallback is missing');
     }
     await page.locator('[data-action="tp-new"]').click();
+    if (await page.locator('#sb-vue-track-editor[data-v-app]').count() !== 0 ||
+        await page.locator('#sb-vue-track-editor #sb-track-form').count() !== 1 ||
+        await page.locator('#sb-vue-track-editor #tp-release:disabled').count() !== 1) {
+      throw new Error('Original passport editor fallback missing with Vue blocked');
+    }
+    await page.locator('#tp-submitted').fill('2026-11-12');
+    if (await page.locator('#tp-release').inputValue() !== '2026-11-19') {
+      throw new Error('Original passport date calculation broke without Vue');
+    }
     await page.locator('#tp-title').fill('Fallback Passport 126');
     await page.locator('#tp-status').selectOption('lyrics');
     await page.locator('[data-action="tp-save"]').click();

@@ -15,6 +15,7 @@ import { activateLegacyProducerSongList } from './producer/legacyProducerSongLis
 import { activateLegacyProducerSongDetail } from './producer/legacyProducerSongDetailBridge.js';
 import { activateLegacyTrackPassportList } from './account/legacyTrackPassportListBridge.js';
 import { activateLegacyTrackPassportDetail } from './account/legacyTrackPassportDetailBridge.js';
+import { activateLegacyTrackPassportEditor } from './account/legacyTrackPassportEditorBridge.js';
 import { activateLegacyIdeaEditor } from './poetry/legacyIdeaEditorBridge.js';
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
@@ -209,4 +210,9 @@ export function startLegacyTrackPassportList() {
 /** Vue 3 passport detail; original version/calendar/actions and HTML fallback retained. */
 export function startLegacyTrackPassportDetail() {
   return activateLegacyTrackPassportDetail({ mountVueFeature });
+}
+
+/** Vue 3 track passport create/edit screen; existing tp-* handlers remain authoritative. */
+export function startLegacyTrackPassportEditor() {
+  return activateLegacyTrackPassportEditor({ mountVueFeature });
 }
