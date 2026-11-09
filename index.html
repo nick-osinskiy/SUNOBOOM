@@ -4539,6 +4539,9 @@ function sbTrackAction(btn){
  }
  if(!action.startsWith('tp-'))return false;
  if(action==='tp-open'){
+  // A preceding edit/save may have left a detail path in the memory mirror,
+  // even when the legacy list is now visible. Settle the list first.
+  window.SUNOBOOM_VUE_ROUTE?.recordTrackList?.();
   view.sbTrackSelected=id;view.sbTrackEdit=null;
   // Record before render, so the Vue observer cannot replace the list entry.
   window.SUNOBOOM_VUE_ROUTE?.recordTrack?.(id,'push');

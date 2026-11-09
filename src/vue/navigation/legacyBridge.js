@@ -39,6 +39,14 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature })
       });
       return true;
     },
+    recordTrackList: () => {
+      const actual = api.snapshot();
+      if (actual.active !== 'tracks' || actual.track?.id || actual.trackEditing) return false;
+      // Explicitly settle the list BEFORE the detail push. A rapid sequence
+      // of legacy re-renders must never erase the list's history entry.
+      syncLegacyRoute('tracks');
+      return true;
+    },
     recordTrack: (id, historyMode = 'push') => {
       const actual = api.snapshot();
       if (actual.active !== 'tracks' || actual.track?.id !== id ||

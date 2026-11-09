@@ -2082,8 +2082,18 @@ async function checkLayout(mobile) {
       return route?.path === '/account/tracks/detail' &&
         route.context?.kind === 'track' && route.context.id === id;
     }, track126.id);
-    await page.waitForFunction(() =>
-      !document.querySelector('[data-sb-vue-history] [data-sb-history-back]')?.disabled);
+    try {
+      await page.waitForFunction(() =>
+        !document.querySelector('[data-sb-vue-history] [data-sb-history-back]')?.disabled,
+        undefined, { timeout: 8000 });
+    } catch {
+      const diagnostic = await page.evaluate(() => ({
+        route: window.SUNOBOOM_VUE_ROUTE?.routerSnapshot(),
+        snapshot: window.SUNOBOOM_LEGACY_NAV?.snapshot(),
+        button: document.querySelector('[data-sb-vue-history] [data-sb-history-back]')?.outerHTML
+      }));
+      throw new Error('Passport history Back unavailable: ' + JSON.stringify(diagnostic));
+    }
     await page.locator('[data-sb-vue-history] [data-sb-history-back]').click();
     await page.waitForFunction(() =>
       view.nav === 'tracks' && !view.sbTrackSelected &&
