@@ -7,7 +7,8 @@
  const THEMES=new Map([
   ["dark","Тёмная"],["light","Светлая"],["system","Как на устройстве"],
   ["ocean","Океан · сине-бирюзовая"],["forest","Лес · изумрудная"],
-  ["sunset","Закат · коралловая"],["amethyst","Аметист · фиолетовая"]
+  ["sunset","Закат · коралловая"],["amethyst","Аметист · фиолетовая"],
+  ["pink","Розовая · ягодная"]
  ]);
  const VALID_PAGES=new Map([
   ["home","Главная"],
@@ -42,7 +43,7 @@
   html.classList.toggle("sb-theme-light",resolved==="light");
   document.querySelector('meta[name="theme-color"]')?.setAttribute("content",({
     light:"#f6f7fc",dark:"#0c0e1a",ocean:"#071c2d",forest:"#0d211b",
-    sunset:"#2c1723",amethyst:"#1e1737"
+    sunset:"#2c1723",amethyst:"#1e1737",pink:"#2a1026"
    })[resolved]);
  }
  function persistSettings(){
@@ -79,7 +80,7 @@
     '<section class="sbs-panel"><div class="sbs-panel-head"><span class="sbs-symbol" aria-hidden="true">🎨</span><div><h2>Внешний вид</h2><p>Удобная работа на компьютере и телефоне</p></div></div>'+
       '<label class="sbs-field sbs-theme-field" for="sbs-theme"><span>Тема приложения</span><select id="sbs-theme" data-sbs-setting="theme" aria-label="Тема приложения">'+
       [...THEMES].map(([id,title])=>'<option value="'+id+'"'+(settings.theme===id?' selected':'')+'>'+esc(title)+'</option>').join('')+
-      '</select></label><p class="sbs-help sbs-theme-help">Выбери палитру: тёмную, светлую, системную или одну из четырёх цветных тем. Изменения сохраняются.</p>'+
+      '</select></label><p class="sbs-help sbs-theme-help">Выбери палитру: тёмную, светлую, системную или одну из пяти цветных тем. Изменения сохраняются.</p>'+
       toggleItem("compact","Компактный интерфейс","Уменьшает отступы и высоту карточек. Больше материалов помещается на экране.",settings.compact)+
       toggleItem("largeText","Увеличенный текст","Делает основной пояснительный текст в каталогах, карточках и инструментах крупнее.",settings.largeText)+
       toggleItem("reduceMotion","Меньше анимации","Отключает декоративные движения и плавные переходы, не влияя на воспроизведение музыки.",settings.reduceMotion)+

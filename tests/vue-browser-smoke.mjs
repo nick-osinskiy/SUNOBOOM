@@ -1689,6 +1689,46 @@ async function checkLayout(mobile) {
     if (await page.locator('#sbs-theme').inputValue() !== 'light') {
       throw new Error('Vue theme selector lost the saved preference');
     }
+    // v0.153: Pink must recolor actual cards/controls and survive reload,
+    // not merely appear as another entry in the settings dropdown.
+    await page.locator('#sbs-theme').selectOption('pink');
+    const pinkSettings153 = await page.evaluate(() => {
+      const style = el => getComputedStyle(document.querySelector(el));
+      return {
+        selected: document.documentElement.dataset.sbTheme,
+        saved: JSON.parse(localStorage.getItem('sunoboom-ui-settings-v1')).theme,
+        panel: style('.sbs-panel').backgroundImage,
+        sidebar: style('.side').backgroundColor,
+        accent: getComputedStyle(document.documentElement).getPropertyValue('--sb-theme-accent').trim()
+      };
+    });
+    if (pinkSettings153.selected !== 'pink' || pinkSettings153.saved !== 'pink' ||
+        pinkSettings153.accent !== '#ff8acc' ||
+        !pinkSettings153.panel.includes('linear-gradient') ||
+        pinkSettings153.sidebar !== 'rgb(62, 26, 55)') {
+      throw new Error('Pink theme did not recolor original Vue settings and navigation: ' +
+        JSON.stringify(pinkSettings153));
+    }
+    await page.evaluate(() => go('home'));
+    const pinkHome153 = await page.locator('.dash-head').evaluate(el => getComputedStyle(el).backgroundImage);
+    if (!pinkHome153.includes('linear-gradient')) {
+      throw new Error('Pink home hero did not use the theme gradient');
+    }
+    await page.evaluate(() => go('catalog'));
+    const pinkAcademy153 = await page.locator('.genre-family-intro').evaluate(el => getComputedStyle(el).backgroundImage);
+    if (!pinkAcademy153.includes('linear-gradient')) {
+      throw new Error('Pink Academy did not use the theme gradient');
+    }
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    if (await page.evaluate(() => document.documentElement.dataset.sbTheme) !== 'pink') {
+      throw new Error('Pink theme was not restored before the next page render');
+    }
+    await page.evaluate(() => go('account'));
+    await page.locator('[data-sbs-action="open"]').click();
+    await page.locator('#sb-vue-account-settings[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    if (await page.locator('#sbs-theme').inputValue() !== 'pink') {
+      throw new Error('Pink theme was lost in the Vue settings selector');
+    }
     await page.locator('#sbs-theme').selectOption('system');
     await page.emulateMedia({ colorScheme: 'light' });
     await page.waitForFunction(() => document.documentElement.classList.contains('sb-theme-light'), null, { timeout: 10000 });
