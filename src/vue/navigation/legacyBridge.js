@@ -3,6 +3,7 @@ import { navigationSnapshot } from './nav-model.js';
 import { currentRoute, syncLegacyRoute } from './route-state.js';
 import { legacyRouterSnapshot, whenLegacyRouterSettled } from './legacy-router-mirror.js';
 import { navigateFromVueMenu } from './navigation-dispatch.js';
+import { restoreLegacyMenuHistory } from './legacy-history-restore.js';
 
 const SELECTORS = [
   { key: 'sidebar', selector: '[data-sb-vue-sidebar]', mobile: false },
@@ -20,10 +21,13 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature })
 
   const instances = new Map();
   let disposed = false;
-  // Read-only diagnostics; no navigation mutation is exposed.
+  // Diagnostics plus explicit, guarded internal history restoration.
+  // Browser Back and Forward are intentionally NOT intercepted.
   window.SUNOBOOM_VUE_ROUTE = Object.freeze({
     snapshot: () => currentRoute.value,
-    routerSnapshot: () => legacyRouterSnapshot()
+    routerSnapshot: () => legacyRouterSnapshot(),
+    back: () => restoreLegacyMenuHistory('back', { legacyApi: api }),
+    forward: () => restoreLegacyMenuHistory('forward', { legacyApi: api })
   });
 
   function sync() {

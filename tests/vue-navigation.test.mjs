@@ -3,8 +3,10 @@ import assert from 'node:assert/strict';
 import { activeNavigationRoute, navigationSnapshot } from '../src/vue/navigation/nav-model.js';
 import { currentRoute, syncLegacyRoute } from '../src/vue/navigation/route-state.js';
 import { navigateFromVueMenu } from '../src/vue/navigation/navigation-dispatch.js';
+import { restoreLegacyMenuHistory } from '../src/vue/navigation/legacy-history-restore.js';
 import {
-  activeRouteFromMemoryPath, legacyMirrorRouter, legacyRouterSnapshot, routeToMemoryPath, whenLegacyRouterSettled
+  activeRouteFromMemoryPath, legacyMemoryHistoryCandidate, legacyRouteFromMemoryPath,
+  legacyMirrorRouter, legacyRouterSnapshot, routeToMemoryPath, whenLegacyRouterSettled
 } from '../src/vue/navigation/legacy-router-mirror.js';
 
 test('genre details highlight the Academy menu', () => {
@@ -248,4 +250,47 @@ test('cancelled or redirected legacy menu action does not push an incorrect rout
   }), true);
   assert.deepEqual(invoked, ['studio']);
   assert.deepEqual(observed, [{ id: 'home', mode: 'replace' }]);
+});
+
+test('memory history restores a safe legacy top-level route exactly once', async () => {
+  syncLegacyRoute('home');
+  await whenLegacyRouterSettled();
+  let current = 'home';
+  const calls = [];
+  const options = ['home', 'producer', 'studio', 'account'];
+  const legacyApi = {
+    snapshot: () => ({ active: current, items: options.map(id => ({ id, label: id })) }),
+    navigate: id => { calls.push(id); current = id; }
+  };
+  navigateFromVueMenu('producer', { router: legacyMirrorRouter, legacyApi });
+  await whenLegacyRouterSettled();
+  navigateFromVueMenu('studio', { router: legacyMirrorRouter, legacyApi });
+  await whenLegacyRouterSettled();
+  assert.equal(legacyRouterSnapshot().path, '/studio');
+  assert.equal(legacyRouterSnapshot().canGoBack, true);
+  assert.equal(legacyMemoryHistoryCandidate('back').path, '/producer');
+
+  assert.equal(await restoreLegacyMenuHistory('back', { legacyApi }), true);
+  await whenLegacyRouterSettled();
+  assert.equal(legacyRouterSnapshot().path, '/producer');
+  assert.equal(legacyRouterSnapshot().transition, 'back');
+  assert.equal(current, 'producer');
+  assert.equal(legacyRouterSnapshot().canGoForward, true);
+
+  assert.equal(await restoreLegacyMenuHistory('forward', { legacyApi }), true);
+  await whenLegacyRouterSettled();
+  assert.equal(legacyRouterSnapshot().path, '/studio');
+  assert.equal(legacyRouterSnapshot().transition, 'forward');
+  assert.deepEqual(calls, ['producer', 'studio', 'producer', 'studio']);
+  syncLegacyRoute('home');
+  await whenLegacyRouterSettled();
+});
+
+test('memory restore refuses nested or unknown routes without navigating legacy app', async () => {
+  assert.equal(legacyRouteFromMemoryPath('/catalog/detail'), null);
+  assert.equal(legacyRouteFromMemoryPath('/account/tracks'), null);
+  assert.equal(legacyRouteFromMemoryPath('/producer'), 'producer');
+  assert.equal(legacyRouteFromMemoryPath('/%broken'), null);
+  assert.equal(await restoreLegacyMenuHistory('sideways', {}), false);
+  assert.equal(await restoreLegacyMenuHistory('back', {}), false);
 });

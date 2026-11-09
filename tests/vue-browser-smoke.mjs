@@ -88,6 +88,14 @@ async function checkLayout(mobile) {
         page.url() !== BASE) {
       throw new Error('Vue Router memory mirror changed initial browser URL or route');
     }
+    // v0.135: memory history starts without a previous entry.
+    const emptyHistory135 = await page.evaluate(async () => ({
+      canBack: window.SUNOBOOM_VUE_ROUTE.routerSnapshot().canGoBack,
+      restored: await window.SUNOBOOM_VUE_ROUTE.back()
+    }));
+    if (emptyHistory135.canBack || emptyHistory135.restored) {
+      throw new Error('Vue Router history restored a route before one was recorded');
+    }
     const initialRoute130 = await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE?.snapshot());
     if (!initialRoute130 || initialRoute130.route !== 'home' || initialRoute130.active !== 'home' ||
         await page.locator('[data-sb-vue-sidebar] button.active').count() !== 1 ||
@@ -233,6 +241,35 @@ async function checkLayout(mobile) {
       const route = window.SUNOBOOM_VUE_ROUTE?.routerSnapshot();
       return route?.path === '/studio' && route?.menuPushes === expected;
     }, beforeMenuPush134 + 2);
+
+    // v0.135: explicit memory Back/Forward safely restores ONLY valid
+    // top-level routes using the existing go(), never browser history.
+    const back135 = await page.evaluate(async () => {
+      const before = window.SUNOBOOM_VUE_ROUTE.routerSnapshot();
+      const ok = await window.SUNOBOOM_VUE_ROUTE.back();
+      return { before, ok, legacyRoute: view.nav,
+        after: window.SUNOBOOM_VUE_ROUTE.routerSnapshot() };
+    });
+    if (!back135.ok || !back135.before.canGoBack ||
+        back135.legacyRoute !== 'producer' ||
+        back135.after.path !== '/producer' ||
+        back135.after.transition !== 'back' || !back135.after.canGoForward ||
+        back135.after.menuPushes !== beforeMenuPush134 + 2) {
+      throw new Error('Memory Back did not safely restore Master: ' + JSON.stringify(back135));
+    }
+    await page.locator(nav + ' button[data-nav="producer"].active').waitFor({ timeout: 10000 });
+    const forward135 = await page.evaluate(async () => {
+      const ok = await window.SUNOBOOM_VUE_ROUTE.forward();
+      return { ok, legacyRoute: view.nav,
+        after: window.SUNOBOOM_VUE_ROUTE.routerSnapshot() };
+    });
+    if (!forward135.ok || forward135.legacyRoute !== 'studio' ||
+        forward135.after.path !== '/studio' || forward135.after.transition !== 'forward' ||
+        forward135.after.canGoForward || forward135.after.menuPushes !== beforeMenuPush134 + 2 ||
+        page.url() !== BASE) {
+      throw new Error('Memory Forward changed site URL or failed: ' + JSON.stringify(forward135));
+    }
+    await page.locator(nav + ' button[data-nav="studio"].active').waitFor({ timeout: 10000 });
     if (await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE?.snapshot()?.route) !== 'studio') {
       throw new Error('Shared route did not follow Studio');
     }
