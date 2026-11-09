@@ -467,3 +467,37 @@ html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"
 html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"]) :is(.dash-panel,.dash-metric,.dash-entry):hover{
  border-color:var(--sb-theme-accent-border)!important;
 }
+
+
+/* v0.146 — actual Academy landing, knowledge sections and genre tree. */
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.genre-family-intro,.encyclopedia-section,.genre-family,.genre-family-body,.genre-family-toolbar,.genre-family-empty,.genre-family-summary,.genre-family-subsection,.genre-family-subgroup){
+ background:linear-gradient(135deg,var(--panel2),var(--panel))!important;
+ border-color:var(--stroke)!important;color:var(--text)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"]) .genre-family-intro{
+ background:radial-gradient(circle at 88% 14%,var(--sb-theme-glow),transparent 52%),linear-gradient(125deg,var(--panel3),var(--panel))!important;
+ border-color:var(--sb-theme-accent-border)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"]) .encyclopedia-section-active{
+ background:linear-gradient(125deg,var(--sb-theme-accent-soft),var(--panel2))!important;
+ border-color:var(--sb-theme-accent-border)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"]) :is(.encyclopedia-section-icon,.genre-family-icon){
+ background:var(--panel3)!important;color:var(--sb-theme-accent)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"]) :is(.encyclopedia-section-status,.genre-family-count,.genre-family-intro .eyebrow,.genre-family-summary .hint){
+ color:var(--sb-theme-accent)!important;border-color:var(--sb-theme-accent-border);
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"]) :is(.genre-family-intro p,.encyclopedia-section small,.genre-family-heading small,.genre-family-toolbar .hint){
+ color:var(--muted)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"]) :is(.encyclopedia-section strong,.genre-family-heading strong,.genre-family-intro h1){
+ color:var(--text)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"]) .genre-family summary{
+ background:radial-gradient(circle at 88% 24%,color-mix(in srgb,var(--family-accent,var(--sb-theme-accent)) 12%,transparent),transparent 55%),linear-gradient(135deg,var(--panel2),var(--panel))!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"]) .encyclopedia-section:not(.encyclopedia-section-future):hover{
+ border-color:var(--sb-theme-accent-border)!important;
+}
