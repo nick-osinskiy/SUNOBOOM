@@ -2,6 +2,7 @@ import NavigationMenu from './NavigationMenu.vue';
 import { navigationSnapshot } from './nav-model.js';
 import { currentRoute, syncLegacyRoute } from './route-state.js';
 import { legacyRouterSnapshot, whenLegacyRouterSettled } from './legacy-router-mirror.js';
+import { navigateFromVueMenu } from './navigation-dispatch.js';
 
 const SELECTORS = [
   { key: 'sidebar', selector: '[data-sb-vue-sidebar]', mobile: false },
@@ -49,7 +50,7 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature })
       const unmount = mountVueFeature(target, NavigationMenu, {
         items,
         mobile,
-        onNavigate: id => api.navigate(id)
+        onNavigate: (id, router) => navigateFromVueMenu(id, { router, legacyApi: api })
       }, { vueRouter: true });
       if (unmount) instances.set(key, { target, signature, unmount });
     }

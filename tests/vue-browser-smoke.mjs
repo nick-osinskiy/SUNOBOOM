@@ -79,6 +79,11 @@ async function checkLayout(mobile) {
     await page.waitForFunction(() => ['[data-sb-vue-sidebar]', '[data-sb-vue-mobile]']
       .every(selector => document.querySelector(selector + ' button[data-nav="home"]')
         ?.getAttribute('data-vue-router-path') === '/home'));
+    // All links remain BUTTONS: no browser navigation/href and no duplicate
+    // generated labels when the compatibility adapter is active.
+    const linkCheck133 = await page.locator('[data-sb-vue-mobile] button[data-nav]')
+      .evaluateAll(nodes => nodes.every(n => n.tagName === 'BUTTON' && !n.hasAttribute('href')));
+    if (!linkCheck133) throw new Error('Vue adapter replaced existing mobile buttons with browser links');
     if (await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.routerSnapshot().active) !== 'home' ||
         page.url() !== BASE) {
       throw new Error('Vue Router memory mirror changed initial browser URL or route');
@@ -180,8 +185,28 @@ async function checkLayout(mobile) {
     await master.waitFor();
     if (await master.count() !== 1) throw new Error('Master link missing or duplicated');
 
+    // v0.133: the Vue Router menu adapter must dispatch EXACTLY ONE legacy
+    // go() per click, even though the Vue route mirror also updates.
+    await page.evaluate(() => {
+      window.__sb133GoCalls = 0;
+      window.__sb133OldGo = go;
+      go = function (...args) {
+        window.__sb133GoCalls++;
+        return window.__sb133OldGo(...args);
+      };
+    });
     await master.click();
     await page.locator(nav + ' button[data-nav="producer"].active').waitFor({ timeout: 10000 });
+    const goCalls133 = await page.evaluate(() => {
+      const count = window.__sb133GoCalls;
+      go = window.__sb133OldGo;
+      delete window.__sb133OldGo;
+      delete window.__sb133GoCalls;
+      return count;
+    });
+    if (goCalls133 !== 1) {
+      throw new Error('Vue Router menu adapter dispatched legacy go() ' + goCalls133 + ' times');
+    }
     await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.snapshot()?.route === 'producer');
     await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.routerSnapshot()?.path === '/producer');
     await page.waitForFunction(() => ['[data-sb-vue-sidebar]', '[data-sb-vue-mobile]']

@@ -1,11 +1,22 @@
 <script setup>
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { currentRoute } from './route-state.js';
 import { activeRouteFromMemoryPath, routeToMemoryPath } from './legacy-router-mirror.js';
 
 // Vue Router is consumed directly here. Legacy state wins until the async
 // memory mirror catches up, preserving instant highlights after go().
 const route = useRoute();
+const router = useRouter();
+const props = defineProps({
+  items: { type: Array, required: true },
+  mobile: { type: Boolean, default: false },
+  onNavigate: { type: Function, required: true }
+});
+function navigate(id) {
+  // Pass the injected memory router to the one compatibility adapter; do not
+  // call router.push() because the legacy shell still controls the page.
+  props.onNavigate(id, router);
+}
 const isActive = id => {
   const legacy = currentRoute.value;
   const active = route.path === routeToMemoryPath(legacy.route)
@@ -13,20 +24,6 @@ const isActive = id => {
     : legacy.active;
   return active === id;
 };
-defineProps({
-  items: {
-    type: Array,
-    required: true
-  },
-  mobile: {
-    type: Boolean,
-    default: false
-  },
-  onNavigate: {
-    type: Function,
-    required: true
-  }
-});
 </script>
 
 <template>
@@ -40,7 +37,7 @@ defineProps({
     :aria-current="isActive(item.id) ? 'page' : undefined"
     :aria-label="mobile ? item.label : undefined"
     :title="mobile ? item.label : undefined"
-    @click="onNavigate(item.id)"
+    @click="navigate(item.id)"
   >
     <span class="sb-vue-nav-icon" aria-hidden="true" v-html="item.iconHtml"></span>
     <!-- One text node for both layouts. Never render a desktop label in

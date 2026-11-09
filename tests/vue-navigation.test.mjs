@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { activeNavigationRoute, navigationSnapshot } from '../src/vue/navigation/nav-model.js';
 import { currentRoute, syncLegacyRoute } from '../src/vue/navigation/route-state.js';
+import { navigateFromVueMenu } from '../src/vue/navigation/navigation-dispatch.js';
 import {
   activeRouteFromMemoryPath, legacyMirrorRouter, legacyRouterSnapshot, routeToMemoryPath, whenLegacyRouterSettled
 } from '../src/vue/navigation/legacy-router-mirror.js';
@@ -124,4 +125,64 @@ test('Vue Router maps settled paths to the appropriate active menu', () => {
   assert.equal(activeRouteFromMemoryPath('/future-route'), 'future-route');
   assert.equal(activeRouteFromMemoryPath('/'), 'home');
   assert.equal(activeRouteFromMemoryPath('/%broken'), 'home');
+});
+
+test('Vue Router navigation adapter delegates exactly one click to legacy go()', () => {
+  const navigations = [];
+  const resolved = [];
+  const synced = [];
+  let route = 'home';
+  const api = {
+    snapshot: () => ({ active: route, items: [
+      { id: 'home', label: 'Главная' },
+      { id: 'producer', label: 'Мастер' },
+      { id: 'studio', label: 'Студия' }
+    ] }),
+    navigate: id => { navigations.push(id); route = id; }
+  };
+  const router = { resolve: path => { resolved.push(path); return { path }; } };
+  const syncRoute = id => synced.push(id);
+  assert.equal(navigateFromVueMenu('producer', { router, legacyApi: api, syncRoute }), true);
+  assert.deepEqual(navigations, ['producer']);
+  assert.deepEqual(resolved, ['/producer']);
+  assert.deepEqual(synced, ['producer']);
+  assert.equal(navigateFromVueMenu('studio', { router, legacyApi: api, syncRoute }), true);
+  assert.deepEqual(navigations, ['producer', 'studio']);
+  assert.deepEqual(resolved, ['/producer', '/studio']);
+  assert.deepEqual(synced, ['producer', 'studio']);
+});
+
+test('Vue menu adapter rejects unknown/duplicate hidden routes without dispatch', () => {
+  let count = 0;
+  const api = {
+    snapshot: () => ({ active: 'home', items: [{ id: 'mixer', label: 'Миксер' }] }),
+    navigate: () => { count++; }
+  };
+  const router = { resolve: path => ({ path }) };
+  const opts = { legacyApi: api, router, syncRoute: () => {} };
+  assert.equal(navigateFromVueMenu('mixer-copy-test', opts), false);
+  assert.equal(navigateFromVueMenu('', opts), false);
+  assert.equal(navigateFromVueMenu(null, opts), false);
+  assert.equal(navigateFromVueMenu('mixer', opts), true);
+  assert.equal(count, 1);
+});
+
+test('Vue navigation adapter falls back to legacy when router resolution fails', () => {
+  let active = 'home', count = 0, mirrored = null;
+  const api = {
+    snapshot: () => ({ active, items: [{ id: 'account', label: 'Кабинет' }] }),
+    navigate: id => { active = id; count++; }
+  };
+  const router = { resolve: () => { throw new Error('memory router unavailable'); } };
+  const originalWarn = console.warn;
+  console.warn = () => {};
+  try {
+    assert.equal(navigateFromVueMenu('account', { legacyApi: api, router,
+      syncRoute: id => { mirrored = id; } }), true);
+    assert.equal(count, 1);
+    assert.equal(active, 'account');
+    assert.equal(mirrored, 'account');
+  } finally {
+    console.warn = originalWarn;
+  }
 });
