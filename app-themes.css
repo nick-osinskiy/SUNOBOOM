@@ -501,3 +501,41 @@ html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"
 html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"]) .encyclopedia-section:not(.encyclopedia-section-future):hover{
  border-color:var(--sb-theme-accent-border)!important;
 }
+
+
+/* v0.147 — Music Genealogy Explorer: its isolated sb-gt namespace was missed. */
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.sb-gt-section,.sb-gt-inner,.sb-gt-viewport,.sb-gt-detail,.sb-gt-extra,.sb-gt-search-results,.sb-gt-search-links,.sb-gt-node,.sb-gt-related-btn,.sb-gt-count){
+ background:var(--panel)!important;border-color:var(--stroke)!important;color:var(--text)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"]) .sb-gt-section>summary{
+ background:linear-gradient(135deg,var(--panel2),var(--panel))!important;color:var(--text)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"]) .sb-gt-section[open]{
+ border-color:var(--sb-theme-accent-border)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.sb-gt-summary-icon,.sb-gt-stage span,.sb-gt-zoom button,.sb-gt-controls button,.sb-gt-search-links button){
+ background:var(--panel3)!important;border-color:var(--stroke)!important;color:var(--sb-theme-accent)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.sb-gt-kicker,.sb-gt-summary-hint,.sb-gt-chevron,.sb-gt-search-title){
+ color:var(--sb-theme-accent)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.sb-gt-head p,.sb-gt-section>summary small,.sb-gt-intro,.sb-gt-description,.sb-gt-controls label,.sb-gt-legend,.sb-gt-node-era,.sb-gt-stage,.sb-gt-count){
+ color:var(--muted)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.sb-gt-intro,.sb-gt-note,.sb-gt-search-label){
+ background:var(--panel2)!important;border-color:var(--sb-theme-accent-border)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.sb-gt-controls select,.sb-gt-controls input,.sb-gt-search-label input,.sb-gt-zoom button){
+ background:var(--panel2)!important;border-color:var(--stroke)!important;color:var(--text)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.sb-gt-node,.sb-gt-related-btn,.sb-gt-entry):hover{
+ border-color:var(--sb-theme-accent-border)!important;background:var(--panel3)!important;
+}
+/* Relation colors, svg paths, and node-family accents intentionally remain distinct. */
