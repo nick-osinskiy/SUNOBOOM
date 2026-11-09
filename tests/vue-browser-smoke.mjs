@@ -421,6 +421,7 @@ async function checkLayout(mobile) {
     if (await page.locator('#catalog-count').textContent() === 'Музыкальные жанры · ' + cardCount) {
       throw new Error('Vue search did not update result count');
     }
+    const beforeGenre137 = await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.routerSnapshot());
     await ska.click();
     await page.locator('.genre-bright h1.gb-title').waitFor({ timeout: 10000 });
     const genreTitle = await page.locator('.genre-bright h1.gb-title').textContent();
@@ -429,7 +430,17 @@ async function checkLayout(mobile) {
     }
 
     const genreRoute130 = await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE?.snapshot());
-    await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.routerSnapshot()?.path === '/catalog/detail');
+    await page.waitForFunction(() => {
+      const mirror = window.SUNOBOOM_VUE_ROUTE?.routerSnapshot();
+      return mirror?.path === '/catalog/detail' &&
+        mirror?.context?.kind === 'genre' &&
+        mirror.context.id === 'reggae-ska' && mirror.context.tab === 'overview';
+    });
+    const afterGenre137 = await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.routerSnapshot());
+    if (!afterGenre137.canGoBack || afterGenre137.historyDepth !== beforeGenre137.historyDepth + 1 ||
+        afterGenre137.menuPushes !== beforeGenre137.menuPushes) {
+      throw new Error('Genre detail did not record a context-aware history entry');
+    }
     await page.waitForFunction(() => ['[data-sb-vue-sidebar]', '[data-sb-vue-mobile]']
       .every(selector => document.querySelector(selector + ' button[data-nav="catalog"]')
         ?.getAttribute('data-vue-router-path') === '/catalog/detail'));
@@ -481,6 +492,34 @@ async function checkLayout(mobile) {
 
     await page.locator('.genre-side-item[data-tab="artists"]').click();
     await page.locator('.genre-side-item[data-tab="artists"].active').waitFor();
+    // v0.137: restore the exact genre and Vue-managed Artists tab, not just
+    // the generic /catalog/detail route. The browser URL must not change.
+    await page.waitForFunction(() =>
+      window.SUNOBOOM_VUE_ROUTE?.routerSnapshot()?.context?.tab === 'artists');
+    const genreHistoryBack137 = page.locator('[data-sb-vue-history] [data-sb-history-back]');
+    const genreHistoryForward137 = page.locator('[data-sb-vue-history] [data-sb-history-forward]');
+    await page.waitForFunction(() =>
+      !document.querySelector('[data-sb-vue-history] [data-sb-history-back]')?.disabled);
+    await genreHistoryBack137.click();
+    await page.locator('#catalog-cards .genre-card').first().waitFor({ timeout: 10000 });
+    await page.waitForFunction(() =>
+      view.nav === 'catalog' &&
+      window.SUNOBOOM_VUE_ROUTE?.routerSnapshot()?.path === '/catalog');
+    await page.waitForFunction(() =>
+      !document.querySelector('[data-sb-vue-history] [data-sb-history-forward]')?.disabled);
+    await genreHistoryForward137.click();
+    await page.locator('.genre-side-item[data-tab="artists"].active').waitFor({ timeout: 10000 });
+    const restoredGenre137 = await page.evaluate(() => ({
+      id: view.selected, tab: view.tab, route: view.nav,
+      mirror: window.SUNOBOOM_VUE_ROUTE.routerSnapshot()
+    }));
+    if (restoredGenre137.id !== 'reggae-ska' || restoredGenre137.tab !== 'artists' ||
+        restoredGenre137.route !== 'detail' || restoredGenre137.mirror.path !== '/catalog/detail' ||
+        restoredGenre137.mirror.context?.id !== 'reggae-ska' ||
+        restoredGenre137.mirror.context?.tab !== 'artists' || page.url() !== BASE) {
+      throw new Error('History did not restore the selected genre and Artists tab: ' +
+        JSON.stringify(restoredGenre137));
+    }
     await page.locator('#sb-artist-expanded[data-sb-vue-artists]').waitFor();
     const artistCards = page.locator('#sb-artist-expanded .ahx-card');
     const worldCount = await artistCards.count();

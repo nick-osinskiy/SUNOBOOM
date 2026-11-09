@@ -35,18 +35,33 @@ let pushCount = 0;
 // routes, never editor state or user data. The cursor moves exclusively after
 // a confirmed Vue Router navigation; unknown nested targets are not restored.
 let historyEntries = [];
+let historyContexts = [];
 let historyPosition = -1;
 
-function saveHistoryEntry(path, mode) {
+const GENRE_TABS = new Set(['overview', 'ideas', 'prompts', 'artists']);
+function safeGenreContext(context) {
+  if (context?.kind !== 'genre' || typeof context.id !== 'string' ||
+      !/^[a-z0-9-]{1,100}$/.test(context.id) || !GENRE_TABS.has(context.tab)) return null;
+  return Object.freeze({ kind: 'genre', id: context.id, tab: context.tab });
+}
+
+function saveHistoryEntry(path, mode, context = null) {
+  const safe = safeGenreContext(context);
   if (historyPosition < 0) {
     historyEntries = [path];
+    historyContexts = [safe];
     historyPosition = 0;
   } else if (mode === 'push') {
     historyEntries = historyEntries.slice(0, historyPosition + 1);
+    historyContexts = historyContexts.slice(0, historyPosition + 1);
     historyEntries.push(path);
+    historyContexts.push(safe);
     historyPosition = historyEntries.length - 1;
   } else {
+    const previousContext = historyEntries[historyPosition] === path
+      ? historyContexts[historyPosition] : null;
     historyEntries[historyPosition] = path;
+    historyContexts[historyPosition] = safe || previousContext || null;
   }
 }
 
@@ -54,7 +69,8 @@ function historyStep(direction) {
   const offset = direction === 'back' ? -1 : direction === 'forward' ? 1 : 0;
   const index = historyPosition + offset;
   return offset && index >= 0 && index < historyEntries.length
-    ? Object.freeze({ path: historyEntries[index], index, offset }) : null;
+    ? Object.freeze({ path: historyEntries[index], context: historyContexts[index] || null,
+      index, offset }) : null;
 }
 
 export function legacyMemoryHistoryCandidate(direction) {
@@ -74,18 +90,33 @@ export function legacyRouteFromMemoryPath(path) {
 // transitions replace the current memory entry. This leaves browser history,
 // URL, render() and the source-of-truth view.nav entirely untouched.
 // Serialize changes to preserve click order when legacy renders are rapid.
-export function syncLegacyRouterMirror(route, { historyMode = 'replace' } = {}) {
+export function syncLegacyRouterMirror(route, { historyMode = 'replace', context = null } = {}) {
   const path = routeToMemoryPath(route);
-  if (path === requested) return pending;
+  const safe = safeGenreContext(context);
+  if (path === requested) {
+    // Vue tabs can change without changing the route. Preserve their actual
+    // context on the current memory entry; never push duplicate URLs.
+    if (safe) pending = pending.then(() => {
+      if (legacyMirrorRouter.currentRoute.value.path === path &&
+          historyPosition >= 0 && historyEntries[historyPosition] === path) {
+        historyContexts[historyPosition] = safe;
+      }
+    });
+    return pending;
+  }
   requested = path;
   const mode = historyMode === 'push' ? 'push' : 'replace';
   pending = pending.then(async () => {
-    if (legacyMirrorRouter.currentRoute.value.path === path) return;
+    if (legacyMirrorRouter.currentRoute.value.path === path) {
+      if (safe && historyPosition >= 0) historyContexts[historyPosition] = safe;
+      return;
+    }
     const failure = await legacyMirrorRouter[mode](path);
     if (!failure) {
-      saveHistoryEntry(path, mode);
+      saveHistoryEntry(path, mode, safe);
       lastTransition = mode;
-      if (mode === 'push') pushCount++;
+      // Keep the v0.134 diagnostic's meaning: count Vue MENU pushes only.
+      if (mode === 'push' && !safe) pushCount++;
     }
   }).catch(error => {
     console.warn('[SUNOBOOM] Vue Router memory navigation failed; legacy routing remains active.', error);
@@ -148,6 +179,8 @@ export function legacyRouterSnapshot() {
     canGoBack: historyPosition > 0,
     canGoForward: historyPosition >= 0 && historyPosition < historyEntries.length - 1,
     historyDepth: historyEntries.length,
-    historyPosition
+    historyPosition,
+    // Only tiny validated context, no saved songs, editor data or audio.
+    context: historyContexts[historyPosition] || null
   });
 }

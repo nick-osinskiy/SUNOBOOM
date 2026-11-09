@@ -325,3 +325,58 @@ test('history toolbar availability matches guarded restore rules', async () => {
   syncLegacyRoute('home');
   await whenLegacyRouterSettled();
 });
+
+test('genre detail memory entry restores its exact selected genre and Vue tab', async () => {
+  syncLegacyRoute('home');
+  await whenLegacyRouterSettled();
+  let active = 'catalog';
+  let selected = null;
+  let tab = null;
+  syncLegacyRoute('catalog', { historyMode: 'push' });
+  await whenLegacyRouterSettled();
+  const api = {
+    snapshot: () => ({
+      active,
+      detail: active === 'detail' ? { id: selected, tab } : null,
+      items: [{ id: 'catalog' }, { id: 'home' }]
+    }),
+    navigate: id => { active = id; },
+    canRestoreGenre: (id, t) => id === 'reggae-ska' && ['overview', 'ideas', 'prompts', 'artists'].includes(t),
+    restoreGenre(id, t) { selected = id; tab = t; active = 'detail'; return true; }
+  };
+  api.restoreGenre('reggae-ska', 'overview');
+  syncLegacyRoute('detail', { historyMode: 'push',
+    context: { kind: 'genre', id: 'reggae-ska', tab: 'overview' } });
+  await whenLegacyRouterSettled();
+  tab = 'artists';
+  syncLegacyRoute('detail', { context: { kind: 'genre', id: 'reggae-ska', tab } });
+  await whenLegacyRouterSettled();
+  assert.equal(legacyRouterSnapshot().context.tab, 'artists');
+  assert.equal(canRestoreLegacyMenuHistory('back', { legacyApi: api }), true);
+  assert.equal(await restoreLegacyMenuHistory('back', { legacyApi: api }), true);
+  await whenLegacyRouterSettled();
+  assert.equal(active, 'catalog');
+  assert.equal(legacyRouterSnapshot().path, '/catalog');
+  assert.equal(canRestoreLegacyMenuHistory('forward', { legacyApi: api }), true);
+  selected = null; tab = null; // prove that the stored context drives restore
+  assert.equal(await restoreLegacyMenuHistory('forward', { legacyApi: api }), true);
+  await whenLegacyRouterSettled();
+  assert.equal(active, 'detail');
+  assert.equal(selected, 'reggae-ska');
+  assert.equal(tab, 'artists');
+  assert.equal(legacyRouterSnapshot().path, '/catalog/detail');
+  assert.equal(legacyRouterSnapshot().context.tab, 'artists');
+  syncLegacyRoute('home');
+  await whenLegacyRouterSettled();
+});
+
+test('unrecorded or invalid nested context never enables history restoration', async () => {
+  const api = {
+    snapshot: () => ({ active: 'catalog', items: [{ id: 'catalog' }] }),
+    navigate: () => { throw new Error('must not navigate'); },
+    canRestoreGenre: () => false,
+    restoreGenre: () => { throw new Error('must not restore'); }
+  };
+  assert.equal(canRestoreLegacyMenuHistory('sideways', { legacyApi: api }), false);
+  assert.equal(canRestoreLegacyMenuHistory('forward', { legacyApi: api }), false);
+});

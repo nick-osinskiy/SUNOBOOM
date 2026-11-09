@@ -28,7 +28,17 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature })
     snapshot: () => currentRoute.value,
     routerSnapshot: () => legacyRouterSnapshot(),
     back: () => restoreLegacyMenuHistory('back', { legacyApi: api }),
-    forward: () => restoreLegacyMenuHistory('forward', { legacyApi: api })
+    forward: () => restoreLegacyMenuHistory('forward', { legacyApi: api }),
+    // The legacy page validates id + tab before an opt-in context push.
+    recordGenre: (id, tab, historyMode = 'push') => {
+      const actual = api.snapshot();
+      if (actual.active !== 'detail' || actual.detail?.id !== id ||
+          actual.detail?.tab !== tab || !api.canRestoreGenre?.(id, tab)) return false;
+      syncLegacyRoute('detail', {
+        historyMode, context: { kind: 'genre', id, tab }
+      });
+      return true;
+    }
   });
 
   function sync() {
