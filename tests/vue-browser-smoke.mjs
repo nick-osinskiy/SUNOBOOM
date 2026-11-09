@@ -72,6 +72,19 @@ async function checkLayout(mobile) {
     }
     await page.locator('[data-sb-vue-mobile][data-v-app]').waitFor({ state: 'attached', timeout: 20000 });
 
+    // v0.130: both Vue menus share one read-only legacy route observer.
+    const initialRoute130 = await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE?.snapshot());
+    if (!initialRoute130 || initialRoute130.route !== 'home' || initialRoute130.active !== 'home' ||
+        await page.locator('[data-sb-vue-sidebar] button.active').count() !== 1 ||
+        await page.locator('[data-sb-vue-mobile] button.active').count() !== 1) {
+      throw new Error('Shared Vue route did not synchronize the initial menu state');
+    }
+    await page.evaluate(() => render());
+    await page.locator('[data-sb-vue-sidebar][data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    if (await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.snapshot().revision) !== initialRoute130.revision) {
+      throw new Error('Legacy re-render with same route caused duplicate reactive update');
+    }
+
     const nav = mobile ? '.mobile-nav' : '[data-sb-vue-sidebar]';
     const master = page.locator(nav + ' button[data-nav="producer"]');
     // The lower/mobile bar must not show “миксер” twice, even when
@@ -159,12 +172,23 @@ async function checkLayout(mobile) {
 
     await master.click();
     await page.locator(nav + ' button[data-nav="producer"].active').waitFor({ timeout: 10000 });
+    await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.snapshot()?.route === 'producer');
+    if (await page.locator('[data-sb-vue-sidebar] button[data-nav="producer"][aria-current="page"]').count() !== 1 ||
+        await page.locator('[data-sb-vue-mobile] button[data-nav="producer"][aria-current="page"]').count() !== 1) {
+      throw new Error('Both Vue menus did not follow the Master route');
+    }
 
     await page.locator(nav + ' button[data-nav="studio"]').click();
     await page.locator(nav + ' button[data-nav="studio"].active').waitFor({ timeout: 10000 });
+    if (await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE?.snapshot()?.route) !== 'studio') {
+      throw new Error('Shared route did not follow Studio');
+    }
 
     await page.locator(nav + ' button[data-nav="account"]').click();
     await page.locator(nav + ' button[data-nav="account"].active').waitFor({ timeout: 10000 });
+    if (await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE?.snapshot()?.active) !== 'account') {
+      throw new Error('Shared route did not follow Account');
+    }
 
 
     // v0.110: Vue prompt form and saved list coexist with legacy save, cancel and auditor actions.
@@ -285,6 +309,13 @@ async function checkLayout(mobile) {
     const genreTitle = await page.locator('.genre-bright h1.gb-title').textContent();
     if (!genreTitle?.toLocaleLowerCase('ru').includes('ска')) {
       throw new Error('Genre card did not open the expected detail page: ' + genreTitle);
+    }
+
+    const genreRoute130 = await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE?.snapshot());
+    if (genreRoute130?.route !== 'detail' || genreRoute130.active !== 'catalog' ||
+        await page.locator('[data-sb-vue-sidebar] button[data-nav="catalog"][aria-current="page"]').count() !== 1 ||
+        await page.locator('[data-sb-vue-mobile] button[data-nav="catalog"][aria-current="page"]').count() !== 1) {
+      throw new Error('Genre detail failed to activate Academy in both shared Vue menus');
     }
 
     // Vue owns the genre hero and ЖАНР-НАВ; the existing rich content
@@ -1727,6 +1758,14 @@ async function checkLayout(mobile) {
     // v0.126: Vue owns only passport filters/cards; the old editor, detail,
     // version manager, release calculation and persistence must still work.
     await page.evaluate(() => go('tracks'));
+    await page.waitForFunction(() => {
+      const route = window.SUNOBOOM_VUE_ROUTE?.snapshot();
+      return route?.route === 'tracks' && route.active === 'account';
+    });
+    if (await page.locator('[data-sb-vue-sidebar] button[data-nav="account"][aria-current="page"]').count() !== 1 ||
+        await page.locator('[data-sb-vue-mobile] button[data-nav="account"][aria-current="page"]').count() !== 1) {
+      throw new Error('Nested track page failed to activate Account in both Vue menus');
+    }
     const trackList = page.locator('#sb-vue-track-list');
     await page.locator('#sb-vue-track-list[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
     if (await trackList.locator('[data-action="tp-filter"]').count() !== 8 ||

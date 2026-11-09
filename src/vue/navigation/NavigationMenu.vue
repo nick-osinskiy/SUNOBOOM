@@ -1,4 +1,6 @@
 <script setup>
+import { currentRoute } from './route-state.js';
+const isActive = id => currentRoute.value.active === id;
 defineProps({
   items: {
     type: Array,
@@ -20,9 +22,9 @@ defineProps({
     v-for="item in items"
     :key="item.id"
     type="button"
-    :class="mobile ? (item.active ? 'active' : '') : ['nav-button', { active: item.active }]"
+    :class="mobile ? (isActive(item.id) ? 'active' : '') : ['nav-button', { active: isActive(item.id) }]"
     :data-nav="item.id"
-    :aria-current="item.active ? 'page' : undefined"
+    :aria-current="isActive(item.id) ? 'page' : undefined"
     :aria-label="mobile ? item.label : undefined"
     :title="mobile ? item.label : undefined"
     @click="onNavigate(item.id)"

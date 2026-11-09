@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { activeNavigationRoute, navigationSnapshot } from '../src/vue/navigation/nav-model.js';
+import { currentRoute, syncLegacyRoute } from '../src/vue/navigation/route-state.js';
 
 test('genre details highlight the Academy menu', () => {
   assert.equal(activeNavigationRoute('detail'), 'catalog');
@@ -55,4 +56,26 @@ test('mobile navigation shows one concise Mixer entry even when legacy labels re
   assert.deepEqual(items.map(item => item.id), ['studio', 'mixer', 'producer', 'account']);
   assert.equal(items.filter(item => item.shortLabel === 'Миксер').length, 1);
   assert.equal(items.find(item => item.id === 'mixer')?.active, true);
+});
+
+test('the shared Vue route reflects legacy route changes without duplicate revisions', () => {
+  const initial = currentRoute.value.revision;
+  const detail = syncLegacyRoute('detail');
+  assert.equal(detail.route, 'detail');
+  assert.equal(detail.active, 'catalog');
+  assert.equal(syncLegacyRoute('detail').revision, detail.revision);
+  const tracks = syncLegacyRoute('tracks');
+  assert.equal(tracks.active, 'account');
+  assert.equal(tracks.revision, detail.revision + 1);
+  const producer = syncLegacyRoute('producer');
+  assert.equal(producer.active, 'producer');
+  assert.equal(producer.revision, initial + 3);
+  assert.equal(Object.isFrozen(currentRoute.value), true);
+  syncLegacyRoute('home');
+});
+
+test('the shared route defaults to home and allows future legacy route IDs', () => {
+  assert.equal(syncLegacyRoute(null).active, 'home');
+  assert.equal(syncLegacyRoute('future-route').active, 'future-route');
+  syncLegacyRoute('home');
 });
