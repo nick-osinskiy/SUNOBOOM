@@ -409,3 +409,37 @@ html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"
 :is(.sbp-eyebrow,.sbp-now-tag,.sbab-kicker,.sbab-side-label){
  color:var(--sb-theme-accent)!important;
 }
+
+
+/* v0.144 — home dashboard surfaces and actions follow palette. */
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.hero,.stats .stat,.stat,.two-col .panel,.home-panel,.home-card,.dashboard-card){
+ background:linear-gradient(135deg,var(--panel2),var(--panel))!important;
+ border-color:var(--stroke)!important;color:var(--text)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"]) .hero{
+ background:radial-gradient(circle at 78% 18%,var(--sb-theme-glow),transparent 48%),linear-gradient(120deg,var(--panel3),var(--panel))!important;
+ border-color:var(--sb-theme-accent-border)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.hero h2 span,.hero .eyebrow,.section-title .link-action,.stats .stat strong,.stat strong){
+ color:var(--sb-theme-accent)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.hero p,.stat span,.stats .stat span,.two-col .panel p){
+ color:var(--muted)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.hero .btn.primary,.two-col .btn.ghost,.home-card .btn){
+ background:var(--sb-theme-accent-soft)!important;
+ border-color:var(--sb-theme-accent-border)!important;
+ color:var(--text)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.soundwave .bar,.hero .soundwave .bar){
+ background:linear-gradient(180deg,var(--sb-theme-accent),var(--violet))!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.list-pills .filter,.home-card,.dashboard-card):hover{
+ border-color:var(--sb-theme-accent-border)!important;
+}
