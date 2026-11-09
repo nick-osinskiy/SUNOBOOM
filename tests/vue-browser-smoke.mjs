@@ -209,6 +209,44 @@ async function checkLayout(mobile) {
     await page.locator(nav + ' button[data-nav="catalog"]').click();
     await page.locator('#sb-vue-academy-root[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
 
+    // v0.127: genre tree is an existing full-feature legacy tool.
+    // Its container must survive the Vue catalog mount and work on both layouts.
+    const treeEntry = page.locator('.encyclopedia-sections [data-sb-gt-action="reveal"]');
+    const genreTree = page.locator('#sb-genre-tree');
+    if (await treeEntry.count() !== 1 || await genreTree.count() !== 1 ||
+        await page.locator('#sb-vue-academy-root #sb-genre-tree').count() !== 0) {
+      throw new Error('Genre tree tile or its independent mount target disappeared under Vue');
+    }
+    await treeEntry.click();
+    await page.locator('#sb-genre-tree[open] #sb-gt-tree-choice').waitFor({ state: 'visible', timeout: 10000 });
+    if (await genreTree.locator('.sb-gt-node').count() < 5 ||
+        await genreTree.locator('[data-sb-gt-action="zoom-in"]').count() !== 1) {
+      throw new Error('Existing interactive genre genealogy did not render after opening');
+    }
+    await genreTree.locator('#sb-gt-tree-choice').selectOption('all');
+    await page.waitForFunction(() => document.querySelectorAll('#sb-genre-tree .sb-gt-node').length > 100);
+    await genreTree.locator('#sb-gt-search').fill('ска-панк');
+    if (await genreTree.locator('[data-sb-gt-action="search-jump"]').count() < 1) {
+      throw new Error('Full-collection genre tree search stopped working');
+    }
+    await genreTree.locator('[data-sb-gt-action="zoom-in"]').click();
+    if ((await genreTree.locator('#sb-gt-zoom-label').textContent()).trim() !== '115%') {
+      throw new Error('Genre tree zoom stopped responding');
+    }
+    await genreTree.locator('[data-sb-gt-action="zoom-reset"]').click();
+    await genreTree.locator('[data-sb-gt-action="search-jump"]').first().click();
+    if (await genreTree.locator('.sb-gt-node.is-selected').count() !== 1 ||
+        !(await genreTree.locator('#sb-gt-description').textContent()).includes('Ска-панк')) {
+      throw new Error('Genre tree selection/search results stopped opening genre details');
+    }
+    await genreTree.locator('.sb-gt-open').click();
+    await page.locator('#sb-vue-genre-detail[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    await page.locator('.gb-top [data-action="academy-back"]').click();
+    await page.locator('#sb-vue-academy-root[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    if (await page.locator('#sb-genre-tree').count() !== 1) {
+      throw new Error('Genre tree was lost after returning from a genre card');
+    }
+
     const familyCount = await page.locator('#catalog-cards details.genre-family').count();
     const cardCount = await page.locator('#catalog-cards .genre-card').count();
     if (familyCount < 5 || cardCount < 20) {

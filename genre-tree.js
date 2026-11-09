@@ -172,7 +172,10 @@
   catalog=function(){
     const html=baseCatalog.apply(this,arguments);
     return html.replace('<div class="encyclopedia-section encyclopedia-section-future">',tile+'<div class="encyclopedia-section encyclopedia-section-future">')
-      .replace('<div class="genre-family-toolbar">',details.replace('class="sb-gt-section"','class="sb-gt-section"'+(state.open?' open':''))+'<div class="genre-family-toolbar">');
+      // The Vue Academy mounts inside #sb-vue-academy-root and replaces its children.
+      // Keep the legacy interactive tree OUTSIDE that Vue-owned element, otherwise
+      // the tree tile remains visible but its target disappears after Vue mounts.
+      .replace('<section id="sb-vue-academy-root">',details.replace('class="sb-gt-section"','class="sb-gt-section"'+(state.open?' open':''))+'<section id="sb-vue-academy-root">');
   };
 
 
