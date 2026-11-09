@@ -8099,11 +8099,13 @@ function Ny({ mountVueFeature: e }) {
 var Py = {
 	class: "gb-grid",
 	"data-sb-vue-overview": ""
-}, Fy = { class: "gb-column" }, Iy = { class: "gb-panel pink" }, Ly = { class: "gb-unit" }, Ry = { class: "gb-unit" }, zy = { class: "gb-unit" }, By = { class: "gb-panel" }, Vy = ["innerHTML"], Hy = { class: "gb-column" }, Uy = { class: "gb-panel blue" }, Wy = { style: {
-	"font-size": "26px",
-	"font-weight": "900",
-	color: "#ffe2b0"
-} }, Gy = { class: "gb-artists" }, Ky = { class: "gb-panel pink" }, qy = ["data-id"], Jy = ["innerHTML"], Yy = {
+}, Fy = { class: "gb-column" }, Iy = { class: "gb-panel pink" }, Ly = { class: "gb-unit" }, Ry = { class: "gb-unit" }, zy = { class: "gb-unit" }, By = { class: "gb-panel" }, Vy = ["innerHTML"], Hy = { class: "gb-column" }, Uy = { class: "gb-panel blue" }, Wy = {
+	class: "gb-bpm-value",
+	style: {
+		"font-size": "26px",
+		"font-weight": "900"
+	}
+}, Gy = { class: "gb-artists" }, Ky = { class: "gb-panel pink" }, qy = ["data-id"], Jy = ["innerHTML"], Yy = {
 	__name: "GenreOverview",
 	props: { genre: {
 		type: Object,
