@@ -185,6 +185,7 @@ async function checkLayout(mobile) {
     await master.waitFor();
     if (await master.count() !== 1) throw new Error('Master link missing or duplicated');
 
+    const beforeMenuPush134 = await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.routerSnapshot().menuPushes);
     // v0.133: the Vue Router menu adapter must dispatch EXACTLY ONE legacy
     // go() per click, even though the Vue route mirror also updates.
     await page.evaluate(() => {
@@ -208,7 +209,13 @@ async function checkLayout(mobile) {
       throw new Error('Vue Router menu adapter dispatched legacy go() ' + goCalls133 + ' times');
     }
     await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.snapshot()?.route === 'producer');
-    await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.routerSnapshot()?.path === '/producer');
+    await page.waitForFunction(() => {
+      const route = window.SUNOBOOM_VUE_ROUTE?.routerSnapshot();
+      return route?.path === '/producer' && route?.transition === 'push';
+    });
+    if (await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.routerSnapshot().menuPushes) !== beforeMenuPush134 + 1) {
+      throw new Error('Vue menu click should add exactly one memory history entry');
+    }
     await page.waitForFunction(() => ['[data-sb-vue-sidebar]', '[data-sb-vue-mobile]']
       .every(selector => document.querySelector(selector + ' button[data-nav="producer"]')
         ?.getAttribute('data-vue-router-path') === '/producer'));
@@ -222,6 +229,10 @@ async function checkLayout(mobile) {
 
     await page.locator(nav + ' button[data-nav="studio"]').click();
     await page.locator(nav + ' button[data-nav="studio"].active').waitFor({ timeout: 10000 });
+    await page.waitForFunction(expected => {
+      const route = window.SUNOBOOM_VUE_ROUTE?.routerSnapshot();
+      return route?.path === '/studio' && route?.menuPushes === expected;
+    }, beforeMenuPush134 + 2);
     if (await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE?.snapshot()?.route) !== 'studio') {
       throw new Error('Shared route did not follow Studio');
     }
@@ -1803,11 +1814,17 @@ async function checkLayout(mobile) {
 
     // v0.126: Vue owns only passport filters/cards; the old editor, detail,
     // version manager, release calculation and persistence must still work.
+    const beforeLegacyReplace134 = await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE?.routerSnapshot().menuPushes);
     await page.evaluate(() => go('tracks'));
     await page.waitForFunction(() => {
       const route = window.SUNOBOOM_VUE_ROUTE?.snapshot();
       return route?.route === 'tracks' && route.active === 'account';
     });
+    await page.waitForFunction(expected => {
+      const route = window.SUNOBOOM_VUE_ROUTE?.routerSnapshot();
+      return route?.path === '/account/tracks' && route.transition === 'replace' &&
+        route.menuPushes === expected;
+    }, beforeLegacyReplace134);
     await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.routerSnapshot()?.path === '/account/tracks');
     await page.waitForFunction(() => ['[data-sb-vue-sidebar]', '[data-sb-vue-mobile]']
       .every(selector => document.querySelector(selector + ' button[data-nav="account"]')

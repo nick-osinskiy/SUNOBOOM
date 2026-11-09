@@ -29,19 +29,27 @@ export function activeRouteFromMemoryPath(path) {
 
 let requested = null;
 let pending = Promise.resolve();
+let lastTransition = 'replace';
+let pushCount = 0;
 
-// Serializing memory-only navigation ensures rapid legacy render cycles cannot
-// leave the mirror on an older route. No component relies on this async mirror
-// to decide what is visible: legacy view.nav stays the source of truth.
-export function syncLegacyRouterMirror(route) {
+// Menu clicks can create real Vue Router memory-history entries. Legacy-only
+// transitions replace the current memory entry. This leaves browser history,
+// URL, render() and the source-of-truth view.nav entirely untouched.
+// Serialize changes to preserve click order when legacy renders are rapid.
+export function syncLegacyRouterMirror(route, { historyMode = 'replace' } = {}) {
   const path = routeToMemoryPath(route);
   if (path === requested) return pending;
   requested = path;
-  pending = pending.then(() => {
+  const mode = historyMode === 'push' ? 'push' : 'replace';
+  pending = pending.then(async () => {
     if (legacyMirrorRouter.currentRoute.value.path === path) return;
-    return legacyMirrorRouter.replace(path);
+    const failure = await legacyMirrorRouter[mode](path);
+    if (!failure) {
+      lastTransition = mode;
+      if (mode === 'push') pushCount++;
+    }
   }).catch(error => {
-    console.warn('[SUNOBOOM] Vue Router memory mirror failed; legacy routing remains active.', error);
+    console.warn('[SUNOBOOM] Vue Router memory navigation failed; legacy routing remains active.', error);
   });
   return pending;
 }
@@ -55,6 +63,8 @@ export function legacyRouterSnapshot() {
   return Object.freeze({
     path: route.path,
     name: route.name,
-    active: activeRouteFromMemoryPath(route.path)
+    active: activeRouteFromMemoryPath(route.path),
+    transition: lastTransition,
+    menuPushes: pushCount
   });
 }

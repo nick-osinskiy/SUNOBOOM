@@ -7,10 +7,11 @@ import { syncLegacyRouterMirror } from './legacy-router-mirror.js';
 const state = shallowRef(Object.freeze({ route: 'home', active: 'home', revision: 0 }));
 export const currentRoute = readonly(state);
 
-export function syncLegacyRoute(route) {
+export function syncLegacyRoute(route, { historyMode = 'replace' } = {}) {
   const id = typeof route === 'string' && route ? route : 'home';
-  // The Vue Router memory mirror observes legacy routing but never drives it.
-  void syncLegacyRouterMirror(id);
+  // Only explicitly validated Vue-menu clicks append to memory history.
+  // Every other legacy route change replaces the in-memory entry.
+  void syncLegacyRouterMirror(id, { historyMode });
   if (id === state.value.route) return state.value;
   const next = Object.freeze({
     route: id,

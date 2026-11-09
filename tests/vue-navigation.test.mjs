@@ -141,15 +141,18 @@ test('Vue Router navigation adapter delegates exactly one click to legacy go()',
     navigate: id => { navigations.push(id); route = id; }
   };
   const router = { resolve: path => { resolved.push(path); return { path }; } };
-  const syncRoute = id => synced.push(id);
+  const syncRoute = (id, options) => synced.push({ id, historyMode: options?.historyMode });
   assert.equal(navigateFromVueMenu('producer', { router, legacyApi: api, syncRoute }), true);
   assert.deepEqual(navigations, ['producer']);
   assert.deepEqual(resolved, ['/producer']);
-  assert.deepEqual(synced, ['producer']);
+  assert.deepEqual(synced, [{ id: 'producer', historyMode: 'push' }]);
   assert.equal(navigateFromVueMenu('studio', { router, legacyApi: api, syncRoute }), true);
   assert.deepEqual(navigations, ['producer', 'studio']);
   assert.deepEqual(resolved, ['/producer', '/studio']);
-  assert.deepEqual(synced, ['producer', 'studio']);
+  assert.deepEqual(synced, [
+    { id: 'producer', historyMode: 'push' },
+    { id: 'studio', historyMode: 'push' }
+  ]);
 });
 
 test('Vue menu adapter rejects unknown/duplicate hidden routes without dispatch', () => {
@@ -178,11 +181,71 @@ test('Vue navigation adapter falls back to legacy when router resolution fails',
   console.warn = () => {};
   try {
     assert.equal(navigateFromVueMenu('account', { legacyApi: api, router,
-      syncRoute: id => { mirrored = id; } }), true);
+      syncRoute: (id, options) => { mirrored = { id, mode: options.historyMode }; } }), true);
     assert.equal(count, 1);
     assert.equal(active, 'account');
-    assert.equal(mirrored, 'account');
+    assert.deepEqual(mirrored, { id: 'account', mode: 'replace' });
   } finally {
     console.warn = originalWarn;
   }
+});
+
+test('menu transitions push in Vue Router memory while legacy routes replace', async () => {
+  syncLegacyRoute('home');
+  await whenLegacyRouterSettled();
+  const originalPushCount = legacyRouterSnapshot().menuPushes;
+  const api = {
+    active: 'home',
+    snapshot() { return { active: this.active, items: [
+      { id: 'home', label: 'Главная' },
+      { id: 'producer', label: 'Мастер' },
+      { id: 'studio', label: 'Студия' }
+    ] }; },
+    navigate(id) { this.active = id; }
+  };
+  assert.equal(navigateFromVueMenu('producer', {
+    router: legacyMirrorRouter, legacyApi: api
+  }), true);
+  await whenLegacyRouterSettled();
+  assert.equal(legacyRouterSnapshot().path, '/producer');
+  assert.equal(legacyRouterSnapshot().transition, 'push');
+  assert.equal(legacyRouterSnapshot().menuPushes, originalPushCount + 1);
+
+  // A render of the same legacy route cannot push again.
+  syncLegacyRoute('producer');
+  await whenLegacyRouterSettled();
+  assert.equal(legacyRouterSnapshot().menuPushes, originalPushCount + 1);
+
+  // A programmatic old go() replaces the current memory entry.
+  syncLegacyRoute('tracks');
+  await whenLegacyRouterSettled();
+  assert.equal(legacyRouterSnapshot().path, '/account/tracks');
+  assert.equal(legacyRouterSnapshot().transition, 'replace');
+  assert.equal(legacyRouterSnapshot().menuPushes, originalPushCount + 1);
+
+  assert.equal(navigateFromVueMenu('studio', {
+    router: legacyMirrorRouter, legacyApi: api
+  }), true);
+  await whenLegacyRouterSettled();
+  assert.equal(legacyRouterSnapshot().path, '/studio');
+  assert.equal(legacyRouterSnapshot().menuPushes, originalPushCount + 2);
+
+  syncLegacyRoute('home');
+  await whenLegacyRouterSettled();
+});
+
+test('cancelled or redirected legacy menu action does not push an incorrect route', () => {
+  const invoked = [];
+  const api = {
+    snapshot: () => ({ active: 'home', items: [{ id: 'studio', label: 'Студия' }] }),
+    navigate: id => invoked.push(id)
+  };
+  const observed = [];
+  assert.equal(navigateFromVueMenu('studio', {
+    router: { resolve: path => ({ path }) },
+    legacyApi: api,
+    syncRoute: (id, options) => observed.push({ id, mode: options.historyMode })
+  }), true);
+  assert.deepEqual(invoked, ['studio']);
+  assert.deepEqual(observed, [{ id: 'home', mode: 'replace' }]);
 });
