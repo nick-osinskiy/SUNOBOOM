@@ -44,7 +44,7 @@ onMounted(() => {
               <option v-for="theme in model.themes" :key="theme.id" :value="theme.id">{{ theme.title }}</option>
             </select>
           </label>
-          <p class="sbs-help sbs-theme-help">Выбери палитру: тёмную, светлую, системную или одну из пяти цветных тем. Изменения сохраняются.</p>
+          <p class="sbs-help sbs-theme-help">Выбери палитру: тёмную, светлую, системную или одну из шести цветных тем. Изменения сохраняются.</p>
           <label v-for="option in options" :key="option.key" class="sbs-option" :for="'sbs-' + option.key">
             <span class="sbs-option-text"><strong>{{ option.title }}</strong><small>{{ option.desc }}</small></span>
             <span class="sbs-switch">

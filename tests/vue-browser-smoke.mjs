@@ -1729,6 +1729,57 @@ async function checkLayout(mobile) {
     if (await page.locator('#sbs-theme').inputValue() !== 'pink') {
       throw new Error('Pink theme was lost in the Vue settings selector');
     }
+    // v0.154: Independent pastel-pink theme uses light contrast and real
+    // pink surfaces across settings, home, Academy and player.
+    await page.locator('#sbs-theme').selectOption('pink-pastel');
+    const pastel154 = await page.evaluate(() => {
+      const css = selector => getComputedStyle(document.querySelector(selector));
+      return {
+        mode: document.documentElement.dataset.sbTheme,
+        persisted: JSON.parse(localStorage.getItem('sunoboom-ui-settings-v1')).theme,
+        light: document.documentElement.classList.contains('sb-theme-light'),
+        scheme: getComputedStyle(document.documentElement).colorScheme,
+        side: css('.side').backgroundColor,
+        panel: css('.sbs-panel').backgroundImage,
+        label: css('.sbs-panel-head h2').color,
+        action: css('.sbs-primary').backgroundImage
+      };
+    });
+    if (pastel154.mode !== 'pink-pastel' || pastel154.persisted !== 'pink-pastel' ||
+        !pastel154.light || pastel154.scheme !== 'light' ||
+        pastel154.side !== 'rgb(255, 250, 253)' ||
+        !pastel154.panel.includes('linear-gradient') ||
+        !pastel154.action.includes('linear-gradient')) {
+      throw new Error('Pastel pink Vue settings should be light and visibly pink: ' +
+        JSON.stringify(pastel154));
+    }
+    await page.evaluate(() => go('home'));
+    const pastelHome154 = await page.locator('.dash-head').evaluate(el => getComputedStyle(el).backgroundImage);
+    if (!pastelHome154.includes('linear-gradient')) {
+      throw new Error('Pastel pink did not recolor home hero');
+    }
+    await page.evaluate(() => go('catalog'));
+    const pastelAcademy154 = await page.locator('.genre-family-intro').evaluate(el => getComputedStyle(el).backgroundImage);
+    if (!pastelAcademy154.includes('linear-gradient')) {
+      throw new Error('Pastel pink did not recolor Academy');
+    }
+    await page.evaluate(() => go('player'));
+    if (await page.locator('.sbp-main').count()) {
+      const pastelPlayer154 = await page.locator('.sbp-main').evaluate(el => getComputedStyle(el).backgroundImage);
+      if (!pastelPlayer154.includes('linear-gradient')) {
+        throw new Error('Pastel pink did not recolor player cards');
+      }
+    }
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    if (await page.evaluate(() => document.documentElement.dataset.sbTheme) !== 'pink-pastel') {
+      throw new Error('Pastel pink not restored on page reload');
+    }
+    await page.evaluate(() => go('account'));
+    await page.locator('[data-sbs-action="open"]').click();
+    await page.locator('#sb-vue-account-settings[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    if (await page.locator('#sbs-theme').inputValue() !== 'pink-pastel') {
+      throw new Error('Pastel pink selector did not retain chosen appearance');
+    }
     await page.locator('#sbs-theme').selectOption('system');
     await page.emulateMedia({ colorScheme: 'light' });
     await page.waitForFunction(() => document.documentElement.classList.contains('sb-theme-light'), null, { timeout: 10000 });
