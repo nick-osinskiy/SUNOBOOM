@@ -2076,6 +2076,30 @@ async function checkLayout(mobile) {
     }
     await trackList.locator('.sb-track-tile[data-id="'+track126.id+'"]').click();
     await trackDetail128.waitFor({ state: 'attached', timeout: 10000 });
+    // v0.138: real Vue buttons restore the filtered list and its specific passport.
+    await page.waitForFunction(id => {
+      const route = window.SUNOBOOM_VUE_ROUTE?.routerSnapshot();
+      return route?.path === '/account/tracks/detail' &&
+        route.context?.kind === 'track' && route.context.id === id;
+    }, track126.id);
+    await page.waitForFunction(() =>
+      !document.querySelector('[data-sb-vue-history] [data-sb-history-back]')?.disabled);
+    await page.locator('[data-sb-vue-history] [data-sb-history-back]').click();
+    await page.waitForFunction(() =>
+      view.nav === 'tracks' && !view.sbTrackSelected &&
+      window.SUNOBOOM_VUE_ROUTE?.routerSnapshot()?.path === '/account/tracks');
+    await page.locator('#sb-vue-track-list[data-v-app]').waitFor({ state: 'attached' });
+    if (await trackList.locator('[data-filter="publisher"]').getAttribute('aria-pressed') !== 'true') {
+      throw new Error('Passport history Back lost the active list filter');
+    }
+    await page.waitForFunction(() =>
+      !document.querySelector('[data-sb-vue-history] [data-sb-history-forward]')?.disabled);
+    await page.locator('[data-sb-vue-history] [data-sb-history-forward]').click();
+    await page.waitForFunction(id =>
+      view.sbTrackSelected === id &&
+      window.SUNOBOOM_VUE_ROUTE?.routerSnapshot()?.context?.id === id, track126.id);
+    await trackDetail128.waitFor({ state: 'attached', timeout: 10000 });
+    if (page.url() !== BASE) throw new Error('Passport memory history modified the browser URL');
     if (await trackDetail128.locator('.sb-track-version').count() !== 1 ||
         await page.locator('#sb-vue-track-list').count() !== 0) {
       throw new Error('Vue passport detail/versions did not open from Vue list');

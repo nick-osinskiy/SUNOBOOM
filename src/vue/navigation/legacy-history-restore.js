@@ -8,10 +8,17 @@ import {
 } from './legacy-router-mirror.js';
 import { syncLegacyRoute } from './route-state.js';
 
-// Only validated top-level routes and recorded genre details are replayed.
+// Only validated top-level routes and recorded genre/track details are replayed.
+function actualMemoryPath(snapshot) {
+  const track = snapshot?.track;
+  return routeToMemoryPath(snapshot?.active,
+    track?.id ? { kind: 'track', id: track.id } : null);
+}
 function restoreTarget(candidate, api) {
   if (!candidate || typeof api?.snapshot !== 'function') return null;
   const snapshot = api.snapshot();
+  // Never lose an unsaved passport editor by replaying a memory entry.
+  if (snapshot?.trackEditing) return null;
   const topLevelId = legacyRouteFromMemoryPath(candidate.path);
   if (topLevelId && snapshot?.items?.some(item => item?.id === topLevelId)) {
     return { kind: 'menu', id: topLevelId };
@@ -21,6 +28,16 @@ function restoreTarget(candidate, api) {
       typeof api.canRestoreGenre === 'function' && api.canRestoreGenre(context.id, context.tab) &&
       typeof api.restoreGenre === 'function') {
     return { kind: 'genre', id: context.id, tab: context.tab };
+  }
+  if (candidate.path === '/account/tracks' &&
+      api.canRestoreTrackList?.() === true &&
+      typeof api.restoreTrackList === 'function') {
+    return { kind: 'track-list' };
+  }
+  if (candidate.path === '/account/tracks/detail' && context?.kind === 'track' &&
+      api.canRestoreTrack?.(context.id) === true &&
+      typeof api.restoreTrack === 'function') {
+    return { kind: 'track', id: context.id };
   }
   return null;
 }
@@ -35,7 +52,7 @@ export function canRestoreLegacyMenuHistory(direction, { legacyApi } = {}) {
   const candidate = legacyMemoryHistoryCandidate(direction);
   const snapshot = legacyApi.snapshot();
   return !!restoreTarget(candidate, legacyApi) &&
-    legacyRouterSnapshot().path === routeToMemoryPath(snapshot?.active);
+    legacyRouterSnapshot().path === actualMemoryPath(snapshot);
 }
 
 
@@ -51,7 +68,7 @@ export async function restoreLegacyMenuHistory(direction, {
     const candidate = legacyMemoryHistoryCandidate(direction);
     const target = restoreTarget(candidate, legacyApi);
     const before = legacyApi.snapshot();
-    if (!target || legacyRouterSnapshot().path !== routeToMemoryPath(before?.active)) return false;
+    if (!target || legacyRouterSnapshot().path !== actualMemoryPath(before)) return false;
 
     const moved = await traverseLegacyMemoryHistory(direction);
     if (!moved) return false;
@@ -59,6 +76,16 @@ export async function restoreLegacyMenuHistory(direction, {
       if (legacyApi.restoreGenre(target.id, target.tab) !== true) {
         // Restore was declined (e.g. deleted genre); repair the memory mirror
         // to match the actual legacy page, without touching browser history.
+        syncRoute(legacyApi.snapshot()?.active);
+        return false;
+      }
+    } else if (target.kind === 'track-list') {
+      if (legacyApi.restoreTrackList() !== true) {
+        syncRoute(legacyApi.snapshot()?.active);
+        return false;
+      }
+    } else if (target.kind === 'track') {
+      if (legacyApi.restoreTrack(target.id) !== true) {
         syncRoute(legacyApi.snapshot()?.active);
         return false;
       }
@@ -74,8 +101,12 @@ export async function restoreLegacyMenuHistory(direction, {
     } else {
       legacyApi.navigate(target.id); // original go() executes once
     }
-    const selected = legacyApi.snapshot()?.active;
-    syncRoute(selected);
+    const after = legacyApi.snapshot();
+    const selected = after?.active;
+    syncRoute(selected, { context: target.kind === 'track'
+      ? { kind: 'track', id: target.id } : null });
+    if (target.kind === 'track') return selected === 'tracks' && after?.track?.id === target.id;
+    if (target.kind === 'track-list') return selected === 'tracks' && !after?.track && !after?.trackEditing;
     return selected === (target.kind === 'genre' ? 'detail' : target.id);
   } catch (error) {
     console.warn('[SUNOBOOM] Vue history restore skipped; legacy navigation remains active.', error);

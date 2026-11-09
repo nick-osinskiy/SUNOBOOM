@@ -38,6 +38,15 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature })
         historyMode, context: { kind: 'genre', id, tab }
       });
       return true;
+    },
+    recordTrack: (id, historyMode = 'push') => {
+      const actual = api.snapshot();
+      if (actual.active !== 'tracks' || actual.track?.id !== id ||
+          actual.trackEditing || !api.canRestoreTrack?.(id)) return false;
+      syncLegacyRoute('tracks', {
+        historyMode, context: { kind: 'track', id }
+      });
+      return true;
     }
   });
 
@@ -45,7 +54,8 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature })
     if (disposed) return;
     const raw = api.snapshot();
     // Publish before mounting either menu so both Vue roots see the same route.
-    syncLegacyRoute(raw.active);
+    syncLegacyRoute(raw.active, { context: raw.track?.id
+      ? { kind: 'track', id: raw.track.id } : null });
     const items = navigationSnapshot(raw);
     // Only the menu's structure, not its reactive active state, needs remounting.
     const signature = JSON.stringify(items.map(({ active, ...item }) => item));
@@ -91,7 +101,9 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature })
   const observer = new MutationObserver(sync);
   // Initialize the memory route before Vue Router is installed in any menu.
   // Otherwise a first-install bootstrap could overwrite the legacy route.
-  syncLegacyRoute(api.snapshot().active);
+  const initial = api.snapshot();
+  syncLegacyRoute(initial.active, { context: initial.track?.id
+    ? { kind: 'track', id: initial.track.id } : null });
   void whenLegacyRouterSettled().then(() => {
     if (disposed) return;
     observer.observe(root, { childList: true });

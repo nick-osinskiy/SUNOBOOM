@@ -12,8 +12,10 @@ const accountViews = new Set([
   'projects', 'saved', 'myideas', 'myprompts', 'events', 'tracks', 'artists'
 ]);
 
-export function routeToMemoryPath(route) {
+export function routeToMemoryPath(route, context = null) {
   const id = typeof route === 'string' && route ? route : 'home';
+  // A passport detail is a distinct memory route, never a browser URL.
+  if (id === 'tracks' && context?.kind === 'track') return '/account/tracks/detail';
   if (id === 'detail') return '/catalog/detail';
   if (accountViews.has(id)) return '/account/' + id;
   return '/' + encodeURIComponent(id);
@@ -45,8 +47,18 @@ function safeGenreContext(context) {
   return Object.freeze({ kind: 'genre', id: context.id, tab: context.tab });
 }
 
+function safeTrackContext(context) {
+  if (context?.kind !== 'track' || typeof context.id !== 'string' ||
+      !/^[a-zA-Z0-9_-]{1,128}$/.test(context.id)) return null;
+  return Object.freeze({ kind: 'track', id: context.id });
+}
+
+function safeHistoryContext(context) {
+  return safeGenreContext(context) || safeTrackContext(context);
+}
+
 function saveHistoryEntry(path, mode, context = null) {
-  const safe = safeGenreContext(context);
+  const safe = safeHistoryContext(context);
   if (historyPosition < 0) {
     historyEntries = [path];
     historyContexts = [safe];
@@ -77,9 +89,9 @@ export function legacyMemoryHistoryCandidate(direction) {
   return historyStep(direction);
 }
 
-// Only a safe, visible top-level route can be replayed via legacy navigate().
-// Never restore /catalog/detail or /account/tracks by calling go() with a
-// guessed state: those screens need their own editor/selection context.
+// Only safe, visible top-level routes can be replayed via legacy navigate().
+ // Nested detail routes require validated object context and explicit legacy APIs;
+ // neither editors nor arbitrary nested URLs are guessed from a path.
 export function legacyRouteFromMemoryPath(path) {
   if (typeof path !== 'string' || !/^\/[a-z][a-z0-9-]*$/i.test(path)) return null;
   try { return decodeURIComponent(path.slice(1)); }
@@ -91,8 +103,8 @@ export function legacyRouteFromMemoryPath(path) {
 // URL, render() and the source-of-truth view.nav entirely untouched.
 // Serialize changes to preserve click order when legacy renders are rapid.
 export function syncLegacyRouterMirror(route, { historyMode = 'replace', context = null } = {}) {
-  const path = routeToMemoryPath(route);
-  const safe = safeGenreContext(context);
+  const safe = safeHistoryContext(context);
+  const path = routeToMemoryPath(route, safe);
   if (path === requested) {
     // Vue tabs can change without changing the route. Preserve their actual
     // context on the current memory entry; never push duplicate URLs.

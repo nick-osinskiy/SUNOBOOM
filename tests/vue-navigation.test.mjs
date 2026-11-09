@@ -409,3 +409,65 @@ test('history Back from a genre uses the Academy context-preserving return', asy
   syncLegacyRoute('home');
   await whenLegacyRouterSettled();
 });
+
+
+test('passport detail memory history returns to filtered list and restores only an existing track', async () => {
+  syncLegacyRoute('home');
+  await whenLegacyRouterSettled();
+  let selected = null;
+  let editing = false;
+  let exists = true;
+  let filter = 'publisher';
+  const id = 'tr-1762680000000-abcde';
+  const api = {
+    snapshot: () => ({ active: 'tracks', track: selected ? { id: selected } : null,
+      trackEditing: editing, items: [{ id: 'account' }] }),
+    navigate: () => { throw new Error('Nested passport history must not call menu navigate'); },
+    canRestoreTrackList: () => !editing,
+    restoreTrackList: () => { if (editing) return false; selected = null; return true; },
+    canRestoreTrack: candidate => !editing && exists && candidate === id,
+    restoreTrack: candidate => {
+      if (editing || !exists || candidate !== id) return false;
+      selected = candidate; return true;
+    }
+  };
+  syncLegacyRoute('tracks');
+  await whenLegacyRouterSettled();
+  selected = id;
+  syncLegacyRoute('tracks', { historyMode: 'push', context: { kind: 'track', id } });
+  await whenLegacyRouterSettled();
+  assert.equal(legacyRouterSnapshot().path, '/account/tracks/detail');
+  assert.deepEqual(legacyRouterSnapshot().context, { kind: 'track', id });
+  assert.equal(legacyRouterSnapshot().menuPushes >= 0, true);
+  assert.equal(canRestoreLegacyMenuHistory('back', { legacyApi: api }), true);
+  editing = true;
+  assert.equal(canRestoreLegacyMenuHistory('back', { legacyApi: api }), false);
+  editing = false;
+  assert.equal(await restoreLegacyMenuHistory('back', { legacyApi: api }), true);
+  await whenLegacyRouterSettled();
+  assert.equal(selected, null);
+  assert.equal(filter, 'publisher');
+  assert.equal(legacyRouterSnapshot().path, '/account/tracks');
+  exists = false;
+  assert.equal(canRestoreLegacyMenuHistory('forward', { legacyApi: api }), false);
+  exists = true;
+  assert.equal(await restoreLegacyMenuHistory('forward', { legacyApi: api }), true);
+  await whenLegacyRouterSettled();
+  assert.equal(selected, id);
+  assert.equal(legacyRouterSnapshot().path, '/account/tracks/detail');
+  assert.equal(legacyRouterSnapshot().context.id, id);
+  syncLegacyRoute('home');
+  await whenLegacyRouterSettled();
+});
+
+test('invalid passport context is not retained as a restorable memory entry', async () => {
+  syncLegacyRoute('tracks');
+  await whenLegacyRouterSettled();
+  syncLegacyRoute('tracks', { historyMode: 'push',
+    context: { kind: 'track', id: '../bad-id' } });
+  await whenLegacyRouterSettled();
+  assert.equal(legacyRouterSnapshot().path, '/account/tracks');
+  assert.equal(legacyRouterSnapshot().context, null);
+  syncLegacyRoute('home');
+  await whenLegacyRouterSettled();
+});
