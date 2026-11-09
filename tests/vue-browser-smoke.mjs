@@ -2190,7 +2190,8 @@ async function checkLayout(mobile) {
     await shortcut.click();
     await page.locator('#sb-vue-account-settings[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
     if (await page.locator('#sbs-page[data-sb-vue-settings]').count() !== 1 ||
-        await page.locator('#sbs-theme option').count() !== 3 ||
+        await page.locator('#sbs-theme option').count() !==
+        await page.evaluate(() => window.SUNOBOOM_LEGACY_SETTINGS?.snapshot()?.themes?.length) ||
         await page.evaluate(() => view.nav) !== 'account') {
       throw new Error('Header settings shortcut did not open the original Vue settings');
     }
@@ -2224,7 +2225,8 @@ async function checkEditorFallback() {
     await page.locator('.top .sb-settings-shortcut').click();
     if (await page.locator('#sbs-page').count() !== 1 ||
         await page.locator('#sb-vue-account-settings[data-v-app]').count() ||
-        await page.locator('#sbs-theme option').count() !== 3) {
+        await page.locator('#sbs-theme option').count() !==
+        await page.evaluate(() => window.SUNOBOOM_LEGACY_SETTINGS?.snapshot()?.themes?.length)) {
       throw new Error('Settings gear did not open HTML fallback preferences');
     }
     await page.locator('[data-sbs-action="close"]').click();
@@ -2362,7 +2364,8 @@ async function checkEditorFallback() {
         await page.locator('#sb-vue-account-settings #sbs-compact').count() !== 1) {
       throw new Error('Legacy settings page fallback is missing');
     }
-    if (await page.locator('#sbs-theme option').count() !== 3) {
+    if (await page.locator('#sbs-theme option').count() !==
+        await page.evaluate(() => window.SUNOBOOM_LEGACY_SETTINGS?.snapshot()?.themes?.length)) {
       throw new Error('HTML settings fallback is missing theme options');
     }
     await page.locator('#sbs-theme').selectOption('light');
