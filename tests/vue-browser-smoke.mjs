@@ -1793,8 +1793,8 @@ async function checkLayout(mobile) {
         JSON.stringify(genreCardsPastel155));
     }
     await page.locator('.genre-side-item[data-tab="artists"]').click();
-    await page.locator('.genre-bright .ah-card').first().waitFor({ timeout: 10000 });
-    const genreArtistsPastel155 = await page.locator('.genre-bright .ah-card')
+    await page.locator('.genre-bright .ahx-card').first().waitFor({ timeout: 10000 });
+    const genreArtistsPastel155 = await page.locator('.genre-bright .ahx-card')
       .evaluateAll(items => items.map(el => getComputedStyle(el).backgroundImage));
     if (genreArtistsPastel155.length < 2 || new Set(genreArtistsPastel155).size !== 1) {
       throw new Error('Genre artist cards do not share pastel palette: ' +

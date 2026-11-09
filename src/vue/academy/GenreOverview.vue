@@ -34,7 +34,7 @@ defineEmits(['select-tab']);
         <h2>История и сцена</h2>
         <div class="info-label">Эпоха</div><p>{{ genre.era }}</p>
         <div class="info-label">Диапазон темпа</div>
-        <p style="font-size:26px;font-weight:900;color:#ffe2b0">{{ genre.bpm[0] }}–{{ genre.bpm[1] }} BPM</p>
+        <p class="gb-bpm-value" style="font-size:26px;font-weight:900">{{ genre.bpm[0] }}–{{ genre.bpm[1] }} BPM</p>
         <div class="info-label">Исполнители для знакомства</div>
         <div class="gb-artists"><span v-for="name in genre.artists" :key="name">{{ name }}</span></div>
       </section>

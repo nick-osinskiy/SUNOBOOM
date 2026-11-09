@@ -736,3 +736,29 @@ html[data-sb-theme="pink-pastel"] :is(.sbp-secondary,.sbab-modes button:not([ari
 }
 /* Vinyl and genre accents still identify the style; all content cards now
    share a consistent surface, including the light and pastel palettes. */
+
+/* v0.155: the CURRENT Vue Artists tab renders ahx-* cards (not the older
+   ah-* fallback). Give these actual screens the same theme surface. */
+.genre-bright :is(.ahx-intro,.ahx-card,.ahx-toolbar,.ahx-no-results,.ahx-empty){
+ background:var(--sb-genre-panel-bg)!important;
+ border-color:var(--sb-genre-panel-border)!important;
+ color:var(--sb-genre-ink)!important;
+}
+.genre-bright :is(.ahx-intro h2,.ahx-section-head h3,.ahx-title h4,.ahx-track strong){
+ color:var(--sb-genre-ink)!important;
+}
+.genre-bright :is(.ahx-intro p,.ahx-card>p,.ahx-era,.ahx-track small,.ahx-count,.ahx-footnote,.ahx-section-head p){
+ color:var(--sb-genre-muted)!important;
+}
+.genre-bright :is(.ahx-toolbar button,.ahx-filter-buttons button,.ahx-search input){
+ color:var(--sb-genre-ink)!important;
+}
+.genre-bright :is(.ahx-search,.ahx-filter-buttons button,.ahx-role){
+ background:var(--sb-genre-panel-inset)!important;
+ border-color:var(--sb-genre-panel-border)!important;
+}
+.genre-bright .ahx-toolbar button.on{
+ background:var(--sb-theme-accent-soft,var(--panel3))!important;
+ border-color:var(--sb-theme-accent-border,var(--stroke))!important;
+ color:var(--sb-genre-accent)!important;
+}
