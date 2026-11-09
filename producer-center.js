@@ -93,8 +93,10 @@
  }
  function open(id){
    if(!find(id))return;
+   const previousId=state.selectedId,wasProducer=view.nav==="producer";
    state.selectedId=id;state.notice="";
    go("producer");
+   if(!wasProducer||previousId!==id)window.SUNOBOOM_VUE_ROUTE?.recordProduction?.(id,"push");
    window.scrollTo({top:0,behavior:"instant"});
  }
  function create(type,id,titleOverride){
@@ -401,6 +403,11 @@
    if(!confirm("Удалить рабочую карточку «"+w.title+"»? Идеи, паспорта, аудио и промпты сохранятся в своих разделах."))return;
    if(write(items().filter(x=>x.id!==w.id))){state.selectedId=null;state.notice="Рабочая карточка удалена. Исходные материалы сохранены.";render();}
  }
+ window.SUNOBOOM_LEGACY_PRODUCER_HISTORY=Object.freeze({
+  snapshot:()=>view.nav==='producer'&&find(state.selectedId)?{id:state.selectedId}:null,
+  canRestore:id=>typeof id==='string'&&/^[a-zA-Z0-9_-]{1,128}$/.test(id)&&!!find(id),
+  restore:id=>{if(!window.SUNOBOOM_LEGACY_PRODUCER_HISTORY.canRestore(id))return false;state.selectedId=id;state.notice='';if(view.nav==='producer')render();else go('producer');return true;}
+ });
  // Navigation: primary creative tool, also accessible as a tile in Account.
  if(Array.isArray(navs)&&!navs.some(x=>x[0]==="producer")){
    const pos=navs.findIndex(x=>x[0]==="account");

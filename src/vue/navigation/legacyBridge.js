@@ -39,6 +39,11 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature })
       });
       return true;
     },
+    recordProduction: (id, historyMode = 'push') => {
+      const actual=api.snapshot();
+      if(actual.active!=='producer'||actual.production?.id!==id||!api.canRestoreProduction?.(id))return false;
+      syncLegacyRoute('producer',{historyMode,context:{kind:'production',id}});return true;
+    },
     recordTrackList: () => {
       const actual = api.snapshot();
       if (actual.active !== 'tracks' || actual.track?.id || actual.trackEditing) return false;
@@ -63,7 +68,7 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature })
     const raw = api.snapshot();
     // Publish before mounting either menu so both Vue roots see the same route.
     syncLegacyRoute(raw.active, { context: raw.track?.id
-      ? { kind: 'track', id: raw.track.id } : null });
+      ? { kind: 'track', id: raw.track.id } : raw.active==='producer' && raw.production?.id ? {kind:'production',id:raw.production.id} : null });
     const items = navigationSnapshot(raw);
     // Only the menu's structure, not its reactive active state, needs remounting.
     const signature = JSON.stringify(items.map(({ active, ...item }) => item));

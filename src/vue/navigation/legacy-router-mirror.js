@@ -16,6 +16,7 @@ const accountViews = new Set([
 export function routeToMemoryPath(route, context = null) {
   const id = typeof route === 'string' && route ? route : 'home';
   // A passport detail is a distinct memory route, never a browser URL.
+  if (id === 'producer' && context?.kind === 'production') return '/producer/detail';
   if (id === 'tracks' && context?.kind === 'track') return '/account/tracks/detail';
   if (id === 'detail') return '/catalog/detail';
   if (accountViews.has(id)) return '/account/' + id;
@@ -61,7 +62,7 @@ function safeTrackContext(context) {
 }
 
 function safeHistoryContext(context) {
-  return safeGenreContext(context) || safeTrackContext(context);
+  return safeGenreContext(context) || safeTrackContext(context) || (context?.kind === 'production' && typeof context.id === 'string' && /^[a-zA-Z0-9_-]{1,128}$/.test(context.id) ? Object.freeze({kind:'production',id:context.id}) : null);
 }
 
 function saveHistoryEntry(path, mode, context = null) {

@@ -10,6 +10,7 @@ import { syncLegacyRoute } from './route-state.js';
 
 // Only validated top-level routes and recorded genre/track details are replayed.
 function actualMemoryPath(snapshot) {
+  if (snapshot?.active === 'producer' && snapshot?.production?.id) return routeToMemoryPath('producer',{kind:'production',id:snapshot.production.id});
   const track = snapshot?.track;
   return routeToMemoryPath(snapshot?.active,
     track?.id ? { kind: 'track', id: track.id } : null);
@@ -29,6 +30,7 @@ function restoreTarget(candidate, api) {
       typeof api.restoreGenre === 'function') {
     return { kind: 'genre', id: context.id, tab: context.tab };
   }
+  if (candidate.path === '/producer/detail' && context?.kind === 'production' && api.canRestoreProduction?.(context.id) === true) return {kind:'production',id:context.id};
   if (candidate.path === '/account/tracks' &&
       api.canRestoreTrackList?.() === true &&
       typeof api.restoreTrackList === 'function') {
@@ -79,6 +81,8 @@ export async function restoreLegacyMenuHistory(direction, {
         syncRoute(legacyApi.snapshot()?.active);
         return false;
       }
+    } else if (target.kind === 'production') {
+      if (legacyApi.restoreProduction(target.id) !== true) { syncRoute(legacyApi.snapshot()?.active); return false; }
     } else if (target.kind === 'track-list') {
       if (legacyApi.restoreTrackList() !== true) {
         syncRoute(legacyApi.snapshot()?.active);
@@ -104,7 +108,8 @@ export async function restoreLegacyMenuHistory(direction, {
     const after = legacyApi.snapshot();
     const selected = after?.active;
     syncRoute(selected, { context: target.kind === 'track'
-      ? { kind: 'track', id: target.id } : null });
+      ? { kind: 'track', id: target.id } : target.kind === 'production' ? {kind:'production',id:target.id} : null });
+    if (target.kind === 'production') return selected === 'producer' && after?.production?.id === target.id;
     if (target.kind === 'track') return selected === 'tracks' && after?.track?.id === target.id;
     if (target.kind === 'track-list') return selected === 'tracks' && !after?.track && !after?.trackEditing;
     return selected === (target.kind === 'genre' ? 'detail' : target.id);
