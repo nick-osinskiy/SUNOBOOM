@@ -319,3 +319,50 @@ html[data-sb-theme="sunset"],html[data-sb-theme="amethyst"]{
 .sb-dropdown-option:disabled{opacity:.45;cursor:not-allowed}
 .sb-dropdown-empty{padding:18px 12px;text-align:center;color:var(--muted)}
 .sb-dropdown :is(button,input):focus-visible{outline:2px solid var(--sb-menu-accent,var(--violet));outline-offset:1px}
+
+
+/* v0.142 — color themes must recolor actual cards, not only page chrome.
+   Target the structural surfaces; leave artwork, cover images and genre accent
+   overlays intact. Light and original dark themes are not affected. */
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"]){
+ --sb-card-surface:var(--panel);
+ --sb-card-raised:var(--panel2);
+ --sb-card-border:var(--stroke);
+ --sb-card-highlight:var(--panel3);
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.genre-card,.genre-family,.account-tile,.account-stats,.panel,.studio-panel,.studio-section,.generator-panel,
+.sbs-panel,.sbs-reset-panel,.sbpc-panel,.sbpc-sidebar,.sbpc-empty-state,.sbpc-create,.sbpc-song,.sbpc-stage,.sbpc-hero,
+.gm-panel,.gm-formula,.gm-row,.gm-output-panel,.gm-studio-banner,.sba-panel,.sbp-panel,.sbab-panel,.sb-dna-card,
+.sb-ap-index-card,.ahx-card,.sbs-confirm,.sbpc-workspace,.empty,.empty-state,.card){
+ background:var(--sb-card-surface)!important;
+ border-color:var(--sb-card-border)!important;
+ color:var(--text);
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.genre-family summary,.sbs-heading,.hero,.sbpc-hero,.sbpc-song-head,.gm-studio-banner){
+ background:linear-gradient(135deg,var(--sb-card-raised),var(--sb-card-surface))!important;
+ border-color:var(--sb-card-border)!important;
+ color:var(--text);
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.genre-card,.account-tile,.sbpc-song,.sbpc-stage,.ahx-card):hover{
+ border-color:var(--sb-theme-accent-border)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.sbpc-song.active,.sbpc-stage[data-status="done"],.sbs-confirm){
+ background:var(--sb-card-highlight)!important;
+ border-color:var(--sb-theme-accent-border)!important;
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.genre-card,.genre-family,.account-tile,.account-stats,.panel,.studio-panel,.sbs-panel,.sbpc-panel,.gm-panel,.ahx-card)
+:is(h1,h2,h3,h4,strong){
+ color:var(--text);
+}
+html:is([data-sb-theme="ocean"],[data-sb-theme="forest"],[data-sb-theme="sunset"],[data-sb-theme="amethyst"])
+:is(.account-tile,.panel,.studio-panel,.sbs-panel,.sbpc-panel,.gm-panel,.ahx-card)
+:is(p,small){
+ color:var(--muted);
+}
+/* The genre illustration layer keeps its individual accent; its card surface
+   underneath adopts the chosen palette. */
