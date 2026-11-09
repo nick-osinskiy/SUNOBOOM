@@ -685,3 +685,54 @@ html[data-sb-theme="pink-pastel"] :is(.sbp-secondary,.sbab-modes button:not([ari
  background:var(--panel2)!important;color:var(--text)!important;border-color:var(--stroke)!important;
 }
 /* User-provided covers and genre-color artwork remain unfiltered. */
+
+/* v0.155 — one surface hierarchy across the entire genre detail screen.
+   The previous .gb-panel.pink/.blue and .ah-group.now deliberately used
+   independent backgrounds, overriding the user's selected palette. */
+.genre-bright{
+ --sb-genre-panel-bg:var(--sb-gradient-card,linear-gradient(140deg,var(--panel2),var(--panel)));
+ --sb-genre-panel-inset:var(--panel3);
+ --sb-genre-panel-border:var(--stroke);
+ --sb-genre-ink:var(--text);
+ --sb-genre-muted:var(--muted);
+ --sb-genre-accent:var(--sb-theme-accent,var(--pink));
+}
+.genre-bright :is(
+ .gb-grid .gb-panel,.gb-grid .gb-panel.pink,.gb-grid .gb-panel.blue,
+ .genre-side-nav,.genre-detail-content > .panel,.genre-detail-content .idea,
+ .ah-intro,.ah-group,.ah-group.now,.ah-card,.ah-group.now .ah-card
+){
+ background:var(--sb-genre-panel-bg)!important;
+ border-color:var(--sb-genre-panel-border)!important;
+ color:var(--sb-genre-ink)!important;
+}
+.genre-bright :is(.gb-panel h2,.gb-unit strong,.gb-idea strong,.ah-intro h2,.ah-head h3,.ah-id h4,.ah-listen strong){
+ color:var(--sb-genre-ink)!important;
+}
+.genre-bright :is(.gb-panel p,.gb-unit span,.gb-idea p,.ah-intro p,.ah-head p,.ah-bio,.ah-note,.ah-period,.ah-listen small,.genre-side-head small){
+ color:var(--sb-genre-muted)!important;
+}
+.genre-bright :is(.gb-sup,.gb-bpm-value,.genre-side-head > span){
+ color:var(--sb-genre-accent)!important;
+}
+.genre-bright :is(.gb-unit,.gb-idea,.gb-artists span,.ah-listen,.ah-period,.genre-side-item){
+ background:var(--sb-genre-panel-inset)!important;
+ border-color:var(--sb-genre-panel-border)!important;
+ color:var(--sb-genre-ink)!important;
+}
+.genre-bright .genre-side-item.active{
+ background:var(--sb-theme-accent-soft,var(--panel3))!important;
+ border-color:var(--sb-theme-accent-border,var(--stroke))!important;
+ color:var(--sb-genre-accent)!important;
+}
+.genre-bright .genre-side-item:not(.active):hover{
+ background:var(--panel2)!important;border-color:var(--sb-genre-accent)!important;
+}
+.genre-bright .genre-side-item :is(.genre-side-icon,.genre-side-chevron){
+ color:inherit!important;
+}
+.genre-bright .ah-card::before{
+ background:var(--sb-genre-accent)!important;
+}
+/* Vinyl and genre accents still identify the style; all content cards now
+   share a consistent surface, including the light and pastel palettes. */

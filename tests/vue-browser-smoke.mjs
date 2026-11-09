@@ -454,6 +454,18 @@ async function checkLayout(mobile) {
     // generators and their delegated buttons must continue to function.
     await page.locator('#sb-vue-genre-detail[data-v-app]')
       .waitFor({ state: 'attached', timeout: 10000 });
+    // v0.155: Different per-genre overview panels must have one surface.
+    const genreCardsDark155 = await page.locator('.genre-bright .gb-grid .gb-panel')
+      .evaluateAll(items => items.map(el => ({
+        background: getComputedStyle(el).backgroundImage,
+        border: getComputedStyle(el).borderTopColor
+      })));
+    if (genreCardsDark155.length !== 4 ||
+        new Set(genreCardsDark155.map(x => x.background)).size !== 1 ||
+        new Set(genreCardsDark155.map(x => x.border)).size !== 1) {
+      throw new Error('Genre overview cards have inconsistent dark surfaces: ' +
+        JSON.stringify(genreCardsDark155));
+    }
     const genreTabs = page.locator('.genre-side-nav .genre-side-item');
     if (await genreTabs.count() !== 4) throw new Error('ЖАНР-НАВ lost tabs');
 
@@ -1762,6 +1774,29 @@ async function checkLayout(mobile) {
     const pastelAcademy154 = await page.locator('.genre-family-intro').evaluate(el => getComputedStyle(el).backgroundImage);
     if (!pastelAcademy154.includes('linear-gradient')) {
       throw new Error('Pastel pink did not recolor Academy');
+    }
+    // v0.155: Confirm identical pastel surfaces, not dark hardcoded blue/pink.
+    await page.evaluate(() => openGenre('reggae-ska'));
+    await page.locator('.genre-bright .gb-grid .gb-panel').first().waitFor({ timeout: 10000 });
+    const genreCardsPastel155 = await page.locator('.genre-bright .gb-grid .gb-panel')
+      .evaluateAll(items => items.map(el => ({
+        background: getComputedStyle(el).backgroundImage,
+        color: getComputedStyle(el).color,
+        text: getComputedStyle(el.querySelector('p')).color
+      })));
+    if (genreCardsPastel155.length !== 4 ||
+        new Set(genreCardsPastel155.map(x => x.background)).size !== 1 ||
+        new Set(genreCardsPastel155.map(x => x.color)).size !== 1 ||
+        !genreCardsPastel155[0].background.includes('rgb(255, 250, 253)')) {
+      throw new Error('Genre overview cards do not share pastel palette: ' +
+        JSON.stringify(genreCardsPastel155));
+    }
+    await page.locator('.genre-side-item[data-tab="artists"]').click();
+    const genreArtistsPastel155 = await page.locator('.genre-bright .ah-card')
+      .evaluateAll(items => items.map(el => getComputedStyle(el).backgroundImage));
+    if (genreArtistsPastel155.length < 2 || new Set(genreArtistsPastel155).size !== 1) {
+      throw new Error('Genre artist cards do not share pastel palette: ' +
+        JSON.stringify(genreArtistsPastel155));
     }
     await page.evaluate(() => go('player'));
     if (await page.locator('.sbp-main').count()) {
