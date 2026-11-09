@@ -19,6 +19,7 @@ import { activateLegacyTrackPassportEditor } from './account/legacyTrackPassport
 import { activateLegacyIdeaEditor } from './poetry/legacyIdeaEditorBridge.js';
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
+import { legacyMirrorRouter } from './navigation/legacy-router-mirror.js';
 import VueFeatureHost from './VueFeatureHost.vue';
 import { activateLegacyNavigation } from './navigation/legacyBridge.js';
 import { activateLegacyAcademy } from './academy/legacyAcademyBridge.js';
@@ -40,7 +41,7 @@ function resolveTarget(target) {
   return typeof target === 'string' ? document.querySelector(target) : target;
 }
 
-export function mountVueFeature(target, component, componentProps = {}) {
+export function mountVueFeature(target, component, componentProps = {}, { vueRouter = false } = {}) {
   const element = resolveTarget(target);
   if (!element || element.nodeType !== 1 || !component) return null;
 
@@ -50,6 +51,8 @@ export function mountVueFeature(target, component, componentProps = {}) {
   const oldMarkup = element.innerHTML;
   const app = createApp(VueFeatureHost, { component, componentProps });
   app.use(pinia);
+  // Enable Vue Router only for explicitly opted-in Vue islands.
+  if (vueRouter) app.use(legacyMirrorRouter);
   try {
     app.mount(element);
   } catch (error) {

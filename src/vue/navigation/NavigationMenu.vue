@@ -1,6 +1,18 @@
 <script setup>
+import { useRoute } from 'vue-router';
 import { currentRoute } from './route-state.js';
-const isActive = id => currentRoute.value.active === id;
+import { activeRouteFromMemoryPath, routeToMemoryPath } from './legacy-router-mirror.js';
+
+// Vue Router is consumed directly here. Legacy state wins until the async
+// memory mirror catches up, preserving instant highlights after go().
+const route = useRoute();
+const isActive = id => {
+  const legacy = currentRoute.value;
+  const active = route.path === routeToMemoryPath(legacy.route)
+    ? activeRouteFromMemoryPath(route.path)
+    : legacy.active;
+  return active === id;
+};
 defineProps({
   items: {
     type: Array,
@@ -24,6 +36,7 @@ defineProps({
     type="button"
     :class="mobile ? (isActive(item.id) ? 'active' : '') : ['nav-button', { active: isActive(item.id) }]"
     :data-nav="item.id"
+    :data-vue-router-path="route.path"
     :aria-current="isActive(item.id) ? 'page' : undefined"
     :aria-label="mobile ? item.label : undefined"
     :title="mobile ? item.label : undefined"

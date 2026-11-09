@@ -1,7 +1,7 @@
 import NavigationMenu from './NavigationMenu.vue';
 import { navigationSnapshot } from './nav-model.js';
 import { currentRoute, syncLegacyRoute } from './route-state.js';
-import { legacyRouterSnapshot } from './legacy-router-mirror.js';
+import { legacyRouterSnapshot, whenLegacyRouterSettled } from './legacy-router-mirror.js';
 
 const SELECTORS = [
   { key: 'sidebar', selector: '[data-sb-vue-sidebar]', mobile: false },
@@ -50,7 +50,7 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature })
         items,
         mobile,
         onNavigate: id => api.navigate(id)
-      });
+      }, { vueRouter: true });
       if (unmount) instances.set(key, { target, signature, unmount });
     }
   }
@@ -58,8 +58,14 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature })
   // Only observe replacement of the legacy application shell. Vue mutations
   // occur deeper in the tree and therefore cannot create an observer loop.
   const observer = new MutationObserver(sync);
-  observer.observe(root, { childList: true });
-  sync();
+  // Initialize the memory route before Vue Router is installed in any menu.
+  // Otherwise a first-install bootstrap could overwrite the legacy route.
+  syncLegacyRoute(api.snapshot().active);
+  void whenLegacyRouterSettled().then(() => {
+    if (disposed) return;
+    observer.observe(root, { childList: true });
+    sync();
+  });
 
   return function dispose() {
     if (disposed) return;

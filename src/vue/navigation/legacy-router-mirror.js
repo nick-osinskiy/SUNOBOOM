@@ -1,6 +1,4 @@
 import { createMemoryHistory, createRouter } from 'vue-router';
-import { activeNavigationRoute } from './nav-model.js';
-
 // Routing compatibility only. The authoritative navigation still lives in
 // index.html (go(), openGenre(), view.nav); this memory history MUST NOT write
 // to window.location, browser history, localStorage or any app content.
@@ -19,6 +17,14 @@ export function routeToMemoryPath(route) {
   if (id === 'detail') return '/catalog/detail';
   if (accountViews.has(id)) return '/account/' + id;
   return '/' + encodeURIComponent(id);
+}
+
+// Only the actual settled memory route is reported to Vue components.
+export function activeRouteFromMemoryPath(path) {
+  if (path === '/catalog/detail') return 'catalog';
+  if (path.startsWith('/account/')) return 'account';
+  try { return decodeURIComponent(path.slice(1)) || 'home'; }
+  catch { return 'home'; }
 }
 
 let requested = null;
@@ -49,10 +55,6 @@ export function legacyRouterSnapshot() {
   return Object.freeze({
     path: route.path,
     name: route.name,
-    active: requested ? activeNavigationRoute(
-      requested === '/catalog/detail' ? 'detail' :
-      requested.startsWith('/account/') ? requested.slice('/account/'.length) :
-      decodeURIComponent(requested.slice(1))
-    ) : 'home'
+    active: activeRouteFromMemoryPath(route.path)
   });
 }

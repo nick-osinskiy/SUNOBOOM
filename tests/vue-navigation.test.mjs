@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { activeNavigationRoute, navigationSnapshot } from '../src/vue/navigation/nav-model.js';
 import { currentRoute, syncLegacyRoute } from '../src/vue/navigation/route-state.js';
 import {
-  legacyMirrorRouter, legacyRouterSnapshot, routeToMemoryPath, whenLegacyRouterSettled
+  activeRouteFromMemoryPath, legacyMirrorRouter, legacyRouterSnapshot, routeToMemoryPath, whenLegacyRouterSettled
 } from '../src/vue/navigation/legacy-router-mirror.js';
 
 test('genre details highlight the Academy menu', () => {
@@ -112,4 +112,16 @@ test('Vue Router mirrors rapid legacy transitions using memory history', async (
   syncLegacyRoute('home');
   await whenLegacyRouterSettled();
   assert.equal(legacyRouterSnapshot().path, '/home');
+});
+
+test('Vue Router maps settled paths to the appropriate active menu', () => {
+  assert.equal(activeRouteFromMemoryPath('/home'), 'home');
+  assert.equal(activeRouteFromMemoryPath('/studio'), 'studio');
+  assert.equal(activeRouteFromMemoryPath('/producer'), 'producer');
+  assert.equal(activeRouteFromMemoryPath('/catalog/detail'), 'catalog');
+  assert.equal(activeRouteFromMemoryPath('/account/tracks'), 'account');
+  assert.equal(activeRouteFromMemoryPath('/account/myideas'), 'account');
+  assert.equal(activeRouteFromMemoryPath('/future-route'), 'future-route');
+  assert.equal(activeRouteFromMemoryPath('/'), 'home');
+  assert.equal(activeRouteFromMemoryPath('/%broken'), 'home');
 });
