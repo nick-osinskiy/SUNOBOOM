@@ -1776,7 +1776,8 @@ async function checkLayout(mobile) {
       throw new Error('Pastel pink did not recolor Academy');
     }
     // v0.155: Confirm identical pastel surfaces, not dark hardcoded blue/pink.
-    await page.evaluate(() => openGenre('reggae-ska'));
+    // Alternative rock has the full historic/current artist card collection.
+    await page.evaluate(() => openGenre('alternative-rock'));
     await page.locator('.genre-bright .gb-grid .gb-panel').first().waitFor({ timeout: 10000 });
     const genreCardsPastel155 = await page.locator('.genre-bright .gb-grid .gb-panel')
       .evaluateAll(items => items.map(el => ({
@@ -1792,6 +1793,7 @@ async function checkLayout(mobile) {
         JSON.stringify(genreCardsPastel155));
     }
     await page.locator('.genre-side-item[data-tab="artists"]').click();
+    await page.locator('.genre-bright .ah-card').first().waitFor({ timeout: 10000 });
     const genreArtistsPastel155 = await page.locator('.genre-bright .ah-card')
       .evaluateAll(items => items.map(el => getComputedStyle(el).backgroundImage));
     if (genreArtistsPastel155.length < 2 || new Set(genreArtistsPastel155).size !== 1) {
