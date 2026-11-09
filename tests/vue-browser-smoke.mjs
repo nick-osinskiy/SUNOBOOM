@@ -501,10 +501,13 @@ async function checkLayout(mobile) {
     await page.waitForFunction(() =>
       !document.querySelector('[data-sb-vue-history] [data-sb-history-back]')?.disabled);
     await genreHistoryBack137.click();
-    await page.locator('#catalog-cards .genre-card').first().waitFor({ timeout: 10000 });
     await page.waitForFunction(() =>
       view.nav === 'catalog' &&
       window.SUNOBOOM_VUE_ROUTE?.routerSnapshot()?.path === '/catalog');
+    // The Academy starts with collapsed genre families. Their cards exist in
+    // the DOM but are intentionally hidden until the family is expanded.
+    await page.locator('#catalog-cards details.genre-family').first()
+      .waitFor({ state: 'attached', timeout: 10000 });
     await page.waitForFunction(() =>
       !document.querySelector('[data-sb-vue-history] [data-sb-history-forward]')?.disabled);
     await genreHistoryForward137.click();
