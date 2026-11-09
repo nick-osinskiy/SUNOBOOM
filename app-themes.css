@@ -155,3 +155,94 @@ html.sb-theme-light .account-shortcut{color:#fff}
 /* Theme picker is shared by Vue and legacy settings. */
 .sbs-theme-field{margin-bottom:4px}
 .sbs-theme-help{margin:3px 0 13px}
+
+
+/* v0.139: Additional dark color palettes. These themes retain the existing
+   dark component structure and change surfaces, highlights and text contrast.
+   No filtering of the whole app (album art and genre artwork stay untouched). */
+html[data-sb-theme="ocean"]{
+ --bg:#071c2d;--panel:#102b40;--panel2:#17384e;--panel3:#20475b;
+ --stroke:#356078;--text:#e9f8ff;--muted:#a8c9d7;--pink:#40c9d9;
+ --violet:#7aa9f8;--cyan:#46e3d2;--orange:#f6c183;
+ --sb-theme-accent:#42d8df;--sb-theme-accent-soft:#163f53;
+ --sb-theme-accent-border:#4c8ba0;--sb-theme-glow:#145b7180;
+}
+html[data-sb-theme="forest"]{
+ --bg:#0d211b;--panel:#173128;--panel2:#203d32;--panel3:#294b3d;
+ --stroke:#3d6654;--text:#effaf1;--muted:#b3d0bc;--pink:#82d7a1;
+ --violet:#b1cf8b;--cyan:#65dbc0;--orange:#e5be7e;
+ --sb-theme-accent:#8ad8a2;--sb-theme-accent-soft:#244535;
+ --sb-theme-accent-border:#588c70;--sb-theme-glow:#346e4880;
+}
+html[data-sb-theme="sunset"]{
+ --bg:#2c1723;--panel:#3b2333;--panel2:#4a2c3c;--panel3:#573548;
+ --stroke:#80516a;--text:#fff2f0;--muted:#e1b8c3;--pink:#ff997c;
+ --violet:#db9bd9;--cyan:#f5bd9c;--orange:#ffc07c;
+ --sb-theme-accent:#ff9b80;--sb-theme-accent-soft:#583346;
+ --sb-theme-accent-border:#ac7184;--sb-theme-glow:#ad4b6580;
+}
+html[data-sb-theme="amethyst"]{
+ --bg:#1e1737;--panel:#2b2348;--panel2:#362c57;--panel3:#453766;
+ --stroke:#65558d;--text:#f7f0ff;--muted:#c4b6df;--pink:#e59bff;
+ --violet:#b49aff;--cyan:#b4d4ff;--orange:#f3b7df;
+ --sb-theme-accent:#c5a5ff;--sb-theme-accent-soft:#46335f;
+ --sb-theme-accent-border:#8267aa;--sb-theme-glow:#784db580;
+}
+html[data-sb-theme="ocean"] body,
+html[data-sb-theme="forest"] body,
+html[data-sb-theme="sunset"] body,
+html[data-sb-theme="amethyst"] body{
+ background:radial-gradient(circle at 76% 4%,var(--sb-theme-glow),transparent 34%),
+ radial-gradient(circle at 12% 82%,var(--sb-theme-accent-soft),transparent 40%),var(--bg);
+ color:var(--text);
+}
+html[data-sb-theme="ocean"] :is(.side,.mobile-nav,.sbs-panel,.sbs-heading,.account-tile,.panel),
+html[data-sb-theme="forest"] :is(.side,.mobile-nav,.sbs-panel,.sbs-heading,.account-tile,.panel),
+html[data-sb-theme="sunset"] :is(.side,.mobile-nav,.sbs-panel,.sbs-heading,.account-tile,.panel),
+html[data-sb-theme="amethyst"] :is(.side,.mobile-nav,.sbs-panel,.sbs-heading,.account-tile,.panel){
+ background:var(--panel)!important;border-color:var(--stroke)!important;color:var(--text);
+}
+html[data-sb-theme="ocean"] :is(.nav-button.active,.mobile-nav button.active,.sbs-symbol),
+html[data-sb-theme="forest"] :is(.nav-button.active,.mobile-nav button.active,.sbs-symbol),
+html[data-sb-theme="sunset"] :is(.nav-button.active,.mobile-nav button.active,.sbs-symbol),
+html[data-sb-theme="amethyst"] :is(.nav-button.active,.mobile-nav button.active,.sbs-symbol){
+ background:var(--sb-theme-accent-soft)!important;
+ border-color:var(--sb-theme-accent-border)!important;
+ color:var(--sb-theme-accent)!important;
+}
+html[data-sb-theme="ocean"] :is(.nav-button.active,.mobile-nav button.active),
+html[data-sb-theme="forest"] :is(.nav-button.active,.mobile-nav button.active),
+html[data-sb-theme="sunset"] :is(.nav-button.active,.mobile-nav button.active),
+html[data-sb-theme="amethyst"] :is(.nav-button.active,.mobile-nav button.active){
+ color:var(--sb-theme-accent)!important;
+}
+html[data-sb-theme="ocean"] :is(.sbs-page,.sbs-heading,.sbs-panel),
+html[data-sb-theme="forest"] :is(.sbs-page,.sbs-heading,.sbs-panel),
+html[data-sb-theme="sunset"] :is(.sbs-page,.sbs-heading,.sbs-panel),
+html[data-sb-theme="amethyst"] :is(.sbs-page,.sbs-heading,.sbs-panel){
+ color:var(--text);
+}
+html[data-sb-theme="ocean"] :is(.sbs-page h1,.sbs-page h2,.sbs-page strong,.sbs-field span),
+html[data-sb-theme="forest"] :is(.sbs-page h1,.sbs-page h2,.sbs-page strong,.sbs-field span),
+html[data-sb-theme="sunset"] :is(.sbs-page h1,.sbs-page h2,.sbs-page strong,.sbs-field span),
+html[data-sb-theme="amethyst"] :is(.sbs-page h1,.sbs-page h2,.sbs-page strong,.sbs-field span){
+ color:var(--text);
+}
+html[data-sb-theme="ocean"] :is(.sbs-help,.sbs-info,.sbs-page p,.sbs-option small),
+html[data-sb-theme="forest"] :is(.sbs-help,.sbs-info,.sbs-page p,.sbs-option small),
+html[data-sb-theme="sunset"] :is(.sbs-help,.sbs-info,.sbs-page p,.sbs-option small),
+html[data-sb-theme="amethyst"] :is(.sbs-help,.sbs-info,.sbs-page p,.sbs-option small){
+ color:var(--muted);
+}
+html[data-sb-theme="ocean"] :is(.sbs-field input,.sbs-field select),
+html[data-sb-theme="forest"] :is(.sbs-field input,.sbs-field select),
+html[data-sb-theme="sunset"] :is(.sbs-field input,.sbs-field select),
+html[data-sb-theme="amethyst"] :is(.sbs-field input,.sbs-field select){
+ background:var(--panel2);color:var(--text);border-color:var(--stroke);
+}
+html[data-sb-theme="ocean"] :is(.sbs-primary,.sbs-switch input:checked+.sbs-switch-track),
+html[data-sb-theme="forest"] :is(.sbs-primary,.sbs-switch input:checked+.sbs-switch-track),
+html[data-sb-theme="sunset"] :is(.sbs-primary,.sbs-switch input:checked+.sbs-switch-track),
+html[data-sb-theme="amethyst"] :is(.sbs-primary,.sbs-switch input:checked+.sbs-switch-track){
+ background:var(--sb-theme-accent-soft);border-color:var(--sb-theme-accent-border);color:var(--text);
+}

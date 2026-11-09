@@ -1,15 +1,18 @@
 <!doctype html>
-<html lang="ru"><head><meta charset="utf-8"/><meta name="sunoboom-vue-nav" content="enabled"/><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/><meta name="theme-color" content="#0c0e1a"/><meta name="description" content="SUNOBOOM — творческая лаборатория: Академия, идеи и промпты для Suno."/><title>SUNOBOOM 0.138 — Творческая лаборатория</title>
+<html lang="ru"><head><meta charset="utf-8"/><meta name="sunoboom-vue-nav" content="enabled"/><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/><meta name="theme-color" content="#0c0e1a"/><meta name="description" content="SUNOBOOM — творческая лаборатория: Академия, идеи и промпты для Suno."/><title>SUNOBOOM 0.139 — Творческая лаборатория</title>
 <script>
 /* Apply saved appearance before the first paint to avoid a dark/light flash. */
 (function(){
  try {
   const preference=JSON.parse(localStorage.getItem("sunoboom-ui-settings-v1")||"{}").theme;
-  const mode=["light","dark","system"].includes(preference)?preference:"dark";
-  const light=mode==="light"||(mode==="system"&&window.matchMedia?.("(prefers-color-scheme: light)")?.matches);
-  document.documentElement.dataset.sbTheme=light?"light":"dark";
-  document.documentElement.classList.toggle("sb-theme-light",!!light);
-  document.querySelector('meta[name="theme-color"]')?.setAttribute("content",light?"#f6f7fc":"#0c0e1a");
+  const mode=["light","dark","system","ocean","forest","sunset","amethyst"].includes(preference)?preference:"dark";
+  const resolved=mode==="system"?(window.matchMedia?.("(prefers-color-scheme: light)")?.matches?"light":"dark"):mode;
+  document.documentElement.dataset.sbTheme=resolved;
+  document.documentElement.classList.toggle("sb-theme-light",resolved==="light");
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content",({
+   light:"#f6f7fc",dark:"#0c0e1a",ocean:"#071c2d",forest:"#0d211b",
+   sunset:"#2c1723",amethyst:"#1e1737"
+  })[resolved]);
  }catch(e){}
 })();
 </script>
@@ -1208,7 +1211,7 @@ input[type=range],input[type=checkbox]{accent-color:#ef6ab8}
 <div id="toast" class="toast" role="status" aria-live="polite"></div>
 <script>
 // Single display version for the main SUNOBOOM site. Update this on each release.
-const SUNOBOOM_APP_VERSION="0.138";
+const SUNOBOOM_APP_VERSION="0.139";
 const SUNOBOOM_LOGO_SRC="data:image/png;base64,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";
 
 'use strict';
