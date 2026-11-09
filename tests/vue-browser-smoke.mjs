@@ -1743,6 +1743,13 @@ async function checkLayout(mobile) {
     await page.locator('#tp-artist').fill('Исполнитель Vue');
     await page.locator('#tp-status').selectOption('publisher');
     await page.locator('#tp-submitted').fill('2026-11-12');
+    await page.locator('#tp-cover').fill('https://example.com/cover-vue128.png');
+    await page.locator('#tp-audio').fill('https://example.com/audio-vue128.wav');
+    await page.locator('#tp-authors').fill('Автор Vue 128');
+    await page.locator('#tp-arrangement').fill('Vue arrangement 128');
+    await page.locator('#tp-lyrics').fill('Vue lyrics 128');
+    await page.locator('#tp-style').fill('Vue Style 128');
+    await page.locator('#tp-notes').fill('Vue notes 128');
     await page.locator('[data-action="tp-save"]').click();
     const track126 = await page.evaluate(() => {
       const item = data.tracks.find(t => t.title === 'Vue Passport 126');
@@ -1755,12 +1762,48 @@ async function checkLayout(mobile) {
         await page.locator('.sb-track-detail').count() !== 1) {
       throw new Error('Original passport save, release and persistence failed: '+JSON.stringify(track126));
     }
+    // v0.128: after saving a passport, Vue owns ONLY its complete detail UI.
+    const trackDetail128 = page.locator('#sb-vue-track-detail[data-v-app]');
+    await trackDetail128.waitFor({ state: 'attached', timeout: 10000 });
+    if (await trackDetail128.locator('[data-sb-vue-track-detail-view]').count() !== 1 ||
+        await trackDetail128.locator('.sb-track-fact').count() !== 6 ||
+        await trackDetail128.locator('.sb-track-linked').count() !== 3 ||
+        await trackDetail128.locator('.sb-track-sectionbox').count() !== 4 ||
+        await trackDetail128.locator('[data-action="tp-version-add"]').count() !== 1 ||
+        await trackDetail128.locator('.sb-track-hero h2').textContent() !== 'Vue Passport 126') {
+      throw new Error('Vue passport detail omitted existing metadata, sections, links, or version controls');
+    }
+    if (await trackDetail128.locator('.sb-track-cover img').getAttribute('src') !== 'https://example.com/cover-vue128.png' ||
+        await trackDetail128.locator('.sb-track-buttons a[href="https://example.com/audio-vue128.wav"]').count() !== 1 ||
+        !(await trackDetail128.locator('.sb-track-sectionbox').first().textContent()).includes('Vue arrangement 128')) {
+      throw new Error('Vue passport detail lost cover/audio or arrangement text');
+    }
+    await trackDetail128.locator('[data-action="tp-event"]').click();
+    if (!await page.evaluate(id =>
+      data.events.some(e => e.id === 'track-release-' + id && e.date === '2026-11-19'), track126.id)) {
+      throw new Error('Vue detail calendar action failed to save the original release event');
+    }
     await page.locator('#tp-version-title').fill('Финальная версия 126');
     await page.locator('#tp-version-url').fill('https://example.com/track126.wav');
     await page.locator('[data-action="tp-version-add"]').click();
-    if (!await page.evaluate(id =>
+    await trackDetail128.waitFor({ state: 'attached', timeout: 10000 });
+    if (await trackDetail128.locator('.sb-track-version').count() !== 1 ||
+        !await page.evaluate(id =>
       data.tracks.find(t => t.id === id)?.versions?.some(v => v.label === 'Финальная версия 126'), track126.id)) {
       throw new Error('Original passport version add failed');
+    }
+    // The existing editor remains HTML and must return to the Vue detail.
+    await trackDetail128.locator('[data-action="tp-edit"]').click();
+    if (await page.locator('#sb-track-form #tp-title').count() !== 1 ||
+        await page.locator('#sb-vue-track-detail').count() !== 0) {
+      throw new Error('Passport editor or its HTML fallback was replaced by Vue');
+    }
+    await page.locator('#tp-artist').fill('Исполнитель Vue 128');
+    await page.locator('[data-action="tp-save"]').click();
+    await trackDetail128.waitFor({ state: 'attached', timeout: 10000 });
+    if (await trackDetail128.locator('.sb-track-hero p').textContent() !== 'Исполнитель Vue 128' ||
+        await page.evaluate(id => data.tracks.find(t => t.id === id)?.artist, track126.id) !== 'Исполнитель Vue 128') {
+      throw new Error('Passport edit failed to return to Vue detail with saved data');
     }
     await page.locator('[data-action="tp-list"]').click();
     await page.locator('#sb-vue-track-list[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
@@ -1779,9 +1822,10 @@ async function checkLayout(mobile) {
       throw new Error('Vue passport filter could not restore the track');
     }
     await trackList.locator('.sb-track-tile[data-id="'+track126.id+'"]').click();
-    if (await page.locator('.sb-track-detail .sb-track-version').count() !== 1 ||
+    await trackDetail128.waitFor({ state: 'attached', timeout: 10000 });
+    if (await trackDetail128.locator('.sb-track-version').count() !== 1 ||
         await page.locator('#sb-vue-track-list').count() !== 0) {
-      throw new Error('Legacy passport detail/versions did not open from Vue list');
+      throw new Error('Vue passport detail/versions did not open from Vue list');
     }
     page.once('dialog', dialog => { void dialog.accept(); });
     await page.locator('[data-action="tp-delete"]').click();
@@ -2094,7 +2138,9 @@ async function checkEditorFallback() {
     await page.locator('[data-action="tp-save"]').click();
     if (await page.evaluate(() =>
       data.tracks.some(t => t.title === 'Fallback Passport 126' && t.status === 'lyrics')) !== true ||
-        await page.locator('.sb-track-detail').count() !== 1) {
+        await page.locator('#sb-vue-track-detail .sb-track-detail').count() !== 1 ||
+        await page.locator('#sb-vue-track-detail[data-v-app]').count() !== 0 ||
+        await page.locator('#sb-vue-track-detail [data-action="tp-version-add"]').count() !== 1) {
       throw new Error('Original passport fallback could not save/display a track');
     }
     await page.locator('[data-action="tp-list"]').click();
