@@ -1,4 +1,5 @@
 import { createMemoryHistory, createRouter } from 'vue-router';
+import { readonly, shallowRef } from 'vue';
 // Routing compatibility only. The authoritative navigation still lives in
 // index.html (go(), openGenre(), view.nav); this memory history MUST NOT write
 // to window.location, browser history, localStorage or any app content.
@@ -39,6 +40,12 @@ let pushCount = 0;
 let historyEntries = [];
 let historyContexts = [];
 let historyPosition = -1;
+// Vue Router's path can become reactive BEFORE its navigation promise resolves
+// and before the separate history ledger is committed. Publish a second
+// reactive signal only after the ledger itself has changed.
+const historyRevision = shallowRef(0);
+export const memoryHistoryRevision = readonly(historyRevision);
+function notifyHistoryChanged() { historyRevision.value++; }
 
 const GENRE_TABS = new Set(['overview', 'ideas', 'prompts', 'artists']);
 function safeGenreContext(context) {
@@ -75,6 +82,7 @@ function saveHistoryEntry(path, mode, context = null) {
     historyEntries[historyPosition] = path;
     historyContexts[historyPosition] = safe || previousContext || null;
   }
+  notifyHistoryChanged();
 }
 
 function historyStep(direction) {
@@ -112,6 +120,7 @@ export function syncLegacyRouterMirror(route, { historyMode = 'replace', context
       if (legacyMirrorRouter.currentRoute.value.path === path &&
           historyPosition >= 0 && historyEntries[historyPosition] === path) {
         historyContexts[historyPosition] = safe;
+        notifyHistoryChanged();
       }
     });
     return pending;
@@ -120,7 +129,10 @@ export function syncLegacyRouterMirror(route, { historyMode = 'replace', context
   const mode = historyMode === 'push' ? 'push' : 'replace';
   pending = pending.then(async () => {
     if (legacyMirrorRouter.currentRoute.value.path === path) {
-      if (safe && historyPosition >= 0) historyContexts[historyPosition] = safe;
+      if (safe && historyPosition >= 0) {
+        historyContexts[historyPosition] = safe;
+        notifyHistoryChanged();
+      }
       return;
     }
     const failure = await legacyMirrorRouter[mode](path);
@@ -162,6 +174,7 @@ export function traverseLegacyMemoryHistory(direction) {
           historyPosition = target.index;
           requested = target.path;
           lastTransition = direction;
+          notifyHistoryChanged();
         }
         resolve(ok);
       }
@@ -192,7 +205,6 @@ export function legacyRouterSnapshot() {
     canGoForward: historyPosition >= 0 && historyPosition < historyEntries.length - 1,
     historyDepth: historyEntries.length,
     historyPosition,
-    previousPath: historyPosition > 0 ? historyEntries[historyPosition - 1] : null,
     // Only tiny validated context, no saved songs, editor data or audio.
     context: historyContexts[historyPosition] || null
   });

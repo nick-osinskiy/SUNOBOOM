@@ -6,7 +6,7 @@ import { navigateFromVueMenu } from '../src/vue/navigation/navigation-dispatch.j
 import { canRestoreLegacyMenuHistory, restoreLegacyMenuHistory } from '../src/vue/navigation/legacy-history-restore.js';
 import {
   activeRouteFromMemoryPath, legacyMemoryHistoryCandidate, legacyRouteFromMemoryPath,
-  legacyMirrorRouter, legacyRouterSnapshot, routeToMemoryPath, whenLegacyRouterSettled
+  legacyMirrorRouter, legacyRouterSnapshot, memoryHistoryRevision, routeToMemoryPath, whenLegacyRouterSettled
 } from '../src/vue/navigation/legacy-router-mirror.js';
 
 test('genre details highlight the Academy menu', () => {
@@ -468,6 +468,24 @@ test('invalid passport context is not retained as a restorable memory entry', as
   await whenLegacyRouterSettled();
   assert.equal(legacyRouterSnapshot().path, '/account/tracks');
   assert.equal(legacyRouterSnapshot().context, null);
+  syncLegacyRoute('home');
+  await whenLegacyRouterSettled();
+});
+
+test('history revision updates after the ledger commits, not only on route changes', async () => {
+  syncLegacyRoute('home');
+  await whenLegacyRouterSettled();
+  const before = memoryHistoryRevision.value;
+  syncLegacyRoute('tracks');
+  await whenLegacyRouterSettled();
+  syncLegacyRoute('tracks', { historyMode: 'push',
+    context: { kind: 'track', id: 'tr-1762680000000-abcde' } });
+  await whenLegacyRouterSettled();
+  assert.ok(memoryHistoryRevision.value > before, 'Vue history controls must see committed entries');
+  const afterPush = memoryHistoryRevision.value;
+  syncLegacyRoute('tracks', { context: { kind: 'track', id: 'tr-1762680000000-other' } });
+  await whenLegacyRouterSettled();
+  assert.ok(memoryHistoryRevision.value > afterPush, 'same-path context changes must be reactive');
   syncLegacyRoute('home');
   await whenLegacyRouterSettled();
 });

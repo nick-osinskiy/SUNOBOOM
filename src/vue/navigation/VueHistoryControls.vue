@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { currentRoute } from './route-state.js';
+import { memoryHistoryRevision } from './legacy-router-mirror.js';
 
 // The controls do not own any navigation or browser history. Their two actions
 // invoke the same guarded restore adapter used in v0.135.
@@ -16,6 +17,9 @@ const available = computed(() => {
   // only after the route has settled. No timers or polling.
   void route.path;
   void currentRoute.value.revision;
+  // The memory route changes before its async ledger is committed. Recompute
+  // disabled states when that ledger settles, even if the path stays unchanged.
+  void memoryHistoryRevision.value;
   return {
     back: !busy.value && props.canRestore('back'),
     forward: !busy.value && props.canRestore('forward')
