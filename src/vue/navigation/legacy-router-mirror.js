@@ -38,6 +38,7 @@ let requested = null;
 let pending = Promise.resolve();
 let lastTransition = 'replace';
 let pushCount = 0;
+let shortcutPushCount = 0;
 // Parallel ledger of successful Vue memory-history entries. It tracks only
 // routes, never editor state or user data. The cursor moves exclusively after
 // a confirmed Vue Router navigation; unknown nested targets are not restored.
@@ -114,7 +115,7 @@ export function legacyRouteFromMemoryPath(path) {
 // transitions replace the current memory entry. This leaves browser history,
 // URL, render() and the source-of-truth view.nav entirely untouched.
 // Serialize changes to preserve click order when legacy renders are rapid.
-export function syncLegacyRouterMirror(route, { historyMode = 'replace', context = null } = {}) {
+export function syncLegacyRouterMirror(route, { historyMode = 'replace', context = null, source = 'legacy' } = {}) {
   const safe = safeHistoryContext(context);
   const path = routeToMemoryPath(route, safe);
   if (path === requested) {
@@ -144,7 +145,8 @@ export function syncLegacyRouterMirror(route, { historyMode = 'replace', context
       saveHistoryEntry(path, mode, safe);
       lastTransition = mode;
       // Keep the v0.134 diagnostic's meaning: count Vue MENU pushes only.
-      if (mode === 'push' && !safe) pushCount++;
+      if (mode === 'push' && !safe && source === 'menu') pushCount++;
+      if (mode === 'push' && !safe && source === 'shortcut') shortcutPushCount++;
     }
   }).catch(error => {
     console.warn('[SUNOBOOM] Vue Router memory navigation failed; legacy routing remains active.', error);
@@ -205,6 +207,7 @@ export function legacyRouterSnapshot() {
     active: activeRouteFromMemoryPath(route.path),
     transition: lastTransition,
     menuPushes: pushCount,
+    shortcutPushes: shortcutPushCount,
     canGoBack: historyPosition > 0,
     canGoForward: historyPosition >= 0 && historyPosition < historyEntries.length - 1,
     historyDepth: historyEntries.length,

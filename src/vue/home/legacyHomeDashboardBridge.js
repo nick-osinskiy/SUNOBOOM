@@ -1,4 +1,6 @@
 import HomeDashboard from './HomeDashboard.vue';
+import { legacyMirrorRouter } from '../navigation/legacy-router-mirror.js';
+import { navigateFromVueShortcut } from '../navigation/navigation-dispatch.js';
 
 // The root app and all personal records remain controlled by legacy code.
 // Mount only into the dashboard container whenever legacy render() replaces it.
@@ -17,7 +19,13 @@ export function activateLegacyHomeDashboard({ mountVueFeature }) {
     if (!node) return;
     const model = api.snapshot();
     if (!model) return;
-    const unmount = mountVueFeature(node, HomeDashboard, { model });
+    const unmount = mountVueFeature(node, HomeDashboard, {
+      model,
+      navigate: id => navigateFromVueShortcut(id, {
+        router: legacyMirrorRouter,
+        legacyApi: window.SUNOBOOM_LEGACY_NAV
+      })
+    });
     if (unmount) current = { node, unmount };
   }
 

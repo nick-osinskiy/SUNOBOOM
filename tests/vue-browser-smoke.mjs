@@ -98,6 +98,47 @@ async function checkLayout(mobile) {
         await dashboard162.locator('[data-action="nav"][data-nav="events"]').count() < 2) {
       throw new Error('Vue dashboard lost its headings, counters, cards, or shortcuts');
     }
+    // v0.164: the Vue dashboard and menus share the same memory router.
+    // A shortcut performs ONE original go(), preserves browser URL/storage,
+    // and supports actual Back/Forward restoration for safe workspaces.
+    const baseUrl164 = page.url();
+    const before164 = await page.evaluate(() => ({
+      route: window.SUNOBOOM_VUE_ROUTE.routerSnapshot(),
+      storage: localStorage.getItem('sunoboom-v1')
+    }));
+    await dashboard162.locator('.dash-actions [data-nav="myideas"]').click();
+    await page.waitForFunction(() => {
+      const snap = window.SUNOBOOM_VUE_ROUTE?.routerSnapshot();
+      return snap?.path === '/account/myideas' && snap?.canGoBack;
+    });
+    const after164 = await page.evaluate(() => ({
+      active: view.nav, route: window.SUNOBOOM_VUE_ROUTE.routerSnapshot(),
+      storage: localStorage.getItem('sunoboom-v1')
+    }));
+    if (after164.active !== 'myideas' || page.url() !== baseUrl164 ||
+        after164.storage !== before164.storage ||
+        after164.route.menuPushes !== before164.route.menuPushes ||
+        after164.route.shortcutPushes !== before164.route.shortcutPushes + 1) {
+      throw new Error('Vue dashboard shortcut bypassed shared router or dispatched twice');
+    }
+    if (!await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.back())) {
+      throw new Error('Vue Router could not restore home dashboard from workspace');
+    }
+    await dashboard162.waitFor({ state: 'attached', timeout: 10000 });
+    if (await page.evaluate(() => view.nav) !== 'home' ||
+        !await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.routerSnapshot().canGoForward)) {
+      throw new Error('Vue workspace Back lost the Forward history entry');
+    }
+    if (!await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.forward()) ||
+        await page.evaluate(() => view.nav) !== 'myideas') {
+      throw new Error('Vue workspace Forward could not restore saved route');
+    }
+    if (!await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.back()) ||
+        await page.evaluate(() => view.nav) !== 'home' || page.url() !== baseUrl164) {
+      throw new Error('Vue back/forward changed the browser URL or original page');
+    }
+    await dashboard162.waitFor({ state: 'attached', timeout: 10000 });
+
     // The original legacy model remains authoritative, even after rerender.
     await page.evaluate(() => {
       window.__dashboardSaved162 = {
@@ -153,7 +194,7 @@ async function checkLayout(mobile) {
     await version161.waitFor({ state: 'attached', timeout: 10000 });
     if (await page.locator('#sb-vh-overlay').count() !== 1 ||
         await page.locator('#sb-vh-tabs button').count() !== 2 ||
-        !(await version161.textContent()).includes('v0.163')) {
+        !(await version161.textContent()).includes('v0.164')) {
       throw new Error('Vue version-history dialog or current release missing');
     }
     await page.locator('#sb-vh-tabs button').nth(1).click();

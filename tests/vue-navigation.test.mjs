@@ -4,7 +4,7 @@ import { treeSearch, nextTreeZoom, connectedTreeEdges } from '../src/vue/academy
 import { groupMajorVersions, historyResults, formatReleaseDate } from '../src/vue/version-history/version-model.js';
 import { activeNavigationRoute, navigationSnapshot } from '../src/vue/navigation/nav-model.js';
 import { currentRoute, syncLegacyRoute } from '../src/vue/navigation/route-state.js';
-import { navigateFromVueMenu } from '../src/vue/navigation/navigation-dispatch.js';
+import { navigateFromVueMenu, navigateFromVueShortcut } from '../src/vue/navigation/navigation-dispatch.js';
 import { canRestoreLegacyMenuHistory, restoreLegacyMenuHistory } from '../src/vue/navigation/legacy-history-restore.js';
 import {
   activeRouteFromMemoryPath, legacyMemoryHistoryCandidate, legacyRouteFromMemoryPath,
@@ -581,4 +581,58 @@ test('v0.163 genre-tree projections include entire Academy and cross-map search'
   const edges = [['ska','ska-punk','fusion'], ['folk','ska-punk','influence']];
   assert.equal(connectedTreeEdges({ id: 'all', edges }, 'ska').length, 1);
   assert.equal(connectedTreeEdges({ id: 'ska', edges }, 'ska').length, 2);
+});
+
+test('v0.164 dashboard shortcuts share the guarded Vue navigation dispatcher', () => {
+  const called = [], synced = [];
+  let active = 'home';
+  const api = {
+    snapshot: () => ({ active, items: [{ id: 'home' }] }),
+    navigate: id => called.push('menu:' + id),
+    navigateWorkspace: id => { called.push('workspace:' + id); active = id; }
+  };
+  const opts = {
+    legacyApi: api,
+    router: { resolve: path => ({ path }) },
+    syncRoute: (route, options) => synced.push({ route, mode: options.historyMode, source: options.source })
+  };
+  for (const id of ['myideas', 'myprompts', 'events'])
+    assert.equal(navigateFromVueShortcut(id, opts), true);
+  for (const id of ['tracks', 'producer', '../myideas', '', null])
+    assert.equal(navigateFromVueShortcut(id, opts), false);
+  assert.deepEqual(called, ['workspace:myideas','workspace:myprompts','workspace:events']);
+  assert.deepEqual(synced, ['myideas','myprompts','events'].map(route => ({
+    route, mode: 'push', source: 'shortcut'
+  })));
+  assert.equal(navigateFromVueMenu('myideas', opts), false);
+});
+
+test('v0.164 dashboard shortcuts support guarded internal Back/Forward restoration', async () => {
+  syncLegacyRoute('home');
+  await whenLegacyRouterSettled();
+  let active = 'home';
+  const calls = [];
+  const legacyApi = {
+    snapshot: () => ({ active, items: [{ id: 'home' }, { id: 'account' }] }),
+    navigate(id) { calls.push('menu:' + id); active = id; },
+    navigateWorkspace(id) { calls.push('workspace:' + id); active = id; }
+  };
+  const before = legacyRouterSnapshot();
+  assert.equal(navigateFromVueShortcut('myideas', { legacyApi, router: legacyMirrorRouter }), true);
+  await whenLegacyRouterSettled();
+  const after = legacyRouterSnapshot();
+  assert.equal(after.path, '/account/myideas');
+  assert.equal(after.menuPushes, before.menuPushes);
+  assert.equal(after.shortcutPushes, before.shortcutPushes + 1);
+  assert.equal(canRestoreLegacyMenuHistory('back', { legacyApi }), true);
+  assert.equal(await restoreLegacyMenuHistory('back', { legacyApi }), true);
+  await whenLegacyRouterSettled();
+  assert.equal(active, 'home');
+  assert.equal(canRestoreLegacyMenuHistory('forward', { legacyApi }), true);
+  assert.equal(await restoreLegacyMenuHistory('forward', { legacyApi }), true);
+  await whenLegacyRouterSettled();
+  assert.equal(active, 'myideas');
+  assert.deepEqual(calls, ['workspace:myideas','menu:home','workspace:myideas']);
+  syncLegacyRoute('home');
+  await whenLegacyRouterSettled();
 });

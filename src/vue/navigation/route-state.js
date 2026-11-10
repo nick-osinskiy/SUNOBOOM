@@ -7,11 +7,11 @@ import { syncLegacyRouterMirror } from './legacy-router-mirror.js';
 const state = shallowRef(Object.freeze({ route: 'home', active: 'home', revision: 0 }));
 export const currentRoute = readonly(state);
 
-export function syncLegacyRoute(route, { historyMode = 'replace', context = null } = {}) {
+export function syncLegacyRoute(route, { historyMode = 'replace', context = null, source = 'legacy' } = {}) {
   const id = typeof route === 'string' && route ? route : 'home';
   // Vue menu clicks and validated genre openings may append to memory history.
   // Every other legacy route change replaces the in-memory entry.
-  void syncLegacyRouterMirror(id, { historyMode, context });
+  void syncLegacyRouterMirror(id, { historyMode, context, source });
   if (id === state.value.route) return state.value;
   const next = Object.freeze({
     route: id,

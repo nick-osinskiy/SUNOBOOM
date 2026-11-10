@@ -8,6 +8,12 @@ import {
 } from './legacy-router-mirror.js';
 import { syncLegacyRoute } from './route-state.js';
 
+// Explicit safe leaf workspaces opened from Vue dashboard only.
+const VUE_WORKSPACE_PATHS = Object.freeze({
+  '/account/myideas': 'myideas',
+  '/account/myprompts': 'myprompts',
+  '/account/events': 'events'
+});
 // Only validated top-level routes and recorded genre/track details are replayed.
 function actualMemoryPath(snapshot) {
   if (snapshot?.active === 'producer' && snapshot?.production?.id) return routeToMemoryPath('producer',{kind:'production',id:snapshot.production.id});
@@ -24,6 +30,9 @@ function restoreTarget(candidate, api) {
   if (topLevelId && snapshot?.items?.some(item => item?.id === topLevelId)) {
     return { kind: 'menu', id: topLevelId };
   }
+  const workspace = VUE_WORKSPACE_PATHS[candidate.path];
+  if (workspace && typeof api.navigateWorkspace === 'function')
+    return { kind: 'workspace', id: workspace };
   const context = candidate.context;
   if (candidate.path === '/catalog/detail' && context?.kind === 'genre' &&
       typeof api.canRestoreGenre === 'function' && api.canRestoreGenre(context.id, context.tab) &&
@@ -96,6 +105,8 @@ export async function restoreLegacyMenuHistory(direction, {
         syncRoute(legacyApi.snapshot()?.active);
         return false;
       }
+    } else if (target.kind === 'workspace') {
+      legacyApi.navigateWorkspace(target.id);
     } else if (target.id === 'catalog' && before.active === 'detail' &&
                typeof legacyApi.returnToAcademy === 'function') {
       // The original Academy back logic restores search, accordion expansion
