@@ -216,7 +216,7 @@ async function checkLayout(mobile) {
     await version161.waitFor({ state: 'attached', timeout: 10000 });
     if (await page.locator('#sb-vh-overlay').count() !== 1 ||
         await page.locator('#sb-vh-tabs button').count() !== 2 ||
-        !(await version161.textContent()).includes('v0.166')) {
+        !(await version161.textContent()).includes('v0.167')) {
       throw new Error('Vue version-history dialog or current release missing');
     }
     await page.locator('#sb-vh-tabs button').nth(1).click();
@@ -626,17 +626,32 @@ async function checkLayout(mobile) {
       throw new Error('Full-collection genre tree search stopped working');
     }
     await genreTree.locator('[data-sb-gt-action="zoom-in"]').click();
+    // v0.167: selected map, zoom and query are shared UI cursors only.
+    await page.waitForFunction(() => {
+      const x = window.SUNOBOOM_VUE_ROUTE?.sharedState()?.academyTree;
+      return x?.tree === 'all' && x?.query === 'ска-панк' && x?.zoom === 1.15;
+    });
     if ((await genreTree.locator('#sb-gt-zoom-label').textContent()).trim() !== '115%') {
       throw new Error('Genre tree zoom stopped responding');
     }
     await genreTree.locator('[data-sb-gt-action="zoom-reset"]').click();
     await genreTree.locator('[data-sb-gt-action="search-jump"]').first().click();
+    await page.waitForFunction(() => {
+      const selected = document.querySelector('#sb-genre-tree .sb-gt-node.is-selected')?.dataset.id;
+      const tree = window.SUNOBOOM_VUE_ROUTE?.sharedState()?.academyTree;
+      return !!selected && tree?.selected === selected && tree?.query === '' && tree?.zoom === 1;
+    });
+    const selectedTreeGenre167 = await genreTree.locator('.sb-gt-node.is-selected').getAttribute('data-id');
     if (await genreTree.locator('.sb-gt-node.is-selected').count() !== 1 ||
         !(await genreTree.locator('#sb-gt-description').textContent()).includes('Ска-панк')) {
       throw new Error('Genre tree selection/search results stopped opening genre details');
     }
     await genreTree.locator('.sb-gt-open').click();
     await page.locator('#sb-vue-genre-detail[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    await page.waitForFunction(id => {
+      const focus = window.SUNOBOOM_VUE_ROUTE?.sharedState()?.academyFocus;
+      return focus?.genreId === id && focus?.tab === 'overview';
+    }, selectedTreeGenre167);
     await page.locator('.gb-top [data-action="academy-back"]').click();
     await page.locator('#sb-vue-academy-root[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
     if (await page.locator('#sb-genre-tree').count() !== 1) {
@@ -646,6 +661,11 @@ async function checkLayout(mobile) {
       .waitFor({ state: 'attached', timeout: 10000 });
     if (await page.locator('#sb-genre-tree .sb-gt-node.is-selected').count() !== 1) {
       throw new Error('Vue tree did not restore selected genre after returning from card');
+    }
+    const lastGenre167 = page.locator('#sb-vue-academy-root [data-sb-last-genre]');
+    await lastGenre167.waitFor({ state:'attached', timeout:10000 });
+    if (await lastGenre167.getAttribute('data-id') !== selectedTreeGenre167) {
+      throw new Error('Pinia last-genre shortcut does not reflect the opened genealogy genre');
     }
 
     const familyCount = await page.locator('#catalog-cards details.genre-family').count();
@@ -674,6 +694,10 @@ async function checkLayout(mobile) {
 
     const search = page.locator('#genre-search');
     await search.fill('ска');
+    await page.waitForFunction(() => {
+      const state = window.SUNOBOOM_VUE_ROUTE?.sharedState()?.academyCatalog;
+      return state?.query === 'ска' && state.results > 0 && state.results < state.total;
+    });
     const ska = page.locator('#catalog-cards button.genre-card[data-id="reggae-ska"]');
     await ska.waitFor({ timeout: 10000 });
     const familyMatches = await page.locator('#catalog-cards details.genre-family').count();
@@ -684,6 +708,10 @@ async function checkLayout(mobile) {
     const beforeGenre137 = await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.routerSnapshot());
     await ska.click();
     await page.locator('.genre-bright h1.gb-title').waitFor({ timeout: 10000 });
+    await page.waitForFunction(() => {
+      const focus = window.SUNOBOOM_VUE_ROUTE?.sharedState()?.academyFocus;
+      return focus?.genreId === 'reggae-ska' && focus?.tab === 'overview';
+    });
     const genreTitle = await page.locator('.genre-bright h1.gb-title').textContent();
     if (!genreTitle?.toLocaleLowerCase('ru').includes('ска')) {
       throw new Error('Genre card did not open the expected detail page: ' + genreTitle);
@@ -764,6 +792,10 @@ async function checkLayout(mobile) {
 
     await page.locator('.genre-side-item[data-tab="artists"]').click();
     await page.locator('.genre-side-item[data-tab="artists"].active').waitFor();
+    await page.waitForFunction(() => {
+      const focus = window.SUNOBOOM_VUE_ROUTE?.sharedState()?.academyFocus;
+      return focus?.genreId === 'reggae-ska' && focus?.tab === 'artists';
+    });
     // v0.137: restore the exact genre and Vue-managed Artists tab, not just
     // the generic /catalog/detail route. The browser URL must not change.
     await page.waitForFunction(() =>
@@ -782,6 +814,10 @@ async function checkLayout(mobile) {
       .waitFor({ state: 'attached', timeout: 10000 });
     if (await page.locator('#genre-search').inputValue() !== 'ска') {
       throw new Error('History Back lost the Academy search context');
+    }
+    if (await page.locator('#sb-vue-academy-root [data-sb-last-genre]').getAttribute('data-id') !== 'reggae-ska' ||
+        await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.sharedState().academyCatalog.query) !== 'ска') {
+      throw new Error('v0.167 Academy lost saved last genre or filtered result count after Back');
     }
     await page.waitForFunction(() =>
       !document.querySelector('[data-sb-vue-history] [data-sb-history-forward]')?.disabled);

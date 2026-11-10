@@ -1,16 +1,21 @@
 <script setup>
-import { computed, nextTick, onMounted, ref } from 'vue';
+import { computed, nextTick, onMounted, ref, watch } from 'vue';
+import { useLegacyUiStore } from '../state/legacy-ui-store.js';
 import { connectedTreeEdges, nextTreeZoom, treeSearch } from './genre-tree-model.js';
 
 const props = defineProps({
   snapshot: { type: Object, required: true },
   treeApi: { type: Object, required: true }
 });
+const ui = useLegacyUiStore();
 const treeId = ref(props.snapshot.tree);
 const selectedId = ref(props.snapshot.selected);
 const query = ref(props.snapshot.query || '');
 const zoom = ref(props.snapshot.zoom || 1);
 const groupJump = ref('');
+watch([treeId,selectedId,zoom,query], ([tree,selected,zoomValue,search]) => {
+  ui.publishAcademyTree({ tree, selected, zoom:zoomValue, query:search });
+}, { immediate:true });
 const viewport = ref(null);
 const canvas = ref(null);
 const genres = props.snapshot.genres;

@@ -33,7 +33,10 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature, s
       active: sharedUi.route.active,
       menuIds: sharedUi.navigationItems.map(item => item.id),
       dashboardStats: { ...sharedUi.dashboardStats },
-      appearance: { ...sharedUi.appearance }
+      appearance: { ...sharedUi.appearance },
+      academyCatalog: { ...sharedUi.academyCatalog },
+      academyFocus: { ...sharedUi.academyFocus },
+      academyTree: { ...sharedUi.academyTree }
     }),
     back: () => restoreLegacyMenuHistory('back', { legacyApi: api }),
     forward: () => restoreLegacyMenuHistory('forward', { legacyApi: api }),

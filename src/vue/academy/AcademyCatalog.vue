@@ -1,5 +1,6 @@
 <script setup>
-import { computed, reactive, ref } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
+import { useLegacyUiStore } from '../state/legacy-ui-store.js';
 import GenreCards from './GenreCards.vue';
 
 const props = defineProps({
@@ -9,6 +10,7 @@ const props = defineProps({
   searchIcon: { type: String, default: '' }
 });
 
+const ui = useLegacyUiStore();
 const query = ref(props.snapshot.query || '');
 const expanded = reactive({
   family: { ...(props.snapshot.expanded?.family || {}) },
@@ -49,6 +51,16 @@ const sacredReligions = computed(() => {
   }).filter(religion => religion.branches.length);
 });
 
+const totalInAcademy = props.snapshot.families.reduce((n,family) => n + family.genres.length, 0);
+watch([query, selection, total], ([value, selected, found]) => {
+  ui.publishAcademyCatalog({query:value, results:found, total:totalInAcademy, mode:selected?.mode || ''});
+}, { immediate:true });
+// This action uses the original data-action='genre' route; the shared store
+// holds only the last valid genre ID and tab, never the GENRES catalog itself.
+const lastGenre = computed(() => (props.snapshot.families || [])
+  .flatMap(family => family.genres)
+  .find(genre => genre.id === ui.academyFocus.genreId) || null);
+
 function isOpen(kind, id) {
   return searching.value || Boolean(expanded[kind][id]);
 }
@@ -79,6 +91,10 @@ function religiousNoun(n) {
   </div>
   <div class="genre-family-summary">
     <h2 id="catalog-count">{{ searching ? 'Найдено жанров' : 'Музыкальные жанры' }} · {{ total }}</h2>
+    <button v-if="lastGenre" type="button" class="btn ghost small"
+      data-sb-last-genre data-action="genre" :data-id="lastGenre.id">
+      ↶ Последний жанр: {{ lastGenre.name }}
+    </button>
     <span class="hint" id="sb-academy-search-hint">{{ searchHint }}</span>
   </div>
   <div id="catalog-cards" class="genre-families">

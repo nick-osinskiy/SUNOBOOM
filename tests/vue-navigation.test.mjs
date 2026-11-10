@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { createPinia } from 'pinia';
 import { useLegacyUiStore } from '../src/vue/state/legacy-ui-store.js';
 import { normalizeLegacyAppearance } from '../src/vue/state/appearance-model.js';
+import { normalizeAcademyCatalog, normalizeAcademyFocus, normalizeAcademyTree } from '../src/vue/state/academy-ui-model.js';
 import { treeSearch, nextTreeZoom, connectedTreeEdges } from '../src/vue/academy/genre-tree-model.js';
 import { groupMajorVersions, historyResults, formatReleaseDate } from '../src/vue/version-history/version-model.js';
 import { activeNavigationRoute, navigationSnapshot } from '../src/vue/navigation/nav-model.js';
@@ -714,4 +715,44 @@ test('v0.166 Pinia appearance validates all nine legacy themes and system resolu
   assert.equal(ui.appearance.theme,'system');
   assert.equal(ui.appearance.resolvedTheme,'dark');
   assert.equal(ui.appearance.name,undefined);
+});
+
+test('v0.167 Pinia shares Academy catalog, last genre and genealogy cursors, never content', () => {
+  const pinia = createPinia();
+  const catalog = useLegacyUiStore(pinia);
+  const genre = useLegacyUiStore(pinia);
+  const tree = useLegacyUiStore(pinia);
+  assert.strictEqual(catalog,genre);
+  assert.strictEqual(genre,tree);
+
+  assert.deepEqual(normalizeAcademyCatalog({query:'ска',results:2,total:180,mode:'name'}),
+    {query:'ска',results:2,total:180,mode:'name'});
+  assert.equal(catalog.publishAcademyCatalog({query:'ска',results:2,total:180,mode:'name'}),true);
+  assert.equal(genre.academyCatalog.query,'ска');
+  assert.equal(tree.academyCatalog.results,2);
+  assert.equal(catalog.publishAcademyCatalog({query:'ска',results:2,total:180,mode:'name'}),false);
+  assert.equal(catalog.publishAcademyCatalog({query:'invalid',results:182,total:180,mode:'name'}),false);
+  assert.equal(catalog.publishAcademyCatalog({query:'a'.repeat(161),results:1,total:5,mode:'artist'}),false);
+
+  assert.deepEqual(normalizeAcademyFocus('reggae-ska','artists'),
+    {genreId:'reggae-ska',tab:'artists'});
+  assert.equal(genre.publishAcademyFocus('reggae-ska','overview'),true);
+  assert.equal(genre.publishAcademyFocus('reggae-ska','artists'),true);
+  assert.equal(catalog.academyFocus.genreId,'reggae-ska');
+  assert.equal(catalog.academyFocus.tab,'artists');
+  assert.equal(genre.publishAcademyFocus('reggae-ska','artists'),false);
+  assert.equal(genre.publishAcademyFocus('bad/id','artists'),false);
+  assert.equal(genre.publishAcademyFocus('reggae-ska','unknown'),false);
+
+  assert.deepEqual(normalizeAcademyTree({tree:'all',selected:'reggae-ska',zoom:1.15,query:'ска'}),
+    {tree:'all',selected:'reggae-ska',zoom:1.15,query:'ска'});
+  assert.equal(tree.publishAcademyTree({tree:'all',selected:'reggae-ska',zoom:1.15,query:'ска'}),true);
+  assert.equal(catalog.academyTree.zoom,1.15);
+  assert.equal(genre.academyTree.selected,'reggae-ska');
+  assert.equal(tree.publishAcademyTree({tree:'all',selected:'reggae-ska',zoom:1.15,query:'ска'}),false);
+  assert.equal(tree.publishAcademyTree({tree:'all',selected:'reggae-ska',zoom:2,query:'ска'}),false);
+  assert.equal(tree.publishAcademyTree({tree:'../home',selected:'reggae-ska',zoom:1,query:''}),false);
+  assert.equal(catalog.academyCatalog.lyrics,undefined);
+  assert.equal(genre.academyFocus.description,undefined);
+  assert.equal(tree.academyTree.genreData,undefined);
 });

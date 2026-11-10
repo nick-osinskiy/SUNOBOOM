@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { shallowRef } from 'vue';
 import { currentRoute } from '../navigation/route-state.js';
 import { normalizeLegacyAppearance } from './appearance-model.js';
+import { normalizeAcademyCatalog, normalizeAcademyFocus, normalizeAcademyTree } from './academy-ui-model.js';
 
 // Read-only UI projections across the independent Vue islands.
 // The legacy go(), data object and browser storage remain authoritative.
@@ -22,6 +23,47 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
     theme: 'dark', resolvedTheme: 'dark', compact: false, largeText: false,
     reduceMotion: false, startPage: 'home', revision: 0
   }));
+
+  // Pure UI cursors shared across Academy catalog, genre card and music tree.
+  // GENRES and all historical relationships remain owned by original scripts.
+  const academyCatalog = shallowRef(Object.freeze({
+    query:'', results:0, total:0, mode:'', revision:0
+  }));
+  const academyFocus = shallowRef(Object.freeze({
+    genreId:null, tab:'overview', revision:0
+  }));
+  const academyTree = shallowRef(Object.freeze({
+    tree:'ska', selected:null, zoom:1, query:'', revision:0
+  }));
+
+  function publishAcademyCatalog(value) {
+    const next = normalizeAcademyCatalog(value);
+    if (!next) return false;
+    const before = academyCatalog.value;
+    if (before.query === next.query && before.results === next.results &&
+        before.total === next.total && before.mode === next.mode) return false;
+    academyCatalog.value = Object.freeze({...next,revision:before.revision+1});
+    return true;
+  }
+
+  function publishAcademyFocus(id, tab) {
+    const next = normalizeAcademyFocus(id,tab);
+    if (!next) return false;
+    const before = academyFocus.value;
+    if (before.genreId === next.genreId && before.tab === next.tab) return false;
+    academyFocus.value = Object.freeze({...next,revision:before.revision+1});
+    return true;
+  }
+
+  function publishAcademyTree(value) {
+    const next = normalizeAcademyTree(value);
+    if (!next) return false;
+    const before = academyTree.value;
+    if (before.tree === next.tree && before.selected === next.selected &&
+        before.zoom === next.zoom && before.query === next.query) return false;
+    academyTree.value = Object.freeze({...next,revision:before.revision+1});
+    return true;
+  }
 
   function publishNavigation(items) {
     if (!Array.isArray(items)) return false;
@@ -72,5 +114,7 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
   }
 
   return { route, navigationItems, dashboardStats, appearance,
-    publishNavigation, publishDashboardStats, publishAppearance };
+    academyCatalog, academyFocus, academyTree,
+    publishNavigation, publishDashboardStats, publishAppearance,
+    publishAcademyCatalog, publishAcademyFocus, publishAcademyTree };
 });

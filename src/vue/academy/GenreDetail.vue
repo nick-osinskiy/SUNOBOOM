@@ -1,5 +1,6 @@
 <script setup>
-import { nextTick, ref } from 'vue';
+import { nextTick, ref, watch } from 'vue';
+import { useLegacyUiStore } from '../state/legacy-ui-store.js';
 import GenreOverview from './GenreOverview.vue';
 import GenreArtists from './GenreArtists.vue';
 import GenreIdeas from './GenreIdeas.vue';
@@ -18,7 +19,9 @@ const tabs = [
   { id: 'prompts', label: 'Промпты Suno' },
   { id: 'artists', label: 'Исполнители' }
 ];
+const ui = useLegacyUiStore();
 const activeTab = ref(props.genre.tab);
+watch(activeTab, tab => ui.publishAcademyFocus(props.genre.id, tab), { immediate:true });
 const contentHtml = ref(props.tabContent(props.genre.id, activeTab.value) || '');
 
 async function chooseTab(tab) {
