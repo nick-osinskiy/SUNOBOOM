@@ -36,7 +36,10 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature, s
       appearance: { ...sharedUi.appearance },
       academyCatalog: { ...sharedUi.academyCatalog },
       academyFocus: { ...sharedUi.academyFocus },
-      academyTree: { ...sharedUi.academyTree }
+      academyTree: { ...sharedUi.academyTree },
+      studioSummary: { ...sharedUi.studioSummary },
+      mixerSummary: { ...sharedUi.mixerSummary },
+      auditorSummary: { ...sharedUi.auditorSummary }
     }),
     back: () => restoreLegacyMenuHistory('back', { legacyApi: api }),
     forward: () => restoreLegacyMenuHistory('forward', { legacyApi: api }),

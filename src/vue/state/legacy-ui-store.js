@@ -3,6 +3,7 @@ import { shallowRef } from 'vue';
 import { currentRoute } from '../navigation/route-state.js';
 import { normalizeLegacyAppearance } from './appearance-model.js';
 import { normalizeAcademyCatalog, normalizeAcademyFocus, normalizeAcademyTree } from './academy-ui-model.js';
+import { normalizeStudioSummary, normalizeMixerSummary, normalizeAuditorSummary } from './production-ui-model.js';
 
 // Read-only UI projections across the independent Vue islands.
 // The legacy go(), data object and browser storage remain authoritative.
@@ -65,6 +66,33 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
     return true;
   }
 
+  // Transient, content-free cross-tool indicators. Existing legacy tools
+  // exclusively own draft data, derived prompt text and browser persistence.
+  const studioSummary = shallowRef(Object.freeze({
+    ready:false, genreId:null, tempo:0, promptLength:0, revision:0
+  }));
+  const mixerSummary = shallowRef(Object.freeze({
+    ready:false, genreCount:0, tempo:0, promptLength:0, revision:0
+  }));
+  const auditorSummary = shallowRef(Object.freeze({
+    ready:false, mode:'studio', score:0, checkedLength:0, revision:0
+  }));
+
+  function publishToolSummary(target, normalizer, snapshot) {
+    const next = normalizer(snapshot);
+    if (!next) return false;
+    const before = target.value;
+    if (Object.keys(next).every(key => before[key] === next[key])) return false;
+    target.value = Object.freeze({ ...next, revision: before.revision + 1 });
+    return true;
+  }
+  const publishStudioSummary = snapshot =>
+    publishToolSummary(studioSummary, normalizeStudioSummary, snapshot);
+  const publishMixerSummary = snapshot =>
+    publishToolSummary(mixerSummary, normalizeMixerSummary, snapshot);
+  const publishAuditorSummary = snapshot =>
+    publishToolSummary(auditorSummary, normalizeAuditorSummary, snapshot);
+
   function publishNavigation(items) {
     if (!Array.isArray(items)) return false;
     const next = Object.freeze(items
@@ -115,6 +143,8 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
 
   return { route, navigationItems, dashboardStats, appearance,
     academyCatalog, academyFocus, academyTree,
+    studioSummary, mixerSummary, auditorSummary,
     publishNavigation, publishDashboardStats, publishAppearance,
-    publishAcademyCatalog, publishAcademyFocus, publishAcademyTree };
+    publishAcademyCatalog, publishAcademyFocus, publishAcademyTree,
+    publishStudioSummary, publishMixerSummary, publishAuditorSummary };
 });

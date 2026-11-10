@@ -1,8 +1,11 @@
 <script setup>
-import { computed, onMounted, onUnmounted, shallowRef } from 'vue';
+import { computed, onMounted, onUnmounted, shallowRef, watch } from 'vue';
+import { useLegacyUiStore } from '../state/legacy-ui-store.js';
 
 const props = defineProps({ api: { type: Object, required: true } });
 const snapshot = shallowRef(props.api.snapshot());
+const ui = useLegacyUiStore();
+watch(snapshot, value => ui.publishAuditorSummary(value), { immediate:true });
 const manual = computed(() => snapshot.value?.mode === 'manual');
 const report = computed(() => snapshot.value?.report || { score: 0, length: 0, issues: [], status: '' });
 const genreId = computed(() => snapshot.value?.genreId || '');

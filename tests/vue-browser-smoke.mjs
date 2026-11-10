@@ -216,7 +216,7 @@ async function checkLayout(mobile) {
     await version161.waitFor({ state: 'attached', timeout: 10000 });
     if (await page.locator('#sb-vh-overlay').count() !== 1 ||
         await page.locator('#sb-vh-tabs button').count() !== 2 ||
-        !(await version161.textContent()).includes('v0.167')) {
+        !(await version161.textContent()).includes('v0.168')) {
       throw new Error('Vue version-history dialog or current release missing');
     }
     await page.locator('#sb-vh-tabs button').nth(1).click();
@@ -1000,12 +1000,29 @@ async function checkLayout(mobile) {
         await page.locator('#sba-arranger').count() !== 1) {
       throw new Error('Genre change broke Studio or its arrangement extension');
     }
+    // v0.168: the same Pinia store exposes bounded Studio metrics, never
+    // the text of the prompt or any lyric/arrangement/editor fields.
+    await page.waitForFunction(() => {
+      const x = window.SUNOBOOM_VUE_ROUTE?.sharedState()?.studioSummary;
+      return x?.ready && x.genreId === 'afropop' &&
+        x.tempo === Number(builder.tempo) && x.promptLength === promptValue().length;
+    });
+    const studioStats168 = await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.sharedState().studioSummary);
+    if ('prompt' in studioStats168 || 'theme' in studioStats168 || 'extra' in studioStats168) {
+      throw new Error('Private Studio prompt/editor data leaked into the shared UI store');
+    }
 
     // Vue mixer keeps the original calculation engine and browser storage.
     await page.locator(nav + ' button[data-nav="mixer"]').click();
     await page.locator('#sb-vue-mixer-root[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
     if (await page.locator('#sb-vue-mixer-root .gm-row').count() !== 2) {
       throw new Error('Vue mixer did not render its two default genre rows');
+    }
+    const studioRecap168 = page.locator('#sb-vue-mixer-root [data-sb-vue-studio-recap]');
+    await studioRecap168.waitFor({state:'visible',timeout:10000});
+    if (!(await studioRecap168.textContent()).includes(studioStats168.tempo + ' BPM') ||
+        await studioRecap168.locator('[data-action="nav"][data-nav="studio"]').count() !== 1) {
+      throw new Error('Mixer did not display the live shared Studio summary or return route');
     }
     await page.locator('#gm-genre-0').selectOption('reggae-ska');
     await page.locator('#sb-vue-mixer-root[data-v-app]').waitFor({ state: 'attached' });
@@ -1030,6 +1047,16 @@ async function checkLayout(mobile) {
         !mixerState.count?.includes(mixerState.promptLength + ' / 1000') ||
         mixerState.savedRows !== 2 || mixerState.selected !== 'reggae-ska') {
       throw new Error('Mixer lost calculations or its existing draft storage: ' + JSON.stringify(mixerState));
+    }
+    await page.waitForFunction(() => {
+      const m = window.SUNOBOOM_VUE_ROUTE?.sharedState()?.mixerSummary;
+      return m?.ready && m.genreCount === 2 && m.promptLength ===
+        (document.getElementById('gm-prompt')?.textContent || '').length &&
+        m.tempo === window.SUNOBOOM_LEGACY_MIXER.snapshot().tempo;
+    });
+    const mixerSummary168 = await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.sharedState().mixerSummary);
+    if ('rows' in mixerSummary168 || 'saved' in mixerSummary168 || 'prompt' in mixerSummary168) {
+      throw new Error('Mixer formula or prompt leaked into shared Pinia UI indicators');
     }
 
     await page.locator('[data-action="gm-add"]').click();
@@ -1064,6 +1091,12 @@ async function checkLayout(mobile) {
         mixerTransfer.genre !== 'reggae-ska' || !mixerTransfer.prompt.includes('Genre blend targets')) {
       throw new Error('Mixer-to-Studio handoff failed: ' + JSON.stringify(mixerTransfer));
     }
+    const mixerRecap168 = page.locator('.studio-grid [data-sb-vue-mixer-recap]');
+    await mixerRecap168.waitFor({state:'visible',timeout:10000});
+    if (!(await mixerRecap168.textContent()).includes(mixerSummary168.tempo + ' BPM') ||
+        await mixerRecap168.locator('[data-action="nav"][data-nav="mixer"]').count() !== 1) {
+      throw new Error('Studio did not retain the latest shared Mixer summary and link');
+    }
 
     // The rules-based auditor is now Vue, still using the original
     // inspect(), propose(), clipboard and Studio settings.
@@ -1077,6 +1110,11 @@ async function checkLayout(mobile) {
         !Number.isFinite(initialAudit.score)) {
       throw new Error('Vue audit score does not match the active Studio prompt: ' + JSON.stringify(initialAudit));
     }
+    await page.waitForFunction(() => {
+      const x = window.SUNOBOOM_VUE_ROUTE?.sharedState()?.auditorSummary;
+      return x?.ready && x.mode === 'studio' &&
+        x.checkedLength === promptValue().length;
+    });
 
     await page.locator('#b-theme').fill('Новое музыкальное направление');
     await page.waitForFunction(() =>
@@ -1089,6 +1127,15 @@ async function checkLayout(mobile) {
     await page.waitForFunction(() =>
       document.querySelector('#sbpa-results')?.textContent?.includes('Несколько разных темпов') &&
       document.querySelector('#sbpa-results')?.textContent?.includes('Повторы инструкций'));
+    await page.waitForFunction(length => {
+      const x = window.SUNOBOOM_VUE_ROUTE?.sharedState()?.auditorSummary;
+      return x?.ready && x.mode === 'manual' && x.checkedLength === length;
+    }, draft.length);
+    const auditSummary168 = await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.sharedState().auditorSummary);
+    if ('manual' in auditSummary168 || 'issues' in auditSummary168 ||
+        'proposal' in auditSummary168 || 'prompt' in auditSummary168) {
+      throw new Error('Auditor source text or proposals leaked into shared Pinia UI indicators');
+    }
     await page.locator('#sbpa-genre').selectOption('reggae-ska');
     await page.waitForFunction(() => document.querySelector('#sbpa-genre')?.value === 'reggae-ska');
 

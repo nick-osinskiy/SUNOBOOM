@@ -4,6 +4,7 @@ import { createPinia } from 'pinia';
 import { useLegacyUiStore } from '../src/vue/state/legacy-ui-store.js';
 import { normalizeLegacyAppearance } from '../src/vue/state/appearance-model.js';
 import { normalizeAcademyCatalog, normalizeAcademyFocus, normalizeAcademyTree } from '../src/vue/state/academy-ui-model.js';
+import { normalizeStudioSummary, normalizeMixerSummary, normalizeAuditorSummary } from '../src/vue/state/production-ui-model.js';
 import { treeSearch, nextTreeZoom, connectedTreeEdges } from '../src/vue/academy/genre-tree-model.js';
 import { groupMajorVersions, historyResults, formatReleaseDate } from '../src/vue/version-history/version-model.js';
 import { activeNavigationRoute, navigationSnapshot } from '../src/vue/navigation/nav-model.js';
@@ -755,4 +756,60 @@ test('v0.167 Pinia shares Academy catalog, last genre and genealogy cursors, nev
   assert.equal(catalog.academyCatalog.lyrics,undefined);
   assert.equal(genre.academyFocus.description,undefined);
   assert.equal(tree.academyTree.genreData,undefined);
+});
+
+test('v0.168 production tools share bounded numeric indicators without source text', () => {
+  const pinia=createPinia();
+  const studio=useLegacyUiStore(pinia), mixer=useLegacyUiStore(pinia), audit=useLegacyUiStore(pinia);
+  assert.strictEqual(studio,mixer);
+  assert.strictEqual(mixer,audit);
+  const studioShot={
+    settings:{genre:'reggae-ska',tempo:124,theme:'PERSONAL LYRICS',extra:'PRIVATE INSTRUCTIONS'},
+    genre:{id:'reggae-ska',name:'Ska'},
+    prompt:'A'.repeat(240)
+  };
+  assert.deepEqual(normalizeStudioSummary(studioShot),
+    {ready:true,genreId:'reggae-ska',tempo:124,promptLength:240});
+  assert.equal(studio.publishStudioSummary(studioShot),true);
+  assert.equal(studio.publishStudioSummary(studioShot),false);
+  assert.equal(mixer.studioSummary.genreId,'reggae-ska');
+  assert.equal(mixer.studioSummary.promptLength,240);
+  assert.equal(mixer.studioSummary.prompt,undefined);
+  assert.equal(mixer.studioSummary.theme,undefined);
+  assert.equal(studio.publishStudioSummary({...studioShot,settings:{genre:'../../attack',tempo:124}}),false);
+  assert.equal(studio.publishStudioSummary({...studioShot,settings:{genre:'reggae-ska',tempo:300}}),false);
+  assert.equal(studio.publishStudioSummary({...studioShot,prompt:'A'.repeat(1001)}),false);
+  const mixShot={
+    rows:[{id:'reggae-ska',weight:75,title:'SECRET'},{id:'afropop',weight:25}],
+    tempo:119,prompt:'B'.repeat(412),
+    saved:[{id:'secret',title:'PERSONAL FORMULA'}]
+  };
+  assert.deepEqual(normalizeMixerSummary(mixShot),{
+    ready:true,genreCount:2,tempo:119,promptLength:412
+  });
+  assert.equal(mixer.publishMixerSummary(mixShot),true);
+  assert.equal(audit.mixerSummary.genreCount,2);
+  assert.equal(audit.mixerSummary.rows,undefined);
+  assert.equal(audit.mixerSummary.saved,undefined);
+  assert.equal(mixer.publishMixerSummary(mixShot),false);
+  assert.equal(mixer.publishMixerSummary({...mixShot,rows:[
+    {id:'reggae-ska',weight:80},{id:'afropop',weight:25}
+  ]}),false);
+  assert.equal(mixer.publishMixerSummary({...mixShot,rows:[
+    {id:'reggae-ska',weight:50},{id:'reggae-ska',weight:50}
+  ]}),false);
+  assert.equal(mixer.publishMixerSummary({...mixShot,rows:[]}),false);
+  const report={mode:'manual',manual:'TOP SECRET PROMPT',report:{
+    score:67,length:91,issues:[{title:'PRIVATE ISSUE'}],status:'Внимание'
+  }};
+  assert.deepEqual(normalizeAuditorSummary(report),{
+    ready:true,mode:'manual',score:67,checkedLength:91
+  });
+  assert.equal(audit.publishAuditorSummary(report),true);
+  assert.equal(audit.publishAuditorSummary(report),false);
+  assert.equal(studio.auditorSummary.mode,'manual');
+  assert.equal(studio.auditorSummary.checkedLength,91);
+  assert.equal(studio.auditorSummary.manual,undefined);
+  assert.equal(audit.publishAuditorSummary({...report,report:{score:101,length:91}}),false);
+  assert.equal(audit.publishAuditorSummary({...report,mode:'unsupported'}),false);
 });

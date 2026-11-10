@@ -1,11 +1,14 @@
 <script setup>
-import { computed, onMounted, onUnmounted, shallowRef } from 'vue';
+import { computed, onMounted, onUnmounted, shallowRef, watch } from 'vue';
+import { useLegacyUiStore } from '../state/legacy-ui-store.js';
 
 const props = defineProps({
   api: { type: Object, required: true }
 });
 
 const snapshot = shallowRef(props.api.snapshot());
+const ui = useLegacyUiStore();
+watch(snapshot, value => ui.publishStudioSummary(value), { immediate:true });
 const settings = computed(() => snapshot.value?.settings || {});
 const genre = computed(() => snapshot.value?.genre || { name: '', family: '', bpm: [0, 0] });
 const prompt = computed(() => String(snapshot.value?.prompt || ''));
@@ -118,6 +121,11 @@ onUnmounted(() => window.removeEventListener('sunoboom:studio-updated', sync));
       </button>
     </div>
     <div class="spacer"></div>
+    <div v-if="ui.mixerSummary.ready" class="notice" data-sb-vue-mixer-recap>
+      Последний микс: {{ ui.mixerSummary.genreCount }} жанра ·
+      {{ ui.mixerSummary.tempo }} BPM · {{ ui.mixerSummary.promptLength }} / 1000 символов.
+      <button type="button" class="link-action" data-action="nav" data-nav="mixer">Перейти в Миксер →</button>
+    </div>
     <div class="notice"><strong>Подсказка:</strong> промпт задаёт стиль, а текст песни можно вводить отдельно в Suno. Результат генерации может отличаться от запроса.</div>
     <div class="spacer"></div>
     <div class="info-label">Музыкальный профиль</div>

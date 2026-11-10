@@ -1,8 +1,11 @@
 <script setup>
-import { computed, onMounted, onUnmounted, shallowRef } from 'vue';
+import { computed, onMounted, onUnmounted, shallowRef, watch } from 'vue';
+import { useLegacyUiStore } from '../state/legacy-ui-store.js';
 
 const props = defineProps({ api: { type: Object, required: true } });
 const snapshot = shallowRef(props.api.snapshot());
+const ui = useLegacyUiStore();
+watch(snapshot, value => ui.publishMixerSummary(value), { immediate:true });
 const rows = computed(() => snapshot.value?.rows || []);
 const genres = computed(() => snapshot.value?.genres || []);
 const settings = computed(() => snapshot.value?.settings || {});
@@ -54,6 +57,11 @@ const checks = [
     <div class="eyebrow">Suno Studio · новый инструмент</div>
     <h1>Жанровый <span class="gm-highlight">миксер</span></h1>
     <p>Соединяй от 2 до 4 жанров из Академии SUNOBOOM, задавай пропорции и создавай готовый Style-промпт для Suno.</p>
+    <p v-if="ui.studioSummary.ready" class="gm-muted" data-sb-vue-studio-recap>
+      Текущая Студия: {{ ui.studioSummary.tempo }} BPM ·
+      {{ ui.studioSummary.promptLength }} / 1000 символов.
+      <button type="button" class="link-action" data-action="nav" data-nav="studio">Вернуться в Студию →</button>
+    </p>
   </header>
   <div class="gm-layout">
     <section class="gm-panel">
