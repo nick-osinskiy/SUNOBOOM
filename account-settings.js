@@ -45,6 +45,9 @@
     light:"#f6f7fc",dark:"#0c0e1a",ocean:"#071c2d",forest:"#0d211b",
     sunset:"#2c1723",amethyst:"#1e1737",pink:"#2a1026","pink-pastel":"#fff2f8"
    })[resolved]);
+  // One-way UI notification; Pinia observes the already-applied legacy choice.
+  // No extra persistence, no duplicate media-query listener and no user records.
+  window.dispatchEvent(new Event("sunoboom:appearance-change"));
  }
  function persistSettings(){
   try{localStorage.setItem(KEY,JSON.stringify(settings));return true}
@@ -111,7 +114,7 @@
  }
  // Read-only handoff: all preference mutations still pass through the original handlers.
  window.SUNOBOOM_LEGACY_SETTINGS={
-  snapshot(){return {settings:{...settings},themes:[...THEMES].map(([id,title])=>({id,title})),pages:[...VALID_PAGES].map(([id,title])=>({id,title})),name:String(data.profileName||'Музыкант'),resetPending:state.resetPending,message:state.message};}
+  snapshot(){return {settings:{...settings},resolvedTheme:document.documentElement.dataset.sbTheme||"dark",themes:[...THEMES].map(([id,title])=>({id,title})),pages:[...VALID_PAGES].map(([id,title])=>({id,title})),name:String(data.profileName||'Музыкант'),resetPending:state.resetPending,message:state.message};}
  };
  const originalGo=go;
  go=function(target){

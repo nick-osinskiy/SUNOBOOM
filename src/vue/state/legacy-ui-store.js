@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { shallowRef } from 'vue';
 import { currentRoute } from '../navigation/route-state.js';
+import { normalizeLegacyAppearance } from './appearance-model.js';
 
 // Read-only UI projections across the independent Vue islands.
 // The legacy go(), data object and browser storage remain authoritative.
@@ -15,6 +16,12 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
   const route = currentRoute;
   const navigationItems = shallowRef(EMPTY_ITEMS);
   const dashboardStats = shallowRef(EMPTY_STATS);
+  // Ephemeral preferences projection: values come exclusively from the legacy
+  // settings API after it applies the effective CSS palette to <html>.
+  const appearance = shallowRef(Object.freeze({
+    theme: 'dark', resolvedTheme: 'dark', compact: false, largeText: false,
+    reduceMotion: false, startPage: 'home', revision: 0
+  }));
 
   function publishNavigation(items) {
     if (!Array.isArray(items)) return false;
@@ -50,5 +57,20 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
     return true;
   }
 
-  return { route, navigationItems, dashboardStats, publishNavigation, publishDashboardStats };
+  function publishAppearance(snapshot) {
+    const next = normalizeLegacyAppearance(snapshot);
+    if (!next) return false;
+    const before = appearance.value;
+    if (before.theme === next.theme &&
+        before.resolvedTheme === next.resolvedTheme &&
+        before.compact === next.compact &&
+        before.largeText === next.largeText &&
+        before.reduceMotion === next.reduceMotion &&
+        before.startPage === next.startPage) return false;
+    appearance.value = Object.freeze({ ...next, revision: before.revision + 1 });
+    return true;
+  }
+
+  return { route, navigationItems, dashboardStats, appearance,
+    publishNavigation, publishDashboardStats, publishAppearance };
 });

@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createPinia } from 'pinia';
 import { useLegacyUiStore } from '../src/vue/state/legacy-ui-store.js';
+import { normalizeLegacyAppearance } from '../src/vue/state/appearance-model.js';
 import { treeSearch, nextTreeZoom, connectedTreeEdges } from '../src/vue/academy/genre-tree-model.js';
 import { groupMajorVersions, historyResults, formatReleaseDate } from '../src/vue/version-history/version-model.js';
 import { activeNavigationRoute, navigationSnapshot } from '../src/vue/navigation/nav-model.js';
@@ -672,4 +673,45 @@ test('v0.165 one Pinia UI store serves all Vue islands without storing user reco
   assert.equal(sidebar.route.revision, currentRoute.value.revision);
   syncLegacyRoute('home');
   await whenLegacyRouterSettled();
+});
+
+test('v0.166 Pinia appearance validates all nine legacy themes and system resolution', () => {
+  const themeIds = ['dark','light','system','ocean','forest','sunset','amethyst','pink','pink-pastel'];
+  const pageIds = ['home','catalog','ideas','studio','player','account'];
+  const base = {
+    settings: {theme:'dark',compact:false,largeText:false,reduceMotion:false,startPage:'home'},
+    resolvedTheme:'dark', themes:themeIds.map(id=>({id,title:id})),
+    pages:pageIds.map(id=>({id,title:id}))
+  };
+  const pinia=createPinia(), ui=useLegacyUiStore(pinia);
+  assert.strictEqual(ui,useLegacyUiStore(pinia));
+  const model=(theme,resolvedTheme=theme,edit={})=>({
+    ...base,settings:{...base.settings,theme,...edit},resolvedTheme
+  });
+  for (const id of themeIds) {
+    const snapshot=model(id,id==='system'?'dark':id);
+    assert.equal(normalizeLegacyAppearance(snapshot)?.theme,id);
+    assert.equal(ui.publishAppearance(snapshot),id!=='dark');
+    assert.equal(ui.appearance.theme,id);
+    assert.equal(ui.appearance.resolvedTheme,id==='system'?'dark':id);
+    assert.equal(ui.publishAppearance(snapshot),false);
+  }
+  assert.equal(ui.publishAppearance(model('system','light',{
+    compact:true,largeText:true,reduceMotion:true,startPage:'catalog'
+  })),true);
+  assert.deepEqual({
+    theme:ui.appearance.theme,resolved:ui.appearance.resolvedTheme,
+    compact:ui.appearance.compact,large:ui.appearance.largeText,
+    reduce:ui.appearance.reduceMotion,start:ui.appearance.startPage
+  },{theme:'system',resolved:'light',compact:true,large:true,reduce:true,start:'catalog'});
+  assert.equal(ui.publishAppearance(model('system','dark',{
+    compact:true,largeText:true,reduceMotion:true,startPage:'catalog'
+  })),true);
+  assert.equal(ui.publishAppearance(model('bogus')),false);
+  assert.equal(ui.publishAppearance(model('pink','dark')),false);
+  assert.equal(ui.publishAppearance(model('pink','pink',{startPage:'bogus'})),false);
+  assert.equal(ui.publishAppearance({settings:{theme:'pink'}}),false);
+  assert.equal(ui.appearance.theme,'system');
+  assert.equal(ui.appearance.resolvedTheme,'dark');
+  assert.equal(ui.appearance.name,undefined);
 });

@@ -32,7 +32,8 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature, s
       route: sharedUi.route.route,
       active: sharedUi.route.active,
       menuIds: sharedUi.navigationItems.map(item => item.id),
-      dashboardStats: { ...sharedUi.dashboardStats }
+      dashboardStats: { ...sharedUi.dashboardStats },
+      appearance: { ...sharedUi.appearance }
     }),
     back: () => restoreLegacyMenuHistory('back', { legacyApi: api }),
     forward: () => restoreLegacyMenuHistory('forward', { legacyApi: api }),

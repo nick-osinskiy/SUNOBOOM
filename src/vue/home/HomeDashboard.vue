@@ -10,7 +10,8 @@ defineProps({
 </script>
 
 <template>
-  <div class="sb-vue-dashboard" data-sb-vue-dashboard>
+  <div class="sb-vue-dashboard" data-sb-vue-dashboard
+    :data-sb-applied-theme="ui.appearance.resolvedTheme">
     <div class="dash-head">
       <div class="dash-eyebrow">ЛИЧНАЯ МУЗЫКАЛЬНАЯ МАСТЕРСКАЯ</div>
       <h1>Твоя музыкальная <span>лаборатория.</span></h1>

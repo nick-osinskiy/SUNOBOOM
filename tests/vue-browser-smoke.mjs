@@ -216,7 +216,7 @@ async function checkLayout(mobile) {
     await version161.waitFor({ state: 'attached', timeout: 10000 });
     if (await page.locator('#sb-vh-overlay').count() !== 1 ||
         await page.locator('#sb-vh-tabs button').count() !== 2 ||
-        !(await version161.textContent()).includes('v0.165')) {
+        !(await version161.textContent()).includes('v0.166')) {
       throw new Error('Vue version-history dialog or current release missing');
     }
     await page.locator('#sb-vh-tabs button').nth(1).click();
@@ -1942,6 +1942,21 @@ async function checkLayout(mobile) {
     }
     // v0.123: the same saved setting drives dark, light and OS appearance.
     await page.locator('#sbs-theme').selectOption('light');
+    // v0.166: the original settings handler applies/persists exactly once;
+    // Pinia only mirrors selected/effective appearance after that action.
+    await page.waitForFunction(() => {
+      const a = window.SUNOBOOM_VUE_ROUTE?.sharedState()?.appearance;
+      return a?.theme === 'light' && a?.resolvedTheme === 'light';
+    });
+    const lightPinia166 = await page.evaluate(() => ({
+      selected: document.querySelector('#sbs-page')?.dataset.sbPreferredTheme,
+      effective: document.querySelector('#sbs-page')?.dataset.sbAppliedTheme,
+      appearance: window.SUNOBOOM_VUE_ROUTE.sharedState().appearance
+    }));
+    if (lightPinia166.selected !== 'light' || lightPinia166.effective !== 'light' ||
+        lightPinia166.appearance.theme !== 'light') {
+      throw new Error('v0.166 shared theme does not match Vue settings after light selection');
+    }
     if (await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-ui-settings-v1')).theme) !== 'light' ||
         !await page.evaluate(() => document.documentElement.classList.contains('sb-theme-light')) ||
         await page.evaluate(() => getComputedStyle(document.documentElement).colorScheme) !== 'light') {
@@ -2004,6 +2019,12 @@ async function checkLayout(mobile) {
     // v0.154: Independent pastel-pink theme uses light contrast and real
     // pink surfaces across settings, home, Academy and player.
     await page.locator('#sbs-theme').selectOption('pink-pastel');
+    await page.waitForFunction(() =>
+      window.SUNOBOOM_VUE_ROUTE?.sharedState()?.appearance?.resolvedTheme === 'pink-pastel');
+    if (await page.locator('#sbs-page').getAttribute('data-sb-applied-theme') !== 'pink-pastel' ||
+        await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.sharedState().appearance.theme) !== 'pink-pastel') {
+      throw new Error('v0.166 shared Pinia theme did not react to pastel palette');
+    }
     const pastel154 = await page.evaluate(() => {
       const css = selector => getComputedStyle(document.querySelector(selector));
       return {
@@ -2080,8 +2101,16 @@ async function checkLayout(mobile) {
     await page.locator('#sbs-theme').selectOption('system');
     await page.emulateMedia({ colorScheme: 'light' });
     await page.waitForFunction(() => document.documentElement.classList.contains('sb-theme-light'), null, { timeout: 10000 });
+    await page.waitForFunction(() => {
+      const a = window.SUNOBOOM_VUE_ROUTE?.sharedState()?.appearance;
+      return a?.theme === 'system' && a?.resolvedTheme === 'light';
+    }, null, { timeout: 10000 });
     await page.emulateMedia({ colorScheme: 'dark' });
     await page.waitForFunction(() => !document.documentElement.classList.contains('sb-theme-light'), null, { timeout: 10000 });
+    await page.waitForFunction(() => {
+      const a = window.SUNOBOOM_VUE_ROUTE?.sharedState()?.appearance;
+      return a?.theme === 'system' && a?.resolvedTheme === 'dark';
+    }, null, { timeout: 10000 });
     if (await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-ui-settings-v1')).theme) !== 'system') {
       throw new Error('System theme choice was overwritten when OS appearance changed');
     }
@@ -2097,6 +2126,12 @@ async function checkLayout(mobile) {
     await page.locator('[data-sbs-action="confirm-reset"]').click();
     await page.locator('#sb-vue-account-settings[data-v-app]').waitFor({ state: 'attached' });
     const resetPrefs118 = await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-ui-settings-v1')));
+    const piniaReset166 = await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.sharedState().appearance);
+    if (piniaReset166.theme !== 'dark' || piniaReset166.resolvedTheme !== 'dark' ||
+        piniaReset166.compact || piniaReset166.largeText || piniaReset166.reduceMotion ||
+        piniaReset166.startPage !== 'home') {
+      throw new Error('v0.166 shared Pinia appearance was not reset by original preferences');
+    }
     if (resetPrefs118.theme !== 'dark' ||
         await page.evaluate(() => document.documentElement.classList.contains('sb-theme-light')) ||
         await page.locator('#sbs-theme').inputValue() !== 'dark') {

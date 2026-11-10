@@ -1,12 +1,20 @@
 <script setup>
-import { reactive, onMounted, nextTick } from 'vue';
+import { reactive, onMounted, nextTick, watch } from 'vue';
+import { useLegacyUiStore } from '../state/legacy-ui-store.js';
 
 const props = defineProps({
   model: { type: Object, required: true }
 });
 // The original account-settings.js still owns storage, validation and actions.
 // Preserve IDs and data-sbs-* attributes for its document-level handlers.
+const ui = useLegacyUiStore();
 const settings = reactive({ ...props.model.settings });
+// The legacy change handler writes preferences; this watcher only follows
+// the effective, shared Pinia projection (including OS system-theme changes).
+watch(() => ui.appearance, current => {
+  for (const key of ['theme','compact','largeText','reduceMotion','startPage'])
+    settings[key] = current[key];
+});
 const name = reactive({ value: props.model.name });
 const options = [
   { key: 'compact', title: 'Компактный интерфейс', desc: 'Уменьшает отступы и высоту карточек. Больше материалов помещается на экране.' },
@@ -19,7 +27,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <section id="sbs-page" class="sbs-page" data-sb-vue-settings>
+  <section id="sbs-page" class="sbs-page" data-sb-vue-settings
+    :data-sb-preferred-theme="ui.appearance.theme"
+    :data-sb-applied-theme="ui.appearance.resolvedTheme">
     <header class="sbs-heading">
       <button type="button" class="sbs-back" data-sbs-action="close">← Вернуться в кабинет</button>
       <div class="sbs-eyebrow">SUNOBOOM · ЛИЧНЫЙ КАБИНЕТ</div>

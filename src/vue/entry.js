@@ -22,6 +22,7 @@ import { activateLegacyIdeaEditor } from './poetry/legacyIdeaEditorBridge.js';
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import { useLegacyUiStore } from './state/legacy-ui-store.js';
+import { activateLegacyAppearance } from './state/legacyAppearanceBridge.js';
 import { legacyMirrorRouter } from './navigation/legacy-router-mirror.js';
 import VueFeatureHost from './VueFeatureHost.vue';
 import { activateLegacyNavigation } from './navigation/legacyBridge.js';
@@ -84,6 +85,11 @@ export function unmountVueFeature(target) {
   if (!app) return;
   app.unmount();
   mounted.delete(element);
+}
+
+/** Mirror settings.js appearance into Pinia before any Vue island mounts. */
+export function startLegacyAppearance() {
+  return activateLegacyAppearance({ sharedUi });
 }
 
 /** Mount the Vue navigation into the existing desktop and mobile menu containers. */
