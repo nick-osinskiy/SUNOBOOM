@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { groupMajorVersions, historyResults, formatReleaseDate } from '../src/vue/version-history/version-model.js';
 import { activeNavigationRoute, navigationSnapshot } from '../src/vue/navigation/nav-model.js';
 import { currentRoute, syncLegacyRoute } from '../src/vue/navigation/route-state.js';
 import { navigateFromVueMenu } from '../src/vue/navigation/navigation-dispatch.js';
@@ -533,4 +534,27 @@ test('history revision updates after the ledger commits, not only on route chang
   assert.ok(memoryHistoryRevision.value > afterPush, 'same-path context changes must be reactive');
   syncLegacyRoute('home');
   await whenLegacyRouterSettled();
+});
+
+test('v0.161 Vue version history matches numeric major/minor, size tabs, and global search', () => {
+  const rows = [
+    ['0.161', 'Редактор истории версий', '2026-11-10', 'small'],
+    ['0.160', 'Новый звук и плеер', '2026-11-10', 'large'],
+    ['0.99', 'Поэзия', '2026-11-08', 'large'],
+    ['1.0', 'Крупная версия 1', '2026-11-12', 'large']
+  ];
+  assert.deepEqual(groupMajorVersions(rows).map(group => group.major), ['0', '1']);
+  assert.equal(groupMajorVersions(rows)[0].items.length, 3);
+  assert.equal(formatReleaseDate(rows[0][2]), '10.11.2026');
+  assert.equal(historyResults(rows, { tab: 'major' }).majors.length, 2);
+  assert.equal(historyResults(rows, { tab: 'minor', size: 'all' }).entries.length, 4);
+  assert.deepEqual(historyResults(rows, { tab: 'minor', size: 'small' }).entries.map(r => r[0]), ['0.161']);
+  assert.equal(historyResults(rows, { tab: 'minor', size: 'large' }).entries.length, 3);
+  const global = historyResults(rows, { tab: 'major', search: 'РЕДАКТОР' });
+  assert.equal(global.mode, 'search');
+  assert.deepEqual(global.small.map(r => r[0]), ['0.161']);
+  assert.equal(global.count, 'Найдено: 1');
+  assert.equal(historyResults(rows, { tab: 'minor', size: 'small', search: 'плеер' }).large.length, 1);
+  assert.equal(historyResults(rows, { search: 'v1' }).majors.length, 1);
+  assert.equal(historyResults(rows, { search: 'нет совпадений' }).count, 'Найдено: 0');
 });

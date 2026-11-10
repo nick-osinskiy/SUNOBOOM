@@ -87,6 +87,51 @@ async function checkLayout(mobile) {
       throw new Error('History controls overlap mobile navigation or top shortcuts');
     }
 
+    // v0.161: the original version trigger opens a single Vue-controlled
+    // dialog on desktop and mobile, with legacy releases as its only data source.
+    await page.locator('.sb-version-trigger:visible').first().click();
+    const version161 = page.locator('#sb-vue-version-history[data-v-app] [data-sb-vue-version-history]');
+    await version161.waitFor({ state: 'attached', timeout: 10000 });
+    if (await page.locator('#sb-vh-overlay').count() !== 1 ||
+        await page.locator('#sb-vh-tabs button').count() !== 2 ||
+        !(await version161.textContent()).includes('v0.161')) {
+      throw new Error('Vue version-history dialog or current release missing');
+    }
+    await page.locator('#sb-vh-tabs button').nth(1).click();
+    if (await page.locator('#sb-vh-minor-tabs button').count() !== 3 ||
+        await page.locator('#sb-vh-content .sb-vh-release').count() !==
+          await page.evaluate(() => window.SUNOBOOM_VERSION_HISTORY.count)) {
+      throw new Error('Vue version-history complete minor release list missing');
+    }
+    await page.locator('#sb-vh-minor-tabs button').nth(1).click();
+    if (!await page.locator('#sb-vh-content').textContent().then(t => t.includes('0.129')) ||
+        await page.locator('#sb-vh-content').textContent().then(t => t.includes('0.161'))) {
+      throw new Error('Vue large-version filter failed');
+    }
+    await page.locator('#sb-vh-minor-tabs button').nth(2).click();
+    if (!await page.locator('#sb-vh-content').textContent().then(t => t.includes('0.161'))) {
+      throw new Error('Vue small-version filter failed');
+    }
+    await page.locator('#sb-vue-vh-search').fill('0.129');
+    if (!(await page.locator('#sb-vh-content').textContent()).includes('0.129') ||
+        !(await page.locator('#sb-vh-subcount').textContent()).includes('Найдено: 1')) {
+      throw new Error('Vue global search did not find large changes while small tab selected');
+    }
+    await page.locator('#sb-vue-vh-search').fill('совсем-нет-совпадений');
+    if (!(await page.locator('#sb-vh-content').textContent()).includes('совпадений нет')) {
+      throw new Error('Vue version-history search empty state missing');
+    }
+    await page.keyboard.press('Escape');
+    if (await page.locator('#sb-vh-overlay').count() || await page.evaluate(() => document.body.classList.contains('sb-vh-open'))) {
+      throw new Error('Vue version-history escape/legacy close is broken');
+    }
+    await page.locator('.sb-version-trigger:visible').first().click();
+    await page.locator('#sb-vue-version-history[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+    if (await page.locator('#sb-vh-tabs [aria-selected="true"]').textContent() !== 'Мажорная версия') {
+      throw new Error('Vue version-history failed to reset between openings');
+    }
+    await page.locator('#sb-vh-overlay .sb-vh-close').click();
+
     // v0.156: Both the live dashboard and static fallback must use the
     // musical-laboratory headline, without the ambiguous old slogan.
     const homepageHeadline156 = (await page.locator('.dash-head h1').textContent())?.replace(/\s+/g, ' ').trim();
@@ -2421,6 +2466,19 @@ async function checkEditorFallback() {
   await page.route('**/dist/vue/**', route => route.abort());
   try {
     await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+    // v0.161: the version-history modal must work with the Vue bundle blocked.
+    await page.locator('.sb-version-trigger:visible').first().click();
+    if (await page.locator('#sb-vue-version-history[data-v-app]').count() ||
+        await page.locator('#sb-vh-tabs [data-vh-tab]').count() !== 2) {
+      throw new Error('Legacy version-history fallback is missing');
+    }
+    await page.locator('#sb-vh-tabs [data-vh-tab="minor"]').click();
+    await page.locator('#sb-vh-search').fill('0.161');
+    if (!(await page.locator('#sb-vh-content').textContent()).includes('0.161')) {
+      throw new Error('Original global release search broke without Vue');
+    }
+    await page.keyboard.press('Escape');
+
     // The optional Vue toolbar is never a prerequisite for the HTML fallback.
     if (await page.locator('[data-sb-vue-history] button').count()) {
       throw new Error('History Vue buttons appeared with the compiled bundle blocked');

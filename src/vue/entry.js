@@ -1,4 +1,5 @@
 import { activateLegacyIdeaCollections } from './poetry/legacyIdeaCollectionsBridge.js';
+import { activateLegacyVersionHistory } from './version-history/legacyVersionHistoryBridge.js';
 import { activateLegacyPromptCollection } from './account/legacyPromptCollectionBridge.js';
 import { activateLegacyPromptEditor } from './account/legacyPromptEditorBridge.js';
 import { activateLegacyLibrary } from './account/legacyLibraryBridge.js';
@@ -218,4 +219,9 @@ export function startLegacyTrackPassportDetail() {
 /** Vue 3 track passport create/edit screen; existing tp-* handlers remain authoritative. */
 export function startLegacyTrackPassportEditor() {
   return activateLegacyTrackPassportEditor({ mountVueFeature });
+}
+
+/** Vue 3 version-history dialog; original releases and full HTML fallback retained. */
+export function startLegacyVersionHistory() {
+  return activateLegacyVersionHistory({ mountVueFeature });
 }
