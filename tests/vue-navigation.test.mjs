@@ -4,7 +4,7 @@ import { createPinia } from 'pinia';
 import { useLegacyUiStore } from '../src/vue/state/legacy-ui-store.js';
 import { normalizeLegacyAppearance } from '../src/vue/state/appearance-model.js';
 import { normalizeAcademyCatalog, normalizeAcademyFocus, normalizeAcademyTree } from '../src/vue/state/academy-ui-model.js';
-import { normalizeStudioSummary, normalizeMixerSummary, normalizeAuditorSummary } from '../src/vue/state/production-ui-model.js';
+import { normalizeStudioSummary, normalizeMixerSummary, normalizeAuditorSummary, normalizeArrangerSummary } from '../src/vue/state/production-ui-model.js';
 import { treeSearch, nextTreeZoom, connectedTreeEdges } from '../src/vue/academy/genre-tree-model.js';
 import { groupMajorVersions, historyResults, formatReleaseDate } from '../src/vue/version-history/version-model.js';
 import { activeNavigationRoute, navigationSnapshot } from '../src/vue/navigation/nav-model.js';
@@ -812,4 +812,31 @@ test('v0.168 production tools share bounded numeric indicators without source te
   assert.equal(studio.auditorSummary.manual,undefined);
   assert.equal(audit.publishAuditorSummary({...report,report:{score:101,length:91}}),false);
   assert.equal(audit.publishAuditorSummary({...report,mode:'unsupported'}),false);
+});
+
+test('v0.169 arranger UI summary is shared, bounded and never stores draft content', () => {
+  const pinia = createPinia();
+  const a = useLegacyUiStore(pinia), b = useLegacyUiStore(pinia);
+  assert.strictEqual(a,b);
+  const snapshot = {blocks:[
+    {id:'private-one', bars:8, energy:4, hasTransition:true,
+      instruments:'PRIVATE INSTRUMENTS', customName:'PERSONAL SONG'},
+    {id:'private-two', bars:12, energy:3, hasTransition:false, transitionHTML:'PRIVATE TAGS'}
+  ], result:{text:'PRIVATE LYRICS'}, picker:{query:'SECRET SEARCH'}};
+  const expected = {ready:true, blockCount:2, barCount:20, averageEnergy:3.5, transitionCount:1};
+  assert.deepEqual(normalizeArrangerSummary(snapshot), expected);
+  assert.equal(a.publishArrangerSummary(snapshot),true);
+  assert.equal(b.publishArrangerSummary(snapshot),false);
+  assert.deepEqual({...b.arrangerSummary}, {...expected,revision:1});
+  assert.equal(b.arrangerSummary.blocks,undefined);
+  assert.equal(b.arrangerSummary.instruments,undefined);
+  assert.equal(b.arrangerSummary.text,undefined);
+  assert.equal(b.publishArrangerSummary({...snapshot,blocks:[{bars:9,energy:3,hasTransition:false}]}),false);
+  assert.equal(b.publishArrangerSummary({...snapshot,blocks:[{bars:8,energy:7,hasTransition:false}]}),false);
+  assert.equal(b.publishArrangerSummary({...snapshot,blocks:new Array(65).fill(snapshot.blocks[0])}),false);
+  assert.deepEqual(normalizeArrangerSummary({blocks:[]}),
+    {ready:true,blockCount:0,barCount:0,averageEnergy:0,transitionCount:0});
+  assert.equal(a.publishArrangerSummary({blocks:[]}),true);
+  assert.equal(b.arrangerSummary.blockCount,0);
+  assert.equal(b.arrangerSummary.revision,2);
 });

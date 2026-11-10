@@ -39,7 +39,8 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature, s
       academyTree: { ...sharedUi.academyTree },
       studioSummary: { ...sharedUi.studioSummary },
       mixerSummary: { ...sharedUi.mixerSummary },
-      auditorSummary: { ...sharedUi.auditorSummary }
+      auditorSummary: { ...sharedUi.auditorSummary },
+      arrangerSummary: { ...sharedUi.arrangerSummary }
     }),
     back: () => restoreLegacyMenuHistory('back', { legacyApi: api }),
     forward: () => restoreLegacyMenuHistory('forward', { legacyApi: api }),

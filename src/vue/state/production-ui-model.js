@@ -41,3 +41,20 @@ export function normalizeAuditorSummary(snapshot) {
     ready:true, mode:snapshot.mode, score:report.score, checkedLength:report.length
   });
 }
+
+// v0.169: a read-only, content-free projection of the existing arranger.
+export function normalizeArrangerSummary(snapshot) {
+  const blocks = snapshot?.blocks;
+  if (!Array.isArray(blocks) || blocks.length > 64 ||
+      !blocks.every(block => block && [2,4,8,12,16,24,32].includes(block.bars) &&
+        integer(block.energy, 1, 5) && typeof block.hasTransition === 'boolean')) return null;
+  const barCount = blocks.reduce((total,block) => total + block.bars, 0);
+  const totalEnergy = blocks.reduce((total,block) => total + block.energy, 0);
+  return Object.freeze({
+    ready: true,
+    blockCount: blocks.length,
+    barCount,
+    averageEnergy: blocks.length ? Math.round(totalEnergy * 10 / blocks.length) / 10 : 0,
+    transitionCount: blocks.slice(0,-1).filter(block => block.hasTransition).length
+  });
+}

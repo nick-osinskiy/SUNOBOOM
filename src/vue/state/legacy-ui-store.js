@@ -3,7 +3,7 @@ import { shallowRef } from 'vue';
 import { currentRoute } from '../navigation/route-state.js';
 import { normalizeLegacyAppearance } from './appearance-model.js';
 import { normalizeAcademyCatalog, normalizeAcademyFocus, normalizeAcademyTree } from './academy-ui-model.js';
-import { normalizeStudioSummary, normalizeMixerSummary, normalizeAuditorSummary } from './production-ui-model.js';
+import { normalizeStudioSummary, normalizeMixerSummary, normalizeAuditorSummary, normalizeArrangerSummary } from './production-ui-model.js';
 
 // Read-only UI projections across the independent Vue islands.
 // The legacy go(), data object and browser storage remain authoritative.
@@ -77,6 +77,9 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
   const auditorSummary = shallowRef(Object.freeze({
     ready:false, mode:'studio', score:0, checkedLength:0, revision:0
   }));
+  const arrangerSummary = shallowRef(Object.freeze({
+    ready:false, blockCount:0, barCount:0, averageEnergy:0, transitionCount:0, revision:0
+  }));
 
   function publishToolSummary(target, normalizer, snapshot) {
     const next = normalizer(snapshot);
@@ -92,6 +95,8 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
     publishToolSummary(mixerSummary, normalizeMixerSummary, snapshot);
   const publishAuditorSummary = snapshot =>
     publishToolSummary(auditorSummary, normalizeAuditorSummary, snapshot);
+  const publishArrangerSummary = snapshot =>
+    publishToolSummary(arrangerSummary, normalizeArrangerSummary, snapshot);
 
   function publishNavigation(items) {
     if (!Array.isArray(items)) return false;
@@ -143,8 +148,8 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
 
   return { route, navigationItems, dashboardStats, appearance,
     academyCatalog, academyFocus, academyTree,
-    studioSummary, mixerSummary, auditorSummary,
+    studioSummary, mixerSummary, auditorSummary, arrangerSummary,
     publishNavigation, publishDashboardStats, publishAppearance,
     publishAcademyCatalog, publishAcademyFocus, publishAcademyTree,
-    publishStudioSummary, publishMixerSummary, publishAuditorSummary };
+    publishStudioSummary, publishMixerSummary, publishAuditorSummary, publishArrangerSummary };
 });

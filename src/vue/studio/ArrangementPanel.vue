@@ -1,11 +1,17 @@
 <script setup>
-import { computed, onMounted, onUnmounted, shallowRef } from 'vue';
+import { computed, onMounted, onUnmounted, shallowRef, watch } from 'vue';
+import { useLegacyUiStore } from '../state/legacy-ui-store.js';
 
 const props = defineProps({
   api: { type: Object, required: true },
   kind: { type: String, required: true }
 });
 const snapshot = shallowRef(props.api.snapshot());
+const ui = useLegacyUiStore();
+// Cards are the single publisher; snake/chart/transitions reuse this shared island.
+if (props.kind === 'cards') {
+  watch(snapshot, value => ui.publishArrangerSummary(value), { immediate:true });
+}
 const blocks = computed(() => snapshot.value?.blocks || []);
 const sections = computed(() => snapshot.value?.sections || []);
 const voices = computed(() => snapshot.value?.voices || []);

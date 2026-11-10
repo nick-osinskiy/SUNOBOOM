@@ -216,7 +216,7 @@ async function checkLayout(mobile) {
     await version161.waitFor({ state: 'attached', timeout: 10000 });
     if (await page.locator('#sb-vh-overlay').count() !== 1 ||
         await page.locator('#sb-vh-tabs button').count() !== 2 ||
-        !(await version161.textContent()).includes('v0.168')) {
+        !(await version161.textContent()).includes('v0.169')) {
       throw new Error('Vue version-history dialog or current release missing');
     }
     await page.locator('#sb-vh-tabs button').nth(1).click();
@@ -1209,6 +1209,29 @@ async function checkLayout(mobile) {
     await page.waitForFunction(() =>
       SUNOBOOM_ARRANGER.exportDraft().blocks[0]?.energy === 5 &&
       document.querySelector('#sba-cards .sba-block .sba-head-energy')?.textContent?.includes('5/5'));
+
+    // v0.169: the shared Vue store mirrors only numeric arranger statistics.
+    // The source of blocks, drafts and transitions remains arrangement-builder.js.
+    await page.waitForFunction(() => {
+      const m = window.SUNOBOOM_VUE_ROUTE?.sharedState()?.arrangerSummary;
+      const draft = window.SUNOBOOM_ARRANGER?.exportDraft();
+      if (!m?.ready || !draft?.blocks?.length) return false;
+      const blocks = draft.blocks;
+      const bars = blocks.reduce((sum,block) => sum + block.bars, 0);
+      const average = Math.round(blocks.reduce((sum,block) => sum + block.energy, 0) *
+        10 / blocks.length) / 10;
+      const transitions = blocks.slice(0,-1).filter(block => block.transitionOut?.type !== 'none').length;
+      return m.blockCount === blocks.length && m.barCount === bars &&
+        m.averageEnergy === average && m.transitionCount === transitions;
+    });
+    const arranger169 = await page.evaluate(() =>
+      window.SUNOBOOM_VUE_ROUTE.sharedState().arrangerSummary);
+    const arrangerRecap169 = page.locator('[data-sb-vue-arranger-recap]');
+    if (!(await arrangerRecap169.textContent()).includes(arranger169.barCount + ' тактов') ||
+        'blocks' in arranger169 || 'instruments' in arranger169 || 'result' in arranger169 ||
+        await page.locator('#sba-arranger').count() !== 1) {
+      throw new Error('v0.169 arranger shared metrics, privacy or single mount failed');
+    }
 
     const beforeInstrument = await page.locator('#sba-cards .sba-block').first()
       .locator('[data-sba-field="instruments"]').inputValue();

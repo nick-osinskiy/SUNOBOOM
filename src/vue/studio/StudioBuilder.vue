@@ -126,6 +126,12 @@ onUnmounted(() => window.removeEventListener('sunoboom:studio-updated', sync));
       {{ ui.mixerSummary.tempo }} BPM · {{ ui.mixerSummary.promptLength }} / 1000 символов.
       <button type="button" class="link-action" data-action="nav" data-nav="mixer">Перейти в Миксер →</button>
     </div>
+    <div v-if="ui.arrangerSummary.ready" class="notice" data-sb-vue-arranger-recap>
+      Аранжировка: {{ ui.arrangerSummary.blockCount }} блоков ·
+      {{ ui.arrangerSummary.barCount }} тактов ·
+      средняя энергия {{ ui.arrangerSummary.averageEnergy }}/5 ·
+      {{ ui.arrangerSummary.transitionCount }} переходов.
+    </div>
     <div class="notice"><strong>Подсказка:</strong> промпт задаёт стиль, а текст песни можно вводить отдельно в Suno. Результат генерации может отличаться от запроса.</div>
     <div class="spacer"></div>
     <div class="info-label">Музыкальный профиль</div>
