@@ -87,6 +87,18 @@ async function checkLayout(mobile) {
       throw new Error('History controls overlap mobile navigation or top shortcuts');
     }
 
+    // v0.156: Both the live dashboard and static fallback must use the
+    // musical-laboratory headline, without the ambiguous old slogan.
+    const homepageHeadline156 = (await page.locator('.dash-head h1').textContent())?.replace(/\s+/g, ' ').trim();
+    if (homepageHeadline156 !== 'Твоя музыкальная лаборатория.') {
+      throw new Error('Homepage slogan has not been updated: ' + homepageHeadline156);
+    }
+    const htmlFallback156 = await (await fetch(BASE)).text();
+    if (!htmlFallback156.includes('<h1>Твоя музыкальная <span style="color:#fa70b8">лаборатория.</span></h1>') ||
+        htmlFallback156.includes('Твоя творческая <span')) {
+      throw new Error('Static homepage fallback kept the outdated slogan');
+    }
+
     // v0.130: both Vue menus share one read-only legacy route observer.
     // v0.131: Vue Router follows legacy navigation in MEMORY only.
     // It must never alter location/history or become a second source of pages.
