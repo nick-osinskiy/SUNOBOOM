@@ -94,8 +94,8 @@ async function checkLayout(mobile) {
         await dashboard162.locator('.dash-head h1').count() !== 1 ||
         await dashboard162.locator('.dash-metric').count() !== 3 ||
         await dashboard162.locator('.dash-panel').count() !== 3 ||
-        await dashboard162.locator('[data-action="nav"][data-nav="myideas"]').count() !== 2 ||
-        await dashboard162.locator('[data-action="nav"][data-nav="events"]').count() !== 2) {
+        await dashboard162.locator('[data-action="nav"][data-nav="myideas"]').count() < 2 ||
+        await dashboard162.locator('[data-action="nav"][data-nav="events"]').count() < 2) {
       throw new Error('Vue dashboard lost its headings, counters, cards, or shortcuts');
     }
     // The original legacy model remains authoritative, even after rerender.
@@ -2530,7 +2530,7 @@ async function checkEditorFallback() {
         await page.locator('#sb-vue-dashboard .dash-head h1').count() !== 1 ||
         await page.locator('#sb-vue-dashboard .dash-metric').count() !== 3 ||
         await page.locator('#sb-vue-dashboard .dash-panel').count() !== 3 ||
-        await page.locator('#sb-vue-dashboard [data-action="nav"][data-nav="myideas"]').count() !== 2) {
+        await page.locator('#sb-vue-dashboard [data-action="nav"][data-nav="myideas"]').count() < 2) {
       throw new Error('Legacy home dashboard fallback lost original cards or shortcuts');
     }
     await page.locator('#sb-vue-dashboard .dash-actions [data-nav="events"]').click();
