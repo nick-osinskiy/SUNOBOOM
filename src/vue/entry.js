@@ -25,6 +25,7 @@ import { legacyMirrorRouter } from './navigation/legacy-router-mirror.js';
 import VueFeatureHost from './VueFeatureHost.vue';
 import { activateLegacyNavigation } from './navigation/legacyBridge.js';
 import { activateLegacyAcademy } from './academy/legacyAcademyBridge.js';
+import { activateLegacyGenreTree } from './academy/legacyGenreTreeBridge.js';
 import { activateLegacyGenreDetail } from './academy/legacyGenreDetailBridge.js';
 import { activateLegacyStudio } from './studio/legacyStudioBridge.js';
 import { activateLegacyMixer } from './studio/legacyMixerBridge.js';
@@ -230,4 +231,9 @@ export function startLegacyVersionHistory() {
 /** Vue home dashboard, retaining original legacy data, navigation and HTML fallback. */
 export function startLegacyHomeDashboard() {
   return activateLegacyHomeDashboard({ mountVueFeature });
+}
+
+/** Vue genealogy explorer; original genre graph and full HTML fallback retained. */
+export function startLegacyGenreTree() {
+  return activateLegacyGenreTree({ mountVueFeature });
 }

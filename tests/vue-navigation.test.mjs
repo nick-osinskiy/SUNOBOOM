@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { treeSearch, nextTreeZoom, connectedTreeEdges } from '../src/vue/academy/genre-tree-model.js';
 import { groupMajorVersions, historyResults, formatReleaseDate } from '../src/vue/version-history/version-model.js';
 import { activeNavigationRoute, navigationSnapshot } from '../src/vue/navigation/nav-model.js';
 import { currentRoute, syncLegacyRoute } from '../src/vue/navigation/route-state.js';
@@ -557,4 +558,27 @@ test('v0.161 Vue version history matches numeric major/minor, size tabs, and glo
   assert.equal(historyResults(rows, { tab: 'minor', size: 'small', search: 'плеер' }).large.length, 1);
   assert.equal(historyResults(rows, { search: 'v1' }).majors.length, 1);
   assert.equal(historyResults(rows, { search: 'нет совпадений' }).count, 'Найдено: 0');
+});
+
+test('v0.163 genre-tree projections include entire Academy and cross-map search', () => {
+  const genres = [
+    { id: 'ska', name: 'Ска', family: 'Регги' },
+    { id: 'ska-punk', name: 'Ска-панк', family: 'Рок' },
+    { id: 'folk', name: 'Фолк', family: 'Фолк' }
+  ];
+  const trees = [
+    { id: 'all', columns: [['ska'], ['ska-punk'], ['folk']] },
+    { id: 'ska', columns: [['ska']] }
+  ];
+  assert.deepEqual(treeSearch(genres, trees, 'ска', 'ska').items.map(x => x.id), ['ska', 'ska-punk']);
+  assert.equal(treeSearch(genres, trees, 'ПАНК', 'all').items[0].tree, 'all');
+  assert.equal(treeSearch(genres, trees, 'none', 'all').count, 0);
+  assert.equal(nextTreeZoom(1, 'zoom-in'), 1.15);
+  assert.equal(nextTreeZoom(1, 'zoom-out'), 0.85);
+  assert.equal(nextTreeZoom(1.5, 'zoom-in'), 1.5);
+  assert.equal(nextTreeZoom(.75, 'zoom-out'), .75);
+  assert.equal(nextTreeZoom(1.15, 'zoom-reset'), 1);
+  const edges = [['ska','ska-punk','fusion'], ['folk','ska-punk','influence']];
+  assert.equal(connectedTreeEdges({ id: 'all', edges }, 'ska').length, 1);
+  assert.equal(connectedTreeEdges({ id: 'ska', edges }, 'ska').length, 2);
 });

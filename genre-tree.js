@@ -228,7 +228,7 @@
   function renderTree(){
     const host=document.getElementById("sb-gt-inner");
     const root=document.getElementById("sb-genre-tree");
-    if(!host||!root||!root.open)return;
+    if(!host||!root||!root.open||host.hasAttribute("data-v-app"))return;
     const t=current();
     if(!t.columns.some(col=>col.includes(state.selected)))state.selected=t.focus;
     const available=t.columns.flat().filter(id=>byId(id));
@@ -331,6 +331,8 @@
     requestAnimationFrame(drawLines);
   }
   document.addEventListener("click",event=>{
+    // Vue owns controls after mounting: never double-dispatch or mutate its DOM.
+    if(event.target.closest?.("[data-sb-vue-genre-tree]"))return;
     const button=event.target.closest(childSelector);
     if(!button)return;
     const action=button.dataset.sbGtAction;
@@ -359,11 +361,13 @@
     if(action==="open"){if(byId(button.dataset.id))openGenre(button.dataset.id);return;}
   });
   document.addEventListener("input",event=>{
+    if(event.target.closest?.("[data-sb-vue-genre-tree]"))return;
     if(event.target.id!=="sb-gt-search")return;
     state.query=event.target.value;
     refreshSearch();
   });
   document.addEventListener("change",event=>{
+    if(event.target.closest?.("[data-sb-vue-genre-tree]"))return;
     if(event.target.id==="sb-gt-group-jump"){
       const index=Number(event.target.value);
       const target=event.target.value!==""&&document.querySelector('[data-sb-gt-family="'+index+'"]');
@@ -384,5 +388,39 @@
     if(root.open)renderTree();
   },true);
   window.addEventListener("resize",()=>{if(document.querySelector("#sb-genre-tree[open]"))requestAnimationFrame(drawLines);},{passive:true});
+  // Vue receives the live catalog and curated historical graph without copying
+  // or replacing source genre data. Legacy handlers remain a complete fallback.
+  window.SUNOBOOM_LEGACY_GENRE_TREE=Object.freeze({
+    snapshot(){
+      return {
+        tree:state.tree,selected:state.selected,query:state.query,zoom:state.zoom,
+        trees:[fullCatalogTree(),...TREES],
+        relations:RELATIONS,stageLabels,
+        genres:GENRES.map(g=>({
+          id:g.id,name:g.name,era:g.era||"",family:g.family||"",
+          description:g.description||"",tagline:g.tagline||""
+        }))
+      };
+    },
+    changeTree(id){
+      if(id!=="all"&&!TREES.some(t=>t.id===id))return null;
+      state.tree=id;state.selected=current().focus;state.query="";
+      return {tree:state.tree,selected:state.selected};
+    },
+    select(id){
+      if(!byId(id)||!current().columns.some(col=>col.includes(id)))return false;
+      state.selected=id;return true;
+    },
+    setQuery(value){state.query=String(value||"");},
+    setZoom(value){if(Number.isFinite(value))state.zoom=Math.min(1.5,Math.max(.75,value));},
+    searchJump(treeId,id){
+      const target=treeId==="all"?fullCatalogTree():TREES.find(t=>t.id===treeId);
+      if(!target||!byId(id)||!target.columns.some(col=>col.includes(id)))return null;
+      state.tree=target.id;state.selected=id;state.query="";
+      return {tree:state.tree,selected:state.selected};
+    },
+    openGenre:id=>{if(byId(id))openGenre(id);},
+    drawLines:()=>drawLines()
+  });
   if(view.nav==="catalog")render();
 })();

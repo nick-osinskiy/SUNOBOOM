@@ -153,7 +153,7 @@ async function checkLayout(mobile) {
     await version161.waitFor({ state: 'attached', timeout: 10000 });
     if (await page.locator('#sb-vh-overlay').count() !== 1 ||
         await page.locator('#sb-vh-tabs button').count() !== 2 ||
-        !(await version161.textContent()).includes('v0.162')) {
+        !(await version161.textContent()).includes('v0.163')) {
       throw new Error('Vue version-history dialog or current release missing');
     }
     await page.locator('#sb-vh-tabs button').nth(1).click();
@@ -543,6 +543,15 @@ async function checkLayout(mobile) {
     }
     await treeEntry.click();
     await page.locator('#sb-genre-tree[open] #sb-gt-tree-choice').waitFor({ state: 'visible', timeout: 10000 });
+    // v0.163: controls, cards and map nodes must be rendered by Vue, not
+    // by the old imperative renderTree() after the Academy Vue mount.
+    await genreTree.locator('#sb-gt-inner[data-v-app] [data-sb-vue-genre-tree]')
+      .waitFor({ state: 'attached', timeout: 10000 });
+    if (await genreTree.locator('#sb-gt-inner[data-v-app]').count() !== 1 ||
+        await page.locator('#sb-vue-academy-root #sb-genre-tree').count() !== 0 ||
+        await genreTree.locator('.sb-gt-viewport svg.sb-gt-lines path.sb-gt-path').count() < 2) {
+      throw new Error('Vue tree missing, doubled, moved inside Academy mount, or lost SVG relations');
+    }
     if (await genreTree.locator('.sb-gt-node').count() < 5 ||
         await genreTree.locator('[data-sb-gt-action="zoom-in"]').count() !== 1) {
       throw new Error('Existing interactive genre genealogy did not render after opening');
@@ -569,6 +578,11 @@ async function checkLayout(mobile) {
     await page.locator('#sb-vue-academy-root[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
     if (await page.locator('#sb-genre-tree').count() !== 1) {
       throw new Error('Genre tree was lost after returning from a genre card');
+    }
+    await page.locator('#sb-genre-tree[open] #sb-gt-inner[data-v-app] [data-sb-vue-genre-tree]')
+      .waitFor({ state: 'attached', timeout: 10000 });
+    if (await page.locator('#sb-genre-tree .sb-gt-node.is-selected').count() !== 1) {
+      throw new Error('Vue tree did not restore selected genre after returning from card');
     }
 
     const familyCount = await page.locator('#catalog-cards details.genre-family').count();
@@ -2525,6 +2539,33 @@ async function checkEditorFallback() {
   await page.route('**/dist/vue/**', route => route.abort());
   try {
     await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+    // v0.163: the independently mounted tree must retain complete HTML fallback.
+    await page.evaluate(() => go('catalog'));
+    const treeFallback163 = page.locator('#sb-genre-tree');
+    if (await treeFallback163.count() !== 1 ||
+        await page.locator('#sb-vue-academy-root #sb-genre-tree').count() !== 0) {
+      throw new Error('Fallback genre tree is missing or nested under Vue catalog');
+    }
+    await page.locator('.encyclopedia-sections [data-sb-gt-action="reveal"]').click();
+    await treeFallback163.locator('#sb-gt-tree-choice').waitFor({ state: 'visible' });
+    if (await treeFallback163.locator('#sb-gt-inner[data-v-app]').count() ||
+        await treeFallback163.locator('.sb-gt-node').count() < 5) {
+      throw new Error('Legacy tree unexpectedly mounted Vue or lost its original nodes');
+    }
+    await treeFallback163.locator('#sb-gt-tree-choice').selectOption('all');
+    if (await treeFallback163.locator('.sb-gt-node').count() < 100) {
+      throw new Error('Full legacy tree map failed without Vue');
+    }
+    await treeFallback163.locator('#sb-gt-search').fill('ска-панк');
+    if (await treeFallback163.locator('[data-sb-gt-action="search-jump"]').count() < 1) {
+      throw new Error('Legacy genealogy search failed without Vue');
+    }
+    await treeFallback163.locator('[data-sb-gt-action="zoom-in"]').click();
+    if ((await treeFallback163.locator('#sb-gt-zoom-label').textContent()).trim() !== '115%') {
+      throw new Error('Legacy genealogy zoom failed without Vue');
+    }
+    await page.evaluate(() => go('home'));
+
     // v0.162: blocked Vue preserves the existing home markup and actions.
     if (await page.locator('#sb-vue-dashboard[data-v-app]').count() ||
         await page.locator('#sb-vue-dashboard .dash-head h1').count() !== 1 ||
