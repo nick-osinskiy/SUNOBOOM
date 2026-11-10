@@ -99,7 +99,7 @@ async function checkLayout(mobile) {
       throw new Error('Static homepage fallback kept the outdated slogan');
     }
 
-    // v0.157 — tagline must sit below the brand itself on each layout,
+    // v0.160 — tagline must start exactly under the visible SUNOBOOM letters,
     // retain version beside it, and not push the phone header offscreen.
     const brandSignature157 = await page.evaluate(() => {
       const mobile = matchMedia('(max-width:700px)').matches;
