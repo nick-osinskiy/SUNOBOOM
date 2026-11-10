@@ -111,6 +111,7 @@ async function checkLayout(mobile) {
       const v = version?.getBoundingClientRect();
       // Measure visible pixels, not the bounding box of the transparent PNG.
       let visibleLogoBottom = null;
+      let visibleWordmarkLeft = null;
       if (logo?.complete && logo.naturalWidth && logo.naturalHeight && l) {
         const canvas = document.createElement('canvas');
         canvas.width = logo.naturalWidth;
@@ -118,6 +119,18 @@ async function checkLayout(mobile) {
         const ctx = canvas.getContext('2d', { willReadFrequently: true });
         ctx.drawImage(logo, 0, 0);
         const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+        // Light letters begin at approximately x=118 of the 420px PNG;
+        // pink sound-wave icon is farther left. Compute this from pixels.
+        for (let x = 0; x < canvas.width && visibleWordmarkLeft === null; x++) {
+          for (let y = 0; y < canvas.height; y++) {
+            const idx = (y * canvas.width + x) * 4;
+            if (pixels[idx] > 180 && pixels[idx + 1] > 180 &&
+                pixels[idx + 2] > 180 && pixels[idx + 3] > 80) {
+              visibleWordmarkLeft = l.left + (x / canvas.width) * l.width;
+              break;
+            }
+          }
+        }
         for (let y = canvas.height - 1; y >= 0 && visibleLogoBottom === null; y--) {
           for (let x = 0; x < canvas.width; x++) {
             if (pixels[(y * canvas.width + x) * 4 + 3] > 32) {
@@ -132,6 +145,7 @@ async function checkLayout(mobile) {
         visible: Boolean(t && t.width > 20 && t.height > 5),
         below: Boolean(t && visibleLogoBottom !== null && t.top >= visibleLogoBottom - 3),
         gap: t && visibleLogoBottom !== null ? t.top - visibleLogoBottom : null,
+        wordmarkXGap: t && visibleWordmarkLeft !== null ? t.left - visibleWordmarkLeft : null,
         versionBeside: Boolean(l && v && v.left >= l.right - 2),
         fits: Boolean(t && t.left >= 0 && t.right <= innerWidth + 1),
         scheme: getComputedStyle(label).color,
@@ -142,6 +156,7 @@ async function checkLayout(mobile) {
         !brandSignature157.visible || !brandSignature157.below ||
         !brandSignature157.versionBeside || !brandSignature157.fits ||
         brandSignature157.gap === null || Math.abs(brandSignature157.gap) > 3 ||
+        brandSignature157.wordmarkXGap === null || Math.abs(brandSignature157.wordmarkXGap) > 3 ||
         (mobile && brandSignature157.horizontalOverflow)) {
       throw new Error('Logo tagline geometry broken: ' + JSON.stringify(brandSignature157));
     }
