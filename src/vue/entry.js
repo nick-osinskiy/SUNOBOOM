@@ -1,5 +1,6 @@
 import { activateLegacyIdeaCollections } from './poetry/legacyIdeaCollectionsBridge.js';
 import { activateLegacyVersionHistory } from './version-history/legacyVersionHistoryBridge.js';
+import { activateLegacyHomeDashboard } from './home/legacyHomeDashboardBridge.js';
 import { activateLegacyPromptCollection } from './account/legacyPromptCollectionBridge.js';
 import { activateLegacyPromptEditor } from './account/legacyPromptEditorBridge.js';
 import { activateLegacyLibrary } from './account/legacyLibraryBridge.js';
@@ -224,4 +225,9 @@ export function startLegacyTrackPassportEditor() {
 /** Vue 3 version-history dialog; original releases and full HTML fallback retained. */
 export function startLegacyVersionHistory() {
   return activateLegacyVersionHistory({ mountVueFeature });
+}
+
+/** Vue home dashboard, retaining original legacy data, navigation and HTML fallback. */
+export function startLegacyHomeDashboard() {
+  return activateLegacyHomeDashboard({ mountVueFeature });
 }

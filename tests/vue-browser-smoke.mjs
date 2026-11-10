@@ -87,6 +87,65 @@ async function checkLayout(mobile) {
       throw new Error('History controls overlap mobile navigation or top shortcuts');
     }
 
+    // v0.162: one mounted Vue dashboard with unchanged legacy visual classes.
+    const dashboard162 = page.locator('#sb-vue-dashboard[data-v-app] [data-sb-vue-dashboard]');
+    await dashboard162.waitFor({ state: 'attached', timeout: 10000 });
+    if (await page.locator('#sb-vue-dashboard').count() !== 1 ||
+        await dashboard162.locator('.dash-head h1').count() !== 1 ||
+        await dashboard162.locator('.dash-metric').count() !== 3 ||
+        await dashboard162.locator('.dash-panel').count() !== 3 ||
+        await dashboard162.locator('[data-action="nav"][data-nav="myideas"]').count() !== 2 ||
+        await dashboard162.locator('[data-action="nav"][data-nav="events"]').count() !== 2) {
+      throw new Error('Vue dashboard lost its headings, counters, cards, or shortcuts');
+    }
+    // The original legacy model remains authoritative, even after rerender.
+    await page.evaluate(() => {
+      window.__dashboardSaved162 = {
+        manualIdeas: data.manualIdeas, savedGeneratedIdeas: data.savedGeneratedIdeas,
+        savedIdeas: data.savedIdeas, savedPrompts: data.savedPrompts,
+        events: data.events, profileName: data.profileName
+      };
+      data.manualIdeas = [{ id: 'mi-9999999999999-v162', genre: 'afropop',
+        title: 'Vue dashboard 162 idea', pitch: 'Original lyrics and pitch', updatedAt: 9999999999999 }];
+      data.savedGeneratedIdeas = [];
+      data.savedIdeas = [];
+      data.savedPrompts = [{ id: 'prompt-v162', title: 'Vue dashboard 162 prompt',
+        genre: 'Afropop', text: 'Original prompt text', date: '10.11.2026' }];
+      data.events = [{ id: 'event-v162', title: 'Vue dashboard 162 event',
+        date: '2099-04-02', type: 'recording', time: '12:30', notes: 'Event notes' }];
+      data.profileName = 'Dashboard Tester';
+      render();
+    });
+    await page.locator('#sb-vue-dashboard[data-v-app] .dash-entry').first()
+      .waitFor({ state: 'attached', timeout: 10000 });
+    const populated162 = page.locator('#sb-vue-dashboard[data-v-app]');
+    if ((await populated162.locator('.dash-metric b').allTextContents()).join(',') !== '1,1,1' ||
+        !(await populated162.textContent()).includes('Dashboard Tester') ||
+        !(await populated162.textContent()).includes('Vue dashboard 162 idea') ||
+        !(await populated162.textContent()).includes('Vue dashboard 162 prompt') ||
+        !(await populated162.textContent()).includes('Vue dashboard 162 event') ||
+        await populated162.locator('[data-action="copy-saved"][data-id="prompt-v162"]').count() !== 1) {
+      throw new Error('Vue dashboard snapshot omitted saved ideas, prompts, events or original actions');
+    }
+    await populated162.locator('[data-action="dash-open-idea"]').click();
+    if (await page.evaluate(() => view.nav) !== 'myideas') {
+      throw new Error('Vue dashboard lost legacy idea navigation');
+    }
+    await page.evaluate(() => go('home'));
+    await page.locator('#sb-vue-dashboard[data-v-app] [data-action="dash-open-event"]')
+      .waitFor({ state: 'attached', timeout: 10000 });
+    await page.locator('#sb-vue-dashboard [data-action="dash-open-event"]').click();
+    if (await page.evaluate(() => view.nav) !== 'events') {
+      throw new Error('Vue dashboard lost legacy calendar navigation');
+    }
+    await page.evaluate(() => {
+      const backup = window.__dashboardSaved162;
+      for (const key of Object.keys(backup)) data[key] = backup[key];
+      delete window.__dashboardSaved162;
+      go('home');
+    });
+    await dashboard162.waitFor({ state: 'attached', timeout: 10000 });
+
     // v0.161: the original version trigger opens a single Vue-controlled
     // dialog on desktop and mobile, with legacy releases as its only data source.
     await page.locator('.sb-version-trigger:visible').first().click();
@@ -2466,6 +2525,20 @@ async function checkEditorFallback() {
   await page.route('**/dist/vue/**', route => route.abort());
   try {
     await page.goto(BASE, { waitUntil: 'domcontentloaded' });
+    // v0.162: blocked Vue preserves the existing home markup and actions.
+    if (await page.locator('#sb-vue-dashboard[data-v-app]').count() ||
+        await page.locator('#sb-vue-dashboard .dash-head h1').count() !== 1 ||
+        await page.locator('#sb-vue-dashboard .dash-metric').count() !== 3 ||
+        await page.locator('#sb-vue-dashboard .dash-panel').count() !== 3 ||
+        await page.locator('#sb-vue-dashboard [data-action="nav"][data-nav="myideas"]').count() !== 2) {
+      throw new Error('Legacy home dashboard fallback lost original cards or shortcuts');
+    }
+    await page.locator('#sb-vue-dashboard .dash-actions [data-nav="events"]').click();
+    if (await page.evaluate(() => view.nav) !== 'events') {
+      throw new Error('Legacy dashboard shortcuts failed without Vue');
+    }
+    await page.evaluate(() => go('home'));
+
     // v0.161: the version-history modal must work with the Vue bundle blocked.
     await page.locator('.sb-version-trigger:visible').first().click();
     if (await page.locator('#sb-vue-version-history[data-v-app]').count() ||

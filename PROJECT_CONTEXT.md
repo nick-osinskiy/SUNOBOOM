@@ -456,3 +456,12 @@ Vue memory router хранит проверенный id карточки Мас
 - Единственный источник записей — `RELEASES` в `version-history.js`; в Vue передаётся read-only снимок через `window.SUNOBOOM_VERSION_HISTORY.snapshot()`. Сохранены вкладки мажорных/минорных версий, крупные/мелкие/все изменения, глобальный поиск, счётчики, даты, Esc, возврат фокуса.
 - Резервное HTML-окно продолжает открываться без production Vue; не изменяются данные песен, маршрутизация, темы и IndexedDB.
 - Добавлены unit-проверки вычислений и browser-smoke для Vue и отключённой сборки. Проверять фактический результат GitHub Actions перед утверждением релиза.
+
+
+## 11. Дополнение v0.162 — главная страница Vue 3 (2026-11-10)
+
+- Главная страница перенесена в `src/vue/home/HomeDashboard.vue` с мостом `legacyHomeDashboardBridge.js`; контейнер `#sb-vue-dashboard` создаётся функцией `dashboardHome()` в `index.html`.
+- Источник данных остаётся прежним: `dashboardLatestIdeas()`, `dashboardSortedEvents()`, `data.savedPrompts`, `data.profileName`. `window.SUNOBOOM_LEGACY_DASHBOARD.snapshot()` формирует снимок при каждом монтировании, без второго пользовательского хранилища.
+- Сохранены действия `data-action=nav/dash-open-idea/dash-open-prompt/dash-open-event/copy-saved` и `sbN35Banner()` вне Vue-контейнера. Старый HTML остаётся полноценным fallback при ошибке Vue.
+- Используются существующие `dash-*` классы, мобильная компоновка и все 9 доступных тем. В браузерные smoke-тесты добавлены заполненный dashboard, переходы из карточек и проверка работы при блокировке Vue.
+- Перед завершением релиза проверять результат GitHub Actions и публикацию `dist/vue` после тестирования.

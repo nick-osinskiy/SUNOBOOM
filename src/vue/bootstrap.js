@@ -4,11 +4,11 @@
 // and <meta name="sunoboom-vue-nav" content="enabled"> is explicitly added.
 const localDev = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 const productionEnabled = !!document.querySelector('meta[name="sunoboom-vue-nav"][content="enabled"]');
-const moduleUrl = productionEnabled ? '../../dist/vue/sunoboom-vue.js?v=161' : localDev ? './entry.js' : null;
+const moduleUrl = productionEnabled ? '../../dist/vue/sunoboom-vue.js?v=162' : localDev ? './entry.js' : null;
 
 if (moduleUrl && window.SUNOBOOM_LEGACY_NAV) {
   import(moduleUrl)
-    .then(({ startLegacyNavigation, startLegacyAcademy, startLegacyGenreDetail, startLegacyStudio, startLegacyMixer, startLegacyAuditor, startLegacyArranger, startLegacyPoetry, startLegacyTags, startLegacyIdeaEditor, startLegacyIdeaCollections, startLegacyPromptCollection, startLegacyPromptEditor, startLegacyLibrary, startLegacySongCards, startLegacySongDetail, startLegacySongEditor, startLegacyArtistManager, startLegacyArtistDNA, startLegacyArtistDNAEditor, startLegacyAccountSettings, startLegacyPlayerLab, startLegacyPlayerAB, startLegacyProducerSongList, startLegacyProducerSongDetail, startLegacyTrackPassportList, startLegacyTrackPassportDetail, startLegacyTrackPassportEditor, startLegacyVersionHistory }) => {
+    .then(({ startLegacyNavigation, startLegacyAcademy, startLegacyGenreDetail, startLegacyStudio, startLegacyMixer, startLegacyAuditor, startLegacyArranger, startLegacyPoetry, startLegacyTags, startLegacyIdeaEditor, startLegacyIdeaCollections, startLegacyPromptCollection, startLegacyPromptEditor, startLegacyLibrary, startLegacySongCards, startLegacySongDetail, startLegacySongEditor, startLegacyArtistManager, startLegacyArtistDNA, startLegacyArtistDNAEditor, startLegacyAccountSettings, startLegacyPlayerLab, startLegacyPlayerAB, startLegacyProducerSongList, startLegacyProducerSongDetail, startLegacyTrackPassportList, startLegacyTrackPassportDetail, startLegacyTrackPassportEditor, startLegacyVersionHistory, startLegacyHomeDashboard }) => {
       if (typeof startLegacyNavigation === 'function') startLegacyNavigation();
       if (typeof startLegacyAcademy === 'function') startLegacyAcademy();
       if (typeof startLegacyGenreDetail === 'function') startLegacyGenreDetail();
@@ -35,6 +35,7 @@ if (moduleUrl && window.SUNOBOOM_LEGACY_NAV) {
       if (typeof startLegacyTrackPassportDetail === 'function') startLegacyTrackPassportDetail();
       if (typeof startLegacyTrackPassportEditor === 'function') startLegacyTrackPassportEditor();
       if (typeof startLegacyVersionHistory === 'function') startLegacyVersionHistory();
+      if (typeof startLegacyHomeDashboard === 'function') startLegacyHomeDashboard();
       if (typeof startLegacyIdeaEditor === 'function') startLegacyIdeaEditor();
       if (typeof startLegacyPoetry === 'function') startLegacyPoetry();
       if (typeof startLegacyTags === 'function') startLegacyTags();
