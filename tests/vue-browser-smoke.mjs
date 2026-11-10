@@ -99,6 +99,38 @@ async function checkLayout(mobile) {
       throw new Error('Static homepage fallback kept the outdated slogan');
     }
 
+    // v0.157 — tagline must sit below the brand itself on each layout,
+    // retain version beside it, and not push the phone header offscreen.
+    const brandSignature157 = await page.evaluate(() => {
+      const mobile = matchMedia('(max-width:700px)').matches;
+      const wrapper = document.querySelector(mobile ? '.top .brand-mobile' : '.side .brand');
+      const logo = wrapper?.querySelector(mobile ? '.sb-mobile-logo' : '.sb-brand-logo');
+      const label = wrapper?.querySelector('.sb-brand-tagline');
+      const version = wrapper?.querySelector('.sb-app-version');
+      const l = logo?.getBoundingClientRect(), t = label?.getBoundingClientRect();
+      const v = version?.getBoundingClientRect();
+      return {
+        text: label?.textContent?.trim(),
+        visible: Boolean(t && t.width > 20 && t.height > 5),
+        below: Boolean(l && t && t.top >= l.bottom - 2),
+        versionBeside: Boolean(l && v && v.left >= l.right - 2),
+        fits: Boolean(t && t.left >= 0 && t.right <= innerWidth + 1),
+        scheme: getComputedStyle(label).color,
+        horizontalOverflow: document.documentElement.scrollWidth > innerWidth + 1
+      };
+    });
+    if (brandSignature157.text !== 'Больше, чем музыка' ||
+        !brandSignature157.visible || !brandSignature157.below ||
+        !brandSignature157.versionBeside || !brandSignature157.fits ||
+        (mobile && brandSignature157.horizontalOverflow)) {
+      throw new Error('Logo tagline geometry broken: ' + JSON.stringify(brandSignature157));
+    }
+    const fallbackSignature157 = await (await fetch(BASE)).text();
+    if (!fallbackSignature157.includes('<small class="sb-brand-tagline">Больше, чем музыка</small>') ||
+        fallbackSignature157.includes('MUSIC WORKSPACE')) {
+      throw new Error('Fallback brand omitted the new tagline');
+    }
+
     // v0.130: both Vue menus share one read-only legacy route observer.
     // v0.131: Vue Router follows legacy navigation in MEMORY only.
     // It must never alter location/history or become a second source of pages.
