@@ -113,6 +113,7 @@ async function checkLayout(mobile) {
         text: label?.textContent?.trim(),
         visible: Boolean(t && t.width > 20 && t.height > 5),
         below: Boolean(l && t && t.top >= l.bottom - 2),
+        gap: l && t ? t.top - l.bottom : null,
         versionBeside: Boolean(l && v && v.left >= l.right - 2),
         fits: Boolean(t && t.left >= 0 && t.right <= innerWidth + 1),
         scheme: getComputedStyle(label).color,
@@ -122,6 +123,7 @@ async function checkLayout(mobile) {
     if (brandSignature157.text !== 'Больше, чем музыка' ||
         !brandSignature157.visible || !brandSignature157.below ||
         !brandSignature157.versionBeside || !brandSignature157.fits ||
+        brandSignature157.gap === null || brandSignature157.gap > 2 ||
         (mobile && brandSignature157.horizontalOverflow)) {
       throw new Error('Logo tagline geometry broken: ' + JSON.stringify(brandSignature157));
     }
