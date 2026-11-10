@@ -1091,9 +1091,15 @@ async function checkLayout(mobile) {
         mixerTransfer.genre !== 'reggae-ska' || !mixerTransfer.prompt.includes('Genre blend targets')) {
       throw new Error('Mixer-to-Studio handoff failed: ' + JSON.stringify(mixerTransfer));
     }
+    // Loading and rebalancing the formula above may have changed its BPM;
+    // the Studio recap must reflect the LATEST shared mixer state, not the
+    // earlier snapshot captured before add/equal/remove/load operations.
+    const latestMixer168 = await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.sharedState().mixerSummary);
     const mixerRecap168 = page.locator('.studio-grid [data-sb-vue-mixer-recap]');
     await mixerRecap168.waitFor({state:'visible',timeout:10000});
-    if (!(await mixerRecap168.textContent()).includes(mixerSummary168.tempo + ' BPM') ||
+    if (!latestMixer168.ready ||
+        !(await mixerRecap168.textContent()).includes(latestMixer168.tempo + ' BPM') ||
+        !(await mixerRecap168.textContent()).includes(latestMixer168.genreCount + ' жанра') ||
         await mixerRecap168.locator('[data-action="nav"][data-nav="mixer"]').count() !== 1) {
       throw new Error('Studio did not retain the latest shared Mixer summary and link');
     }
