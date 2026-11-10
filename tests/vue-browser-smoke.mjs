@@ -98,6 +98,19 @@ async function checkLayout(mobile) {
         await dashboard162.locator('[data-action="nav"][data-nav="events"]').count() < 2) {
       throw new Error('Vue dashboard lost its headings, counters, cards, or shortcuts');
     }
+    // v0.165: all independent Vue roots consume ONE Pinia UI projection.
+    const initialPinia165 = await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.sharedState());
+    if (initialPinia165.route !== 'home' || initialPinia165.active !== 'home' ||
+        !initialPinia165.menuIds.includes('home') ||
+        !initialPinia165.menuIds.includes('catalog') ||
+        initialPinia165.menuIds.filter(id => id === 'mixer').length > 1 ||
+        initialPinia165.dashboardStats.ideaCount !==
+          await page.evaluate(() => window.SUNOBOOM_LEGACY_DASHBOARD.snapshot().ideaCount) ||
+        initialPinia165.dashboardStats.promptCount !==
+          await page.evaluate(() => window.SUNOBOOM_LEGACY_DASHBOARD.snapshot().promptCount)) {
+      throw new Error('Shared Pinia state disagrees with legacy route, menu or dashboard counters');
+    }
+
     // v0.164: the Vue dashboard and menus share the same memory router.
     // A shortcut performs ONE original go(), preserves browser URL/storage,
     // and supports actual Back/Forward restoration for safe workspaces.
@@ -115,6 +128,9 @@ async function checkLayout(mobile) {
       active: view.nav, route: window.SUNOBOOM_VUE_ROUTE.routerSnapshot(),
       storage: localStorage.getItem('sunoboom-v1')
     }));
+    if (await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.sharedState().active) !== 'account') {
+      throw new Error('Pinia did not react to a nested Vue Router workspace transition');
+    }
     if (after164.active !== 'myideas' || page.url() !== baseUrl164 ||
         after164.storage !== before164.storage ||
         after164.route.menuPushes !== before164.route.menuPushes ||
@@ -160,6 +176,12 @@ async function checkLayout(mobile) {
     await page.locator('#sb-vue-dashboard[data-v-app] .dash-entry').first()
       .waitFor({ state: 'attached', timeout: 10000 });
     const populated162 = page.locator('#sb-vue-dashboard[data-v-app]');
+    const populatedStats165 = await page.evaluate(() =>
+      window.SUNOBOOM_VUE_ROUTE.sharedState().dashboardStats);
+    if ([populatedStats165.ideaCount, populatedStats165.promptCount,
+         populatedStats165.eventCount].join(',') !== '1,1,1') {
+      throw new Error('Shared Pinia dashboard counts did not refresh after legacy render');
+    }
     if ((await populated162.locator('.dash-metric b').allTextContents()).join(',') !== '1,1,1' ||
         !(await populated162.textContent()).includes('Dashboard Tester') ||
         !(await populated162.textContent()).includes('Vue dashboard 162 idea') ||
@@ -194,7 +216,7 @@ async function checkLayout(mobile) {
     await version161.waitFor({ state: 'attached', timeout: 10000 });
     if (await page.locator('#sb-vh-overlay').count() !== 1 ||
         await page.locator('#sb-vh-tabs button').count() !== 2 ||
-        !(await version161.textContent()).includes('v0.164')) {
+        !(await version161.textContent()).includes('v0.165')) {
       throw new Error('Vue version-history dialog or current release missing');
     }
     await page.locator('#sb-vh-tabs button').nth(1).click();

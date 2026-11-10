@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { currentRoute } from './route-state.js';
+import { useLegacyUiStore } from '../state/legacy-ui-store.js';
 import { memoryHistoryRevision } from './legacy-router-mirror.js';
 
 // The controls do not own any navigation or browser history. Their two actions
@@ -11,12 +11,13 @@ const props = defineProps({
   onRestore: { type: Function, required: true }
 });
 const route = useRoute();
+const ui = useLegacyUiStore();
 const busy = ref(false);
 const available = computed(() => {
   // Both route and legacy revisions are reactive; the memory ledger is read
   // only after the route has settled. No timers or polling.
   void route.path;
-  void currentRoute.value.revision;
+  void ui.route.revision;
   // The memory route changes before its async ledger is committed. Recompute
   // disabled states when that ledger settles, even if the path stays unchanged.
   void memoryHistoryRevision.value;

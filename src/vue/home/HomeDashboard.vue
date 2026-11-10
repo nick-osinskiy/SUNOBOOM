@@ -1,4 +1,6 @@
 <script setup>
+import { useLegacyUiStore } from '../state/legacy-ui-store.js';
+const ui = useLegacyUiStore();
 // The current dashboard's data and navigation still belong to legacy index.html.
 // This component only renders the snapshot; data-action stays delegated to legacy handlers.
 defineProps({
@@ -21,9 +23,9 @@ defineProps({
     </div>
 
     <div class="dash-metrics">
-      <div class="dash-metric"><b>{{ model.ideaCount }}</b><span>Мои идеи</span></div>
-      <div class="dash-metric"><b>{{ model.promptCount }}</b><span>Мои промпты</span></div>
-      <div class="dash-metric"><b>{{ model.eventCount }}</b><span>Мои события</span></div>
+      <div class="dash-metric"><b>{{ ui.dashboardStats.ideaCount }}</b><span>Мои идеи</span></div>
+      <div class="dash-metric"><b>{{ ui.dashboardStats.promptCount }}</b><span>Мои промпты</span></div>
+      <div class="dash-metric"><b>{{ ui.dashboardStats.eventCount }}</b><span>Мои события</span></div>
     </div>
 
     <div class="dash-layout">

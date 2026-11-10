@@ -15,7 +15,7 @@ const SELECTORS = [
  * Safely enhance navigation: the legacy app retains ownership of #app
  * and the page render cycle. Vue owns only the two menu containers.
  */
-export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature }) {
+export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature, sharedUi }) {
   const api = window.SUNOBOOM_LEGACY_NAV;
   const root = document.getElementById('app');
   if (!api || !root || typeof api.snapshot !== 'function') return () => {};
@@ -27,6 +27,13 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature })
   window.SUNOBOOM_VUE_ROUTE = Object.freeze({
     snapshot: () => currentRoute.value,
     routerSnapshot: () => legacyRouterSnapshot(),
+    // Diagnostics include only navigation IDs and numeric counters. No private records.
+    sharedState: () => Object.freeze({
+      route: sharedUi.route.route,
+      active: sharedUi.route.active,
+      menuIds: sharedUi.navigationItems.map(item => item.id),
+      dashboardStats: { ...sharedUi.dashboardStats }
+    }),
     back: () => restoreLegacyMenuHistory('back', { legacyApi: api }),
     forward: () => restoreLegacyMenuHistory('forward', { legacyApi: api }),
     // The legacy page validates id + tab before an opt-in context push.
@@ -70,6 +77,7 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature })
     syncLegacyRoute(raw.active, { context: raw.track?.id
       ? { kind: 'track', id: raw.track.id } : raw.active==='producer' && raw.production?.id ? {kind:'production',id:raw.production.id} : null });
     const items = navigationSnapshot(raw);
+    sharedUi.publishNavigation(items);
     // Only the menu's structure, not its reactive active state, needs remounting.
     const signature = JSON.stringify(items.map(({ active, ...item }) => item));
 

@@ -1,24 +1,27 @@
 <script setup>
 import { useRoute, useRouter } from 'vue-router';
-import { currentRoute } from './route-state.js';
+import { computed } from 'vue';
+import { useLegacyUiStore } from '../state/legacy-ui-store.js';
 import { activeRouteFromMemoryPath, routeToMemoryPath } from './legacy-router-mirror.js';
 
 // Vue Router is consumed directly here. Legacy state wins until the async
 // memory mirror catches up, preserving instant highlights after go().
 const route = useRoute();
 const router = useRouter();
+const ui = useLegacyUiStore();
 const props = defineProps({
   items: { type: Array, required: true },
   mobile: { type: Boolean, default: false },
   onNavigate: { type: Function, required: true }
 });
+const sharedMenuItems = computed(() => ui.navigationItems.length ? ui.navigationItems : props.items);
 function navigate(id) {
   // Pass the injected memory router to the one compatibility adapter; do not
   // call router.push() because the legacy shell still controls the page.
   props.onNavigate(id, router);
 }
 const isActive = id => {
-  const legacy = currentRoute.value;
+  const legacy = ui.route;
   const active = route.path === routeToMemoryPath(legacy.route)
     ? activeRouteFromMemoryPath(route.path)
     : legacy.active;
@@ -28,7 +31,7 @@ const isActive = id => {
 
 <template>
   <button
-    v-for="item in items"
+    v-for="item in sharedMenuItems"
     :key="item.id"
     type="button"
     :class="mobile ? (isActive(item.id) ? 'active' : '') : ['nav-button', { active: isActive(item.id) }]"

@@ -21,6 +21,7 @@ import { activateLegacyTrackPassportEditor } from './account/legacyTrackPassport
 import { activateLegacyIdeaEditor } from './poetry/legacyIdeaEditorBridge.js';
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
+import { useLegacyUiStore } from './state/legacy-ui-store.js';
 import { legacyMirrorRouter } from './navigation/legacy-router-mirror.js';
 import VueFeatureHost from './VueFeatureHost.vue';
 import { activateLegacyNavigation } from './navigation/legacyBridge.js';
@@ -37,6 +38,8 @@ import { activateLegacyTags } from './poetry/legacyTagsBridge.js';
 // Vue components are mounted only into explicitly handed-off feature containers.
 // Importing this module never replaces the existing SUNOBOOM application shell.
 const pinia = createPinia();
+// One Pinia instance shared by every island, including both navigation roots.
+const sharedUi = useLegacyUiStore(pinia);
 const mounted = new WeakMap();
 
 function resolveTarget(target) {
@@ -85,7 +88,7 @@ export function unmountVueFeature(target) {
 
 /** Mount the Vue navigation into the existing desktop and mobile menu containers. */
 export function startLegacyNavigation() {
-  return activateLegacyNavigation({ mountVueFeature, unmountVueFeature });
+  return activateLegacyNavigation({ mountVueFeature, unmountVueFeature, sharedUi });
 }
 
 /** Render Academy genre cards inside its existing grouped HTML structure. */
@@ -230,7 +233,7 @@ export function startLegacyVersionHistory() {
 
 /** Vue home dashboard, retaining original legacy data, navigation and HTML fallback. */
 export function startLegacyHomeDashboard() {
-  return activateLegacyHomeDashboard({ mountVueFeature });
+  return activateLegacyHomeDashboard({ mountVueFeature, sharedUi });
 }
 
 /** Vue genealogy explorer; original genre graph and full HTML fallback retained. */

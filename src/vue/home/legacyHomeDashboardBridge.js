@@ -4,7 +4,7 @@ import { navigateFromVueShortcut } from '../navigation/navigation-dispatch.js';
 
 // The root app and all personal records remain controlled by legacy code.
 // Mount only into the dashboard container whenever legacy render() replaces it.
-export function activateLegacyHomeDashboard({ mountVueFeature }) {
+export function activateLegacyHomeDashboard({ mountVueFeature, sharedUi }) {
   const api = window.SUNOBOOM_LEGACY_DASHBOARD;
   const root = document.getElementById('app');
   if (!api?.snapshot || !root) return () => {};
@@ -19,6 +19,7 @@ export function activateLegacyHomeDashboard({ mountVueFeature }) {
     if (!node) return;
     const model = api.snapshot();
     if (!model) return;
+    sharedUi.publishDashboardStats(model);
     const unmount = mountVueFeature(node, HomeDashboard, {
       model,
       navigate: id => navigateFromVueShortcut(id, {

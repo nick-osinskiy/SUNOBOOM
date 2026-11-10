@@ -1,5 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { createPinia } from 'pinia';
+import { useLegacyUiStore } from '../src/vue/state/legacy-ui-store.js';
 import { treeSearch, nextTreeZoom, connectedTreeEdges } from '../src/vue/academy/genre-tree-model.js';
 import { groupMajorVersions, historyResults, formatReleaseDate } from '../src/vue/version-history/version-model.js';
 import { activeNavigationRoute, navigationSnapshot } from '../src/vue/navigation/nav-model.js';
@@ -633,6 +635,41 @@ test('v0.164 dashboard shortcuts support guarded internal Back/Forward restorati
   await whenLegacyRouterSettled();
   assert.equal(active, 'myideas');
   assert.deepEqual(calls, ['workspace:myideas','menu:home','workspace:myideas']);
+  syncLegacyRoute('home');
+  await whenLegacyRouterSettled();
+});
+
+test('v0.165 one Pinia UI store serves all Vue islands without storing user records', async () => {
+  const pinia = createPinia();
+  const sidebar = useLegacyUiStore(pinia);
+  const mobile = useLegacyUiStore(pinia);
+  const dashboard = useLegacyUiStore(pinia);
+  assert.strictEqual(sidebar, mobile);
+  assert.strictEqual(mobile, dashboard);
+  assert.strictEqual(sidebar.route.route, currentRoute.value.route);
+  const original = navigationSnapshot({
+    active: 'home',
+    items: [{ id: 'home', label: 'Главная' }, { id: 'account', label: 'Личный кабинет' }]
+  });
+  assert.equal(sidebar.publishNavigation(original), true);
+  assert.equal(mobile.publishNavigation(original), false);
+  assert.deepEqual(dashboard.navigationItems.map(item => item.id), ['home', 'account']);
+  assert.equal(dashboard.publishDashboardStats({ideaCount: 3, promptCount: 2, eventCount: 4,
+    lyrics: 'NEVER INCLUDE PERSONAL TEXT'}), true);
+  assert.deepEqual({ ...mobile.dashboardStats }, {
+    ideaCount: 3, promptCount: 2, eventCount: 4, revision: 1
+  });
+  assert.equal(mobile.dashboardStats.lyrics, undefined);
+  assert.equal(sidebar.publishDashboardStats({ ideaCount: 3, promptCount: 2, eventCount: 4 }), false);
+  assert.equal(mobile.publishDashboardStats({ ideaCount: 4, promptCount: -1, eventCount: 4 }), true);
+  assert.deepEqual({ ...sidebar.dashboardStats }, {
+    ideaCount: 4, promptCount: 0, eventCount: 4, revision: 2
+  });
+  syncLegacyRoute('myideas');
+  await whenLegacyRouterSettled();
+  assert.equal(sidebar.route.route, 'myideas');
+  assert.equal(mobile.route.active, 'account');
+  assert.equal(sidebar.route.revision, currentRoute.value.revision);
   syncLegacyRoute('home');
   await whenLegacyRouterSettled();
 });

@@ -484,3 +484,13 @@ Vue memory router хранит проверенный id карточки Мас
 - `legacy-history-restore.js` валидирует восстановление `/account/myideas`, `/account/myprompts`, `/account/events` для кнопок истории. Старые guards для редактируемых паспортов, песен, жанров и Мастера не ослаблены.
 - Vue Router остаётся memory-only: URL браузера, `window.history`, IndexedDB, песни и `sunoboom-v1` не меняются от маршрутизатора. `menuPushes` подсчитывает только меню; `shortcutPushes` отслеживает кнопки главной отдельно.
 - HTML fallback по-прежнему использует `data-action=nav` и исходный `go()` без Vue. Добавлены модульные и браузерные проверки единственного перехода, Back/Forward, отсутствия изменений URL и локальных данных.
+
+
+## 14. Дополнение v0.165 — единое Pinia-состояние Vue-интерфейса (2026-11-10)
+
+- Добавлен `src/vue/state/legacy-ui-store.js`: единственный Pinia setup-store `sunoboom-legacy-ui` для всех независимо монтируемых Vue islands. Он использует **ту же реактивную ссылку** `currentRoute` из `route-state.js`, исключая два источника правды для маршрута.
+- `legacyBridge.js` публикует структуру меню через `publishNavigation`, а `legacyHomeDashboardBridge.js` передаёт через `publishDashboardStats` только три числовых счётчика идей, промптов и событий.
+- `NavigationMenu.vue` (боковое + мобильное), `VueHistoryControls.vue` и `HomeDashboard.vue` читают общее Pinia-состояние, не создавая собственные копии; все острова используют один экземпляр Pinia из `entry.js`.
+- **Не переносить** в Pinia тексты песен, промпты, пользовательские записи, файлы, личные события, пароли или локальные настройки. Их источники остаются `data`, `localStorage` и `IndexedDB`. Pinia — только эфемерная проекция UI.
+- `window.SUNOBOOM_VUE_ROUTE.sharedState()` отдаёт для диагностики лишь маршрут, IDs пунктов меню и три счётчика. Browser smoke сверяет их с исходной моделью и проверяет обновление после `render()`; модульные тесты проверяют общий экземпляр, реактивность и отсутствие текстов пользователя.
+- Версия UI v0.165. Собранные файлы `dist/vue` публикуются только после успешного GitHub Actions (node, Vite, Playwright).

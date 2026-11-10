@@ -1,0 +1,54 @@
+import { defineStore } from 'pinia';
+import { shallowRef } from 'vue';
+import { currentRoute } from '../navigation/route-state.js';
+
+// Read-only UI projections across the independent Vue islands.
+// The legacy go(), data object and browser storage remain authoritative.
+// Never copy lyrics, audio, projects, notifications or personal records here.
+const EMPTY_ITEMS = Object.freeze([]);
+const EMPTY_STATS = Object.freeze({ ideaCount: 0, promptCount: 0, eventCount: 0, revision: 0 });
+const toCount = value => Number.isSafeInteger(value) && value >= 0 ? value : 0;
+
+export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
+  // The compatibility ref is the SAME object consumed by existing route-state
+  // callers, not a duplicate ref that might lag behind navigation.
+  const route = currentRoute;
+  const navigationItems = shallowRef(EMPTY_ITEMS);
+  const dashboardStats = shallowRef(EMPTY_STATS);
+
+  function publishNavigation(items) {
+    if (!Array.isArray(items)) return false;
+    const next = Object.freeze(items
+      .filter(item => item && typeof item.id === 'string' && item.id)
+      .map(item => Object.freeze({
+        id: item.id,
+        label: item.label,
+        shortLabel: item.shortLabel,
+        iconHtml: item.iconHtml
+      })));
+    const old = navigationItems.value;
+    if (old.length === next.length && old.every((item, index) =>
+      item.id === next[index].id && item.label === next[index].label &&
+      item.shortLabel === next[index].shortLabel &&
+      item.iconHtml === next[index].iconHtml)) return false;
+    navigationItems.value = next;
+    return true;
+  }
+
+  function publishDashboardStats(model) {
+    if (!model || typeof model !== 'object') return false;
+    const next = {
+      ideaCount: toCount(model.ideaCount),
+      promptCount: toCount(model.promptCount),
+      eventCount: toCount(model.eventCount)
+    };
+    const previous = dashboardStats.value;
+    if (previous.ideaCount === next.ideaCount &&
+        previous.promptCount === next.promptCount &&
+        previous.eventCount === next.eventCount) return false;
+    dashboardStats.value = Object.freeze({ ...next, revision: previous.revision + 1 });
+    return true;
+  }
+
+  return { route, navigationItems, dashboardStats, publishNavigation, publishDashboardStats };
+});
