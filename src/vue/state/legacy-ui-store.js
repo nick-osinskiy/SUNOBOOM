@@ -8,6 +8,7 @@ import { normalizePlayerLabSummary, normalizePlayerAbSummary } from './player-ui
 import { normalizeMasterListSummary, normalizePassportListSummary, normalizeMasterDetailSummary, normalizePassportDetailSummary } from './workflow-ui-model.js';
 import { normalizeSongCollectionSummary, normalizeSongDetailSummary } from './song-ui-model.js';
 import { normalizeArtistManagerSummary, normalizeArtistDnaSummary } from './artist-ui-model.js';
+import { normalizeLibrarySummary } from './library-ui-model.js';
 
 // Read-only UI projections across the independent Vue islands.
 // The legacy go(), data object and browser storage remain authoritative.
@@ -119,6 +120,10 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
     ready:false, profileCount:0, detailOpen:false, linkedTrackCount:0,
     restrictionsCount:0, factCount:0, sectionCount:0, revision:0
   }));
+  const librarySummary = shallowRef(Object.freeze({
+    ready:false, genreCount:0, academyIdeaCount:0, ownIdeaCount:0,
+    generatedIdeaCount:0, promptCount:0, totalIdeaCount:0, revision:0
+  }));
 
   function publishToolSummary(target, normalizer, snapshot) {
     const next = normalizer(snapshot);
@@ -156,6 +161,8 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
     publishToolSummary(artistManagerSummary, value=>normalizeArtistManagerSummary(value,visibleCount), snapshot);
   const publishArtistDnaSummary = snapshot =>
     publishToolSummary(artistDnaSummary, normalizeArtistDnaSummary, snapshot);
+  const publishLibrarySummary = snapshot =>
+    publishToolSummary(librarySummary, normalizeLibrarySummary, snapshot);
 
   function publishNavigation(items) {
     if (!Array.isArray(items)) return false;
@@ -211,7 +218,7 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
     playerLabSummary, playerAbSummary, masterListSummary, passportListSummary,
     masterDetailSummary, passportDetailSummary,
     songCollectionSummary, songDetailSummary,
-    artistManagerSummary, artistDnaSummary,
+    artistManagerSummary, artistDnaSummary, librarySummary,
     publishNavigation, publishDashboardStats, publishAppearance,
     publishAcademyCatalog, publishAcademyFocus, publishAcademyTree,
     publishStudioSummary, publishMixerSummary, publishAuditorSummary, publishArrangerSummary,
@@ -219,5 +226,6 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
     publishMasterListSummary, publishPassportListSummary,
     publishMasterDetailSummary, publishPassportDetailSummary,
     publishSongCollectionSummary, publishSongDetailSummary,
-    publishArtistManagerSummary, publishArtistDnaSummary };
+    publishArtistManagerSummary, publishArtistDnaSummary,
+    publishLibrarySummary };
 });

@@ -9,6 +9,7 @@ import { normalizePlayerLabSummary, normalizePlayerAbSummary } from '../src/vue/
 import { normalizeMasterListSummary, normalizePassportListSummary, normalizeMasterDetailSummary, normalizePassportDetailSummary } from '../src/vue/state/workflow-ui-model.js';
 import { normalizeSongCollectionSummary, normalizeSongDetailSummary } from '../src/vue/state/song-ui-model.js';
 import { normalizeArtistManagerSummary, normalizeArtistDnaSummary } from '../src/vue/state/artist-ui-model.js';
+import { normalizeLibrarySummary } from '../src/vue/state/library-ui-model.js';
 import { treeSearch, nextTreeZoom, connectedTreeEdges } from '../src/vue/academy/genre-tree-model.js';
 import { groupMajorVersions, historyResults, formatReleaseDate } from '../src/vue/version-history/version-model.js';
 import { activeNavigationRoute, navigationSnapshot } from '../src/vue/navigation/nav-model.js';
@@ -1064,3 +1065,34 @@ test('v0.174 DNA summary never shares names, style text or related record IDs', 
   assert.equal(a.artistDnaSummary.linkedTrackCount,0);
   assert.equal(a.artistDnaSummary.revision,2);
 });
+
+test('v0.175 shared library snapshot contains five counts and no saved writing', () => {
+  const pinia=createPinia(), a=useLegacyUiStore(pinia), b=useLegacyUiStore(pinia);
+  assert.strictEqual(a,b);
+  const snapshot={backLabel:'PRIVATE BACK BUTTON',
+    genres:[{id:'SECRET GENRE',name:'PRIVATE'}],
+    ideas:[{key:'SECRET IDEA',title:'PRIVATE TITLE',pitch:'PRIVATE PITCH'}],
+    own:[{id:'SECRET OWN',title:'PRIVATE WRITING',lyrics:'SECRET LYRICS'}],
+    generated:[{id:'SECRET GENERATED',hook:'SECRET HOOK'}],
+    prompts:[{id:'SECRET PROMPT',text:'PRIVATE STYLE'}]};
+  const expected={ready:true,genreCount:1,academyIdeaCount:1,ownIdeaCount:1,
+    generatedIdeaCount:1,promptCount:1,totalIdeaCount:3};
+  assert.deepEqual(normalizeLibrarySummary(snapshot),expected);
+  assert.equal(a.publishLibrarySummary(snapshot),true);
+  assert.equal(b.publishLibrarySummary(snapshot),false);
+  assert.deepEqual({...b.librarySummary},{...expected,revision:1});
+  for(const key of ['genres','ideas','own','generated','prompts','title','lyrics','text','pitch','id','backLabel'])
+    assert.equal(b.librarySummary[key],undefined);
+  assert.equal(JSON.stringify(b.librarySummary).includes('SECRET'),false);
+  assert.equal(a.publishLibrarySummary({...snapshot,genres:undefined}),false);
+  assert.equal(a.publishLibrarySummary({...snapshot,own:[null]}),false);
+  assert.equal(a.publishLibrarySummary({...snapshot,prompts:'bad'}),false);
+  assert.equal(a.publishLibrarySummary({...snapshot,generated:new Array(10001).fill({title:'SECRET'})}),false);
+  assert.equal(b.librarySummary.revision,1);
+  assert.equal(a.publishLibrarySummary({...snapshot,ideas:[],generated:[],prompts:[]}),true);
+  assert.equal(b.librarySummary.totalIdeaCount,1);
+  assert.equal(b.librarySummary.promptCount,0);
+  assert.equal(b.librarySummary.revision,2);
+  assert.equal(Object.isFrozen(b.librarySummary),true);
+});
+

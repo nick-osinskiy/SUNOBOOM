@@ -216,7 +216,7 @@ async function checkLayout(mobile) {
     await version161.waitFor({ state: 'attached', timeout: 10000 });
     if (await page.locator('#sb-vh-overlay').count() !== 1 ||
         await page.locator('#sb-vh-tabs button').count() !== 2 ||
-        !(await version161.textContent()).includes('v0.174')) {
+        !(await version161.textContent()).includes('v0.175')) {
       throw new Error('Vue version-history dialog or current release missing');
     }
     await page.locator('#sb-vh-tabs button').nth(1).click();
@@ -1642,22 +1642,47 @@ async function checkLayout(mobile) {
         await library.locator('[data-action="delete-saved"]').count() !== 1) {
       throw new Error('Vue library did not render all five original collections');
     }
+    // v0.175: only aggregate counters flow into the cross-island Pinia store.
+    await page.waitForFunction(() => {
+      const state=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.librarySummary;
+      const source=window.SUNOBOOM_LEGACY_LIBRARY?.snapshot?.();
+      return state?.ready && source && state.genreCount===source.genres.length &&
+        state.academyIdeaCount===1 && state.ownIdeaCount===1 &&
+        state.generatedIdeaCount===1 && state.promptCount===1 && state.totalIdeaCount===3;
+    });
+    if (await library.locator('[data-sb-vue-library-summary]').count()!==1 ||
+        await library.locator('[data-sb-vue-library-summary] b').count()!==3 ||
+        await library.locator('[data-sb-vue-library-summary] b').nth(1).textContent()!=='3')
+      throw new Error('v0.175 library Vue summary did not reflect all source collections');
+    const librarySafe175=await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.sharedState().librarySummary);
+    if (['genres','ideas','own','generated','prompts','title','lyrics','text','id'].some(key=>key in librarySafe175) ||
+        JSON.stringify(librarySafe175).includes('Own library idea'))
+      throw new Error('v0.175 library summary leaked private saved content');
     await library.locator('[data-action="idea-save"]').click();
     if (await page.evaluate(() => data.savedIdeas.length) !== 0 ||
         !(await library.textContent()).includes('Нет сохранённых идей')) {
       throw new Error('Removing an Academy idea failed to refresh Vue library');
     }
+    await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.sharedState()?.librarySummary?.academyIdeaCount===0);
     await library.locator('[data-action="generated-delete"]').click();
     if (await page.evaluate(() => data.savedGeneratedIdeas.length) !== 0 ||
         !(await library.textContent()).includes('Сохранённых новых идей нет')) {
       throw new Error('Deleting a saved Idea Lab entry failed');
     }
+    await page.waitForFunction(() => {
+      const s=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.librarySummary;
+      return s?.generatedIdeaCount===0 && s.totalIdeaCount===1;
+    });
     await library.locator('[data-action="delete-saved"]').click();
     if (await page.evaluate(() => data.savedPrompts.length) !== 0 ||
         !(await library.textContent()).includes('Промптов пока нет')) {
       throw new Error('Deleting a saved prompt failed');
     }
+    await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.sharedState()?.librarySummary?.promptCount===0);
     await library.locator('[data-action="edit-manual-idea"]').click();
+    await page.locator('[data-sb-vue-idea-library-recap]').waitFor({state:'attached',timeout:10000});
+    if (!(await page.locator('[data-sb-vue-idea-library-recap]').textContent()).includes('1 идей'))
+      throw new Error('v0.175 ideas view lost last library summary');
     if (await page.evaluate(() => view.nav) !== 'myideas' ||
         await page.locator('#custom-idea-title').inputValue() !== 'Own library idea') {
       throw new Error('Library manual idea did not open original editor');
@@ -1668,6 +1693,14 @@ async function checkLayout(mobile) {
         await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-v1')).manualIdeas[0]?.title) !== 'Own library idea') {
       throw new Error('Library navigation lost local persisted data');
     }
+
+    // v0.175: the same safe Pinia summary is available in the prompt-list island.
+    await page.evaluate(() => go('myprompts'));
+    await page.locator('#sb-vue-prompts-list[data-v-app]').waitFor({state:'attached',timeout:10000});
+    if (!(await page.locator('[data-sb-vue-prompt-library-recap]').textContent()).includes('0 промптов'))
+      throw new Error('v0.175 prompt list did not reuse last library counts');
+    await page.evaluate(() => go('saved'));
+    await page.locator('#sb-vue-library-collection[data-v-app]').waitFor({state:'attached',timeout:10000});
 
     // v0.111: card grid/search are Vue-owned; local song storage, cover blobs and original actions are not.
     await page.evaluate(async () => {

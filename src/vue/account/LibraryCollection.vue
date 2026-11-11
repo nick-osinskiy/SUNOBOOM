@@ -1,5 +1,9 @@
 <script setup>
-defineProps({ model: { type: Object, required: true } });
+import { watch } from 'vue';
+import { useLegacyUiStore } from '../state/legacy-ui-store.js';
+const props = defineProps({ model: { type: Object, required: true } });
+const ui = useLegacyUiStore();
+watch(() => props.model, snapshot => ui.publishLibrarySummary(snapshot), { immediate:true });
 </script>
 
 <template>
@@ -10,6 +14,12 @@ defineProps({ model: { type: Object, required: true } });
     <h1>Моя библиотека</h1>
     <p>Любимые жанры, идеи и промпты. Сохраняются локально в этом браузере.</p>
   </header>
+
+  <div v-if="ui.librarySummary.ready" class="sb-dna-summary" data-sb-vue-library-summary>
+    <div><b>{{ ui.librarySummary.genreCount }}</b><span>Избранных жанров</span></div>
+    <div><b>{{ ui.librarySummary.totalIdeaCount }}</b><span>Идей в библиотеке</span></div>
+    <div><b>{{ ui.librarySummary.promptCount }}</b><span>Сохранённых промптов</span></div>
+  </div>
 
   <div class="section-title"><h2>Избранные жанры ({{ model.genres.length }})</h2></div>
   <div v-if="model.genres.length" class="genre-grid">

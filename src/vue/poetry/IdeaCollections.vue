@@ -1,8 +1,13 @@
 <script setup>
+import { useLegacyUiStore } from '../state/legacy-ui-store.js';
+const ui = useLegacyUiStore();
 defineProps({ model: { type: Object, required: true } });
 </script>
 
 <template>
+  <p v-if="ui.librarySummary.ready" class="sub" data-sb-vue-idea-library-recap>
+    Последний просмотр библиотеки: {{ ui.librarySummary.totalIdeaCount }} идей
+  </p>
   <template v-for="group in model.groups" :key="group.kind">
     <div class="section-title">
       <h2>{{ group.title }} ({{ group.items.length }})</h2>

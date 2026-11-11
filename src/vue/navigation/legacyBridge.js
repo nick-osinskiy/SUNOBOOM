@@ -50,7 +50,8 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature, s
       songCollectionSummary: { ...sharedUi.songCollectionSummary },
       songDetailSummary: { ...sharedUi.songDetailSummary },
       artistManagerSummary: { ...sharedUi.artistManagerSummary },
-      artistDnaSummary: { ...sharedUi.artistDnaSummary }
+      artistDnaSummary: { ...sharedUi.artistDnaSummary },
+      librarySummary: { ...sharedUi.librarySummary }
     }),
     back: () => restoreLegacyMenuHistory('back', { legacyApi: api }),
     forward: () => restoreLegacyMenuHistory('forward', { legacyApi: api }),

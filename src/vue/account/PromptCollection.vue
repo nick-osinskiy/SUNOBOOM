@@ -1,7 +1,12 @@
 <script setup>
+import { useLegacyUiStore } from '../state/legacy-ui-store.js';
+const ui = useLegacyUiStore();
 defineProps({ model: { type: Object, required: true } });
 </script>
 <template>
+  <p v-if="ui.librarySummary.ready" class="sub" data-sb-vue-prompt-library-recap>
+    Последний просмотр библиотеки: {{ ui.librarySummary.promptCount }} промптов
+  </p>
   <div class="section-title"><h2>Сохранённые промпты ({{ model.items.length }})</h2></div>
   <div v-if="model.items.length" class="saved-list">
     <article v-for="item in model.items" :key="item.id" class="saved-item">
