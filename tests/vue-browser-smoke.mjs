@@ -216,7 +216,7 @@ async function checkLayout(mobile) {
     await version161.waitFor({ state: 'attached', timeout: 10000 });
     if (await page.locator('#sb-vh-overlay').count() !== 1 ||
         await page.locator('#sb-vh-tabs button').count() !== 2 ||
-        !(await version161.textContent()).includes('v0.176')) {
+        !(await version161.textContent()).includes('v0.177')) {
       throw new Error('Vue version-history dialog or current release missing');
     }
     await page.locator('#sb-vh-tabs button').nth(1).click();
@@ -1434,6 +1434,19 @@ async function checkLayout(mobile) {
       '', 'Припев:', 'Я слышу музыку во мне', 'И вижу город в тишине'
     ].join('\n');
     await page.locator('#custom-idea-lyrics').fill(lyricText);
+    // v0.177: cross-island poetry summary follows the native source only.
+    await page.waitForFunction(() => {
+      const s=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.poetrySourceSummary;
+      const current=document.getElementById('custom-idea-lyrics')?.value;
+      return s?.ready && s.charCount===current?.length && s.lineCount===6 &&
+        s.wordCount===23 && s.hasText;
+    });
+    if (await page.locator('#sb-vue-lyrics-source[data-v-app] [data-sb-vue-poetry-source-count]').count()!==1 ||
+        await page.locator('#sb-vue-lyrics-tools[data-v-app] [data-sb-vue-poetry-tools-count]').count()!==1)
+      throw new Error('v0.177 duplicated poetry source or tools count');
+    const safePoetry177=await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.sharedState().poetrySourceSummary);
+    if (['text','lyrics','source','lines','id','words','accentedWords'].some(k=>k in safePoetry177))
+      throw new Error('v0.177 poetry counters leaked user lyrics');
     await page.locator('[data-action="sb-poetry-analyze"]').click();
     await page.waitForFunction(() =>
       document.querySelector('#sb-poetry-result .sb-poetry-stats') &&
@@ -1449,6 +1462,7 @@ async function checkLayout(mobile) {
       throw new Error('Vue poetry analysis changed original lyrics or lost rows: ' + JSON.stringify(poetryState));
     }
     await page.locator('#custom-idea-lyrics').fill(lyricText + '\nНовая строка');
+    await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.sharedState()?.poetrySourceSummary?.lineCount===7);
     await page.waitForFunction(() =>
       document.querySelector('#sb-poetry-result .sb-poetry-empty')?.textContent?.includes('Текст изменён'));
     await page.locator('#custom-idea-lyrics').fill(lyricText);
@@ -1475,6 +1489,12 @@ async function checkLayout(mobile) {
     await page.waitForFunction(() =>
       document.getElementById('custom-idea-lyrics')?.value?.includes('замо\u0301к') ||
       document.getElementById('custom-idea-lyrics')?.value?.includes('за\u0301мок'));
+    // The original auto-stress action dispatches input; counters must follow it.
+    await page.waitForFunction(() => {
+      const s=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.poetrySourceSummary;
+      return s?.charCount===document.getElementById('custom-idea-lyrics')?.value.length &&
+        s?.lineCount===6 && s?.wordCount===23;
+    });
     const stressedLyrics = await page.locator('#custom-idea-lyrics').inputValue();
     if (stressedLyrics === lyricText || !(stressedLyrics.includes('за\u0301мок') || stressedLyrics.includes('замо\u0301к'))) {
       throw new Error('Stress confirmation was not applied to the original song editor');

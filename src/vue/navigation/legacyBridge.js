@@ -53,7 +53,8 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature, s
       artistDnaSummary: { ...sharedUi.artistDnaSummary },
       librarySummary: { ...sharedUi.librarySummary },
       ideaDraftSummary: { ...sharedUi.ideaDraftSummary },
-      promptDraftSummary: { ...sharedUi.promptDraftSummary }
+      promptDraftSummary: { ...sharedUi.promptDraftSummary },
+      poetrySourceSummary: { ...sharedUi.poetrySourceSummary }
     }),
     back: () => restoreLegacyMenuHistory('back', { legacyApi: api }),
     forward: () => restoreLegacyMenuHistory('forward', { legacyApi: api }),

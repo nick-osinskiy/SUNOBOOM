@@ -11,6 +11,7 @@ import { normalizeSongCollectionSummary, normalizeSongDetailSummary } from '../s
 import { normalizeArtistManagerSummary, normalizeArtistDnaSummary } from '../src/vue/state/artist-ui-model.js';
 import { normalizeLibrarySummary } from '../src/vue/state/library-ui-model.js';
 import { normalizeIdeaDraftSummary, normalizePromptDraftSummary } from '../src/vue/state/editor-ui-model.js';
+import { normalizePoetrySourceSummary } from '../src/vue/state/poetry-ui-model.js';
 import { treeSearch, nextTreeZoom, connectedTreeEdges } from '../src/vue/academy/genre-tree-model.js';
 import { groupMajorVersions, historyResults, formatReleaseDate } from '../src/vue/version-history/version-model.js';
 import { activeNavigationRoute, navigationSnapshot } from '../src/vue/navigation/nav-model.js';
@@ -1132,4 +1133,27 @@ test('v0.176 prompt editor publishes bounded length and mode only', () => {
   assert.equal(a.promptDraftSummary.editing,true);
   assert.equal(a.promptDraftSummary.hasPrompt,false);
   assert.equal(a.promptDraftSummary.revision,2);
+});
+
+test('v0.177 poetry source counts words and nonempty lines without keeping lyrics', () => {
+  const p=createPinia(), a=useLegacyUiStore(p), b=useLegacyUiStore(p);
+  const original='Куплет 1:\r\nЯ вижу замок\n\nПрипев:\nТы рядом';
+  const expected={ready:true,charCount:original.length,lineCount:4,wordCount:8,hasText:true};
+  assert.deepEqual(normalizePoetrySourceSummary(original),expected);
+  assert.equal(a.publishPoetrySourceSummary(original),true);
+  assert.equal(b.publishPoetrySourceSummary(original),false);
+  assert.deepEqual({...b.poetrySourceSummary},{...expected,revision:1});
+  for(const key of ['text','lyrics','source','lines','title','genre','id','accentedWords'])
+    assert.equal(b.poetrySourceSummary[key],undefined);
+  assert.equal(JSON.stringify(b.poetrySourceSummary).includes('замок'),false);
+  assert.equal(a.publishPoetrySourceSummary(null),false);
+  assert.equal(a.publishPoetrySourceSummary('x'.repeat(20001)),false);
+  assert.equal(a.publishPoetrySourceSummary('  \n \n'),true);
+  assert.equal(b.poetrySourceSummary.charCount,5);
+  assert.equal(b.poetrySourceSummary.lineCount,0);
+  assert.equal(b.poetrySourceSummary.wordCount,0);
+  assert.equal(b.poetrySourceSummary.hasText,false);
+  assert.equal(b.poetrySourceSummary.revision,2);
+  assert.equal(normalizePoetrySourceSummary('за\u0301мок').wordCount,1);
+  assert.equal(Object.isFrozen(b.poetrySourceSummary),true);
 });
