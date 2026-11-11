@@ -214,9 +214,11 @@ async function checkLayout(mobile) {
     await page.locator('.sb-version-trigger:visible').first().click();
     const version161 = page.locator('#sb-vue-version-history[data-v-app] [data-sb-vue-version-history]');
     await version161.waitFor({ state: 'attached', timeout: 10000 });
+    const currentRelease161 = await page.evaluate(() =>
+      window.SUNOBOOM_VERSION_HISTORY.snapshot().currentVersion);
     if (await page.locator('#sb-vh-overlay').count() !== 1 ||
         await page.locator('#sb-vh-tabs button').count() !== 2 ||
-        !(await version161.textContent()).includes('v0.177')) {
+        !(await version161.textContent()).includes('v' + currentRelease161)) {
       throw new Error('Vue version-history dialog or current release missing');
     }
     await page.locator('#sb-vh-tabs button').nth(1).click();
