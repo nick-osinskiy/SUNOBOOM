@@ -11,7 +11,7 @@ import { normalizeSongCollectionSummary, normalizeSongDetailSummary } from '../s
 import { normalizeArtistManagerSummary, normalizeArtistDnaSummary } from '../src/vue/state/artist-ui-model.js';
 import { normalizeLibrarySummary } from '../src/vue/state/library-ui-model.js';
 import { normalizeIdeaDraftSummary, normalizePromptDraftSummary } from '../src/vue/state/editor-ui-model.js';
-import { normalizePoetrySourceSummary, normalizePoetryAnalysisSummary } from '../src/vue/state/poetry-ui-model.js';
+import { normalizePoetrySourceSummary, normalizePoetryAnalysisSummary, normalizePoetryAmbiguitySummary } from '../src/vue/state/poetry-ui-model.js';
 import { treeSearch, nextTreeZoom, connectedTreeEdges } from '../src/vue/academy/genre-tree-model.js';
 import { groupMajorVersions, historyResults, formatReleaseDate } from '../src/vue/version-history/version-model.js';
 import { activeNavigationRoute, navigationSnapshot } from '../src/vue/navigation/nav-model.js';
@@ -1188,4 +1188,44 @@ test('v0.178 poetry analysis publishes only bounded counts and clears stale resu
   });
   assert.equal(a.publishPoetryAnalysisSummary({analyzed:false,message:'OTHER PRIVATE LYRICS'}),false);
   assert.equal(Object.isFrozen(b.poetryAnalysisSummary),true);
+});
+
+test('v0.179 ambiguity preview publishes counts only and clears on dismissal', () => {
+  const pinia=createPinia(), a=useLegacyUiStore(pinia), b=useLegacyUiStore(pinia);
+  const draft={
+    count:3, total:2,
+    words:[
+      {key:'PRIVATE HOMOGRAPH',count:2,variants:['SECRET ACCENT A','SECRET ACCENT B']},
+      {key:'ANOTHER PRIVATE WORD',count:1,variants:['SECRET VARIANT']}
+    ]
+  };
+  const expected={ready:true,occurrenceCount:3,distinctCount:2,visibleCount:2};
+  assert.deepEqual(normalizePoetryAmbiguitySummary(draft),expected);
+  assert.equal(a.publishPoetryAmbiguitySummary(draft),true);
+  assert.equal(b.publishPoetryAmbiguitySummary(draft),false);
+  assert.deepEqual({...b.poetryAmbiguitySummary},{...expected,revision:1});
+  for(const key of ['words','variants','key','source','text','lyrics','accent','id'])
+    assert.equal(b.poetryAmbiguitySummary[key],undefined);
+  assert.equal(JSON.stringify(b.poetryAmbiguitySummary).includes('PRIVATE'),false);
+  assert.equal(a.publishPoetryAmbiguitySummary(null),false);
+  assert.equal(a.publishPoetryAmbiguitySummary({...draft,count:-1}),false);
+  assert.equal(a.publishPoetryAmbiguitySummary({...draft,count:20001}),false);
+  assert.equal(a.publishPoetryAmbiguitySummary({...draft,total:4}),false);
+  assert.equal(a.publishPoetryAmbiguitySummary({...draft,words:draft.words.slice(0,1)}),false);
+  assert.equal(a.publishPoetryAmbiguitySummary({...draft,words:[null,draft.words[1]]}),false);
+  assert.equal(a.publishPoetryAmbiguitySummary({...draft,words:[{...draft.words[0],count:5},draft.words[1]]}),false);
+  assert.equal(b.poetryAmbiguitySummary.revision,1);
+  assert.equal(a.publishPoetryAmbiguitySummary({
+    count:1,total:1,words:[{key:'SECRET WORD',count:1,variants:[]}]
+  }),true);
+  assert.equal(b.poetryAmbiguitySummary.occurrenceCount,1);
+  assert.equal(a.publishPoetryAmbiguitySummary({count:0,total:0,words:[]}),true);
+  assert.equal(b.poetryAmbiguitySummary.occurrenceCount,0);
+  assert.equal(b.poetryAmbiguitySummary.distinctCount,0);
+  assert.equal(a.clearPoetryAmbiguitySummary(),true);
+  assert.equal(b.poetryAmbiguitySummary.ready,false);
+  assert.equal(b.poetryAmbiguitySummary.occurrenceCount,0);
+  assert.equal(a.clearPoetryAmbiguitySummary(),false);
+  assert.equal(b.poetryAmbiguitySummary.revision,4);
+  assert.equal(Object.isFrozen(b.poetryAmbiguitySummary),true);
 });

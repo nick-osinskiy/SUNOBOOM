@@ -10,7 +10,7 @@ import { normalizeSongCollectionSummary, normalizeSongDetailSummary } from './so
 import { normalizeArtistManagerSummary, normalizeArtistDnaSummary } from './artist-ui-model.js';
 import { normalizeLibrarySummary } from './library-ui-model.js';
 import { normalizeIdeaDraftSummary, normalizePromptDraftSummary } from './editor-ui-model.js';
-import { normalizePoetrySourceSummary, normalizePoetryAnalysisSummary } from './poetry-ui-model.js';
+import { normalizePoetrySourceSummary, normalizePoetryAnalysisSummary, normalizePoetryAmbiguitySummary } from './poetry-ui-model.js';
 
 // Read-only UI projections across the independent Vue islands.
 // The legacy go(), data object and browser storage remain authoritative.
@@ -143,6 +143,9 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
     ready:false, analyzed:false, rowCount:0, previewStanzaCount:0,
     stressMarkCount:0, suggestionCount:0, revision:0
   }));
+  const poetryAmbiguitySummary = shallowRef(Object.freeze({
+    ready:false, occurrenceCount:0, distinctCount:0, visibleCount:0, revision:0
+  }));
 
   function publishToolSummary(target, normalizer, snapshot) {
     const next = normalizer(snapshot);
@@ -191,6 +194,17 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
     publishToolSummary(poetrySourceSummary, normalizePoetrySourceSummary, source);
   const publishPoetryAnalysisSummary = report =>
     publishToolSummary(poetryAnalysisSummary, normalizePoetryAnalysisSummary, report);
+  const publishPoetryAmbiguitySummary = snapshot =>
+    publishToolSummary(poetryAmbiguitySummary, normalizePoetryAmbiguitySummary, snapshot);
+  function clearPoetryAmbiguitySummary() {
+    const before = poetryAmbiguitySummary.value;
+    if (!before.ready) return false;
+    poetryAmbiguitySummary.value = Object.freeze({
+      ready:false, occurrenceCount:0, distinctCount:0,
+      visibleCount:0, revision:before.revision+1
+    });
+    return true;
+  }
 
   function publishNavigation(items) {
     if (!Array.isArray(items)) return false;
@@ -248,6 +262,7 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
     songCollectionSummary, songDetailSummary,
     artistManagerSummary, artistDnaSummary, librarySummary,
     ideaDraftSummary, promptDraftSummary, poetrySourceSummary, poetryAnalysisSummary,
+    poetryAmbiguitySummary,
     publishNavigation, publishDashboardStats, publishAppearance,
     publishAcademyCatalog, publishAcademyFocus, publishAcademyTree,
     publishStudioSummary, publishMixerSummary, publishAuditorSummary, publishArrangerSummary,
@@ -257,5 +272,6 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
     publishSongCollectionSummary, publishSongDetailSummary,
     publishArtistManagerSummary, publishArtistDnaSummary,
     publishLibrarySummary, publishIdeaDraftSummary, publishPromptDraftSummary,
-    publishPoetrySourceSummary, publishPoetryAnalysisSummary };
+    publishPoetrySourceSummary, publishPoetryAnalysisSummary,
+    publishPoetryAmbiguitySummary, clearPoetryAmbiguitySummary };
 });

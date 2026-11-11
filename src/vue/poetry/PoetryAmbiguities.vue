@@ -1,12 +1,26 @@
 <script setup>
 import { computed, onMounted, onUnmounted, shallowRef } from 'vue';
+import { useLegacyUiStore } from '../state/legacy-ui-store.js';
 
 const props = defineProps({ api: { type: Object, required: true } });
 const snapshot = shallowRef(props.api.ambiguities());
 const choices = computed(() => snapshot.value || { count: 0, words: [], total: 0 });
-function sync() { snapshot.value = props.api.ambiguities(); }
-onMounted(() => window.addEventListener('sunoboom:poetry-stress-updated', sync));
-onUnmounted(() => window.removeEventListener('sunoboom:poetry-stress-updated', sync));
+const ui = useLegacyUiStore();
+function sync() {
+  const next = props.api.ambiguities();
+  if (next) {
+    snapshot.value = next;
+    ui.publishPoetryAmbiguitySummary(next);
+  }
+}
+onMounted(() => {
+  ui.publishPoetryAmbiguitySummary(snapshot.value);
+  window.addEventListener('sunoboom:poetry-stress-updated', sync);
+});
+onUnmounted(() => {
+  window.removeEventListener('sunoboom:poetry-stress-updated', sync);
+  ui.clearPoetryAmbiguitySummary();
+});
 </script>
 
 <template>

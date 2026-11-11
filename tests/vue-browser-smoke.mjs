@@ -1507,19 +1507,52 @@ async function checkLayout(mobile) {
     await page.locator('[data-action="sb-poetry-auto-stress"]').click();
     await page.locator('#sb-poetry-stress-preview').waitFor({ state: 'visible', timeout: 20000 });
     await page.locator('#sb-poetry-ambiguous-choices[data-v-app]').waitFor({ state: 'attached' });
+    // v0.179: the shared store receives counts, never homographs or variants.
+    await page.waitForFunction(() => {
+      const s=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.poetryAmbiguitySummary;
+      const original=window.SUNOBOOM_LEGACY_POETRY?.ambiguities?.();
+      return s?.ready && original && original.count > 0 &&
+        s.occurrenceCount===original.count &&
+        s.distinctCount===original.total &&
+        s.visibleCount===original.words.length;
+    });
+    const ambiguitySummary179=await page.evaluate(() =>
+      window.SUNOBOOM_VUE_ROUTE.sharedState().poetryAmbiguitySummary);
+    if (['words','variants','key','source','text','lyrics','accent','id'].some(k=>k in ambiguitySummary179) ||
+        await page.locator('[data-sb-vue-poetry-ambiguity-count]').count()!==1)
+      throw new Error('v0.179 preview counters duplicated or leaked words');
     const ambiguity = page.locator(
       '#sb-poetry-ambiguous-choices [data-action="sb-poetry-stress-choice"][data-word="замок"]');
     if (await ambiguity.count() < 2 ||
         await page.locator('.sb-stress-ambiguous-word').count() < 1) {
       throw new Error('Vue homograph choices or original red stress highlighting are missing');
     }
+    await page.evaluate(() => { window.__ambigBefore179 = window.SUNOBOOM_LEGACY_POETRY.ambiguities().count; });
     await ambiguity.first().click();
     await page.waitForFunction(() =>
       !document.querySelector('#sb-poetry-ambiguous-choices [data-word="замок"]'));
+    await page.waitForFunction(() => {
+      const s=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.poetryAmbiguitySummary;
+      const original=window.SUNOBOOM_LEGACY_POETRY?.ambiguities?.();
+      return s?.ready && original && s.occurrenceCount===original.count &&
+        s.distinctCount===original.total && s.occurrenceCount < window.__ambigBefore179;
+    }, null, {timeout:10000}).catch(async error => {
+      const x=await page.evaluate(() => ({
+        shared:window.SUNOBOOM_VUE_ROUTE?.sharedState()?.poetryAmbiguitySummary,
+        snapshot:window.SUNOBOOM_LEGACY_POETRY?.ambiguities?.()
+      }));
+      throw new Error('v0.179 counters failed to follow stress selection: '+JSON.stringify(x));
+    });
     if (await page.locator('#custom-idea-lyrics').inputValue() !== lyricText) {
       throw new Error('Choosing stress changed the original text before confirmation');
     }
     await page.locator('[data-action="sb-poetry-stress-apply"]').click();
+    await page.waitForFunction(() => {
+      const s=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.poetryAmbiguitySummary;
+      return s && !s.ready && s.occurrenceCount===0 && s.distinctCount===0;
+    });
+    if (await page.locator('[data-sb-vue-poetry-ambiguity-count]').count()!==0)
+      throw new Error('v0.179 stale preview summary survived applying accents');
     await page.waitForFunction(() =>
       document.getElementById('custom-idea-lyrics')?.value?.includes('замо\u0301к') ||
       document.getElementById('custom-idea-lyrics')?.value?.includes('за\u0301мок'));

@@ -18,6 +18,10 @@ const toggles = [['build', 'Нарастание перед припевом'], 
     {{ ui.poetryAnalysisSummary.stressMarkCount }} меток ударения ·
     {{ ui.poetryAnalysisSummary.suggestionCount }} рекомендаций
   </p>
+  <p v-if="ui.poetryAmbiguitySummary.ready" class="workbench-note" data-sb-vue-poetry-ambiguity-count>
+    Предпросмотр ударений: {{ ui.poetryAmbiguitySummary.occurrenceCount }} неоднозначных вхождений ·
+    {{ ui.poetryAmbiguitySummary.distinctCount }} разных слов
+  </p>
   <div class="field"><label for="lyrics-tag-preset">Характер аранжировки</label><select id="lyrics-tag-preset" v-model="fields.preset"><option v-for="[value, label] in presets" :key="value" :value="value">{{ label }}</option></select></div>
   <div class="workbench-switches"><label v-for="[key, label] in toggles" :key="key"><input :id="'lyrics-' + key" v-model="switches[key]" type="checkbox"> {{ label }}</label></div>
   <button type="button" class="btn ghost" data-action="format-idea-lyrics">✨ Создать теги и усилители</button>

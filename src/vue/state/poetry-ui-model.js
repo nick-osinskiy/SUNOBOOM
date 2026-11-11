@@ -32,3 +32,27 @@ export function normalizePoetryAnalysisSummary(report) {
     suggestionCount:report.suggestions.length
   });
 }
+
+// v0.179: preview-only counters; homographs, spellings and candidates stay
+// inside the native stress dictionary and the dedicated Vue choice component.
+export function normalizePoetryAmbiguitySummary(snapshot) {
+  if (!snapshot || typeof snapshot !== 'object' ||
+      !Number.isSafeInteger(snapshot.count) || snapshot.count < 0 || snapshot.count > 20000 ||
+      !Number.isSafeInteger(snapshot.total) || snapshot.total < 0 ||
+      snapshot.total > snapshot.count ||
+      !Array.isArray(snapshot.words) || snapshot.words.length > 30 ||
+      snapshot.words.length !== Math.min(snapshot.total,30)) return null;
+  let listedOccurrences = 0;
+  for (const item of snapshot.words) {
+    if (!item || typeof item.key !== 'string' || !item.key.length || item.key.length > 128 ||
+        !Number.isSafeInteger(item.count) || item.count < 1 || item.count > snapshot.count ||
+        !Array.isArray(item.variants) || item.variants.length > 16) return null;
+    listedOccurrences += item.count;
+  }
+  if (listedOccurrences > snapshot.count || (snapshot.count === 0) !== (snapshot.total === 0))
+    return null;
+  return Object.freeze({
+    ready:true, occurrenceCount:snapshot.count,
+    distinctCount:snapshot.total, visibleCount:snapshot.words.length
+  });
+}
