@@ -1,15 +1,20 @@
 <script setup>
-import { computed, reactive } from 'vue';
+import { computed, reactive, watch } from 'vue';
+import { useLegacyUiStore } from '../state/legacy-ui-store.js';
 
 const props = defineProps({
   initial: { type: Object, required: true }
 });
 const fields = reactive({ ...props.initial.values });
 const length = computed(() => fields.text.length);
+const ui = useLegacyUiStore();
+watch(() => [fields.title, fields.genre, fields.text, props.initial.editing], () =>
+  ui.publishPromptDraftSummary(fields, props.initial.editing), { immediate:true });
 </script>
 
 <template>
   <h3>{{ initial.editing ? 'Редактирование промпта' : 'Новый промпт для Suno' }}</h3>
+  <p v-if="ui.ideaDraftSummary.ready" class="sub" data-sb-vue-last-idea-draft>Последний открытый черновик идеи: {{ ui.ideaDraftSummary.ideaLength }} / 3000 символов</p>
   <div class="field">
     <label for="custom-prompt-title">Название</label>
     <input id="custom-prompt-title" v-model="fields.title" maxlength="100"

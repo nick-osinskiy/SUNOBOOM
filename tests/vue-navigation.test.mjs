@@ -10,6 +10,7 @@ import { normalizeMasterListSummary, normalizePassportListSummary, normalizeMast
 import { normalizeSongCollectionSummary, normalizeSongDetailSummary } from '../src/vue/state/song-ui-model.js';
 import { normalizeArtistManagerSummary, normalizeArtistDnaSummary } from '../src/vue/state/artist-ui-model.js';
 import { normalizeLibrarySummary } from '../src/vue/state/library-ui-model.js';
+import { normalizeIdeaDraftSummary, normalizePromptDraftSummary } from '../src/vue/state/editor-ui-model.js';
 import { treeSearch, nextTreeZoom, connectedTreeEdges } from '../src/vue/academy/genre-tree-model.js';
 import { groupMajorVersions, historyResults, formatReleaseDate } from '../src/vue/version-history/version-model.js';
 import { activeNavigationRoute, navigationSnapshot } from '../src/vue/navigation/nav-model.js';
@@ -1096,3 +1097,39 @@ test('v0.175 shared library snapshot contains five counts and no saved writing',
   assert.equal(Object.isFrozen(b.librarySummary),true);
 });
 
+
+test('v0.176 idea editor publishes bounded counts only', () => {
+  const a=useLegacyUiStore(createPinia());
+  const v={title:'PRIVATE TITLE',genre:'SECRET GENRE',text:'SECRET SONG PLOT',hook:'PRIVATE HOOK',lyrics:'SECRET LYRICS'};
+  const expected={ready:true,titleLength:13,ideaLength:16,hookLength:12,
+    hasTitle:true,hasGenre:true,hasIdea:true,hasHook:true};
+  assert.deepEqual(normalizeIdeaDraftSummary(v),expected);
+  assert.equal(a.publishIdeaDraftSummary(v),true);
+  assert.equal(a.publishIdeaDraftSummary(v),false);
+  assert.deepEqual({...a.ideaDraftSummary},{...expected,revision:1});
+  for(const k of ['title','genre','text','hook','lyrics'])assert.equal(a.ideaDraftSummary[k],undefined);
+  assert.equal(a.publishIdeaDraftSummary({...v,text:'x'.repeat(3001)}),false);
+  assert.equal(a.publishIdeaDraftSummary({...v,title:'x'.repeat(101)}),false);
+  assert.equal(a.publishIdeaDraftSummary({...v,hook:null}),false);
+  assert.equal(a.publishIdeaDraftSummary({...v,title:' ',hook:''}),true);
+  assert.equal(a.ideaDraftSummary.hasTitle,false);
+  assert.equal(a.ideaDraftSummary.hasHook,false);
+  assert.equal(a.ideaDraftSummary.revision,2);
+});
+test('v0.176 prompt editor publishes bounded length and mode only', () => {
+  const a=useLegacyUiStore(createPinia());
+  const v={title:'My PRIVATE prompt',genre:'SECRET GENRE',text:'secret vocals',notes:'SECRET NOTES'};
+  const expected={ready:true,editing:false,titleLength:17,textLength:13,hasTitle:true,hasGenre:true,hasPrompt:true};
+  assert.deepEqual(normalizePromptDraftSummary(v,false),expected);
+  assert.equal(a.publishPromptDraftSummary(v,false),true);
+  assert.equal(a.publishPromptDraftSummary(v,false),false);
+  assert.deepEqual({...a.promptDraftSummary},{...expected,revision:1});
+  for(const k of ['title','genre','text','notes'])assert.equal(a.promptDraftSummary[k],undefined);
+  assert.equal(a.publishPromptDraftSummary({...v,text:'x'.repeat(1001)},false),false);
+  assert.equal(a.publishPromptDraftSummary({...v,title:null},false),false);
+  assert.equal(a.publishPromptDraftSummary(v,'yes'),false);
+  assert.equal(a.publishPromptDraftSummary({...v,text:'   '},true),true);
+  assert.equal(a.promptDraftSummary.editing,true);
+  assert.equal(a.promptDraftSummary.hasPrompt,false);
+  assert.equal(a.promptDraftSummary.revision,2);
+});

@@ -51,7 +51,9 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature, s
       songDetailSummary: { ...sharedUi.songDetailSummary },
       artistManagerSummary: { ...sharedUi.artistManagerSummary },
       artistDnaSummary: { ...sharedUi.artistDnaSummary },
-      librarySummary: { ...sharedUi.librarySummary }
+      librarySummary: { ...sharedUi.librarySummary },
+      ideaDraftSummary: { ...sharedUi.ideaDraftSummary },
+      promptDraftSummary: { ...sharedUi.promptDraftSummary }
     }),
     back: () => restoreLegacyMenuHistory('back', { legacyApi: api }),
     forward: () => restoreLegacyMenuHistory('forward', { legacyApi: api }),

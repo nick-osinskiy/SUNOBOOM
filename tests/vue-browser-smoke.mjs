@@ -216,7 +216,7 @@ async function checkLayout(mobile) {
     await version161.waitFor({ state: 'attached', timeout: 10000 });
     if (await page.locator('#sb-vh-overlay').count() !== 1 ||
         await page.locator('#sb-vh-tabs button').count() !== 2 ||
-        !(await version161.textContent()).includes('v0.175')) {
+        !(await version161.textContent()).includes('v0.176')) {
       throw new Error('Vue version-history dialog or current release missing');
     }
     await page.locator('#sb-vh-tabs button').nth(1).click();
@@ -567,6 +567,14 @@ async function checkLayout(mobile) {
     }
     await page.locator('#custom-prompt-title').fill('Vue test <title>');
     await page.locator('#custom-prompt-text').fill('Russian indie pop, clear vocals');
+    await page.waitForFunction(() => {
+      const s=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.promptDraftSummary;
+      return s?.ready && !s.editing && s.hasTitle && s.hasGenre && s.hasPrompt &&
+        s.textLength===document.getElementById('custom-prompt-text')?.value.length && s.textLength===31;
+    });
+    const safePrompt176=await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.sharedState().promptDraftSummary);
+    if (['title','text','genre','id','lyrics'].some(k=>k in safePrompt176))
+      throw new Error('v0.176 prompt draft leaked personal text');
     if (!(await page.locator('#sb-prompt-char-count').textContent()).includes('31 / 1000')) {
       throw new Error('Vue prompt character counter did not update');
     }
@@ -581,7 +589,12 @@ async function checkLayout(mobile) {
     if (await page.locator('#custom-prompt-title').inputValue() !== 'Vue test <title>') {
       throw new Error('Vue prompt edit did not restore the saved title');
     }
+    await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.sharedState()?.promptDraftSummary?.editing===true);
     await page.locator('#custom-prompt-text').fill('Russian indie pop, 118 BPM');
+    await page.waitForFunction(() => {
+      const s=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.promptDraftSummary;
+      return s?.textLength===document.getElementById('custom-prompt-text')?.value.length;
+    });
     await page.locator('#prompt-editor [data-action="save-manual-prompt"]').click();
     if (await page.evaluate(id => data.savedPrompts.find(p => p.id === id)?.text, idPrompt) !== 'Russian indie pop, 118 BPM') {
       throw new Error('Prompt edits stopped persisting');
@@ -1510,6 +1523,17 @@ async function checkLayout(mobile) {
     await page.locator('#custom-idea-title').fill('Vue editor persistence');
     await page.locator('#custom-idea-text').fill('Сюжет тестовой песни');
     await page.locator('#custom-idea-hook').fill('Припев остаётся с нами');
+    await page.waitForFunction(() => {
+      const s=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.ideaDraftSummary;
+      return s?.ready && s.hasTitle && s.hasGenre && s.hasIdea && s.hasHook &&
+        s.ideaLength===document.getElementById('custom-idea-text')?.value.length &&
+        s.hookLength===document.getElementById('custom-idea-hook')?.value.length;
+    });
+    const safeIdea176=await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.sharedState().ideaDraftSummary);
+    if (['title','genre','text','hook','lyrics','id'].some(k=>k in safeIdea176) ||
+        await page.locator('[data-sb-vue-idea-draft-progress]').count()!==1 ||
+        await page.locator('[data-sb-vue-last-prompt-draft]').count()!==1)
+      throw new Error('v0.176 idea draft leaked writing or lost Vue counters');
     await page.locator('#lyrics-tag-preset').selectOption('emotional');
     // General-format replacement has its existing explicit confirmation.
     page.once('dialog', dialog => dialog.accept());
@@ -1697,6 +1721,8 @@ async function checkLayout(mobile) {
     // v0.175: the same safe Pinia summary is available in the prompt-list island.
     await page.evaluate(() => go('myprompts'));
     await page.locator('#sb-vue-prompts-list[data-v-app]').waitFor({state:'attached',timeout:10000});
+    if (!(await page.locator('[data-sb-vue-last-idea-draft]').textContent()).includes('3000 символов'))
+      throw new Error('v0.176 prompt view did not show last opened idea draft count');
     if (!(await page.locator('[data-sb-vue-prompt-library-recap]').textContent()).includes('0 промптов'))
       throw new Error('v0.175 prompt list did not reuse last library counts');
     await page.evaluate(() => go('saved'));
