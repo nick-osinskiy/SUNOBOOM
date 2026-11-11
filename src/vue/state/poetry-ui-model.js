@@ -9,3 +9,26 @@ export function normalizePoetrySourceSummary(source) {
     lineCount:nonemptyLines, wordCount:words, hasText:!!source.trim()
   });
 }
+
+// v0.178: the analysis stays in the legacy poetry engine. Only bounded
+// aggregate numbers can cross into Pinia, never rows, suggestions or words.
+export function normalizePoetryAnalysisSummary(report) {
+  if (!report || typeof report !== 'object' || typeof report.analyzed !== 'boolean') return null;
+  if (!report.analyzed) return Object.freeze({
+    ready:true, analyzed:false, rowCount:0, previewStanzaCount:0,
+    stressMarkCount:0, suggestionCount:0
+  });
+  const bounded = value => Number.isSafeInteger(value) && value >= 0 && value <= 20000;
+  if (!bounded(report.rowCount) || report.rowCount === 0 ||
+      !bounded(report.markedStress) || !Array.isArray(report.stanzas) ||
+      report.stanzas.length > 18 || !Array.isArray(report.suggestions) ||
+      report.suggestions.length > 6 ||
+      report.stanzas.some(block => !block || typeof block !== 'object') ||
+      report.suggestions.some(tip => typeof tip !== 'string')) return null;
+  return Object.freeze({
+    ready:true, analyzed:true, rowCount:report.rowCount,
+    previewStanzaCount:report.stanzas.length,
+    stressMarkCount:report.markedStress,
+    suggestionCount:report.suggestions.length
+  });
+}

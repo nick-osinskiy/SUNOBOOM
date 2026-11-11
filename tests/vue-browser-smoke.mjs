@@ -1465,6 +1465,18 @@ async function checkLayout(mobile) {
     await page.waitForFunction(() =>
       document.querySelector('#sb-poetry-result .sb-poetry-stats') &&
       document.querySelectorAll('#sb-poetry-result .sb-poetry-line').length === 4);
+    // v0.178: only aggregates of the completed legacy analysis are shared.
+    await page.waitForFunction(() => {
+      const s=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.poetryAnalysisSummary;
+      return s?.ready && s.analyzed && s.rowCount===4 &&
+        Number.isInteger(s.stressMarkCount) && Number.isInteger(s.suggestionCount);
+    });
+    const safeAnalysis178=await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.sharedState().poetryAnalysisSummary);
+    if (['lines','stanzas','suggestions','frequent','stats','text','word','id'].some(k=>k in safeAnalysis178) ||
+        !(await page.locator('[data-sb-vue-poetry-analysis-count]').textContent()).includes('4 строк') ||
+        await page.locator('[data-sb-vue-poetry-analysis-count]').count()!==1)
+      throw new Error('v0.178 duplicate poetry analysis UI or private content in Pinia');
+
     const poetryState = await page.evaluate(() => ({
       source: document.getElementById('custom-idea-lyrics').value,
       stats: document.querySelector('#sb-poetry-result .sb-poetry-stats')?.textContent,
@@ -1479,6 +1491,12 @@ async function checkLayout(mobile) {
     await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.sharedState()?.poetrySourceSummary?.lineCount===7);
     await page.waitForFunction(() =>
       document.querySelector('#sb-poetry-result .sb-poetry-empty')?.textContent?.includes('Текст изменён'));
+    await page.waitForFunction(() => {
+      const s=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.poetryAnalysisSummary;
+      return s?.ready && !s.analyzed && s.rowCount===0 && s.suggestionCount===0;
+    });
+    if (await page.locator('[data-sb-vue-poetry-analysis-count]').count()!==0)
+      throw new Error('v0.178 stale analysis summary remained visible after text edit');
     await page.locator('#custom-idea-lyrics').fill(lyricText);
     await page.locator('[data-action="sb-poetry-analyze"]').click();
 

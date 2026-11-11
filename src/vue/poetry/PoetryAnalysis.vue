@@ -1,14 +1,22 @@
 <script setup>
 import { computed, onMounted, onUnmounted, shallowRef } from 'vue';
+import { useLegacyUiStore } from '../state/legacy-ui-store.js';
 
 const props = defineProps({ api: { type: Object, required: true } });
 const snapshot = shallowRef(props.api.analysis());
 const report = computed(() => snapshot.value || { analyzed: false, message: '' });
+const ui = useLegacyUiStore();
 function sync() {
   const next = props.api.analysis();
-  if (next) snapshot.value = next;
+  if (next) {
+    snapshot.value = next;
+    ui.publishPoetryAnalysisSummary(next);
+  }
 }
-onMounted(() => window.addEventListener('sunoboom:poetry-updated', sync));
+onMounted(() => {
+  ui.publishPoetryAnalysisSummary(snapshot.value);
+  window.addEventListener('sunoboom:poetry-updated', sync);
+});
 onUnmounted(() => window.removeEventListener('sunoboom:poetry-updated', sync));
 </script>
 

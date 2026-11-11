@@ -13,6 +13,11 @@ const toggles = [['build', 'Нарастание перед припевом'], 
   <p v-if="ui.poetrySourceSummary.ready" class="workbench-note" data-sb-vue-poetry-tools-count>
     Исходник для аранжировки: {{ ui.poetrySourceSummary.lineCount }} строк, {{ ui.poetrySourceSummary.wordCount }} слов
   </p>
+  <p v-if="ui.poetryAnalysisSummary.analyzed" class="workbench-note" data-sb-vue-poetry-analysis-count>
+    Последний анализ: {{ ui.poetryAnalysisSummary.rowCount }} строк ·
+    {{ ui.poetryAnalysisSummary.stressMarkCount }} меток ударения ·
+    {{ ui.poetryAnalysisSummary.suggestionCount }} рекомендаций
+  </p>
   <div class="field"><label for="lyrics-tag-preset">Характер аранжировки</label><select id="lyrics-tag-preset" v-model="fields.preset"><option v-for="[value, label] in presets" :key="value" :value="value">{{ label }}</option></select></div>
   <div class="workbench-switches"><label v-for="[key, label] in toggles" :key="key"><input :id="'lyrics-' + key" v-model="switches[key]" type="checkbox"> {{ label }}</label></div>
   <button type="button" class="btn ghost" data-action="format-idea-lyrics">✨ Создать теги и усилители</button>

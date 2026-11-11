@@ -11,7 +11,7 @@ import { normalizeSongCollectionSummary, normalizeSongDetailSummary } from '../s
 import { normalizeArtistManagerSummary, normalizeArtistDnaSummary } from '../src/vue/state/artist-ui-model.js';
 import { normalizeLibrarySummary } from '../src/vue/state/library-ui-model.js';
 import { normalizeIdeaDraftSummary, normalizePromptDraftSummary } from '../src/vue/state/editor-ui-model.js';
-import { normalizePoetrySourceSummary } from '../src/vue/state/poetry-ui-model.js';
+import { normalizePoetrySourceSummary, normalizePoetryAnalysisSummary } from '../src/vue/state/poetry-ui-model.js';
 import { treeSearch, nextTreeZoom, connectedTreeEdges } from '../src/vue/academy/genre-tree-model.js';
 import { groupMajorVersions, historyResults, formatReleaseDate } from '../src/vue/version-history/version-model.js';
 import { activeNavigationRoute, navigationSnapshot } from '../src/vue/navigation/nav-model.js';
@@ -1156,4 +1156,36 @@ test('v0.177 poetry source counts words and nonempty lines without keeping lyric
   assert.equal(b.poetrySourceSummary.revision,2);
   assert.equal(normalizePoetrySourceSummary('за\u0301мок').wordCount,1);
   assert.equal(Object.isFrozen(b.poetrySourceSummary),true);
+});
+
+test('v0.178 poetry analysis publishes only bounded counts and clears stale results', () => {
+  const pinia=createPinia(), a=useLegacyUiStore(pinia), b=useLegacyUiStore(pinia);
+  const report={
+    analyzed:true, rowCount:4, markedStress:2,
+    stanzas:[{id:'SECRET STANZA',section:'PRIVATE CHORUS'}],
+    lines:[{text:'SECRET LYRICS',syllables:9}], frequent:[{word:'SECRET WORD'}],
+    suggestions:['SECRET SUGGESTION'], stats:[{value:4,label:'строк'}]
+  };
+  const expected={ready:true,analyzed:true,rowCount:4,previewStanzaCount:1,
+    stressMarkCount:2,suggestionCount:1};
+  assert.deepEqual(normalizePoetryAnalysisSummary(report),expected);
+  assert.equal(a.publishPoetryAnalysisSummary(report),true);
+  assert.equal(b.publishPoetryAnalysisSummary(report),false);
+  assert.deepEqual({...b.poetryAnalysisSummary},{...expected,revision:1});
+  for (const key of ['lines','stanzas','suggestions','stats','frequent','text','word','section','id'])
+    assert.equal(b.poetryAnalysisSummary[key],undefined);
+  assert.equal(JSON.stringify(b.poetryAnalysisSummary).includes('SECRET'),false);
+  assert.equal(a.publishPoetryAnalysisSummary(null),false);
+  assert.equal(a.publishPoetryAnalysisSummary({...report,rowCount:20001}),false);
+  assert.equal(a.publishPoetryAnalysisSummary({...report,markedStress:-1}),false);
+  assert.equal(a.publishPoetryAnalysisSummary({...report,stanzas:new Array(19).fill({})}),false);
+  assert.equal(a.publishPoetryAnalysisSummary({...report,suggestions:[null]}),false);
+  assert.equal(b.poetryAnalysisSummary.revision,1);
+  assert.equal(a.publishPoetryAnalysisSummary({analyzed:false,message:'PRIVATE LYRICS'}),true);
+  assert.deepEqual({...b.poetryAnalysisSummary},{
+    ready:true,analyzed:false,rowCount:0,previewStanzaCount:0,
+    stressMarkCount:0,suggestionCount:0,revision:2
+  });
+  assert.equal(a.publishPoetryAnalysisSummary({analyzed:false,message:'OTHER PRIVATE LYRICS'}),false);
+  assert.equal(Object.isFrozen(b.poetryAnalysisSummary),true);
 });
