@@ -216,7 +216,7 @@ async function checkLayout(mobile) {
     await version161.waitFor({ state: 'attached', timeout: 10000 });
     if (await page.locator('#sb-vh-overlay').count() !== 1 ||
         await page.locator('#sb-vh-tabs button').count() !== 2 ||
-        !(await version161.textContent()).includes('v0.170')) {
+        !(await version161.textContent()).includes('v0.171')) {
       throw new Error('Vue version-history dialog or current release missing');
     }
     await page.locator('#sb-vh-tabs button').nth(1).click();
@@ -2404,12 +2404,28 @@ async function checkLayout(mobile) {
         await page.locator('[data-pc-action="create"]').count() !== 1) {
       throw new Error('Vue Master list failed to mount or creation tools were lost');
     }
+    // v0.171: empty Master list is counted in shared Pinia, without content.
+    await page.waitForFunction(() => {
+      const s=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.masterListSummary;
+      return s?.ready && s.workCount === (window.SUNOBOOM_LEGACY_PRODUCER_LIST?.snapshot()?.records?.length ?? -1);
+    });
     await page.locator('#sbpc-new-title').fill('Vue Master 122');
     await page.locator('[data-pc-action="create"]').click();
     await page.locator('#sbpc-list[data-v-app] .sbpc-song.active').waitFor({ timeout: 10000 });
     if (!(await page.locator('#sbpc-list .sbpc-song.active').textContent()).includes('Vue Master 122') ||
         await page.evaluate(() => data.productions.some(w => w.title === 'Vue Master 122')) !== true) {
       throw new Error('Master failed to create a working card through the old storage');
+    }
+    await page.waitForFunction(() => {
+      const s=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.masterListSummary;
+      const records=window.SUNOBOOM_LEGACY_PRODUCER_LIST?.snapshot()?.records;
+      return s?.ready && records?.length > 0 && s.workCount === records.length &&
+        s.finishedCount === records.filter(item=>item.done===item.total).length && s.hasSelection;
+    });
+    const masterPrivate171=await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.sharedState().masterListSummary);
+    if (['records','title','artist','notes','selectedId','query','searchText'].some(k=>k in masterPrivate171) ||
+        await page.locator('#sbpc-list[data-v-app]').count()!==1) {
+      throw new Error('v0.171 Master shared state leaked personal records or remounted twice');
     }
     // v0.125: the complete Master workspace is Vue-owned while the original
     // saving, link validation, stage transitions and history remain functional.
@@ -2551,6 +2567,16 @@ async function checkLayout(mobile) {
         await page.evaluate(() => typeof window.SUNOBOOM_LEGACY_TRACK_LIST?.snapshot) !== 'function') {
       throw new Error('Vue passport list is not mounted or original actions missing');
     }
+    await page.waitForFunction(() => {
+      const s=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.passportListSummary;
+      return s?.ready && s.filter==='all' && s.visibleCount ===
+        (window.SUNOBOOM_LEGACY_TRACK_LIST?.snapshot()?.records?.length ?? -1);
+    });
+    const passportPrivate171=await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.sharedState().passportListSummary);
+    if (['records','title','artist','id','filters'].some(k=>k in passportPrivate171) ||
+        !(await trackList.locator('[data-sb-vue-master-recap]').textContent()).includes('В Мастере:')) {
+      throw new Error('v0.171 passport list lost Master summary or leaked personal data');
+    }
     await page.locator('[data-action="tp-new"]').click();
     // v0.129: Vue owns only the passport form; old save and validation remain.
     const trackEditor129 = page.locator('#sb-vue-track-editor[data-v-app]');
@@ -2665,12 +2691,23 @@ async function checkLayout(mobile) {
     if (await trackList.locator('.sb-track-tile[data-id="'+track126.id+'"]').count() !== 1) {
       throw new Error('Vue passport list did not show the saved track');
     }
+    await page.waitForFunction(() => {
+      const s=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.passportListSummary;
+      return s?.ready && s.filter==='all' &&
+        s.visibleCount === window.SUNOBOOM_LEGACY_TRACK_LIST?.snapshot()?.records?.length &&
+        s.hasRecords;
+    });
     await trackList.locator('[data-filter="released"]').click();
     await page.locator('#sb-vue-track-list[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
     if (await trackList.locator('.sb-track-tile[data-id="'+track126.id+'"]').count() ||
         await trackList.locator('[data-filter="released"]').getAttribute('aria-pressed') !== 'true') {
       throw new Error('Vue passport filter did not honor legacy state');
     }
+    await page.waitForFunction(() => {
+      const s=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.passportListSummary;
+      return s?.filter==='released' && s.visibleCount===
+        (window.SUNOBOOM_LEGACY_TRACK_LIST?.snapshot()?.records?.length ?? -1);
+    });
     await trackList.locator('[data-filter="publisher"]').click();
     await page.locator('#sb-vue-track-list[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
     if (await trackList.locator('.sb-track-tile[data-id="'+track126.id+'"]').count() !== 1) {

@@ -1,5 +1,6 @@
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { useLegacyUiStore } from '../state/legacy-ui-store.js';
 
 // This component owns only presentation. All records, navigation and updates
 // continue to be managed by producer-center.js and sunoboom-v1.
@@ -7,6 +8,9 @@ const props = defineProps({
   model: { type: Object, required: true }
 });
 const query = ref(props.model.query || '');
+const ui = useLegacyUiStore();
+// Snapshots are created by the existing producer list bridge on each render.
+watch(() => props.model, value => ui.publishMasterListSummary(value), { immediate:true });
 const normalize = value => String(value ?? '').normalize('NFKC').toLocaleLowerCase('ru');
 const filtered = computed(() => {
   const term = normalize(query.value.trim());
@@ -34,6 +38,9 @@ onUnmounted(() => window.removeEventListener('sunoboom:producer-search', onSearc
     </span>
     <span class="sbpc-tiny-progress"><i :style="{ width: record.percent + '%' }"></i></span>
   </button>
+  <p v-if="ui.passportListSummary.ready" class="sbpc-help" data-sb-vue-passport-recap>
+    Паспорта треков · последний фильтр: {{ ui.passportListSummary.visibleCount }}
+  </p>
   <p v-if="!filtered.length" class="sbpc-empty">
     {{ model.hasRecords ? 'Поиск не дал результатов. Измени запрос или создай новую рабочую карточку.' : 'Пока нет рабочих карточек. Начни с первой песни выше.' }}
   </p>

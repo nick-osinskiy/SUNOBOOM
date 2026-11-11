@@ -1,9 +1,17 @@
 <script setup>
+import { watch } from 'vue';
+import { useLegacyUiStore } from '../state/legacy-ui-store.js';
 // UI only: source records, navigation, validation and persistence belong to index.html.
-defineProps({ model: { type: Object, required: true } });
+const props = defineProps({ model: { type: Object, required: true } });
+const ui = useLegacyUiStore();
+watch(() => props.model, value => ui.publishPassportListSummary(value), { immediate:true });
 </script>
 
 <template>
+  <p v-if="ui.masterListSummary.ready" class="sb-track-disclaimer" data-sb-vue-master-recap>
+    В Мастере: {{ ui.masterListSummary.workCount }} песен в работе ·
+    {{ ui.masterListSummary.finishedCount }} маршрутов полностью пройдено
+  </p>
   <div class="sb-track-filters" role="group" aria-label="Фильтр паспортов по этапу">
     <button v-for="filter in model.filters" :key="filter.key" type="button"
       data-action="tp-filter" :data-filter="filter.key"

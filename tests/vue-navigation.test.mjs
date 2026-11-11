@@ -6,6 +6,7 @@ import { normalizeLegacyAppearance } from '../src/vue/state/appearance-model.js'
 import { normalizeAcademyCatalog, normalizeAcademyFocus, normalizeAcademyTree } from '../src/vue/state/academy-ui-model.js';
 import { normalizeStudioSummary, normalizeMixerSummary, normalizeAuditorSummary, normalizeArrangerSummary } from '../src/vue/state/production-ui-model.js';
 import { normalizePlayerLabSummary, normalizePlayerAbSummary } from '../src/vue/state/player-ui-model.js';
+import { normalizeMasterListSummary, normalizePassportListSummary } from '../src/vue/state/workflow-ui-model.js';
 import { treeSearch, nextTreeZoom, connectedTreeEdges } from '../src/vue/academy/genre-tree-model.js';
 import { groupMajorVersions, historyResults, formatReleaseDate } from '../src/vue/version-history/version-model.js';
 import { activeNavigationRoute, navigationSnapshot } from '../src/vue/navigation/nav-model.js';
@@ -880,4 +881,45 @@ test('v0.170 A/B UI projection excludes filenames, private reviews and audio buf
     files:{A:{ready:true},B:{ready:false}}}),true);
   assert.equal(b.playerAbSummary.readyCount,1);
   assert.equal(b.playerAbSummary.revision,2);
+});
+
+test('v0.171 Master list exposes only aggregate progress through one Pinia store', () => {
+  const pinia=createPinia(), master=useLegacyUiStore(pinia), passport=useLegacyUiStore(pinia);
+  assert.strictEqual(master,passport);
+  const data={query:'PRIVATE SEARCH',selectedId:'a',hasRecords:true,records:[
+    {id:'a',title:'PRIVATE SONG',artist:'SECRET',notes:'UNPUBLISHED',done:6,total:6,percent:100,searchText:'PERSONAL'},
+    {id:'b',title:'ANOTHER SONG',done:2,total:6,percent:33}
+  ]};
+  const expected={ready:true,workCount:2,finishedCount:1,hasSelection:true};
+  assert.deepEqual(normalizeMasterListSummary(data),expected);
+  assert.equal(master.publishMasterListSummary(data),true);
+  assert.equal(passport.publishMasterListSummary(data),false);
+  assert.deepEqual({...passport.masterListSummary},{...expected,revision:1});
+  for(const key of ['records','title','artist','notes','selectedId','query','searchText'])
+    assert.equal(passport.masterListSummary[key],undefined);
+  assert.equal(master.publishMasterListSummary({...data,hasRecords:false}),false);
+  assert.equal(master.publishMasterListSummary({...data,records:[{done:7,total:6,percent:117}]}),false);
+  assert.equal(master.publishMasterListSummary({...data,records:[{done:1,total:6,percent:50}]}),false);
+  assert.equal(master.publishMasterListSummary({hasRecords:false,records:[]}),true);
+  assert.equal(passport.masterListSummary.workCount,0);
+  assert.equal(passport.masterListSummary.hasSelection,false);
+});
+
+test('v0.171 passport filter summary updates safely without copying track records', () => {
+  const pinia=createPinia(), master=useLegacyUiStore(pinia), passport=useLegacyUiStore(pinia);
+  const all={active:'all',hasRecords:true,filters:[{key:'all',label:'Все'}],
+    records:[{id:'p1',title:'PRIVATE',artist:'SECRET',statusLabel:'У издательства'}]};
+  const expected={ready:true,visibleCount:1,hasRecords:true,filter:'all'};
+  assert.deepEqual(normalizePassportListSummary(all),expected);
+  assert.equal(passport.publishPassportListSummary(all),true);
+  assert.equal(master.publishPassportListSummary(all),false);
+  assert.deepEqual({...master.passportListSummary},{...expected,revision:1});
+  for(const key of ['records','title','artist','id','filters'])
+    assert.equal(master.passportListSummary[key],undefined);
+  assert.equal(passport.publishPassportListSummary({...all,active:'unsafe'}),false);
+  assert.equal(passport.publishPassportListSummary({...all,hasRecords:false}),false);
+  assert.equal(passport.publishPassportListSummary({active:'released',hasRecords:true,records:[]}),true);
+  assert.equal(master.passportListSummary.visibleCount,0);
+  assert.equal(master.passportListSummary.filter,'released');
+  assert.equal(master.passportListSummary.revision,2);
 });

@@ -5,6 +5,7 @@ import { normalizeLegacyAppearance } from './appearance-model.js';
 import { normalizeAcademyCatalog, normalizeAcademyFocus, normalizeAcademyTree } from './academy-ui-model.js';
 import { normalizeStudioSummary, normalizeMixerSummary, normalizeAuditorSummary, normalizeArrangerSummary } from './production-ui-model.js';
 import { normalizePlayerLabSummary, normalizePlayerAbSummary } from './player-ui-model.js';
+import { normalizeMasterListSummary, normalizePassportListSummary } from './workflow-ui-model.js';
 
 // Read-only UI projections across the independent Vue islands.
 // The legacy go(), data object and browser storage remain authoritative.
@@ -88,6 +89,12 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
     ready:false, mode:'player', active:'A', readyCount:0, hasBoth:false,
     playing:false, loop:false, revision:0
   }));
+  const masterListSummary = shallowRef(Object.freeze({
+    ready:false, workCount:0, finishedCount:0, hasSelection:false, revision:0
+  }));
+  const passportListSummary = shallowRef(Object.freeze({
+    ready:false, visibleCount:0, hasRecords:false, filter:'all', revision:0
+  }));
 
   function publishToolSummary(target, normalizer, snapshot) {
     const next = normalizer(snapshot);
@@ -109,6 +116,10 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
     publishToolSummary(playerLabSummary, normalizePlayerLabSummary, snapshot);
   const publishPlayerAbSummary = snapshot =>
     publishToolSummary(playerAbSummary, normalizePlayerAbSummary, snapshot);
+  const publishMasterListSummary = snapshot =>
+    publishToolSummary(masterListSummary, normalizeMasterListSummary, snapshot);
+  const publishPassportListSummary = snapshot =>
+    publishToolSummary(passportListSummary, normalizePassportListSummary, snapshot);
 
   function publishNavigation(items) {
     if (!Array.isArray(items)) return false;
@@ -161,9 +172,10 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
   return { route, navigationItems, dashboardStats, appearance,
     academyCatalog, academyFocus, academyTree,
     studioSummary, mixerSummary, auditorSummary, arrangerSummary,
-    playerLabSummary, playerAbSummary,
+    playerLabSummary, playerAbSummary, masterListSummary, passportListSummary,
     publishNavigation, publishDashboardStats, publishAppearance,
     publishAcademyCatalog, publishAcademyFocus, publishAcademyTree,
     publishStudioSummary, publishMixerSummary, publishAuditorSummary, publishArrangerSummary,
-    publishPlayerLabSummary, publishPlayerAbSummary };
+    publishPlayerLabSummary, publishPlayerAbSummary,
+    publishMasterListSummary, publishPassportListSummary };
 });
