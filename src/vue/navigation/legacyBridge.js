@@ -56,7 +56,8 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature, s
       promptDraftSummary: { ...sharedUi.promptDraftSummary },
       poetrySourceSummary: { ...sharedUi.poetrySourceSummary },
       poetryAnalysisSummary: { ...sharedUi.poetryAnalysisSummary },
-      poetryAmbiguitySummary: { ...sharedUi.poetryAmbiguitySummary }
+      poetryAmbiguitySummary: { ...sharedUi.poetryAmbiguitySummary },
+      performanceTagsSummary: { ...sharedUi.performanceTagsSummary }
     }),
     back: () => restoreLegacyMenuHistory('back', { legacyApi: api }),
     forward: () => restoreLegacyMenuHistory('forward', { legacyApi: api }),

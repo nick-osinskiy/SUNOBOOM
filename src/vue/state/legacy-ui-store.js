@@ -11,6 +11,7 @@ import { normalizeArtistManagerSummary, normalizeArtistDnaSummary } from './arti
 import { normalizeLibrarySummary } from './library-ui-model.js';
 import { normalizeIdeaDraftSummary, normalizePromptDraftSummary } from './editor-ui-model.js';
 import { normalizePoetrySourceSummary, normalizePoetryAnalysisSummary, normalizePoetryAmbiguitySummary } from './poetry-ui-model.js';
+import { normalizePerformanceTagsSummary } from './performance-tags-ui-model.js';
 
 // Read-only UI projections across the independent Vue islands.
 // The legacy go(), data object and browser storage remain authoritative.
@@ -146,6 +147,11 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
   const poetryAmbiguitySummary = shallowRef(Object.freeze({
     ready:false, occurrenceCount:0, distinctCount:0, visibleCount:0, revision:0
   }));
+  const performanceTagsSummary = shallowRef(Object.freeze({
+    ready:false, mode:'smart', source:'auto', density:'balanced',
+    intensity:3, enabledTechniques:3, vocalRestrictions:2,
+    busy:false, previewOpen:false, sectionCount:0, revision:0
+  }));
 
   function publishToolSummary(target, normalizer, snapshot) {
     const next = normalizer(snapshot);
@@ -202,6 +208,19 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
     poetryAmbiguitySummary.value = Object.freeze({
       ready:false, occurrenceCount:0, distinctCount:0,
       visibleCount:0, revision:before.revision+1
+    });
+    return true;
+  }
+  const publishPerformanceTagsSummary = snapshot =>
+    publishToolSummary(performanceTagsSummary, normalizePerformanceTagsSummary, snapshot);
+  function clearPerformanceTagsSummary() {
+    const before=performanceTagsSummary.value;
+    if (!before.ready) return false;
+    performanceTagsSummary.value=Object.freeze({
+      ready:false, mode:'smart', source:'auto', density:'balanced',
+      intensity:3, enabledTechniques:3, vocalRestrictions:2,
+      busy:false, previewOpen:false, sectionCount:0,
+      revision:before.revision+1
     });
     return true;
   }
@@ -262,7 +281,7 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
     songCollectionSummary, songDetailSummary,
     artistManagerSummary, artistDnaSummary, librarySummary,
     ideaDraftSummary, promptDraftSummary, poetrySourceSummary, poetryAnalysisSummary,
-    poetryAmbiguitySummary,
+    poetryAmbiguitySummary, performanceTagsSummary,
     publishNavigation, publishDashboardStats, publishAppearance,
     publishAcademyCatalog, publishAcademyFocus, publishAcademyTree,
     publishStudioSummary, publishMixerSummary, publishAuditorSummary, publishArrangerSummary,
@@ -273,5 +292,6 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
     publishArtistManagerSummary, publishArtistDnaSummary,
     publishLibrarySummary, publishIdeaDraftSummary, publishPromptDraftSummary,
     publishPoetrySourceSummary, publishPoetryAnalysisSummary,
-    publishPoetryAmbiguitySummary, clearPoetryAmbiguitySummary };
+    publishPoetryAmbiguitySummary, clearPoetryAmbiguitySummary,
+    publishPerformanceTagsSummary, clearPerformanceTagsSummary };
 });

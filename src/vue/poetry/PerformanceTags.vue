@@ -1,8 +1,10 @@
 <script setup>
 import { computed, onMounted, onUnmounted, shallowRef } from 'vue';
+import { useLegacyUiStore } from '../state/legacy-ui-store.js';
 
 const props = defineProps({ api: { type: Object, required: true } });
 const snapshot = shallowRef(props.api.snapshot());
+const ui = useLegacyUiStore();
 const prefs = computed(() => snapshot.value?.prefs || {});
 const draft = computed(() => snapshot.value?.draft || null);
 const modes = [['smart', 'Интеллектуальный · Gemini'],
@@ -17,10 +19,19 @@ const toggles = [
 ];
 function sync() {
   const next = props.api.snapshot();
-  if (next) snapshot.value = next;
+  if (next) {
+    snapshot.value = next;
+    ui.publishPerformanceTagsSummary(next);
+  }
 }
-onMounted(() => window.addEventListener('sunoboom:tags-updated', sync));
-onUnmounted(() => window.removeEventListener('sunoboom:tags-updated', sync));
+onMounted(() => {
+  ui.publishPerformanceTagsSummary(snapshot.value);
+  window.addEventListener('sunoboom:tags-updated', sync);
+});
+onUnmounted(() => {
+  window.removeEventListener('sunoboom:tags-updated', sync);
+  ui.clearPerformanceTagsSummary();
+});
 </script>
 
 <template>

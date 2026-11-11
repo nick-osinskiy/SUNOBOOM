@@ -12,6 +12,7 @@ import { normalizeArtistManagerSummary, normalizeArtistDnaSummary } from '../src
 import { normalizeLibrarySummary } from '../src/vue/state/library-ui-model.js';
 import { normalizeIdeaDraftSummary, normalizePromptDraftSummary } from '../src/vue/state/editor-ui-model.js';
 import { normalizePoetrySourceSummary, normalizePoetryAnalysisSummary, normalizePoetryAmbiguitySummary } from '../src/vue/state/poetry-ui-model.js';
+import { normalizePerformanceTagsSummary } from '../src/vue/state/performance-tags-ui-model.js';
 import { treeSearch, nextTreeZoom, connectedTreeEdges } from '../src/vue/academy/genre-tree-model.js';
 import { groupMajorVersions, historyResults, formatReleaseDate } from '../src/vue/version-history/version-model.js';
 import { activeNavigationRoute, navigationSnapshot } from '../src/vue/navigation/nav-model.js';
@@ -1228,4 +1229,51 @@ test('v0.179 ambiguity preview publishes counts only and clears on dismissal', (
   assert.equal(a.clearPoetryAmbiguitySummary(),false);
   assert.equal(b.poetryAmbiguitySummary.revision,4);
   assert.equal(Object.isFrozen(b.poetryAmbiguitySummary),true);
+});
+
+test('v0.180 performance tags share only valid settings and preview counts', () => {
+  const pinia=createPinia(), a=useLegacyUiStore(pinia), b=useLegacyUiStore(pinia);
+  const settings={mode:'smart',source:'auto',density:'balanced',intensity:3,
+    melisma:true,falsetto:true,harmonies:true,noWhisper:true,noRasp:true,
+    artistId:'PRIVATE ARTIST'};
+  const snapshot={prefs:settings,busy:false,draft:null,
+    notice:{text:'PRIVATE NOTICE'},previewState:'PRIVATE LYRICS',
+    artists:[{id:'PRIVATE ARTIST',name:'PRIVATE NAME'}]};
+  const expected={ready:true,mode:'smart',source:'auto',density:'balanced',
+    intensity:3,enabledTechniques:3,vocalRestrictions:2,
+    busy:false,previewOpen:false,sectionCount:0};
+  assert.deepEqual(normalizePerformanceTagsSummary(snapshot),expected);
+  assert.equal(a.publishPerformanceTagsSummary(snapshot),true);
+  assert.strictEqual(a,b);
+  assert.equal(b.publishPerformanceTagsSummary(snapshot),false);
+  assert.deepEqual({...a.performanceTagsSummary},{...expected,revision:1});
+  for(const key of ['prefs','lyrics','tags','preview','draft','sections','artist','artistId',
+    'sourceText','notice','artists','modeHint','previewState'])
+    assert.equal(a.performanceTagsSummary[key],undefined);
+  assert.equal(JSON.stringify(a.performanceTagsSummary).includes('PRIVATE'),false);
+  assert.equal(a.publishPerformanceTagsSummary(null),false);
+  assert.equal(a.publishPerformanceTagsSummary({...snapshot,prefs:{...settings,mode:'unknown'}}),false);
+  assert.equal(a.publishPerformanceTagsSummary({...snapshot,prefs:{...settings,source:'private'}}),false);
+  assert.equal(a.publishPerformanceTagsSummary({...snapshot,prefs:{...settings,intensity:6}}),false);
+  assert.equal(a.publishPerformanceTagsSummary({...snapshot,prefs:{...settings,noWhisper:'yes'}}),false);
+  assert.equal(a.publishPerformanceTagsSummary({...snapshot,busy:'false'}),false);
+  assert.equal(a.publishPerformanceTagsSummary({...snapshot,draft:{sections:new Array(20001).fill({})}}),false);
+  assert.equal(a.performanceTagsSummary.revision,1);
+  const preview={...snapshot,prefs:{...settings,mode:'rules',source:'original',density:'detailed',intensity:4,
+    melisma:false},draft:{sections:[{id:'SECRET 1',label:'PRIVATE CHORUS',body:'PRIVATE WORDS'},
+    {id:'SECRET 2',label:'PRIVATE BRIDGE'}],tags:['SECRET CUE'],preview:'PRIVATE LYRICS'}};
+  assert.equal(b.publishPerformanceTagsSummary(preview),true);
+  assert.equal(a.performanceTagsSummary.mode,'rules');
+  assert.equal(a.performanceTagsSummary.sectionCount,2);
+  assert.equal(a.performanceTagsSummary.enabledTechniques,2);
+  assert.equal(a.performanceTagsSummary.previewOpen,true);
+  assert.equal(a.performanceTagsSummary.revision,2);
+  assert.equal(JSON.stringify(a.performanceTagsSummary).includes('SECRET'),false);
+  assert.equal(a.clearPerformanceTagsSummary(),true);
+  assert.equal(a.performanceTagsSummary.ready,false);
+  assert.equal(a.performanceTagsSummary.sectionCount,0);
+  assert.equal(a.performanceTagsSummary.previewOpen,false);
+  assert.equal(b.clearPerformanceTagsSummary(),false);
+  assert.equal(a.performanceTagsSummary.revision,3);
+  assert.equal(Object.isFrozen(a.performanceTagsSummary),true);
 });

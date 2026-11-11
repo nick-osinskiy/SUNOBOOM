@@ -1580,10 +1580,35 @@ async function checkLayout(mobile) {
       data.performanceTagSettings?.mode === 'rules' &&
       data.performanceTagSettings?.source === 'original' &&
       data.performanceTagSettings?.intensity === 4);
+    // v0.180: only safe enums, flags and counts cross into Pinia.
+    await tags.locator('#sb-vt-density').selectOption('detailed');
+    await page.waitForFunction(() => {
+      const s=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.performanceTagsSummary;
+      const p=data.performanceTagSettings;
+      return s?.ready && s.mode==='rules' && s.source==='original' &&
+        s.density==='detailed' && s.intensity===4 &&
+        s.enabledTechniques===Number(!!p.melisma)+Number(!!p.falsetto)+Number(!!p.harmonies) &&
+        s.vocalRestrictions===Number(!!p.noWhisper)+Number(!!p.noRasp) &&
+        !s.previewOpen && s.sectionCount===0 && !s.busy;
+    });
+    const safeTags180=await page.evaluate(() =>
+      window.SUNOBOOM_VUE_ROUTE.sharedState().performanceTagsSummary);
+    if (['prefs','lyrics','tags','preview','draft','sections','artist','artistId',
+      'sourceText','notice','artists','modeHint','previewState'].some(k=>k in safeTags180) ||
+        await page.locator('[data-sb-vue-tags-summary]').count()!==1 ||
+        !(await page.locator('[data-sb-vue-tags-summary]').textContent()).includes('4/5'))
+      throw new Error('v0.180 tag state leaked writing or rendered duplicate summary');
     const originalBeforeTags = await page.locator('#custom-idea-lyrics').inputValue();
     const taggedBefore = await page.locator('#custom-idea-tagged').inputValue();
     await tags.locator('[data-action="vt-generate"]').click();
     await tags.locator('#sb-vt-preview').waitFor({ state: 'visible' });
+    await page.waitForFunction(() => {
+      const s=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.performanceTagsSummary;
+      const count=document.querySelectorAll('#sb-vt-workbench .sb-vt-section').length;
+      return s?.previewOpen && count>=2 && s.sectionCount===count;
+    });
+    if (!(await page.locator('[data-sb-vue-tags-summary]').textContent()).includes('секций в предпросмотре'))
+      throw new Error('v0.180 preview count not visible in shared poetry tools');
     if (await tags.locator('.sb-vt-section').count() < 2 ||
         await page.locator('#custom-idea-tagged').inputValue() !== taggedBefore ||
         await page.locator('#custom-idea-lyrics').inputValue() !== originalBeforeTags) {
@@ -1600,6 +1625,10 @@ async function checkLayout(mobile) {
     await tags.locator('[data-action="vt-apply"]').click();
     await page.waitForFunction(() =>
       document.getElementById('custom-idea-tagged')?.value?.includes('Warm Emotional Vocals'));
+    await page.waitForFunction(() => {
+      const s=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.performanceTagsSummary;
+      return s?.ready && !s.previewOpen && s.sectionCount===0;
+    });
     if (await page.locator('#custom-idea-lyrics').inputValue() !== originalBeforeTags ||
         await tags.locator('#sb-vt-preview').count() !== 0) {
       throw new Error('Applying performance tags changed original words or failed to close the preview');

@@ -5,6 +5,7 @@ const props = defineProps({ initial: { type: Object, required: true } });
 const fields = reactive({ ...props.initial.values });
 const switches = reactive({ ...props.initial.switches });
 const ui = useLegacyUiStore();
+const tagModeLabel = {smart:'Smart',rules:'По правилам',manual:'Ручной'};
 const presets = [['power', 'Сильный, качающий припев'], ['emotional', 'Эмоциональная песня'], ['dance', 'Танцевальный трек'], ['epic', 'Эпический финал'], ['soft', 'Мягкое звучание']];
 const toggles = [['build', 'Нарастание перед припевом'], ['harmonies', 'Бэк-вокал и гармонии в припеве'], ['final', 'Усиленный финальный припев'], ['drop', 'Дроп после припева (для танцевального)'], ['short', 'Короткое вступление']];
 </script>
@@ -21,6 +22,14 @@ const toggles = [['build', 'Нарастание перед припевом'], 
   <p v-if="ui.poetryAmbiguitySummary.ready" class="workbench-note" data-sb-vue-poetry-ambiguity-count>
     Предпросмотр ударений: {{ ui.poetryAmbiguitySummary.occurrenceCount }} неоднозначных вхождений ·
     {{ ui.poetryAmbiguitySummary.distinctCount }} разных слов
+  </p>
+  <p v-if="ui.performanceTagsSummary.ready" class="workbench-note" data-sb-vue-tags-summary>
+    Теги исполнения: {{ tagModeLabel[ui.performanceTagsSummary.mode] }} ·
+    интенсивность {{ ui.performanceTagsSummary.intensity }}/5 ·
+    {{ ui.performanceTagsSummary.enabledTechniques }} приёмов ·
+    {{ ui.performanceTagsSummary.busy ? 'идёт генерация' :
+      (ui.performanceTagsSummary.previewOpen ?
+        ui.performanceTagsSummary.sectionCount + ' секций в предпросмотре' : 'предпросмотр закрыт') }}
   </p>
   <div class="field"><label for="lyrics-tag-preset">Характер аранжировки</label><select id="lyrics-tag-preset" v-model="fields.preset"><option v-for="[value, label] in presets" :key="value" :value="value">{{ label }}</option></select></div>
   <div class="workbench-switches"><label v-for="[key, label] in toggles" :key="key"><input :id="'lyrics-' + key" v-model="switches[key]" type="checkbox"> {{ label }}</label></div>
