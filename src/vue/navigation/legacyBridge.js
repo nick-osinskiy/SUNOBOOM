@@ -40,7 +40,9 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature, s
       studioSummary: { ...sharedUi.studioSummary },
       mixerSummary: { ...sharedUi.mixerSummary },
       auditorSummary: { ...sharedUi.auditorSummary },
-      arrangerSummary: { ...sharedUi.arrangerSummary }
+      arrangerSummary: { ...sharedUi.arrangerSummary },
+      playerLabSummary: { ...sharedUi.playerLabSummary },
+      playerAbSummary: { ...sharedUi.playerAbSummary }
     }),
     back: () => restoreLegacyMenuHistory('back', { legacyApi: api }),
     forward: () => restoreLegacyMenuHistory('forward', { legacyApi: api }),

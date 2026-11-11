@@ -1,11 +1,14 @@
 <script setup>
-import { onMounted, onBeforeUnmount, ref } from 'vue';
+import { onMounted, onBeforeUnmount, ref, watch } from 'vue';
+import { useLegacyUiStore } from '../state/legacy-ui-store.js';
 
 const props = defineProps({
   api: { type: Object, required: true },
   initialModel: { type: Object, required: true }
 });
 const state = ref(props.initialModel);
+const ui = useLegacyUiStore();
+watch(state, value => ui.publishPlayerLabSummary(value), { immediate:true });
 function sync() {
   const snapshot = props.api.snapshot();
   if (snapshot) state.value = snapshot;
@@ -40,6 +43,8 @@ const rates = ['0.75', '1', '1.25', '1.5', '2'];
         </div>
         <span id="sbp-counter" class="sbp-counter">{{ state.counter }}</span>
       </div>
+      <p v-if="ui.playerAbSummary.ready && ui.playerAbSummary.readyCount" class="sbp-now-tag"
+        data-sb-vue-ab-recap>A/B: загружено {{ ui.playerAbSummary.readyCount }} из 2 · активна {{ ui.playerAbSummary.active }}</p>
       <div class="sbp-progress">
         <label for="sbp-seek" class="sbp-sr">Позиция воспроизведения</label>
         <input id="sbp-seek" type="range" min="0" max="1000" step="1"

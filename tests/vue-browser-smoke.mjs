@@ -216,7 +216,7 @@ async function checkLayout(mobile) {
     await version161.waitFor({ state: 'attached', timeout: 10000 });
     if (await page.locator('#sb-vh-overlay').count() !== 1 ||
         await page.locator('#sb-vh-tabs button').count() !== 2 ||
-        !(await version161.textContent()).includes('v0.169')) {
+        !(await version161.textContent()).includes('v0.170')) {
       throw new Error('Vue version-history dialog or current release missing');
     }
     await page.locator('#sb-vh-tabs button').nth(1).click();
@@ -2271,6 +2271,10 @@ async function checkLayout(mobile) {
         await page.locator('.sbab-modes [data-mode="compare"]').count() !== 1) {
       throw new Error('Vue Player LAB initial state or legacy A/B switcher is missing');
     }
+    await page.waitForFunction(() => {
+      const s=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.playerLabSummary;
+      return s?.ready && s.queueCount===0 && s.selectedPosition===0 && !s.playing;
+    });
     await player.locator('#sbp-file').setInputFiles({
       name: 'vue-player-119.wav', mimeType: 'audio/wav',
       buffer: Buffer.from([82,73,70,70,36,0,0,0,87,65,86,69,102,109,116,32,16,0,0,0,1,0,1,0,64,31,0,0,128,62,0,0,2,0,16,0,100,97,116,97,0,0,0,0])
@@ -2280,6 +2284,10 @@ async function checkLayout(mobile) {
         await page.evaluate(() => window.SUNOBOOM_PLAYER_LAB?.getTrackCount()) !== 1) {
       throw new Error('Vue Player LAB did not render the imported WAV track');
     }
+    await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.sharedState()?.playerLabSummary?.queueCount===1);
+    const safeLab170=await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.sharedState().playerLabSummary);
+    if (['tracks','title','artist','url','audio'].some(k=>k in safeLab170))
+      throw new Error('v0.170 Player LAB privacy regression in Pinia');
     await player.locator('[data-sbp-action="shuffle"]').click();
     if (await player.locator('#sbp-shuffle').getAttribute('aria-pressed') !== 'true') {
       throw new Error('Vue Player LAB shuffle did not use existing settings');
@@ -2288,6 +2296,10 @@ async function checkLayout(mobile) {
     if (await player.locator('#sbp-repeat').getAttribute('aria-label') !== 'Повтор списка') {
       throw new Error('Vue Player LAB repeat cycle is broken');
     }
+    await page.waitForFunction(() => {
+      const s=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.playerLabSummary;
+      return s?.shuffle && s.repeat==='all';
+    });
     await player.locator('#sbp-rate').selectOption('1.25');
     if (await page.evaluate(() => window.SUNOBOOM_PLAYER_LAB?.getAudioElement()?.playbackRate) !== 1.25) {
       throw new Error('Vue Player LAB rate change did not reach the audio engine');
@@ -2312,6 +2324,7 @@ async function checkLayout(mobile) {
         !(await page.locator('#sbab-compare').isVisible())) {
       throw new Error('Legacy A/B comparison failed after Vue Player LAB mount');
     }
+    await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.sharedState()?.playerLabSummary?.queueCount===3);
     // v0.120: the independent comparator is Vue-owned without taking over audio.
     await page.locator('#sb-vue-player-ab[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
     const ab = page.locator('#sb-vue-player-ab');
@@ -2320,6 +2333,13 @@ async function checkLayout(mobile) {
         await ab.locator('[data-sbab-card]').count() !== 2) {
       throw new Error('Vue A/B comparator initial state is incomplete');
     }
+    await page.waitForFunction(() => {
+      const x=window.SUNOBOOM_VUE_ROUTE?.sharedState();
+      return x?.playerAbSummary?.ready && x.playerAbSummary.mode==='compare' &&
+        x.playerAbSummary.readyCount===0;
+    });
+    if (!(await ab.locator('[data-sb-vue-player-recap]').textContent()).includes('3 треков'))
+      throw new Error('v0.170 A/B component cannot read shared Player LAB summary');
     await ab.locator('[data-sbab-action="demo"]').click();
     await page.waitForFunction(() => window.SUNOBOOM_AB_COMPARE?.hasBoth() &&
       document.querySelector('#sbab-ready-A')?.textContent === 'Файл добавлен' &&
@@ -2327,11 +2347,16 @@ async function checkLayout(mobile) {
     if (await ab.locator('#sbab-play:enabled').count() !== 1) {
       throw new Error('Vue A/B comparator did not enable playback after demo tracks');
     }
+    await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.sharedState()?.playerAbSummary?.readyCount===2);
+    const safeAb170=await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.sharedState().playerAbSummary);
+    if (['files','notes','scores','url','name'].some(k=>k in safeAb170))
+      throw new Error('v0.170 A/B privacy regression in Pinia');
     await ab.locator('[data-sbab-action="select"][data-side="B"]').click();
     await page.waitForFunction(() => window.SUNOBOOM_AB_COMPARE?.getActive() === 'B');
     if (await ab.locator('.sbab-btn-b').getAttribute('aria-pressed') !== 'true') {
       throw new Error('Vue A/B did not react to legacy version switching');
     }
+    await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.sharedState()?.playerAbSummary?.active==='B');
     await ab.locator('[data-sbab-action="loop"]').click();
     if (!(await ab.locator('#sbab-status').textContent()).includes('Отметь начало и конец')) {
       throw new Error('Vue A/B missing fragment marker validation');
@@ -2351,7 +2376,11 @@ async function checkLayout(mobile) {
       throw new Error('Vue A/B removal did not update the original engine');
     }
 
+    await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.sharedState()?.playerAbSummary?.readyCount===1);
     await page.locator('.sbab-modes [data-mode="player"]').click();
+    await page.locator('[data-sb-vue-ab-recap]').waitFor({state:'visible'});
+    if (!(await page.locator('[data-sb-vue-ab-recap]').textContent()).includes('1 из 2'))
+      throw new Error('v0.170 Player LAB cannot read shared A/B summary');
     if (!(await page.locator('#sb-vue-player-lab').isVisible())) {
       throw new Error('Vue Player LAB must reappear when leaving A/B comparison');
     }
@@ -2361,6 +2390,7 @@ async function checkLayout(mobile) {
     }
     await player.locator('[data-sbp-action="clear"]').click();
     await page.waitForFunction(() => document.querySelectorAll('#sb-vue-player-lab .sbp-track').length === 0, null, { timeout: 10000 });
+    await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.sharedState()?.playerLabSummary?.queueCount===0);
     if (await page.evaluate(() => window.SUNOBOOM_PLAYER_LAB?.getTrackCount()) !== 0 ||
         await player.locator('#sbp-play:disabled').count() !== 1) {
       throw new Error('Vue Player LAB did not clear its original audio queue');

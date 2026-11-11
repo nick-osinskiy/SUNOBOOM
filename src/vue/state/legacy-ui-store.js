@@ -4,6 +4,7 @@ import { currentRoute } from '../navigation/route-state.js';
 import { normalizeLegacyAppearance } from './appearance-model.js';
 import { normalizeAcademyCatalog, normalizeAcademyFocus, normalizeAcademyTree } from './academy-ui-model.js';
 import { normalizeStudioSummary, normalizeMixerSummary, normalizeAuditorSummary, normalizeArrangerSummary } from './production-ui-model.js';
+import { normalizePlayerLabSummary, normalizePlayerAbSummary } from './player-ui-model.js';
 
 // Read-only UI projections across the independent Vue islands.
 // The legacy go(), data object and browser storage remain authoritative.
@@ -80,6 +81,13 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
   const arrangerSummary = shallowRef(Object.freeze({
     ready:false, blockCount:0, barCount:0, averageEnergy:0, transitionCount:0, revision:0
   }));
+  const playerLabSummary = shallowRef(Object.freeze({
+    ready:false, queueCount:0, selectedPosition:0, playing:false, shuffle:false, repeat:'off', revision:0
+  }));
+  const playerAbSummary = shallowRef(Object.freeze({
+    ready:false, mode:'player', active:'A', readyCount:0, hasBoth:false,
+    playing:false, loop:false, revision:0
+  }));
 
   function publishToolSummary(target, normalizer, snapshot) {
     const next = normalizer(snapshot);
@@ -97,6 +105,10 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
     publishToolSummary(auditorSummary, normalizeAuditorSummary, snapshot);
   const publishArrangerSummary = snapshot =>
     publishToolSummary(arrangerSummary, normalizeArrangerSummary, snapshot);
+  const publishPlayerLabSummary = snapshot =>
+    publishToolSummary(playerLabSummary, normalizePlayerLabSummary, snapshot);
+  const publishPlayerAbSummary = snapshot =>
+    publishToolSummary(playerAbSummary, normalizePlayerAbSummary, snapshot);
 
   function publishNavigation(items) {
     if (!Array.isArray(items)) return false;
@@ -149,7 +161,9 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
   return { route, navigationItems, dashboardStats, appearance,
     academyCatalog, academyFocus, academyTree,
     studioSummary, mixerSummary, auditorSummary, arrangerSummary,
+    playerLabSummary, playerAbSummary,
     publishNavigation, publishDashboardStats, publishAppearance,
     publishAcademyCatalog, publishAcademyFocus, publishAcademyTree,
-    publishStudioSummary, publishMixerSummary, publishAuditorSummary, publishArrangerSummary };
+    publishStudioSummary, publishMixerSummary, publishAuditorSummary, publishArrangerSummary,
+    publishPlayerLabSummary, publishPlayerAbSummary };
 });

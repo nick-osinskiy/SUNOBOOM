@@ -5,6 +5,7 @@ import { useLegacyUiStore } from '../src/vue/state/legacy-ui-store.js';
 import { normalizeLegacyAppearance } from '../src/vue/state/appearance-model.js';
 import { normalizeAcademyCatalog, normalizeAcademyFocus, normalizeAcademyTree } from '../src/vue/state/academy-ui-model.js';
 import { normalizeStudioSummary, normalizeMixerSummary, normalizeAuditorSummary, normalizeArrangerSummary } from '../src/vue/state/production-ui-model.js';
+import { normalizePlayerLabSummary, normalizePlayerAbSummary } from '../src/vue/state/player-ui-model.js';
 import { treeSearch, nextTreeZoom, connectedTreeEdges } from '../src/vue/academy/genre-tree-model.js';
 import { groupMajorVersions, historyResults, formatReleaseDate } from '../src/vue/version-history/version-model.js';
 import { activeNavigationRoute, navigationSnapshot } from '../src/vue/navigation/nav-model.js';
@@ -839,4 +840,44 @@ test('v0.169 arranger UI summary is shared, bounded and never stores draft conte
   assert.equal(a.publishArrangerSummary({blocks:[]}),true);
   assert.equal(b.arrangerSummary.blockCount,0);
   assert.equal(b.arrangerSummary.revision,2);
+});
+
+test('v0.170 Player LAB UI projection updates one shared Pinia without audio metadata', () => {
+  const pinia=createPinia(), a=useLegacyUiStore(pinia), b=useLegacyUiStore(pinia);
+  assert.strictEqual(a,b);
+  const s={count:2,currentIndex:1,playing:true,shuffle:true,repeat:'one',
+    tracks:[{name:'PRIVATE TRACK',url:'blob:SECRET'}],title:'PRIVATE TITLE',artist:'SECRET'};
+  const summary={ready:true,queueCount:2,selectedPosition:2,playing:true,shuffle:true,repeat:'one'};
+  assert.deepEqual(normalizePlayerLabSummary(s),summary);
+  assert.equal(a.publishPlayerLabSummary(s),true);
+  assert.equal(b.publishPlayerLabSummary(s),false);
+  assert.deepEqual({...b.playerLabSummary},{...summary,revision:1});
+  for(const key of ['tracks','title','artist','url','audio']) assert.equal(b.playerLabSummary[key],undefined);
+  assert.equal(a.publishPlayerLabSummary({...s,count:0}),false);
+  assert.equal(a.publishPlayerLabSummary({...s,currentIndex:3}),false);
+  assert.equal(a.publishPlayerLabSummary({...s,repeat:'random'}),false);
+  assert.equal(a.publishPlayerLabSummary({...s,playing:'yes'}),false);
+  assert.deepEqual(normalizePlayerLabSummary({count:0,currentIndex:-1,playing:false,shuffle:false,repeat:'off'}),
+    {ready:true,queueCount:0,selectedPosition:0,playing:false,shuffle:false,repeat:'off'});
+});
+
+test('v0.170 A/B UI projection excludes filenames, private reviews and audio buffers', () => {
+  const pinia=createPinia(), a=useLegacyUiStore(pinia), b=useLegacyUiStore(pinia);
+  const s={mode:'compare',active:'B',playing:true,loop:true,hasBoth:true,
+    files:{A:{ready:true,name:'PRIVATE A'},B:{ready:true,url:'blob:SECRET'}},
+    notes:{A:'SECRET NOTE'},scores:{A:{vocal:5}}};
+  const summary={ready:true,mode:'compare',active:'B',readyCount:2,hasBoth:true,playing:true,loop:true};
+  assert.deepEqual(normalizePlayerAbSummary(s),summary);
+  assert.equal(a.publishPlayerAbSummary(s),true);
+  assert.equal(b.publishPlayerAbSummary(s),false);
+  assert.deepEqual({...b.playerAbSummary},{...summary,revision:1});
+  for(const key of ['files','notes','scores','url','name']) assert.equal(b.playerAbSummary[key],undefined);
+  assert.equal(a.publishPlayerAbSummary({...s,mode:'bad'}),false);
+  assert.equal(a.publishPlayerAbSummary({...s,active:'C'}),false);
+  assert.equal(a.publishPlayerAbSummary({...s,hasBoth:false}),false);
+  assert.equal(a.publishPlayerAbSummary({...s,files:{A:{ready:true},B:{ready:false}}}),false);
+  assert.equal(a.publishPlayerAbSummary({...s,playing:false,loop:false,hasBoth:false,
+    files:{A:{ready:true},B:{ready:false}}}),true);
+  assert.equal(b.playerAbSummary.readyCount,1);
+  assert.equal(b.playerAbSummary.revision,2);
 });

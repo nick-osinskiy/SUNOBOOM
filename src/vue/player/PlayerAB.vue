@@ -1,7 +1,10 @@
 <script setup>
-import { onMounted, onBeforeUnmount, ref } from 'vue';
+import { onMounted, onBeforeUnmount, ref, watch } from 'vue';
+import { useLegacyUiStore } from '../state/legacy-ui-store.js';
 const props = defineProps({ api: { type: Object, required: true }, initialModel: { type: Object, required: true } });
 const model = ref(props.initialModel);
+const ui = useLegacyUiStore();
+watch(model, value => ui.publishPlayerAbSummary(value), { immediate:true });
 const sides = ['A', 'B'];
 const fields = [
   { key: 'vocal', label: 'Вокал' },
@@ -21,7 +24,8 @@ onBeforeUnmount(() => window.removeEventListener('sunoboom:player-ab-update', sy
     <header class="sbab-heading">
       <div><span class="sbab-kicker">SUNOBOOM · AUDIO TEST LAB</span>
         <h2>A/B-сравнение аудиоверсий</h2>
-        <p>Загрузи два варианта песни и переключайся между ними в одной временной точке. Сравнивай вокал, аранжировку и финальное звучание.</p></div>
+        <p>Загрузи два варианта песни и переключайся между ними в одной временной точке. Сравнивай вокал, аранжировку и финальное звучание.</p>
+        <p v-if="ui.playerLabSummary.ready" class="sbab-kicker" data-sb-vue-player-recap>Очередь плеера LAB: {{ ui.playerLabSummary.queueCount }} треков · {{ ui.playerLabSummary.playing ? 'воспроизведение' : 'пауза' }}</p></div>
       <span class="sbab-lab-badge">A ↔ B</span>
     </header>
     <div class="sbab-files">
