@@ -216,7 +216,7 @@ async function checkLayout(mobile) {
     await version161.waitFor({ state: 'attached', timeout: 10000 });
     if (await page.locator('#sb-vh-overlay').count() !== 1 ||
         await page.locator('#sb-vh-tabs button').count() !== 2 ||
-        !(await version161.textContent()).includes('v0.172')) {
+        !(await version161.textContent()).includes('v0.173')) {
       throw new Error('Vue version-history dialog or current release missing');
     }
     await page.locator('#sb-vh-tabs button').nth(1).click();
@@ -1712,16 +1712,28 @@ async function checkLayout(mobile) {
       throw new Error('Vue My Songs collection did not preserve card actions');
     }
     await page.waitForFunction(() => document.querySelector('[data-sbsong-cover="song-vue-a"]')?.getAttribute('src')?.startsWith('blob:'), null, { timeout: 10000 });
+    // v0.173: collection indicators update without copying song records.
+    await page.waitForFunction(() => {
+      const x=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.songCollectionSummary;
+      return x?.ready && x.totalCount===2 && x.visibleCount===2 && x.localCoverCount===1;
+    });
+    if (!(await songCards.locator('[data-sb-vue-song-collection-recap]').textContent()).includes('2 из 2'))
+      throw new Error('v0.173 song collection summary was not displayed');
     await page.locator('#sbsong-search').fill('desert');
     if (await songCards.locator('.sbsong-card').count() !== 1 ||
         !(await songCards.textContent()).includes('Desert Echo')) {
       throw new Error('Reactive song search did not filter cards correctly');
     }
+    await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.sharedState()?.songCollectionSummary?.visibleCount===1);
     await page.locator('#sbsong-search').fill('nothing-matches');
     if (await songCards.locator('.sbsong-card').count() !== 0 ||
         !(await songCards.textContent()).includes('По этому запросу песен нет')) {
       throw new Error('Vue My Songs did not render the empty search result');
     }
+    await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.sharedState()?.songCollectionSummary?.visibleCount===0);
+    const songCollectionPrivacy173=await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.sharedState().songCollectionSummary);
+    if (['items','title','artist','id','coverUrl','query'].some(key=>key in songCollectionPrivacy173))
+      throw new Error('v0.173 shared song collection leaked metadata');
     await page.locator('#sbsong-search').fill('');
     await page.waitForFunction(() => document.querySelector('[data-sbsong-cover="song-vue-a"]')?.getAttribute('src')?.startsWith('blob:'), null, { timeout: 10000 });
     await songCards.locator('[data-sbsong-action="open"][data-id="song-vue-a"]').first().click();
@@ -1734,11 +1746,22 @@ async function checkLayout(mobile) {
         await songDetail.locator('[data-sbsong-action="version-add"]').count() !== 1) {
       throw new Error('Vue detail lost song metadata or legacy version controls');
     }
+    await page.waitForFunction(() => {
+      const x=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.songDetailSummary;
+      return x?.ready && x.versionCount===2 && x.hasPrimary && x.hasLocalAudio &&
+        x.comparisonAvailable && !x.comparisonOpen;
+    });
+    const songDetailPrivacy173=await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.sharedState().songDetailSummary);
+    if (['id','title','description','versions','fileName','notes','url','audio'].some(key=>key in songDetailPrivacy173) ||
+        !(await songDetail.locator('[data-sb-vue-song-detail-recap]').textContent()).includes('2 песен') ||
+        await songDetail.locator('.sbsong-detail').count()!==1)
+      throw new Error('v0.173 detail summary leaked data or duplicated Vue content');
     await page.waitForFunction(() => document.querySelector('#sb-vue-song-detail .sbsong-detail-cover img')?.getAttribute('src')?.startsWith('blob:'), null, { timeout: 10000 });
     await page.waitForFunction(() => document.querySelector('#sbsong-audio-player')?.getAttribute('src')?.startsWith('blob:'), null, { timeout: 10000 });
     await songDetail.locator('[data-sbsong-action="compare-toggle"]').click();
     await page.locator('#sb-vue-song-detail[data-v-app]').waitFor({ state: 'attached' });
     await page.waitForFunction(() => ['sbsong-ab-a', 'sbsong-ab-b'].every(id => document.getElementById(id)?.getAttribute('src')?.startsWith('blob:')), null, { timeout: 10000 });
+    await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.sharedState()?.songDetailSummary?.comparisonOpen===true);
     await songDetail.locator('#sbsong-compare-a').selectOption('v-demo');
     await page.locator('#sb-vue-song-detail[data-v-app]').waitFor({ state: 'attached' });
     if (await songDetail.locator('#sbsong-compare-a').inputValue() !== 'v-demo' ||
@@ -1768,6 +1791,7 @@ async function checkLayout(mobile) {
     });
     await songDetail.locator('[data-sbsong-action="version-add"]').click();
     await page.waitForFunction(() => JSON.parse(localStorage.getItem('sunoboom-my-songs-v1'))[0]?.versions?.length === 3, null, { timeout: 10000 });
+    await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.sharedState()?.songDetailSummary?.versionCount===3);
     await page.locator('#sb-vue-song-detail[data-v-app]').waitFor({ state: 'attached' });
     if (await songDetail.locator('.sbsong-version-row').count() !== 3 ||
         !(await songDetail.textContent()).includes('Третий WAV дубль')) {
@@ -1784,6 +1808,7 @@ async function checkLayout(mobile) {
       document.querySelector('#sb-vue-song-detail[data-v-app]') &&
       document.querySelectorAll('#sb-vue-song-detail .sbsong-version-row').length === 2,
       null, { timeout: 10000 });
+    await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.sharedState()?.songDetailSummary?.versionCount===2);
     if (await page.evaluate(() => JSON.parse(localStorage.getItem('sunoboom-my-songs-v1'))[0]?.activeVersionId) !== 'v-demo') {
       throw new Error('Removing a WAV take affected the primary version');
     }

@@ -7,6 +7,7 @@ import { normalizeAcademyCatalog, normalizeAcademyFocus, normalizeAcademyTree } 
 import { normalizeStudioSummary, normalizeMixerSummary, normalizeAuditorSummary, normalizeArrangerSummary } from '../src/vue/state/production-ui-model.js';
 import { normalizePlayerLabSummary, normalizePlayerAbSummary } from '../src/vue/state/player-ui-model.js';
 import { normalizeMasterListSummary, normalizePassportListSummary, normalizeMasterDetailSummary, normalizePassportDetailSummary } from '../src/vue/state/workflow-ui-model.js';
+import { normalizeSongCollectionSummary, normalizeSongDetailSummary } from '../src/vue/state/song-ui-model.js';
 import { treeSearch, nextTreeZoom, connectedTreeEdges } from '../src/vue/academy/genre-tree-model.js';
 import { groupMajorVersions, historyResults, formatReleaseDate } from '../src/vue/version-history/version-model.js';
 import { activeNavigationRoute, navigationSnapshot } from '../src/vue/navigation/nav-model.js';
@@ -974,4 +975,49 @@ test('v0.172 passport detail shares safe version/link indicators across Vue isla
   assert.equal(passport.publishPassportDetailSummary({...snapshot,versions:[]}),true);
   assert.equal(master.passportDetailSummary.versionCount,0);
   assert.equal(master.passportDetailSummary.revision,2);
+});
+
+test('v0.173 My Songs collection shares counts only with strict validation', () => {
+  const pinia=createPinia(), a=useLegacyUiStore(pinia), b=useLegacyUiStore(pinia);
+  const data={total:3,query:'PRIVATE QUERY',items:[
+    {id:'secret-a',title:'PERSONAL SONG',coverUrl:'https://private/cover',hasCover:true},
+    {id:'secret-b',artist:'PRIVATE NAME',hasCover:false}
+  ]};
+  const expected={ready:true,totalCount:3,visibleCount:2,localCoverCount:1};
+  assert.deepEqual(normalizeSongCollectionSummary(data),expected);
+  assert.equal(a.publishSongCollectionSummary(data),true);
+  assert.equal(b.publishSongCollectionSummary(data),false);
+  assert.deepEqual({...b.songCollectionSummary},{...expected,revision:1});
+  for(const key of ['items','query','title','artist','id','coverUrl'])
+    assert.equal(b.songCollectionSummary[key],undefined);
+  assert.equal(a.publishSongCollectionSummary({...data,total:1}),false);
+  assert.equal(a.publishSongCollectionSummary({...data,items:[{hasCover:'yes'}]}),false);
+  assert.equal(a.publishSongCollectionSummary({...data,total:10001}),false);
+  assert.equal(a.publishSongCollectionSummary({...data,items:[]}),true);
+  assert.equal(b.songCollectionSummary.visibleCount,0);
+  assert.equal(b.songCollectionSummary.revision,2);
+});
+test('v0.173 My Songs detail shares take status without private metadata or audio', () => {
+  const pinia=createPinia(), a=useLegacyUiStore(pinia), b=useLegacyUiStore(pinia);
+  const data={id:'secret',title:'PRIVATE TITLE',description:'PRIVATE LYRICS',
+    hasAudio:true,hasCover:true,hasPlayableAudio:true,compareOpen:true,
+    listenUrl:'https://private/audio.wav',versions:[
+      {id:'secret-a',fileName:'private.wav',notes:'PRIVATE NOTE',isMain:true,isPlaying:false},
+      {id:'secret-b',fileName:'private.mp3',notes:'PRIVATE NOTE',isMain:false,isPlaying:true}
+    ]};
+  const expected={ready:true,versionCount:2,hasPrimary:true,hasLocalAudio:true,
+    canPlay:true,hasCover:true,comparisonAvailable:true,comparisonOpen:true};
+  assert.deepEqual(normalizeSongDetailSummary(data),expected);
+  assert.equal(a.publishSongDetailSummary(data),true);
+  assert.equal(b.publishSongDetailSummary(data),false);
+  assert.deepEqual({...b.songDetailSummary},{...expected,revision:1});
+  for(const key of ['id','title','description','versions','fileName','notes','listenUrl'])
+    assert.equal(b.songDetailSummary[key],undefined);
+  assert.equal(a.publishSongDetailSummary({...data,compareOpen:'yes'}),false);
+  assert.equal(a.publishSongDetailSummary({...data,versions:[data.versions[0]]}),false);
+  assert.equal(a.publishSongDetailSummary({...data,versions:new Array(1001).fill(data.versions[0])}),false);
+  assert.equal(a.publishSongDetailSummary({...data,versions:[],compareOpen:false,hasAudio:false,hasCover:false,hasPlayableAudio:false}),true);
+  assert.equal(b.songDetailSummary.versionCount,0);
+  assert.equal(b.songDetailSummary.comparisonAvailable,false);
+  assert.equal(b.songDetailSummary.revision,2);
 });

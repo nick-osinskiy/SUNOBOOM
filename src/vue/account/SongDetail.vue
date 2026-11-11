@@ -1,8 +1,11 @@
 <script setup>
-import { nextTick, onMounted } from 'vue';
+import { nextTick, onMounted, watch } from 'vue';
+import { useLegacyUiStore } from '../state/legacy-ui-store.js';
 import SongVersions from './SongVersions.vue';
 
 const props = defineProps({ model: { type: Object, required: true }, api: { type: Object, required: true } });
+const ui = useLegacyUiStore();
+watch(() => props.model, snapshot => ui.publishSongDetailSummary(snapshot), { immediate:true });
 
 // The original media loader must run AFTER Vue replaces the fallback markup.
 // It resolves cover/audio blobs by their established IndexedDB keys and also
@@ -18,6 +21,9 @@ onMounted(() => {
       <h2>{{ model.title }}</h2>
       <button type="button" data-sbsong-action="close-detail">Закрыть ×</button>
     </div>
+    <p v-if="ui.songCollectionSummary.ready" class="sbsong-artist-hint" data-sb-vue-song-detail-recap>
+      В личной коллекции: {{ ui.songCollectionSummary.totalCount }} песен
+    </p>
     <div class="sbsong-detail-layout">
       <div class="sbsong-detail-cover">
         <img v-if="model.hasCover" :data-sbsong-cover="model.id" :alt="'Обложка песни ' + model.title">

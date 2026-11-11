@@ -1,8 +1,11 @@
 <script setup>
-import { onBeforeUnmount, onMounted, nextTick, ref } from 'vue';
+import { onBeforeUnmount, onMounted, nextTick, ref, watch } from 'vue';
+import { useLegacyUiStore } from '../state/legacy-ui-store.js';
 
 const props = defineProps({ api: { type: Object, required: true } });
 const model = ref(props.api.snapshot() || { items: [], total: 0 });
+const ui = useLegacyUiStore();
+watch(model, snapshot => ui.publishSongCollectionSummary(snapshot), { immediate:true });
 function refresh() {
   const snapshot = props.api.snapshot();
   if (!snapshot) return;
@@ -18,6 +21,9 @@ onBeforeUnmount(() => window.removeEventListener('sunoboom:songs-search', refres
 </script>
 
 <template>
+  <p v-if="ui.songCollectionSummary.ready" class="sbsong-artist-hint" data-sb-vue-song-collection-recap>
+    Найдено {{ ui.songCollectionSummary.visibleCount }} из {{ ui.songCollectionSummary.totalCount }} песен
+  </p>
   <div v-if="model.items.length" class="sbsong-grid">
     <article v-for="song in model.items" :key="song.id" class="sbsong-card">
       <button type="button" class="sbsong-art-button" data-sbsong-action="open" :data-id="song.id"
