@@ -3017,7 +3017,10 @@ function sbPoetryStressApply(){
  if(preview.value.length>20000){toast('Текст слишком длинный');return;}
  source.value=preview.value;
  sbPoetryStressDraft=null;
- if(box)box.innerHTML='';
+ if(box){
+  box.innerHTML='';
+  window.dispatchEvent(new Event('sunoboom:poetry-stress-closed'));
+ }
  source.dispatchEvent(new Event('input',{bubbles:true}));
  sbPoetryRender();
  toast('Ударения применены. Для сохранения нажми «Сохранить идею».');
@@ -3178,7 +3181,10 @@ function sbPoetryAccent(){
   sbStressHighlightSync(area);
   sbPoetryStressDraft=null;
   const stressBox=document.getElementById('sb-poetry-auto-stress');
-  if(stressBox)stressBox.innerHTML='';
+  if(stressBox){
+   stressBox.innerHTML='';
+   window.dispatchEvent(new Event('sunoboom:poetry-stress-closed'));
+  }
   sbPoetryRender();
   toast('Ударение отмечено. Сохрани идею, чтобы сохранить правку.');
 }

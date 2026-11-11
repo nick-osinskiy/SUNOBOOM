@@ -31,11 +31,15 @@ export function activateLegacyPoetry({ mountVueFeature }) {
   const observer = new MutationObserver(sync);
   observer.observe(root, { childList: true });
   window.addEventListener('sunoboom:poetry-stress-ready', sync);
+  // Native apply/manual accent removes the preview below #app without a
+  // top-level childList mutation. Unmount the orphaned Vue island explicitly.
+  window.addEventListener('sunoboom:poetry-stress-closed', sync);
   sync();
   return () => {
     disposed = true;
     observer.disconnect();
     window.removeEventListener('sunoboom:poetry-stress-ready', sync);
+    window.removeEventListener('sunoboom:poetry-stress-closed', sync);
     for (const item of active.values()) item.unmount();
     active.clear();
   };
