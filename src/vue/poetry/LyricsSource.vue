@@ -24,7 +24,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onNativeAccent));
 
 <template>
   <label for="custom-idea-lyrics">Оригинальный текст (необязательно)</label>
-  <textarea id="custom-idea-lyrics" ref="area" :value="initial.values.lyrics" @input="publish" rows="12" maxlength="20000" placeholder="Куплет 1:&#10;Текст первого куплета...&#10;&#10;Припев:&#10;Текст припева..."></textarea>
+  <textarea id="custom-idea-lyrics" v-once ref="area" :value="initial.values.lyrics" @input="publish" rows="12" maxlength="20000" placeholder="Куплет 1:&#10;Текст первого куплета...&#10;&#10;Припев:&#10;Текст припева..."></textarea>
   <p v-if="ui.poetrySourceSummary.ready" class="sub" data-sb-vue-poetry-source-count>
     Исходный текст: {{ ui.poetrySourceSummary.charCount }} / 20000 символов · {{ ui.poetrySourceSummary.lineCount }} непустых строк
   </p>
