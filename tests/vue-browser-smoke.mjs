@@ -623,6 +623,10 @@ async function checkLayout(mobile) {
     // by the old imperative renderTree() after the Academy Vue mount.
     await genreTree.locator('#sb-gt-inner[data-v-app] [data-sb-vue-genre-tree]')
       .waitFor({ state: 'attached', timeout: 10000 });
+    // SVG relations are computed after the tree Vue mount, especially on mobile.
+    await page.waitForFunction(() =>
+      document.querySelectorAll('#sb-genre-tree .sb-gt-viewport svg.sb-gt-lines path.sb-gt-path').length >= 2,
+      null, { timeout: 10000 });
     if (await genreTree.locator('#sb-gt-inner[data-v-app]').count() !== 1 ||
         await page.locator('#sb-vue-academy-root #sb-genre-tree').count() !== 0 ||
         await genreTree.locator('.sb-gt-viewport svg.sb-gt-lines path.sb-gt-path').count() < 2) {
