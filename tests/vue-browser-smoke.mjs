@@ -1440,6 +1440,16 @@ async function checkLayout(mobile) {
       const current=document.getElementById('custom-idea-lyrics')?.value;
       return s?.ready && s.charCount===current?.length && s.lineCount===6 &&
         s.wordCount===23 && s.hasText;
+    }, null, {timeout:7000}).catch(async () => {
+      const debug=await page.evaluate(() => ({
+        shared:window.SUNOBOOM_VUE_ROUTE?.sharedState()?.poetrySourceSummary,
+        text:document.getElementById('custom-idea-lyrics')?.value,
+        source:document.querySelector('#sb-vue-lyrics-source')?.innerHTML?.slice(0,450),
+        tools:document.querySelector('#sb-vue-lyrics-tools')?.innerHTML?.slice(0,450),
+        mount:document.querySelector('#sb-vue-lyrics-source')?.getAttribute('data-v-app'),
+        appErrors:window.__vueErrors||null
+      }));
+      throw new Error('v0.177 poetry counters mismatch: '+JSON.stringify(debug));
     });
     if (await page.locator('#sb-vue-lyrics-source[data-v-app] [data-sb-vue-poetry-source-count]').count()!==1 ||
         await page.locator('#sb-vue-lyrics-tools[data-v-app] [data-sb-vue-poetry-tools-count]').count()!==1)
