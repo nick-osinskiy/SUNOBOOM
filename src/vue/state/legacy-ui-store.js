@@ -5,7 +5,7 @@ import { normalizeLegacyAppearance } from './appearance-model.js';
 import { normalizeAcademyCatalog, normalizeAcademyFocus, normalizeAcademyTree } from './academy-ui-model.js';
 import { normalizeStudioSummary, normalizeMixerSummary, normalizeAuditorSummary, normalizeArrangerSummary } from './production-ui-model.js';
 import { normalizePlayerLabSummary, normalizePlayerAbSummary } from './player-ui-model.js';
-import { normalizeMasterListSummary, normalizePassportListSummary } from './workflow-ui-model.js';
+import { normalizeMasterListSummary, normalizePassportListSummary, normalizeMasterDetailSummary, normalizePassportDetailSummary } from './workflow-ui-model.js';
 
 // Read-only UI projections across the independent Vue islands.
 // The legacy go(), data object and browser storage remain authoritative.
@@ -95,6 +95,14 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
   const passportListSummary = shallowRef(Object.freeze({
     ready:false, visibleCount:0, hasRecords:false, filter:'all', revision:0
   }));
+  const masterDetailSummary = shallowRef(Object.freeze({
+    ready:false, done:0, total:6, percent:0, materialCount:0,
+    linkedCount:0, arrangementBlocks:0, historyCount:0, revision:0
+  }));
+  const passportDetailSummary = shallowRef(Object.freeze({
+    ready:false, versionCount:0, linkedCount:0, sectionCount:0,
+    hasAudio:false, hasCover:false, revision:0
+  }));
 
   function publishToolSummary(target, normalizer, snapshot) {
     const next = normalizer(snapshot);
@@ -120,6 +128,10 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
     publishToolSummary(masterListSummary, normalizeMasterListSummary, snapshot);
   const publishPassportListSummary = snapshot =>
     publishToolSummary(passportListSummary, normalizePassportListSummary, snapshot);
+  const publishMasterDetailSummary = snapshot =>
+    publishToolSummary(masterDetailSummary, normalizeMasterDetailSummary, snapshot);
+  const publishPassportDetailSummary = snapshot =>
+    publishToolSummary(passportDetailSummary, normalizePassportDetailSummary, snapshot);
 
   function publishNavigation(items) {
     if (!Array.isArray(items)) return false;
@@ -173,9 +185,11 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
     academyCatalog, academyFocus, academyTree,
     studioSummary, mixerSummary, auditorSummary, arrangerSummary,
     playerLabSummary, playerAbSummary, masterListSummary, passportListSummary,
+    masterDetailSummary, passportDetailSummary,
     publishNavigation, publishDashboardStats, publishAppearance,
     publishAcademyCatalog, publishAcademyFocus, publishAcademyTree,
     publishStudioSummary, publishMixerSummary, publishAuditorSummary, publishArrangerSummary,
     publishPlayerLabSummary, publishPlayerAbSummary,
-    publishMasterListSummary, publishPassportListSummary };
+    publishMasterListSummary, publishPassportListSummary,
+    publishMasterDetailSummary, publishPassportDetailSummary };
 });

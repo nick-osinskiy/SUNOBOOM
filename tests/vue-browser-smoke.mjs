@@ -216,7 +216,7 @@ async function checkLayout(mobile) {
     await version161.waitFor({ state: 'attached', timeout: 10000 });
     if (await page.locator('#sb-vh-overlay').count() !== 1 ||
         await page.locator('#sb-vh-tabs button').count() !== 2 ||
-        !(await version161.textContent()).includes('v0.171')) {
+        !(await version161.textContent()).includes('v0.172')) {
       throw new Error('Vue version-history dialog or current release missing');
     }
     await page.locator('#sb-vh-tabs button').nth(1).click();
@@ -2439,6 +2439,18 @@ async function checkLayout(mobile) {
         await masterDetail.locator('[data-pc-action="restore-arrangement"]').count() !== 0) {
       throw new Error('Vue Master detail omitted panels, stages, links or arrangement controls');
     }
+    // v0.172: a detailed Master card publishes only bounded workflow counts.
+    await page.waitForFunction(() => {
+      const s=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.masterDetailSummary;
+      const snap=window.SUNOBOOM_LEGACY_PRODUCER_DETAIL?.snapshot?.();
+      return s?.ready && !!snap && s.done===snap.done && s.total===snap.total &&
+        s.linkedCount===snap.links.filter(item=>item.value).length &&
+        s.historyCount===snap.history.length && s.arrangementBlocks===snap.arrangement.count;
+    });
+    const safeMasterDetail172=await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.sharedState().masterDetailSummary);
+    if (['id','title','artist','notes','stages','links','arrangement','history'].some(k=>k in safeMasterDetail172) ||
+        await masterDetail.locator('[data-sb-vue-producer-detail]').count()!==1)
+      throw new Error('v0.172 Master detail leaked user records or rendered twice');
     const masterId125 = await page.evaluate(() =>
       data.productions.find(w => w.title === 'Vue Master 122')?.id);
     await masterDetail.locator('#sbpc-title').fill('Vue Master 122 Revised');
@@ -2474,6 +2486,11 @@ async function checkLayout(mobile) {
         await page.locator('#sbpc-projectId').inputValue() !== 'vue-master-project-125') {
       throw new Error('Vue Master linked materials were not saved through legacy validation');
     }
+    await page.waitForFunction(() => {
+      const s=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.masterDetailSummary;
+      const snap=window.SUNOBOOM_LEGACY_PRODUCER_DETAIL?.snapshot?.();
+      return s?.ready && !!snap && s.linkedCount===snap.links.filter(link=>link.value).length;
+    });
     await page.locator('[data-pc-stage="lyrics"]').selectOption('working');
     if (await page.evaluate(id => data.productions.find(w => w.id === id)?.steps?.lyrics, masterId125) !== 'working') {
       throw new Error('Vue Master stage selector did not update the original record');
@@ -2632,6 +2649,8 @@ async function checkLayout(mobile) {
         await page.locator('.sb-track-detail').count() !== 1) {
       throw new Error('Original passport save, release and persistence failed: '+JSON.stringify(track126));
     }
+    // v0.172: share only Passport detail counts and availability with the
+    // already visited Master, retaining all names, URLs and notes in legacy data.
     // v0.128: after saving a passport, Vue owns ONLY its complete detail UI.
     const trackDetail128 = page.locator('#sb-vue-track-detail[data-v-app]');
     await trackDetail128.waitFor({ state: 'attached', timeout: 10000 });
@@ -2643,6 +2662,19 @@ async function checkLayout(mobile) {
         await trackDetail128.locator('.sb-track-hero h2').textContent() !== 'Vue Passport 126') {
       throw new Error('Vue passport detail omitted existing metadata, sections, links, or version controls');
     }
+    await page.waitForFunction(() => {
+      const x=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.passportDetailSummary;
+      const snap=window.SUNOBOOM_LEGACY_TRACK_DETAIL?.snapshot?.();
+      return x?.ready && !!snap && x.versionCount===snap.versions.length &&
+        x.linkedCount===snap.links.filter(link=>link.exists).length &&
+        x.hasAudio===!!snap.audio && x.hasCover===!!snap.cover;
+    });
+    const safePassportDetail172=await page.evaluate(() =>
+      window.SUNOBOOM_VUE_ROUTE.sharedState().passportDetailSummary);
+    if (['id','title','artist','audio','cover','links','facts','sections','versions'].some(k=>k in safePassportDetail172) ||
+        await trackDetail128.locator('[data-sb-vue-track-detail-view]').count()!==1 ||
+        !(await trackDetail128.locator('[data-sb-vue-master-detail-recap]').textContent()).includes('Последняя карточка Мастера:'))
+      throw new Error('v0.172 passport details leaked metadata or lost shared Master progress');
     if (await trackDetail128.locator('.sb-track-cover img').getAttribute('src') !== 'https://example.com/cover-vue128.png' ||
         await trackDetail128.locator('.sb-track-buttons a[href="https://example.com/audio-vue128.wav"]').count() !== 1 ||
         !(await trackDetail128.locator('.sb-track-sectionbox').first().textContent()).includes('Vue arrangement 128')) {
@@ -2662,6 +2694,8 @@ async function checkLayout(mobile) {
       data.tracks.find(t => t.id === id)?.versions?.some(v => v.label === 'Финальная версия 126'), track126.id)) {
       throw new Error('Original passport version add failed');
     }
+    await page.waitForFunction(() =>
+      window.SUNOBOOM_VUE_ROUTE?.sharedState()?.passportDetailSummary?.versionCount===1);
     // The existing editor remains HTML and must return to the Vue detail.
     await trackDetail128.locator('[data-action="tp-edit"]').click();
     await trackEditor129.waitFor({ state: 'attached', timeout: 10000 });

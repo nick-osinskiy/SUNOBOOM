@@ -1,11 +1,14 @@
 <script setup>
-import { reactive } from 'vue';
+import { reactive, watch } from 'vue';
+import { useLegacyUiStore } from '../state/legacy-ui-store.js';
 
 // Presentation only. The original producer-center.js owns all input actions,
 // confirmation dialogs, validation and persistence in sunoboom-v1.
 const props = defineProps({
   model: { type: Object, required: true }
 });
+const ui = useLegacyUiStore();
+watch(() => props.model, snapshot => ui.publishMasterDetailSummary(snapshot), { immediate:true });
 const fields = reactive({
   title: props.model.title,
   artist: props.model.artist,
@@ -29,6 +32,9 @@ const statuses = reactive(Object.fromEntries(
       <h2>{{ model.title || 'Без названия' }}</h2>
       <p>{{ model.artist || 'Исполнитель пока не указан' }}{{ model.projectTitle ? ' · ' + model.projectTitle : '' }}</p>
       <p class="sbpc-next">{{ model.nextLabel ? 'Следующий этап: ' + model.nextLabel : 'Все этапы отмечены готовыми' }}</p>
+      <p v-if="ui.passportDetailSummary.ready" class="sbpc-help" data-sb-vue-passport-detail-recap>
+        Последний открытый паспорт: {{ ui.passportDetailSummary.versionCount }} аудиоверсий · {{ ui.passportDetailSummary.linkedCount }} из 3 материалов связано
+      </p>
       <div class="sbpc-meta-editor">
         <label>Название песни
           <input id="sbpc-title" v-model="fields.title" type="text" maxlength="120">

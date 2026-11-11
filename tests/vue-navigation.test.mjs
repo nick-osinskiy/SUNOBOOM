@@ -6,7 +6,7 @@ import { normalizeLegacyAppearance } from '../src/vue/state/appearance-model.js'
 import { normalizeAcademyCatalog, normalizeAcademyFocus, normalizeAcademyTree } from '../src/vue/state/academy-ui-model.js';
 import { normalizeStudioSummary, normalizeMixerSummary, normalizeAuditorSummary, normalizeArrangerSummary } from '../src/vue/state/production-ui-model.js';
 import { normalizePlayerLabSummary, normalizePlayerAbSummary } from '../src/vue/state/player-ui-model.js';
-import { normalizeMasterListSummary, normalizePassportListSummary } from '../src/vue/state/workflow-ui-model.js';
+import { normalizeMasterListSummary, normalizePassportListSummary, normalizeMasterDetailSummary, normalizePassportDetailSummary } from '../src/vue/state/workflow-ui-model.js';
 import { treeSearch, nextTreeZoom, connectedTreeEdges } from '../src/vue/academy/genre-tree-model.js';
 import { groupMajorVersions, historyResults, formatReleaseDate } from '../src/vue/version-history/version-model.js';
 import { activeNavigationRoute, navigationSnapshot } from '../src/vue/navigation/nav-model.js';
@@ -922,4 +922,56 @@ test('v0.171 passport filter summary updates safely without copying track record
   assert.equal(master.passportListSummary.visibleCount,0);
   assert.equal(master.passportListSummary.filter,'released');
   assert.equal(master.passportListSummary.revision,2);
+});
+
+test('v0.172 Master detail shares verified progress only, not lyrics, IDs or links', () => {
+  const pinia=createPinia(), a=useLegacyUiStore(pinia), b=useLegacyUiStore(pinia);
+  const stages=['done','working','todo','todo','todo','todo'].map((status,i)=>({
+    key:'PRIVATE STAGE '+i,status,hasMaterial:i<2,desc:'PRIVATE NOTES'
+  }));
+  const links=Array.from({length:6},(_,i)=>({
+    field:'PRIVATE FIELD',value:i===0?'SECRET ID':'',available:i===0,options:['PRIVATE OPTIONS']
+  }));
+  const snapshot={id:'PERSONAL ID',title:'PRIVATE TITLE',artist:'PRIVATE ARTIST',
+    notes:'PRIVATE NOTES',done:1,total:6,percent:17,
+    stages,links,arrangement:{count:3,blocks:[{lyrics:'SECRET'}]},
+    history:[{text:'SECRET HISTORY'}]};
+  const summary={ready:true,done:1,total:6,percent:17,
+    materialCount:2,linkedCount:1,arrangementBlocks:3,historyCount:1};
+  assert.deepEqual(normalizeMasterDetailSummary(snapshot),summary);
+  assert.equal(a.publishMasterDetailSummary(snapshot),true);
+  assert.equal(b.publishMasterDetailSummary(snapshot),false);
+  assert.deepEqual({...b.masterDetailSummary},{...summary,revision:1});
+  for(const k of ['id','title','artist','notes','stages','links','arrangement','history'])
+    assert.equal(b.masterDetailSummary[k],undefined);
+  assert.equal(a.publishMasterDetailSummary({...snapshot,percent:18}),false);
+  assert.equal(a.publishMasterDetailSummary({...snapshot,done:2}),false);
+  assert.equal(a.publishMasterDetailSummary({...snapshot,links:[...links,{value:'',available:false}]}),false);
+  assert.equal(a.publishMasterDetailSummary({...snapshot,history:new Array(81).fill({text:'private'})}),false);
+  assert.equal(a.publishMasterDetailSummary({...snapshot,stages:stages.map((s,i)=>({...s,status:i<2?'done':'todo'})),
+    done:2,percent:33}),true);
+  assert.equal(b.masterDetailSummary.done,2);
+  assert.equal(b.masterDetailSummary.revision,2);
+});
+
+test('v0.172 passport detail shares safe version/link indicators across Vue islands', () => {
+  const pinia=createPinia(), master=useLegacyUiStore(pinia), passport=useLegacyUiStore(pinia);
+  const snapshot={id:'PRIVATE ID',title:'PRIVATE TITLE',artist:'PERSONAL ARTIST',
+    audio:'https://secret.example/audio.wav',cover:'',facts:new Array(6).fill({value:'PRIVATE FACT'}),
+    links:[{exists:true,id:'SECRET ID',title:'PRIVATE'}, {exists:false},{exists:false}],
+    sections:[{label:'Текст',text:'PRIVATE LYRICS'}],
+    versions:[{id:'SECRET',label:'PRIVATE VERSION',url:'https://secret.example/version.wav'}]};
+  const summary={ready:true,versionCount:1,linkedCount:1,sectionCount:1,hasAudio:true,hasCover:false};
+  assert.deepEqual(normalizePassportDetailSummary(snapshot),summary);
+  assert.equal(passport.publishPassportDetailSummary(snapshot),true);
+  assert.equal(master.publishPassportDetailSummary(snapshot),false);
+  assert.deepEqual({...master.passportDetailSummary},{...summary,revision:1});
+  for(const k of ['id','title','artist','audio','cover','facts','links','sections','versions'])
+    assert.equal(master.passportDetailSummary[k],undefined);
+  assert.equal(passport.publishPassportDetailSummary({...snapshot,links:[{exists:true}]}),false);
+  assert.equal(passport.publishPassportDetailSummary({...snapshot,audio:42}),false);
+  assert.equal(passport.publishPassportDetailSummary({...snapshot,sections:new Array(5).fill(snapshot.sections[0])}),false);
+  assert.equal(passport.publishPassportDetailSummary({...snapshot,versions:[]}),true);
+  assert.equal(master.passportDetailSummary.versionCount,0);
+  assert.equal(master.passportDetailSummary.revision,2);
 });

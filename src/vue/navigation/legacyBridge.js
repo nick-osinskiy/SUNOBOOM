@@ -44,7 +44,9 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature, s
       playerLabSummary: { ...sharedUi.playerLabSummary },
       playerAbSummary: { ...sharedUi.playerAbSummary },
       masterListSummary: { ...sharedUi.masterListSummary },
-      passportListSummary: { ...sharedUi.passportListSummary }
+      passportListSummary: { ...sharedUi.passportListSummary },
+      masterDetailSummary: { ...sharedUi.masterDetailSummary },
+      passportDetailSummary: { ...sharedUi.passportDetailSummary }
     }),
     back: () => restoreLegacyMenuHistory('back', { legacyApi: api }),
     forward: () => restoreLegacyMenuHistory('forward', { legacyApi: api }),

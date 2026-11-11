@@ -1,11 +1,18 @@
 <script setup>
+import { watch } from 'vue';
+import { useLegacyUiStore } from '../state/legacy-ui-store.js';
 // Only display is Vue-owned. Original tp-* actions still handle all mutations,
 // calendar events, route navigation, version changes and local storage.
-defineProps({ model: { type: Object, required: true } });
+const props = defineProps({ model: { type: Object, required: true } });
+const ui = useLegacyUiStore();
+watch(() => props.model, snapshot => ui.publishPassportDetailSummary(snapshot), { immediate:true });
 </script>
 
 <template>
   <div class="sb-track-detail" data-sb-vue-track-detail-view>
+    <p v-if="ui.masterDetailSummary.ready" class="sb-track-disclaimer" data-sb-vue-master-detail-recap>
+      Последняя карточка Мастера: {{ ui.masterDetailSummary.done }} из {{ ui.masterDetailSummary.total }} этапов · {{ ui.masterDetailSummary.linkedCount }} из 6 связей
+    </p>
     <div class="sb-track-buttons">
       <button type="button" class="btn ghost small" data-action="tp-list">← К списку</button>
       <button type="button" class="btn primary small" data-action="tp-edit" :data-id="model.id">Изменить</button>
