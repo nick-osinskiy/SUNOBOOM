@@ -1237,11 +1237,13 @@ test('v0.180 performance tags share only valid settings and preview counts', () 
     melisma:true,falsetto:true,harmonies:true,noWhisper:true,noRasp:true,
     artistId:'PRIVATE ARTIST'};
   const snapshot={prefs:settings,busy:false,draft:null,
+    freshness:{previewFresh:false,sourceChanged:false,targetChanged:false,settingsChanged:false},
     notice:{text:'PRIVATE NOTICE'},previewState:'PRIVATE LYRICS',
     artists:[{id:'PRIVATE ARTIST',name:'PRIVATE NAME'}]};
   const expected={ready:true,mode:'smart',source:'auto',density:'balanced',
     intensity:3,enabledTechniques:3,vocalRestrictions:2,
-    busy:false,previewOpen:false,sectionCount:0};
+    busy:false,previewOpen:false,sectionCount:0,
+    previewFresh:false,sourceChanged:false,targetChanged:false,settingsChanged:false};
   assert.deepEqual(normalizePerformanceTagsSummary(snapshot),expected);
   assert.equal(a.publishPerformanceTagsSummary(snapshot),true);
   assert.strictEqual(a,b);
@@ -1259,7 +1261,7 @@ test('v0.180 performance tags share only valid settings and preview counts', () 
   assert.equal(a.publishPerformanceTagsSummary({...snapshot,busy:'false'}),false);
   assert.equal(a.publishPerformanceTagsSummary({...snapshot,draft:{sections:new Array(20001).fill({})}}),false);
   assert.equal(a.performanceTagsSummary.revision,1);
-  const preview={...snapshot,prefs:{...settings,mode:'rules',source:'original',density:'detailed',intensity:4,
+  const preview={...snapshot,freshness:{...snapshot.freshness,previewFresh:true},prefs:{...settings,mode:'rules',source:'original',density:'detailed',intensity:4,
     melisma:false},draft:{sections:[{id:'SECRET 1',label:'PRIVATE CHORUS',body:'PRIVATE WORDS'},
     {id:'SECRET 2',label:'PRIVATE BRIDGE'}],tags:['SECRET CUE'],preview:'PRIVATE LYRICS'}};
   assert.equal(b.publishPerformanceTagsSummary(preview),true);
@@ -1276,4 +1278,41 @@ test('v0.180 performance tags share only valid settings and preview counts', () 
   assert.equal(b.clearPerformanceTagsSummary(),false);
   assert.equal(a.performanceTagsSummary.revision,3);
   assert.equal(Object.isFrozen(a.performanceTagsSummary),true);
+});
+
+test('v0.181 freshness rejects missing, contradictory and non-boolean flags without exposing draft data', () => {
+  const ui=useLegacyUiStore(createPinia());
+  const snapshot={prefs:{mode:'rules',source:'original',density:'balanced',intensity:3,
+    melisma:true,falsetto:true,harmonies:true,noWhisper:true,noRasp:true},busy:false,
+    draft:{sections:[{label:'PRIVATE'}],preview:'PRIVATE LYRICS'},
+    freshness:{previewFresh:true,sourceChanged:false,targetChanged:false,settingsChanged:false,
+      source:'PRIVATE SOURCE',targetSnapshot:'PRIVATE TARGET',settingsSnapshot:'PRIVATE ARTIST'}};
+  assert.equal(ui.publishPerformanceTagsSummary(snapshot),true);
+  assert.equal(ui.publishPerformanceTagsSummary(snapshot),false);
+  assert.equal(ui.performanceTagsSummary.revision,1);
+  assert.equal(JSON.stringify(ui.performanceTagsSummary).includes('PRIVATE'),false);
+  for (const key of ['sourceChanged','targetChanged','settingsChanged']) {
+    const stale={...snapshot,freshness:{...snapshot.freshness,previewFresh:false,[key]:true}};
+    assert.equal(ui.publishPerformanceTagsSummary(stale),true);
+    assert.equal(ui.performanceTagsSummary[key],true);
+    assert.equal(ui.performanceTagsSummary.previewFresh,false);
+    assert.equal(ui.publishPerformanceTagsSummary(stale),false);
+    assert.equal(ui.publishPerformanceTagsSummary(snapshot),true);
+    assert.equal(ui.performanceTagsSummary.previewFresh,true);
+  }
+  const revision=ui.performanceTagsSummary.revision;
+  for (const freshness of [undefined,null,[],{},
+    {...snapshot.freshness,previewFresh:1}, {...snapshot.freshness,sourceChanged:'false'},
+    {...snapshot.freshness,targetChanged:null}, {...snapshot.freshness,settingsChanged:true},
+    {...snapshot.freshness,previewFresh:false}]) {
+    assert.equal(ui.publishPerformanceTagsSummary({...snapshot,freshness}),false);
+  }
+  assert.equal(ui.publishPerformanceTagsSummary({...snapshot,draft:null}),false);
+  assert.equal(ui.publishPerformanceTagsSummary({...snapshot,draft:null,
+    freshness:{previewFresh:false,sourceChanged:true,targetChanged:false,settingsChanged:false}}),false);
+  assert.equal(ui.performanceTagsSummary.revision,revision);
+  assert.equal(ui.clearPerformanceTagsSummary(),true);
+  for (const key of ['previewOpen','previewFresh','sourceChanged','targetChanged','settingsChanged'])
+    assert.equal(ui.performanceTagsSummary[key],false);
+  assert.equal(ui.clearPerformanceTagsSummary(),false);
 });

@@ -150,7 +150,8 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
   const performanceTagsSummary = shallowRef(Object.freeze({
     ready:false, mode:'smart', source:'auto', density:'balanced',
     intensity:3, enabledTechniques:3, vocalRestrictions:2,
-    busy:false, previewOpen:false, sectionCount:0, revision:0
+    busy:false, previewOpen:false, sectionCount:0, revision:0,
+    previewFresh:false, sourceChanged:false, targetChanged:false, settingsChanged:false
   }));
 
   function publishToolSummary(target, normalizer, snapshot) {
@@ -220,6 +221,7 @@ export const useLegacyUiStore = defineStore('sunoboom-legacy-ui', () => {
       ready:false, mode:'smart', source:'auto', density:'balanced',
       intensity:3, enabledTechniques:3, vocalRestrictions:2,
       busy:false, previewOpen:false, sectionCount:0,
+      previewFresh:false, sourceChanged:false, targetChanged:false, settingsChanged:false,
       revision:before.revision+1
     });
     return true;

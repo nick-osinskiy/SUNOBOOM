@@ -1618,6 +1618,90 @@ async function checkLayout(mobile) {
     if (!defaultTag.includes('Vocal delivery:')) {
       throw new Error('Local performance tags did not generate section delivery cues');
     }
+    // v0.181: exact native comparisons, including same-length edits and reverts.
+    const expectFreshness181 = async (changes={}) => {
+      const expected={previewOpen:true,previewFresh:true,sourceChanged:false,
+        targetChanged:false,settingsChanged:false,...changes};
+      await page.waitForFunction(expected => {
+        const s=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.performanceTagsSummary;
+        return s && Object.entries(expected).every(([k,v])=>s[k]===v);
+      }, expected);
+    };
+    await expectFreshness181();
+    const nativeSource181=await page.locator('#custom-idea-lyrics').elementHandle();
+    await page.locator('#custom-idea-lyrics').fill('X'+originalBeforeTags.slice(1));
+    await expectFreshness181({previewFresh:false,sourceChanged:true});
+    await tags.locator('[data-action="vt-apply"]').click();
+    if (await page.locator('#custom-idea-tagged').inputValue()!==taggedBefore ||
+        await tags.locator('#sb-vt-preview').inputValue()!==defaultTag ||
+        !(await page.locator('[data-sb-vue-tags-freshness]').textContent()).includes('устарел'))
+      throw new Error('v0.181 stale source was applied or preview was rewritten');
+    await page.locator('#custom-idea-lyrics').fill(originalBeforeTags);
+    await expectFreshness181();
+    await page.locator('#custom-idea-tagged').fill('PRIVATE changed target');
+    await expectFreshness181({previewFresh:false,targetChanged:true});
+    await page.locator('#custom-idea-tagged').fill(taggedBefore);
+    await expectFreshness181();
+    await tags.locator('#sb-vt-density').selectOption('minimal');
+    await expectFreshness181({previewFresh:false,settingsChanged:true});
+    await tags.locator('[data-action="vt-apply"]').click();
+    if (await page.locator('#custom-idea-tagged').inputValue()!==taggedBefore)
+      throw new Error('v0.181 changed settings bypassed the native apply guard');
+    await tags.locator('#sb-vt-density').selectOption('detailed');
+    await expectFreshness181();
+    const restriction181=tags.locator('[data-vt-pref="noWhisper"]');
+    const restrictionBefore181=await restriction181.isChecked();
+    await restriction181.setChecked(!restrictionBefore181);
+    await expectFreshness181({previewFresh:false,settingsChanged:true});
+    await restriction181.setChecked(restrictionBefore181);
+    await expectFreshness181();
+    await page.locator('#custom-idea-lyrics').evaluate(area => {
+      const i=area.value.search(/[аеёиоуыэюя]/i);
+      area.focus(); area.setSelectionRange(i,i+1);
+    });
+    await page.locator('[data-action="sb-poetry-accent"]').click();
+    await expectFreshness181({previewFresh:false,sourceChanged:true});
+    if (!await nativeSource181.evaluate(area=>area===document.getElementById('custom-idea-lyrics')))
+      throw new Error('v0.181 shared updates replaced the native source textarea');
+    await page.locator('#custom-idea-lyrics').fill(originalBeforeTags);
+    await expectFreshness181();
+    await tags.locator('[data-action="vt-cancel"]').click();
+    await expectFreshness181({previewOpen:false,previewFresh:false});
+    if (await page.locator('[data-sb-vue-tags-freshness]').count())
+      throw new Error('v0.181 cancelled preview retained freshness text');
+    await tags.locator('[data-action="vt-generate"]').click();
+    await expectFreshness181();
+    await tags.locator('#sb-vt-source').selectOption('tagged');
+    await expectFreshness181({previewOpen:false,previewFresh:false});
+    await page.locator('#custom-idea-tagged').fill(originalBeforeTags);
+    await tags.locator('[data-action="vt-generate"]').click();
+    await expectFreshness181();
+    // Unselected original text is not the source of a tagged-Lyrics draft.
+    await page.locator('#custom-idea-lyrics').fill('Unselected private original');
+    await expectFreshness181();
+    await page.locator('#custom-idea-tagged').fill('X'+originalBeforeTags.slice(1));
+    await expectFreshness181({previewFresh:false,sourceChanged:true,targetChanged:true});
+    await tags.locator('#sb-vt-source').selectOption('original');
+    await expectFreshness181({previewOpen:false,previewFresh:false});
+    await page.locator('#custom-idea-lyrics').fill(originalBeforeTags);
+    await page.locator('#custom-idea-tagged').fill(taggedBefore);
+    await tags.locator('[data-action="vt-generate"]').click();
+    await expectFreshness181();
+    const safe181=await page.evaluate(()=>window.SUNOBOOM_VUE_ROUTE.sharedState().performanceTagsSummary);
+    if (JSON.stringify(safe181).includes('PRIVATE') ||
+        ['freshness','sourceId','sourceText','targetSnapshot','settingsSnapshot'].some(k=>k in safe181) ||
+        await page.locator('[data-sb-vue-tags-freshness]').count()!==1)
+      throw new Error('v0.181 freshness leaked content or duplicated its summary');
+    // Fresh inputs do not mean that manually edited preview words are valid.
+    const validPreview181=await tags.locator('#sb-vt-preview').inputValue();
+    await tags.locator('#sb-vt-preview').fill(validPreview181+'\nPRIVATE injected words');
+    await expectFreshness181();
+    await tags.locator('[data-action="vt-apply"]').click();
+    if (await page.locator('#custom-idea-tagged').inputValue()!==taggedBefore)
+      throw new Error('v0.181 fresh flags bypassed the original words validation');
+    await tags.locator('#sb-vt-preview').fill(validPreview181);
+    // Regeneration keeps the original explicit refresh-confirmation behavior.
+    await tags.locator('[data-action="vt-generate"]').click();
     await tags.locator('[data-vt-cue="0"]').fill('Warm Emotional Vocals');
     await tags.locator('[data-action="vt-refresh"]').click();
     await page.waitForFunction(() =>
@@ -1627,7 +1711,8 @@ async function checkLayout(mobile) {
       document.getElementById('custom-idea-tagged')?.value?.includes('Warm Emotional Vocals'));
     await page.waitForFunction(() => {
       const s=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.performanceTagsSummary;
-      return s?.ready && !s.previewOpen && s.sectionCount===0;
+      return s?.ready && !s.previewOpen && s.sectionCount===0 && !s.previewFresh &&
+        !s.sourceChanged && !s.targetChanged && !s.settingsChanged;
     });
     if (await page.locator('#custom-idea-lyrics').inputValue() !== originalBeforeTags ||
         await tags.locator('#sb-vt-preview').count() !== 0) {
@@ -3182,6 +3267,27 @@ async function checkEditorFallback() {
     await page.evaluate(() => go('myideas'));
     await page.locator('#custom-idea-title').fill('Fallback song');
     await page.locator('#custom-idea-lyrics').fill('Куплет 1:\nНаши слова остаются с нами');
+    // v0.181: no Vue must still permit native generation and refuse stale drafts.
+    await page.locator('#sb-vt-mode').selectOption('rules');
+    await page.locator('#sb-vt-source').selectOption('original');
+    await page.locator('[data-action="vt-generate"]').click();
+    await page.locator('#sb-vt-preview').waitFor({state:'visible'});
+    await page.locator('#sb-vt-density').selectOption('detailed');
+    await page.locator('[data-action="vt-apply"]').click();
+    if (await page.locator('#custom-idea-tagged').inputValue() ||
+        !await page.evaluate(()=>window.SUNOBOOM_LEGACY_TAGS.snapshot().freshness.settingsChanged) ||
+        await page.locator('[data-sb-vue-tags-summary]').count())
+      throw new Error('v0.181 native fallback lost stale-settings protection');
+    await page.locator('[data-action="vt-generate"]').click();
+    await page.locator('#custom-idea-lyrics').fill('Куплет 1:\nНаши слова остаются с вами');
+    await page.locator('[data-action="vt-apply"]').click();
+    if (await page.locator('#custom-idea-tagged').inputValue())
+      throw new Error('v0.181 native fallback applied a stale source');
+    await page.locator('#custom-idea-lyrics').fill('Куплет 1:\nНаши слова остаются с нами');
+    await page.locator('[data-action="vt-apply"]').click();
+    if (!(await page.locator('#custom-idea-tagged').inputValue()).includes('Vocal delivery:'))
+      throw new Error('v0.181 native fallback failed to apply restored source');
+    page.once('dialog',dialog=>dialog.accept());
     await page.locator('[data-action="format-idea-lyrics"]').click();
     const output = await page.locator('#custom-idea-tagged').inputValue();
     await page.locator('[data-action="save-manual-idea"]').click();

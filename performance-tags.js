@@ -263,10 +263,20 @@
   if(node&&!node.closest('#sb-vt-workbench[data-v-app]'))node.textContent=t;
   emit();
  }
+ // v0.181: comparisons stay with the native draft; only flags leave this closure.
+ // Freshness does not validate edited cues/words or authorize applying Lyrics.
+ function previewFreshness(){
+  const sourceChanged=!!draft && get(draft.sourceId)!==draft.source;
+  const targetChanged=!!draft && get(taggedId)!==draft.targetSnapshot;
+  const settingsChanged=!!draft && draft.settingsSnapshot!==JSON.stringify(prefs());
+  return {previewFresh:!!draft&&!sourceChanged&&!targetChanged&&!settingsChanged,
+   sourceChanged,targetChanged,settingsChanged};
+ }
  function draftValid(){
   if(!draft)return false;
-  if(draft.settingsSnapshot!==JSON.stringify(prefs())){showNotice('Настройки исполнения изменились. Создай новый предпросмотр, чтобы учесть их.','warning');return false}
-  if(get(draft.sourceId)!==draft.source || get(taggedId)!==draft.targetSnapshot){
+  const freshness=previewFreshness();
+  if(freshness.settingsChanged){showNotice('Настройки исполнения изменились. Создай новый предпросмотр, чтобы учесть их.','warning');return false}
+  if(freshness.sourceChanged || freshness.targetChanged){
    showNotice('Текст или поле Lyrics изменились после генерации. Создай новый предпросмотр — старый применять нельзя.','warning');
    return false;
   }
@@ -418,9 +428,20 @@
   if(t.dataset.vtPref && t.type==='checkbox'){savePrefs({[t.dataset.vtPref]:t.checked});return}
   if(t.hasAttribute('data-vt-cue')){setTag(Number(t.dataset.vtCue),t.value);return}
   if(t.id==='sb-vt-preview' && draft){draft.preview=t.value;draft.previewEdited=true;showPreviewState('Предпросмотр изменён вручную. Проверь слова и теги перед применением.');return}
-  if((t.id===lyricId||t.id===taggedId)&&draft && (get(draft.sourceId)!==draft.source||get(taggedId)!==draft.targetSnapshot)){
+  if(t.id===lyricId||t.id===taggedId)syncSourceFreshness();
+ });
+ function syncSourceFreshness(){
+  if(!draft)return;
+  const freshness=previewFreshness();
+  if(freshness.sourceChanged||freshness.targetChanged){
    showNotice('Текст изменён. Этот предпросмотр устарел; создай новый.','warning');
+  }else{
+   showNotice('Текст соответствует предпросмотру. Проверь настройки и теги перед применением.');
   }
+ }
+ // setRangeText in the existing manual-accent action does not dispatch input.
+ document.addEventListener('click',event=>{
+  if(event.target.closest?.('[data-action="sb-poetry-accent"]'))syncSourceFreshness();
  });
  document.addEventListener('change',event=>{
   const t=event.target;if(!t)return;
@@ -446,7 +467,7 @@
    if(view.nav!=='myideas')return null;
    return {
     prefs:prefs(),modeHint:modeHint(prefs()),
-    hasEndpoint:!!endpoint(),busy,
+    hasEndpoint:!!endpoint(),busy,freshness:previewFreshness(),
     artists:artistList().map(a=>({id:a.id,name:a.name||'Без названия'})),
     presets:tagPresets,
     notice:{...notice},previewState,

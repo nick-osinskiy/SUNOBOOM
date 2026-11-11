@@ -30,6 +30,12 @@ const toggles = [['build', 'Нарастание перед припевом'], 
     {{ ui.performanceTagsSummary.busy ? 'идёт генерация' :
       (ui.performanceTagsSummary.previewOpen ?
         ui.performanceTagsSummary.sectionCount + ' секций в предпросмотре' : 'предпросмотр закрыт') }}
+    <span v-if="ui.performanceTagsSummary.previewOpen" data-sb-vue-tags-freshness role="status">
+      · {{ ui.performanceTagsSummary.previewFresh ? 'Текст и настройки не изменены; проверь теги перед применением.' : 'Предпросмотр устарел — создай новый.' }}
+      <span v-if="ui.performanceTagsSummary.sourceChanged"> Изменён исходник.</span>
+      <span v-if="ui.performanceTagsSummary.targetChanged"> Изменено готовое поле Lyrics.</span>
+      <span v-if="ui.performanceTagsSummary.settingsChanged"> Изменены настройки.</span>
+    </span>
   </p>
   <div class="field"><label for="lyrics-tag-preset">Характер аранжировки</label><select id="lyrics-tag-preset" v-model="fields.preset"><option v-for="[value, label] in presets" :key="value" :value="value">{{ label }}</option></select></div>
   <div class="workbench-switches"><label v-for="[key, label] in toggles" :key="key"><input :id="'lyrics-' + key" v-model="switches[key]" type="checkbox"> {{ label }}</label></div>
