@@ -1,8 +1,15 @@
 <script setup>
-defineProps({ model: { type: Object, required: true } });
+import { watch } from 'vue';
+import { useLegacyUiStore } from '../state/legacy-ui-store.js';
+const props = defineProps({ model: { type: Object, required: true } });
+const ui = useLegacyUiStore();
+watch(() => props.model, snapshot => ui.publishArtistDnaSummary(snapshot), { immediate:true });
 </script>
 
 <template>
+  <div v-if="ui.artistManagerSummary.ready" class="sb-dna-summary" data-sb-vue-artist-manager-recap>
+    <div><b>{{ ui.artistManagerSummary.artistCount }}</b><span>В ручном списке артистов</span></div>
+  </div>
   <div v-if="!model.detail">
     <div v-if="model.profiles.length" class="sb-dna-grid">
       <button v-for="artist in model.profiles" :key="artist.id" type="button"

@@ -1,11 +1,15 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
+import { useLegacyUiStore } from '../state/legacy-ui-store.js';
 
 const props = defineProps({ model: { type: Object, required: true } });
 const query = ref(props.model.filter || '');
 const normalize = value => String(value || '').normalize('NFKC').toLocaleLowerCase('ru');
 const filteredArtists = computed(() => props.model.artists.filter(a =>
   normalize(a.name).includes(normalize(query.value))));
+const ui = useLegacyUiStore();
+watch(() => [props.model, filteredArtists.value.length], ([snapshot,visible]) =>
+  ui.publishArtistManagerSummary(snapshot,visible), { immediate:true });
 </script>
 
 <template>
@@ -19,6 +23,9 @@ const filteredArtists = computed(() => props.model.artists.filter(a =>
     <p v-if="model.dnaCount" class="sbsong-artist-hint">
       Профилей ДНК артиста доступно для выбора: {{ model.dnaCount }}.
       Они не удаляются при изменении этого списка.
+    </p>
+    <p v-if="ui.artistDnaSummary.ready" class="sbsong-artist-hint" data-sb-vue-dna-recap>
+      Последний просмотр ДНК артиста: {{ ui.artistDnaSummary.profileCount }} профилей
     </p>
     <div class="sbsong-artist-manager-new">
       <input id="sbsong-artist-manager-add" type="text" maxlength="120"

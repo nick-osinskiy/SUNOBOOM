@@ -8,6 +8,7 @@ import { normalizeStudioSummary, normalizeMixerSummary, normalizeAuditorSummary,
 import { normalizePlayerLabSummary, normalizePlayerAbSummary } from '../src/vue/state/player-ui-model.js';
 import { normalizeMasterListSummary, normalizePassportListSummary, normalizeMasterDetailSummary, normalizePassportDetailSummary } from '../src/vue/state/workflow-ui-model.js';
 import { normalizeSongCollectionSummary, normalizeSongDetailSummary } from '../src/vue/state/song-ui-model.js';
+import { normalizeArtistManagerSummary, normalizeArtistDnaSummary } from '../src/vue/state/artist-ui-model.js';
 import { treeSearch, nextTreeZoom, connectedTreeEdges } from '../src/vue/academy/genre-tree-model.js';
 import { groupMajorVersions, historyResults, formatReleaseDate } from '../src/vue/version-history/version-model.js';
 import { activeNavigationRoute, navigationSnapshot } from '../src/vue/navigation/nav-model.js';
@@ -1020,4 +1021,46 @@ test('v0.173 My Songs detail shares take status without private metadata or audi
   assert.equal(b.songDetailSummary.versionCount,0);
   assert.equal(b.songDetailSummary.comparisonAvailable,false);
   assert.equal(b.songDetailSummary.revision,2);
+});
+
+test('v0.174 custom artist counts are validated and content-free', () => {
+  const a=useLegacyUiStore(createPinia());
+  const data={artists:[{id:'private1',name:'SECRET ONE'},{id:'private2',name:'SECRET TWO'}],
+    filter:'PRIVATE QUERY',dnaCount:1};
+  const expected={ready:true,artistCount:2,visibleCount:1,dnaCount:1};
+  assert.deepEqual(normalizeArtistManagerSummary(data,1),expected);
+  assert.equal(a.publishArtistManagerSummary(data,1),true);
+  assert.equal(a.publishArtistManagerSummary(data,1),false);
+  assert.deepEqual({...a.artistManagerSummary},{...expected,revision:1});
+  for(const k of ['artists','filter','id','name'])assert.equal(a.artistManagerSummary[k],undefined);
+  assert.equal(a.publishArtistManagerSummary(data,3),false);
+  assert.equal(a.publishArtistManagerSummary({...data,dnaCount:-1},1),false);
+  assert.equal(a.publishArtistManagerSummary({...data,artists:'broken'},1),false);
+  assert.equal(a.publishArtistManagerSummary(data,0),true);
+  assert.equal(a.artistManagerSummary.visibleCount,0);
+  assert.equal(a.artistManagerSummary.revision,2);
+});
+
+test('v0.174 DNA summary never shares names, style text or related record IDs', () => {
+  const a=useLegacyUiStore(createPinia());
+  const data={profiles:[{id:'secret',name:'PRIVATE',portrait:'https://private'}],
+    detail:{id:'secret',name:'PRIVATE',style:'PRIVATE STYLE',
+      related:[{id:'PRIVATE',title:'PRIVATE TRACK'}],forbids:['PRIVATE RULE'],
+      facts:[{label:'PRIVATE',value:'PRIVATE'}],
+      textFields:[{label:'PRIVATE',value:'PRIVATE TEXT'}]}};
+  const expected={ready:true,profileCount:1,detailOpen:true,linkedTrackCount:1,
+    restrictionsCount:1,factCount:1,sectionCount:1};
+  assert.deepEqual(normalizeArtistDnaSummary(data),expected);
+  assert.equal(a.publishArtistDnaSummary(data),true);
+  assert.equal(a.publishArtistDnaSummary(data),false);
+  assert.deepEqual({...a.artistDnaSummary},{...expected,revision:1});
+  for(const k of ['profiles','detail','id','name','style','related','portrait','textFields'])
+    assert.equal(a.artistDnaSummary[k],undefined);
+  assert.equal(a.publishArtistDnaSummary({...data,profiles:'broken'}),false);
+  assert.equal(a.publishArtistDnaSummary({...data,detail:{...data.detail,related:'broken'}}),false);
+  assert.equal(a.publishArtistDnaSummary({...data,detail:{...data.detail,forbids:new Array(33).fill('private')}}),false);
+  assert.equal(a.publishArtistDnaSummary({...data,detail:null}),true);
+  assert.equal(a.artistDnaSummary.detailOpen,false);
+  assert.equal(a.artistDnaSummary.linkedTrackCount,0);
+  assert.equal(a.artistDnaSummary.revision,2);
 });

@@ -216,7 +216,7 @@ async function checkLayout(mobile) {
     await version161.waitFor({ state: 'attached', timeout: 10000 });
     if (await page.locator('#sb-vh-overlay').count() !== 1 ||
         await page.locator('#sb-vh-tabs button').count() !== 2 ||
-        !(await version161.textContent()).includes('v0.173')) {
+        !(await version161.textContent()).includes('v0.174')) {
       throw new Error('Vue version-history dialog or current release missing');
     }
     await page.locator('#sb-vh-tabs button').nth(1).click();
@@ -1905,20 +1905,38 @@ async function checkLayout(mobile) {
         !(await manager.textContent()).includes('Профилей ДНК артиста')) {
       throw new Error('Vue artist manager lost saved artist or DNA profile reference');
     }
+    // v0.174: shared counters are derived only from existing artist list.
+    await page.waitForFunction(() => {
+      const s=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.artistManagerSummary;
+      const source=window.SUNOBOOM_LEGACY_ARTIST_MANAGER?.snapshot?.();
+      return s?.ready && !!source && s.artistCount===source.artists.length &&
+        s.visibleCount===source.artists.length && s.dnaCount===source.dnaCount;
+    });
+    const artistPrivacy174=await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.sharedState().artistManagerSummary);
+    if (['artists','filter','id','name'].some(k=>k in artistPrivacy174) ||
+        await manager.locator('[data-sb-vue-artist-manager]').count()!==1)
+      throw new Error('v0.174 artist manager leaked names or doubled UI');
     await manager.locator('#sbsong-artist-manager-filter').fill('no-match-artist-115');
     if (await manager.locator('.sbsong-artist-entry').count() !== 0 ||
         !(await manager.textContent()).includes('Ничего не найдено')) {
       throw new Error('Vue artist manager search did not show empty results');
     }
+    await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.sharedState()?.artistManagerSummary?.visibleCount===0);
     await manager.locator('#sbsong-artist-manager-filter').fill('aurora');
     if (await manager.locator('.sbsong-artist-entry').count() !== 1) {
       throw new Error('Vue artist manager did not filter existing artists');
     }
+    await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.sharedState()?.artistManagerSummary?.visibleCount===1);
     await manager.locator('#sbsong-artist-manager-filter').fill('');
     await manager.locator('#sbsong-artist-manager-add').fill('New Artist Vue 115');
     await manager.locator('[data-sbsong-action="artist-manager-add"]').click();
     await page.waitForFunction(() => (data.songArtists || []).some(a => a.name === 'New Artist Vue 115') &&
       document.querySelector('#sb-vue-artist-manager[data-v-app]')?.textContent?.includes('New Artist Vue 115'), null, { timeout: 10000 });
+    await page.waitForFunction(() => {
+      const s=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.artistManagerSummary;
+      const source=window.SUNOBOOM_LEGACY_ARTIST_MANAGER?.snapshot?.();
+      return s?.ready && !!source && s.artistCount===source.artists.length;
+    });
     const savedArtist = await page.evaluate(() => {
       const live = (data.songArtists || []).find(a => a.name === 'New Artist Vue 115');
       const persisted = JSON.parse(localStorage.getItem('sunoboom-v1'));
@@ -1960,6 +1978,13 @@ async function checkLayout(mobile) {
     if (await dnaView.locator('[data-action="dna-open"][data-id="dna-vue-manager-115"]').count() !== 1) {
       throw new Error('Vue DNA collection did not display existing artist profile');
     }
+    await page.waitForFunction(() => {
+      const s=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.artistDnaSummary;
+      const source=window.SUNOBOOM_LEGACY_DNA?.snapshot?.();
+      return s?.ready && !s.detailOpen && !!source &&
+        s.profileCount===source.profiles.length &&
+        !!document.querySelector('#sb-vue-dna-view [data-sb-vue-artist-manager-recap]');
+    });
     await dnaView.locator('[data-action="dna-open"][data-id="dna-vue-manager-115"]').click();
     await page.locator('#sb-vue-dna-view[data-v-app]').waitFor({ state: 'attached' });
     if (!(await dnaView.textContent()).includes('DNA Studio 115') ||
@@ -1967,6 +1992,19 @@ async function checkLayout(mobile) {
         await dnaView.locator('[data-action="dna-apply"][data-id="dna-vue-manager-115"]').count() !== 2) {
       throw new Error('Vue DNA detail lost Style, copy or Suno Studio actions');
     }
+    await page.waitForFunction(() => {
+      const s=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.artistDnaSummary;
+      const source=window.SUNOBOOM_LEGACY_DNA?.snapshot?.();
+      return s?.detailOpen && !!source?.detail &&
+        s.linkedTrackCount===source.detail.related.length &&
+        s.restrictionsCount===source.detail.forbids.length &&
+        s.factCount===source.detail.facts.length &&
+        s.sectionCount===source.detail.textFields.length;
+    });
+    const dnaPrivacy174=await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.sharedState().artistDnaSummary);
+    if (['profiles','detail','name','style','id','related','portrait','textFields'].some(k=>k in dnaPrivacy174) ||
+        await dnaView.locator('.sb-dna-detail').count()!==1)
+      throw new Error('v0.174 DNA summary leaked content or doubled detail');
     await dnaView.locator('[data-action="dna-edit"][data-id="dna-vue-manager-115"]').click();
     await page.locator('#sb-vue-dna-editor[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
     await page.locator('#dna-editor[data-sb-vue-dna-editor]').waitFor({ state: 'visible' });

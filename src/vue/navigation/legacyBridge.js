@@ -48,7 +48,9 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature, s
       masterDetailSummary: { ...sharedUi.masterDetailSummary },
       passportDetailSummary: { ...sharedUi.passportDetailSummary },
       songCollectionSummary: { ...sharedUi.songCollectionSummary },
-      songDetailSummary: { ...sharedUi.songDetailSummary }
+      songDetailSummary: { ...sharedUi.songDetailSummary },
+      artistManagerSummary: { ...sharedUi.artistManagerSummary },
+      artistDnaSummary: { ...sharedUi.artistDnaSummary }
     }),
     back: () => restoreLegacyMenuHistory('back', { legacyApi: api }),
     forward: () => restoreLegacyMenuHistory('forward', { legacyApi: api }),
