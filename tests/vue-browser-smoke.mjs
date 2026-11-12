@@ -1588,6 +1588,15 @@ async function checkLayout(mobile) {
     await page.locator('[data-action="sb-poetry-auto-stress"]').click();
     await page.locator('#sb-poetry-stress-preview').waitFor({ state: 'visible', timeout: 20000 });
     await page.locator('#sb-poetry-ambiguous-choices[data-v-app]').waitFor({ state: 'attached' });
+    // v0.192: a repeated native readiness signal must not duplicate Vue.
+    await page.evaluate(() => {
+      window.dispatchEvent(new Event('sunoboom:poetry-stress-ready'));
+      window.dispatchEvent(new Event('sunoboom:poetry-stress-ready'));
+    });
+    if (await page.locator('#sb-poetry-ambiguous-choices[data-v-app]').count()!==1 ||
+        await page.locator('#sb-poetry-result[data-v-app]').count()!==1 ||
+        await page.locator('#custom-idea-lyrics').inputValue()!==lyricText)
+      throw new Error('v0.192 repeated poetry readiness remounted Vue or changed native lyrics');
     // v0.179: the shared store receives counts, never homographs or variants.
     await page.waitForFunction(() => {
       const s=window.SUNOBOOM_VUE_ROUTE?.sharedState()?.poetryAmbiguitySummary;
@@ -1634,6 +1643,19 @@ async function checkLayout(mobile) {
     });
     if (await page.locator('[data-sb-vue-poetry-ambiguity-count]').count()!==0)
       throw new Error('v0.179 stale preview summary survived applying accents');
+    // Closing the nested preview has no direct-child #app mutation.
+    // Its native closed event must unmount the orphan immediately.
+    await page.evaluate(() => window.dispatchEvent(new Event('sunoboom:poetry-stress-closed')));
+    const poetryClose192 = await page.evaluate(() => ({
+      previewHosts: document.querySelectorAll('#sb-poetry-ambiguous-choices').length,
+      analysisHosts: document.querySelectorAll('#sb-poetry-result[data-v-app]').length,
+      source: document.getElementById('custom-idea-lyrics')?.value,
+      summary: window.SUNOBOOM_VUE_ROUTE?.sharedState()?.poetryAmbiguitySummary
+    }));
+    if (poetryClose192.previewHosts!==0 || poetryClose192.analysisHosts!==1 ||
+        !poetryClose192.source || poetryClose192.source===lyricText ||
+        poetryClose192.summary?.ready || poetryClose192.summary?.occurrenceCount!==0)
+      throw new Error('v0.192 nested poetry closure leaked Vue island or lost accents: '+JSON.stringify(poetryClose192));
     await page.waitForFunction(() =>
       document.getElementById('custom-idea-lyrics')?.value?.includes('замо\u0301к') ||
       document.getElementById('custom-idea-lyrics')?.value?.includes('за\u0301мок'));

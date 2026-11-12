@@ -1,46 +1,36 @@
 import PoetryAnalysis from './PoetryAnalysis.vue';
 import PoetryAmbiguities from './PoetryAmbiguities.vue';
+import { observeLegacyIslands } from '../legacy/observeLegacyIslands.js';
 
-/** Progressive enhancement only; the FSA dictionary and textarea mirror stay legacy. */
+/** v0.192: one shallow lifecycle for poetry analysis and async stress choices.
+ * Native FSA dictionary, textarea, manual stress and save/copy stay authoritative.
+ */
 export function activateLegacyPoetry({ mountVueFeature }) {
   const api = window.SUNOBOOM_LEGACY_POETRY;
   const root = document.getElementById('app');
-  if (!api || !root) return () => {};
-  let disposed = false;
-  const active = new Map();
+  if (!api?.analysis || !api?.ambiguities || !root) return () => {};
 
-  function sync() {
-    if (disposed) return;
-    const slots = [
+  return observeLegacyIslands({
+    root,
+    islands: [
       ['analysis', '#sb-poetry-result', PoetryAnalysis],
       ['ambiguities', '#sb-poetry-ambiguous-choices', PoetryAmbiguities]
-    ];
-    for (const [key, selector, component] of slots) {
-      const node = root.querySelector(selector);
-      const old = active.get(key);
-      if (old?.node === node) continue;
-      if (old) { old.unmount(); active.delete(key); }
-      if (!node) continue;
-      const unmount = mountVueFeature(node, component, { api });
-      if (unmount) active.set(key, { node, unmount });
+    ].map(([key, selector, component]) => ({
+      key,
+      selectTarget: parent => parent.querySelector(selector),
+      // Both Vue components read current analysis/ambiguity data from api.
+      // There is no separate poetry snapshot or copied lyrics.
+      readSnapshot: () => api,
+      mount: node => mountVueFeature(node, component, { api })
+    })),
+    subscribe: sync => {
+      // Ready creates the nested ambiguity host; closed removes it without
+      // a direct-child mutation of #app. Both must trigger an explicit sync.
+      const events = ['sunoboom:poetry-stress-ready', 'sunoboom:poetry-stress-closed'];
+      for (const event of events) window.addEventListener(event, sync);
+      return () => {
+        for (const event of events) window.removeEventListener(event, sync);
+      };
     }
-  }
-
-  // Main route replacement is handled by the root observer; the async stress
-  // card publishes its own ready event when its ambiguity slot is created.
-  const observer = new MutationObserver(sync);
-  observer.observe(root, { childList: true });
-  window.addEventListener('sunoboom:poetry-stress-ready', sync);
-  // Native apply/manual accent removes the preview below #app without a
-  // top-level childList mutation. Unmount the orphaned Vue island explicitly.
-  window.addEventListener('sunoboom:poetry-stress-closed', sync);
-  sync();
-  return () => {
-    disposed = true;
-    observer.disconnect();
-    window.removeEventListener('sunoboom:poetry-stress-ready', sync);
-    window.removeEventListener('sunoboom:poetry-stress-closed', sync);
-    for (const item of active.values()) item.unmount();
-    active.clear();
-  };
+  });
 }

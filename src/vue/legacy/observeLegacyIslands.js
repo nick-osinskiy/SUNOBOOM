@@ -1,7 +1,7 @@
 // v0.190: one shallow observer for several independent legacy Vue hosts.
 // Do not observe descendants: Vue updates and text input must not trigger remounts.
 export function observeLegacyIslands({
-  root, islands, createObserver = callback => new MutationObserver(callback)
+  root, islands, subscribe, createObserver = callback => new MutationObserver(callback)
 }) {
   if (!root || !Array.isArray(islands) || !islands.length ||
       islands.some(item => !item || typeof item.key !== 'string' ||
@@ -32,11 +32,15 @@ export function observeLegacyIslands({
   }
   const observer = createObserver(sync);
   observer.observe(root, { childList: true });
+  // Optional native lifecycle events for islands created/closed below #app.
+  // Keep the observer shallow: Vue's own DOM updates are not navigation.
+  const unsubscribe = typeof subscribe === 'function' ? subscribe(sync) : null;
   sync();
   return () => {
     if (disposed) return;
     disposed = true;
     observer.disconnect();
+    if (typeof unsubscribe === 'function') unsubscribe();
     for (const { unmount } of active.values()) unmount();
     active.clear();
   };

@@ -1696,3 +1696,81 @@ test('v0.191 six arranger islands remount independently and preserve fallback on
   notify();
   assert.equal(mounts.length,before);
 });
+
+
+test('v0.192 poetry bridge retains original API, stress events and two Vue hosts', () => {
+  const code = readFileSync(new URL('../src/vue/poetry/legacyPoetryBridge.js', import.meta.url), 'utf8');
+  assert.ok(code.includes("import { observeLegacyIslands } from '../legacy/observeLegacyIslands.js';"));
+  assert.ok(code.includes("['analysis', '#sb-poetry-result', PoetryAnalysis]"));
+  assert.ok(code.includes("['ambiguities', '#sb-poetry-ambiguous-choices', PoetryAmbiguities]"));
+  assert.ok(code.includes('readSnapshot: () => api'));
+  assert.ok(code.includes('mount: node => mountVueFeature(node, component, { api })'));
+  assert.ok(code.includes('subscribe: sync =>'));
+  for (const event of ['sunoboom:poetry-stress-ready', 'sunoboom:poetry-stress-closed']) {
+    assert.ok(code.includes(event));
+    assert.ok(code.includes('window.addEventListener(event, sync)'));
+    assert.ok(code.includes('window.removeEventListener(event, sync)'));
+  }
+  assert.doesNotMatch(code, /new MutationObserver|subtree:\s*true|localStorage|indexedDB|\.innerHTML\s*=/);
+  const shared = readFileSync(new URL('../src/vue/legacy/observeLegacyIslands.js', import.meta.url), 'utf8');
+  assert.ok(shared.includes("typeof subscribe === 'function' ? subscribe(sync) : null"));
+  assert.ok(shared.includes("if (typeof unsubscribe === 'function') unsubscribe()"));
+  assert.ok(shared.includes("observer.observe(root, { childList: true })"));
+});
+
+test('v0.192 nested poetry stress lifecycle mounts on ready, unmounts on closed and unsubscribes', () => {
+  const analysis = { id:'analysis', isConnected:true, html:'original analysis' };
+  const stress = { id:'stress', isConnected:true, html:'original dictionary choices' };
+  const hosts = new Map([['#sb-poetry-result',analysis]]);
+  const root = { querySelector: selector => hosts.get(selector) || null };
+  const counts = { analysis:0, stress:0, unmountAnalysis:0, unmountStress:0 };
+  const registrations = new Map();
+  let notify, observeCount=0, disconnectCount=0, offCount=0;
+  const api = { analysis:()=>({ analyzed:false }), ambiguities:()=>({ count:1 }) };
+  let userLyrics='Я вижу замок на холме';
+  const stop = observeLegacyIslands({
+    root,
+    islands: [
+      { key:'analysis', selectTarget: p=>p.querySelector('#sb-poetry-result'),
+        readSnapshot:()=>api, mount: (node,model)=>{
+          assert.equal(node,analysis);assert.equal(model,api);counts.analysis++;
+          return ()=>{counts.unmountAnalysis++;};
+        } },
+      { key:'stress', selectTarget: p=>p.querySelector('#sb-poetry-ambiguous-choices'),
+        readSnapshot:()=>api, mount: (node,model)=>{
+          assert.equal(node,stress);assert.equal(model,api);counts.stress++;
+          return ()=>{counts.unmountStress++;};
+        } }
+    ],
+    createObserver: callback => ({
+      observe(node,options) { assert.equal(node,root);assert.deepEqual(options,{childList:true});notify=callback;observeCount++; },
+      disconnect() { disconnectCount++; }
+    }),
+    subscribe: sync => {
+      registrations.set('ready',sync);registrations.set('closed',sync);
+      return ()=>{offCount++;registrations.clear();};
+    }
+  });
+  assert.equal(observeCount,1);
+  assert.deepEqual([counts.analysis,counts.stress],[1,0]);
+  // The native FSA dictionary inserts the preview nested below #app.
+  hosts.set('#sb-poetry-ambiguous-choices',stress);
+  registrations.get('ready')();
+  assert.deepEqual([counts.analysis,counts.stress],[1,1]);
+  registrations.get('ready')();notify();
+  assert.deepEqual([counts.analysis,counts.stress],[1,1]);
+  // Applying or manually marking stress removes the preview without root mutation.
+  hosts.delete('#sb-poetry-ambiguous-choices');stress.isConnected=false;
+  registrations.get('closed')();
+  assert.deepEqual([counts.unmountAnalysis,counts.unmountStress],[0,1]);
+  assert.equal(analysis.html,'original analysis');
+  assert.equal(userLyrics,'Я вижу замок на холме');
+  registrations.get('closed')();notify();
+  assert.equal(counts.unmountStress,1);
+  stop();stop();
+  assert.equal(disconnectCount,1);assert.equal(offCount,1);
+  assert.equal(registrations.size,0);
+  assert.deepEqual([counts.unmountAnalysis,counts.unmountStress],[1,1]);
+  notify();
+  assert.equal(counts.analysis,1);
+});
