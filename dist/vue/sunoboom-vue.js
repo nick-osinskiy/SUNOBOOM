@@ -8893,28 +8893,30 @@ var ux = { class: "field" }, dx = { class: "field" }, fx = ["value"], px = { cla
 	}
 };
 // src/vue/legacy/observeLegacyIslands.js
-function Vx({ root: e, islands: t, createObserver: n = (e) => new MutationObserver(e) }) {
+function Vx({ root: e, islands: t, subscribe: n, createObserver: r = (e) => new MutationObserver(e) }) {
 	if (!e || !Array.isArray(t) || !t.length || t.some((e) => !e || typeof e.key != "string" || !e.key || typeof e.selectTarget != "function" || typeof e.readSnapshot != "function" || typeof e.mount != "function") || new Set(t.map((e) => e.key)).size !== t.length) return () => {};
-	let r = /* @__PURE__ */ new Map(), i = !1;
-	function a() {
-		if (!i) for (let n of t) {
-			let t = n.selectTarget(e), i = r.get(n.key);
-			if (i?.target === t && t?.isConnected || (i && (r.delete(n.key), i.unmount()), !t?.isConnected)) continue;
+	let i = /* @__PURE__ */ new Map(), a = !1;
+	function o() {
+		if (!a) for (let n of t) {
+			let t = n.selectTarget(e), r = i.get(n.key);
+			if (r?.target === t && t?.isConnected || (r && (i.delete(n.key), r.unmount()), !t?.isConnected)) continue;
 			let a = n.readSnapshot(t);
 			if (!a) continue;
 			let o = n.mount(t, a);
-			typeof o == "function" && r.set(n.key, {
+			typeof o == "function" && i.set(n.key, {
 				target: t,
 				unmount: o
 			});
 		}
 	}
-	let o = n(a);
-	return o.observe(e, { childList: !0 }), a(), () => {
-		if (!i) {
-			i = !0, o.disconnect();
-			for (let { unmount: e } of r.values()) e();
-			r.clear();
+	let s = r(o);
+	s.observe(e, { childList: !0 });
+	let c = typeof n == "function" ? n(o) : null;
+	return o(), () => {
+		if (!a) {
+			a = !0, s.disconnect(), typeof c == "function" && c();
+			for (let { unmount: e } of i.values()) e();
+			i.clear();
 		}
 	};
 }
@@ -11748,11 +11750,9 @@ var Ok = {
 // src/vue/poetry/legacyPoetryBridge.js
 function Zk({ mountVueFeature: e }) {
 	let t = window.SUNOBOOM_LEGACY_POETRY, n = document.getElementById("app");
-	if (!t || !n) return () => {};
-	let r = !1, i = /* @__PURE__ */ new Map();
-	function a() {
-		if (r) return;
-		let a = [[
+	return !t?.analysis || !t?.ambiguities || !n ? () => {} : Vx({
+		root: n,
+		islands: [[
 			"analysis",
 			"#sb-poetry-result",
 			Wk
@@ -11760,23 +11760,20 @@ function Zk({ mountVueFeature: e }) {
 			"ambiguities",
 			"#sb-poetry-ambiguous-choices",
 			Xk
-		]];
-		for (let [r, o, s] of a) {
-			let a = n.querySelector(o), c = i.get(r);
-			if (c?.node === a || (c && (c.unmount(), i.delete(r)), !a)) continue;
-			let l = e(a, s, { api: t });
-			l && i.set(r, {
-				node: a,
-				unmount: l
-			});
+		]].map(([n, r, i]) => ({
+			key: n,
+			selectTarget: (e) => e.querySelector(r),
+			readSnapshot: () => t,
+			mount: (n) => e(n, i, { api: t })
+		})),
+		subscribe: (e) => {
+			let t = ["sunoboom:poetry-stress-ready", "sunoboom:poetry-stress-closed"];
+			for (let n of t) window.addEventListener(n, e);
+			return () => {
+				for (let n of t) window.removeEventListener(n, e);
+			};
 		}
-	}
-	let o = new MutationObserver(a);
-	return o.observe(n, { childList: !0 }), window.addEventListener("sunoboom:poetry-stress-ready", a), window.addEventListener("sunoboom:poetry-stress-closed", a), a(), () => {
-		r = !0, o.disconnect(), window.removeEventListener("sunoboom:poetry-stress-ready", a), window.removeEventListener("sunoboom:poetry-stress-closed", a);
-		for (let e of i.values()) e.unmount();
-		i.clear();
-	};
+	});
 }
 // src/vue/poetry/PerformanceTags.vue
 var Qk = { class: "sb-vt-field" }, $k = ["value"], eA = ["value"], tA = {
