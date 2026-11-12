@@ -3305,6 +3305,30 @@ async function checkLayout(mobile) {
     await page.evaluate(() => go('home'));
     await page.locator('#sb-vue-dashboard[data-v-app]').waitFor({ state:'attached', timeout:10000 });
 
+    // v0.186: the Master and Passport lists share the same lifecycle.
+    // Rapid cross-section navigation cannot keep detached or duplicate hosts.
+    for (const [route, routes, target, absent] of [
+      ['producer', ['tracks','producer','tracks','producer'], '#sbpc-list[data-sb-vue-producer-list]', '#sb-vue-track-list'],
+      ['tracks', ['producer','tracks','producer','tracks'], '#sb-vue-track-list[data-sb-vue-track-list]', '#sbpc-list']
+    ]) {
+      await page.evaluate(list => {
+        view.sbTrackSelected = null;
+        view.sbTrackEdit = null;
+        for (const item of list) go(item);
+      }, routes);
+      await page.locator(target+'[data-v-app]').waitFor({ state:'attached', timeout:10000 });
+      const slots = await page.evaluate(({target,absent}) => ({
+        route:view.nav,
+        active:document.querySelectorAll(target+'[data-v-app]').length,
+        hosts:document.querySelectorAll(target).length,
+        other:document.querySelectorAll(absent).length
+      }), {target,absent});
+      if (slots.route !== route || slots.active !== 1 || slots.hosts !== 1 || slots.other !== 0)
+        throw new Error('v0.186 Master/Passport rapid rerender lost or duplicated a Vue list: '+JSON.stringify(slots));
+    }
+    await page.evaluate(() => go('home'));
+    await page.locator('#sb-vue-dashboard[data-v-app]').waitFor({ state:'attached', timeout:10000 });
+
     const version = await page.locator('.sb-app-version').first().textContent();
     if (!/^v?\d+\.\d+$/.test(String(version || '').trim())) throw new Error('Version display missing or malformed');
 

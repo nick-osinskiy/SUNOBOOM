@@ -1443,3 +1443,21 @@ test('v0.185 library, artist and idea bridges reuse the same isolated lifecycle'
     assert.doesNotMatch(code, /new MutationObserver|localStorage|indexedDB/i, file);
   }
 });
+
+
+test('v0.186 track and Master display bridges keep their original snapshot contracts', () => {
+  for (const [file, selector, component, api] of [
+    ['../src/vue/account/legacyTrackPassportListBridge.js', '#sb-vue-track-list[data-sb-vue-track-list]', 'TrackPassportList', 'SUNOBOOM_LEGACY_TRACK_LIST'],
+    ['../src/vue/account/legacyTrackPassportDetailBridge.js', '#sb-vue-track-detail[data-sb-vue-track-detail]', 'TrackPassportDetail', 'SUNOBOOM_LEGACY_TRACK_DETAIL'],
+    ['../src/vue/producer/legacyProducerSongListBridge.js', '#sbpc-list[data-sb-vue-producer-list]', 'ProducerSongList', 'SUNOBOOM_LEGACY_PRODUCER_LIST'],
+    ['../src/vue/producer/legacyProducerSongDetailBridge.js', '#sb-vue-producer-detail[data-sb-vue-producer-host]', 'ProducerSongDetail', 'SUNOBOOM_LEGACY_PRODUCER_DETAIL']
+  ]) {
+    const source = readFileSync(new URL(file, import.meta.url), 'utf8');
+    assert.ok(source.includes('observeLegacyIsland({'), file);
+    assert.ok(source.includes('window.' + api), file);
+    assert.ok(source.includes("parent.querySelector('" + selector + "')"), file);
+    assert.ok(source.includes('readSnapshot: () => api.snapshot()'), file);
+    assert.ok(source.includes('mountVueFeature(node, ' + component + ', { model })'), file);
+    assert.doesNotMatch(source, /new MutationObserver|subtree:\s*true|localStorage|indexedDB/i, file);
+  }
+});
