@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { createPinia } from 'pinia';
 import { useLegacyUiStore } from '../src/vue/state/legacy-ui-store.js';
 import { normalizeLegacyAppearance } from '../src/vue/state/appearance-model.js';
+import { normalizeTopHeader } from '../src/vue/navigation/top-header-model.js';
 import { normalizeAcademyCatalog, normalizeAcademyFocus, normalizeAcademyTree } from '../src/vue/state/academy-ui-model.js';
 import { normalizeStudioSummary, normalizeMixerSummary, normalizeAuditorSummary, normalizeArrangerSummary } from '../src/vue/state/production-ui-model.js';
 import { normalizePlayerLabSummary, normalizePlayerAbSummary } from '../src/vue/state/player-ui-model.js';
@@ -1315,4 +1316,27 @@ test('v0.181 freshness rejects missing, contradictory and non-boolean flags with
   for (const key of ['previewOpen','previewFresh','sourceChanged','targetChanged','settingsChanged'])
     assert.equal(ui.performanceTagsSummary[key],false);
   assert.equal(ui.clearPerformanceTagsSummary(),false);
+});
+
+test('v0.183 header view model validates bounded display data without personal records', () => {
+  const safe={breadcrumb:'Личный кабинет / Мои идеи',
+    logoSrc:'data:image/png;base64,abc',version:'0.183',avatarInitial:'М',
+    unreadCount:0,noticeOpen:false,
+    profileName:'PRIVATE NAME',reminders:[{title:'PRIVATE EVENT'}]};
+  const result=normalizeTopHeader(safe);
+  assert.deepEqual(result,{breadcrumb:safe.breadcrumb,logoSrc:safe.logoSrc,
+    version:'0.183',avatarInitial:'М',unreadCount:0,noticeOpen:false,
+    noticeBadge:3,noticePreview:true});
+  assert.equal(Object.isFrozen(result),true);
+  assert.equal(JSON.stringify(result).includes('PRIVATE'),false);
+  assert.deepEqual(normalizeTopHeader({...safe,unreadCount:125,noticeOpen:true}),{
+    ...result,unreadCount:125,noticeOpen:true,noticeBadge:99,noticePreview:false
+  });
+  for(const bad of [null,[],{}, {...safe,unreadCount:-1},
+    {...safe,unreadCount:1.5},{...safe,noticeOpen:'false'},
+    {...safe,version:'private'}, {...safe,avatarInitial:'PRIVATE NAME'},
+    {...safe,breadcrumb:'x'.repeat(161)}, {...safe,logoSrc:''},
+    {...safe,logoSrc:'x'.repeat(20001)}]) {
+    assert.equal(normalizeTopHeader(bad),null);
+  }
 });

@@ -4,13 +4,14 @@
 // and <meta name="sunoboom-vue-nav" content="enabled"> is explicitly added.
 const localDev = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 const productionEnabled = !!document.querySelector('meta[name="sunoboom-vue-nav"][content="enabled"]');
-const moduleUrl = productionEnabled ? '../../dist/vue/sunoboom-vue.js?v=182' : localDev ? './entry.js' : null;
+const moduleUrl = productionEnabled ? '../../dist/vue/sunoboom-vue.js?v=183' : localDev ? './entry.js' : null;
 
 if (moduleUrl && window.SUNOBOOM_LEGACY_NAV) {
   import(moduleUrl)
-    .then(({ startLegacyNavigation, startLegacyAppearance, startLegacyAcademy, startLegacyGenreDetail, startLegacyStudio, startLegacyMixer, startLegacyAuditor, startLegacyArranger, startLegacyPoetry, startLegacyTags, startLegacyIdeaEditor, startLegacyIdeaCollections, startLegacyPromptCollection, startLegacyPromptEditor, startLegacyLibrary, startLegacySongCards, startLegacySongDetail, startLegacySongEditor, startLegacyArtistManager, startLegacyArtistDNA, startLegacyArtistDNAEditor, startLegacyAccountSettings, startLegacyPlayerLab, startLegacyPlayerAB, startLegacyProducerSongList, startLegacyProducerSongDetail, startLegacyTrackPassportList, startLegacyTrackPassportDetail, startLegacyTrackPassportEditor, startLegacyVersionHistory, startLegacyHomeDashboard, startLegacyGenreTree }) => {
+    .then(({ startLegacyNavigation, startLegacyTopHeader, startLegacyAppearance, startLegacyAcademy, startLegacyGenreDetail, startLegacyStudio, startLegacyMixer, startLegacyAuditor, startLegacyArranger, startLegacyPoetry, startLegacyTags, startLegacyIdeaEditor, startLegacyIdeaCollections, startLegacyPromptCollection, startLegacyPromptEditor, startLegacyLibrary, startLegacySongCards, startLegacySongDetail, startLegacySongEditor, startLegacyArtistManager, startLegacyArtistDNA, startLegacyArtistDNAEditor, startLegacyAccountSettings, startLegacyPlayerLab, startLegacyPlayerAB, startLegacyProducerSongList, startLegacyProducerSongDetail, startLegacyTrackPassportList, startLegacyTrackPassportDetail, startLegacyTrackPassportEditor, startLegacyVersionHistory, startLegacyHomeDashboard, startLegacyGenreTree }) => {
       if (typeof startLegacyAppearance === 'function') startLegacyAppearance();
       if (typeof startLegacyNavigation === 'function') startLegacyNavigation();
+      if (typeof startLegacyTopHeader === 'function') startLegacyTopHeader();
       if (typeof startLegacyAcademy === 'function') startLegacyAcademy();
       if (typeof startLegacyGenreTree === 'function') startLegacyGenreTree();
       if (typeof startLegacyGenreDetail === 'function') startLegacyGenreDetail();

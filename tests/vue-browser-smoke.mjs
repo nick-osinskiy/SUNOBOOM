@@ -71,6 +71,38 @@ async function checkLayout(mobile) {
       throw error;
     }
     await page.locator('[data-sb-vue-mobile][data-v-app]').waitFor({ state: 'attached', timeout: 20000 });
+    // v0.183: Vue owns exactly one header host, with the same DOM structure as
+    // the native fallback (no duplicate bell, logo, avatar or version).
+    const vueTop183=page.locator('.top[data-sb-vue-top][data-v-app]');
+    await vueTop183.waitFor({ state: 'attached', timeout: 10000 });
+    const top183=await vueTop183.evaluate(node => {
+      const p=node.querySelector(':scope > .top-right .sb-prototype-pill');
+      const v=p?.nextElementSibling;
+      const versions=Array.from(node.querySelectorAll('.sb-version-trigger'));
+      const visibleVersions=versions.filter(el=>el.getClientRects().length);
+      return {
+        directChildren: Array.from(node.children).map(x=>x.className),
+        breadcrumb:node.querySelector(':scope > .breadcrumbs b')?.textContent?.trim(),
+        sameBreadcrumb:node.querySelector(':scope > .breadcrumbs b')?.textContent?.trim()===
+          window.SUNOBOOM_LEGACY_HEADER?.snapshot()?.breadcrumb,
+        profileMatches:node.querySelector('.account-shortcut')?.textContent?.trim()===
+          window.SUNOBOOM_LEGACY_HEADER?.snapshot()?.avatarInitial,
+        badgeOutside:!!p && p.textContent.trim()==='🧪 Прототип' &&
+          v?.matches('.sb-version-trigger') && v.parentElement===p.parentElement,
+        versionCount:versions.length,visibleVersionCount:visibleVersions.length,
+        bellCount:node.querySelectorAll('[data-action="sb-notice-toggle"]').length,
+        gearCount:node.querySelectorAll('[data-sbs-action="open-top"]').length,
+        avatarCount:node.querySelectorAll('[data-nav="account"].account-shortcut').length,
+        logoCount:node.querySelectorAll('.sb-mobile-logo').length
+      };
+    });
+    if (top183.directChildren.join('|')!=='breadcrumbs|brand-mobile|top-right' ||
+        top183.breadcrumb!=='Главная' || !top183.sameBreadcrumb ||
+        !top183.profileMatches || !top183.badgeOutside ||
+        top183.versionCount!==2 || top183.visibleVersionCount!==1 ||
+        top183.bellCount!==1 || top183.gearCount!==1 ||
+        top183.avatarCount!==1 || top183.logoCount!==1)
+      throw new Error('v0.183 Vue header differs from expected desktop/mobile shell: '+JSON.stringify(top183));
     const history136 = page.locator('[data-sb-vue-history][data-v-app]');
     await history136.waitFor({ state: 'attached', timeout: 10000 });
     const back136 = history136.locator('button[data-sb-history-back]');
@@ -3166,8 +3198,13 @@ async function checkLayout(mobile) {
       throw new Error('Original passport delete did not remount Vue list');
     }
 
-    // v0.124: gear shortcut next to notifications opens the existing settings.
+    // v0.124/v0.183: header actions are Vue-rendered but still use the legacy
+    // delegated handlers. Changing routes must remount the entire header.
     await page.evaluate(() => go('studio'));
+    await page.locator('.top[data-sb-vue-top][data-v-app]').waitFor({ state: 'attached' });
+    await page.waitForFunction(() =>
+      document.querySelector('.top .breadcrumbs b')?.textContent?.trim() ===
+      window.SUNOBOOM_LEGACY_HEADER?.snapshot()?.breadcrumb);
     const headerButtons = page.locator('.top .top-right');
     const shortcut = headerButtons.locator('button.sb-settings-shortcut[data-sbs-action="open-top"]');
     const notification = headerButtons.locator('button[data-action="sb-notice-toggle"]');
@@ -3195,6 +3232,18 @@ async function checkLayout(mobile) {
       throw new Error('Header gear button does not match or fit by the bell: ' +
         JSON.stringify(headerGeometry));
     }
+    // Opening and closing the original notification drawer also updates the
+    // Vue button's accessible expanded state after legacy render().
+    await notification.click();
+    await page.locator('.sb-notice-panel').waitFor({ state: 'visible' });
+    await page.waitForFunction(() =>
+      document.querySelector('.top[data-v-app] [data-action="sb-notice-toggle"]')
+        ?.getAttribute('aria-expanded') === 'true');
+    await page.locator('.sb-notice-panel [data-action="sb-notice-close"]').click();
+    await page.waitForFunction(() =>
+      !document.querySelector('.sb-notice-panel') &&
+      document.querySelector('.top[data-v-app] [data-action="sb-notice-toggle"]')
+        ?.getAttribute('aria-expanded') === 'false');
     await shortcut.click();
     await page.locator('#sb-vue-account-settings[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
     if (await page.locator('#sbs-page[data-sb-vue-settings]').count() !== 1 ||
@@ -3263,6 +3312,13 @@ async function checkEditorFallback() {
     }
     await page.evaluate(() => go('home'));
 
+    // v0.183: exact original HTML header is retained when Vue is blocked.
+    if (await page.locator('.top[data-sb-vue-top][data-v-app]').count() ||
+        await page.locator('.top .sb-version-trigger').count() !== 2 ||
+        await page.locator('.top .sb-settings-shortcut').count() !== 1 ||
+        await page.locator('.top [data-action="sb-notice-toggle"]').count() !== 1) {
+      throw new Error('v0.183 legacy header fallback missing or duplicated');
+    }
     // v0.161: the version-history modal must work with the Vue bundle blocked.
     await page.locator('.sb-version-trigger:visible').first().click();
     if (await page.locator('#sb-vue-version-history[data-v-app]').count() ||

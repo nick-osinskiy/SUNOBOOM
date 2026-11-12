@@ -26,6 +26,7 @@ import { activateLegacyAppearance } from './state/legacyAppearanceBridge.js';
 import { legacyMirrorRouter } from './navigation/legacy-router-mirror.js';
 import VueFeatureHost from './VueFeatureHost.vue';
 import { activateLegacyNavigation } from './navigation/legacyBridge.js';
+import { activateLegacyTopHeader } from './navigation/legacyTopHeaderBridge.js';
 import { activateLegacyAcademy } from './academy/legacyAcademyBridge.js';
 import { activateLegacyGenreTree } from './academy/legacyGenreTreeBridge.js';
 import { activateLegacyGenreDetail } from './academy/legacyGenreDetailBridge.js';
@@ -95,6 +96,11 @@ export function startLegacyAppearance() {
 /** Mount the Vue navigation into the existing desktop and mobile menu containers. */
 export function startLegacyNavigation() {
   return activateLegacyNavigation({ mountVueFeature, unmountVueFeature, sharedUi });
+}
+
+/** Replace only the original header's children; all actions stay in legacy code. */
+export function startLegacyTopHeader() {
+  return activateLegacyTopHeader({ mountVueFeature });
 }
 
 /** Render Academy genre cards inside its existing grouped HTML structure. */
