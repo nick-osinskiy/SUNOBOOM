@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { createPinia } from 'pinia';
 import { useLegacyUiStore } from '../src/vue/state/legacy-ui-store.js';
 import { normalizeLegacyAppearance } from '../src/vue/state/appearance-model.js';
@@ -1423,4 +1424,22 @@ test('v0.184 lifecycle leaves HTML fallback untouched on absent snapshots or mou
   assert.deepEqual(calls,['attempt','attempt','disconnect','unmount']);
   assert.equal(node.originalHTML,'legacy markup');
   assert.equal(typeof observeLegacyIsland({root:null,selectTarget:()=>{},readSnapshot:()=>{},mount:()=>{}}),'function');
+});
+
+
+test('v0.185 library, artist and idea bridges reuse the same isolated lifecycle', () => {
+  const configurations = [
+    ['../src/vue/account/legacyLibraryBridge.js', '#sb-vue-library-collection', 'LibraryCollection'],
+    ['../src/vue/account/legacyArtistManagerBridge.js', '#sb-vue-artist-manager', 'ArtistManager'],
+    ['../src/vue/account/legacyArtistDNABridge.js', '#sb-vue-dna-view', 'ArtistDNA'],
+    ['../src/vue/poetry/legacyIdeaCollectionsBridge.js', '#sb-vue-idea-collections', 'IdeaCollections']
+  ];
+  for (const [file, selector, component] of configurations) {
+    const code = readFileSync(new URL(file, import.meta.url), 'utf8');
+    assert.match(code, /observeLegacyIsland\(/, file);
+    assert.ok(code.includes("parent.querySelector('" + selector + "')"), file);
+    assert.ok(code.includes('readSnapshot: () => api.snapshot()'), file);
+    assert.ok(code.includes('mountVueFeature(node, ' + component + ', { model })'), file);
+    assert.doesNotMatch(code, /new MutationObserver|localStorage|indexedDB/i, file);
+  }
 });

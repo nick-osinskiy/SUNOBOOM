@@ -3282,6 +3282,29 @@ async function checkLayout(mobile) {
       throw new Error('v0.184 rapid legacy remount duplicated or lost Vue islands: '+
         JSON.stringify(lifecycle184));
 
+    // v0.185: rapid legacy route replacement must leave exactly one Vue island
+    // for each library/idea/DNA view, with no detached duplicate or stale host.
+    await page.evaluate(() => { view.sbDnaSelected = null; view.sbDnaEdit = null; });
+    for (const [target, routes] of [
+      ['#sb-vue-library-collection', ['saved','myideas','artists','saved']],
+      ['#sb-vue-idea-collections', ['myideas','saved','myideas']],
+      ['#sb-vue-dna-view', ['artists','myideas','artists']]
+    ]) {
+      await page.evaluate(routeList => { for (const route of routeList) go(route); }, routes);
+      await page.locator(target + '[data-v-app]').waitFor({ state:'attached', timeout:10000 });
+      const mountedIslands = await page.evaluate(() => [
+        '#sb-vue-library-collection', '#sb-vue-idea-collections', '#sb-vue-dna-view'
+      ].map(selector => ({ selector, mounted:document.querySelectorAll(selector+'[data-v-app]').length,
+        hosts:document.querySelectorAll(selector).length })));
+      if (mountedIslands.some(island => island.hosts !== (island.selector === target ? 1 : 0) ||
+          island.mounted !== (island.selector === target ? 1 : 0))) {
+        throw new Error('v0.185 rapid legacy route remount duplicated or lost a Vue island: '+
+          JSON.stringify(mountedIslands));
+      }
+    }
+    await page.evaluate(() => go('home'));
+    await page.locator('#sb-vue-dashboard[data-v-app]').waitFor({ state:'attached', timeout:10000 });
+
     const version = await page.locator('.sb-app-version').first().textContent();
     if (!/^v?\d+\.\d+$/.test(String(version || '').trim())) throw new Error('Version display missing or malformed');
 
