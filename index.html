@@ -1197,9 +1197,11 @@ input[type=range],input[type=checkbox]{accent-color:#ef6ab8}
   .top .brand-mobile .sb-mobile-logo{max-width:min(150px,calc(100vw - 145px))}
 }
 
-/* v0.182: desktop version sits with "Прототип"; the mobile logo keeps its own trigger.
-   On <=700px the existing .pill{display:none} hides this desktop-only trigger. */
+/* v0.182: desktop version sits with "Прототип"; mobile logo keeps its version.
+   Keep logo dimensions stable now that its adjacent desktop button is removed.
+   On <=700px the existing .pill{display:none} hides the desktop-only trigger. */
 @media(min-width:701px){
+ .side .brand .sb-brand-version-row .sb-brand-logo{flex:0 0 auto}
  .top .sb-prototype-pill{display:inline-flex;align-items:center;gap:7px;padding:4px 5px 4px 11px;white-space:nowrap}
  .top .sb-prototype-pill .sb-app-version{min-height:23px;font-size:11px}
 }
@@ -1211,7 +1213,7 @@ input[type=range],input[type=checkbox]{accent-color:#ef6ab8}
  color:var(--muted);font-size:11px;font-weight:650;
  letter-spacing:.35px;line-height:1.25;
 }
-.side .brand .sb-brand-tagline{margin:-10px 0 0 37.5px;letter-spacing:.35px}
+.side .brand .sb-brand-tagline{margin:-10px 0 0 calc(28.1% - 14.3px);letter-spacing:.35px}
 .top .brand-mobile .sb-logo-lockup{
  display:flex;flex-direction:column;align-items:flex-start;
  flex:0 1 auto;min-width:0;width:min(145px,37vw);
