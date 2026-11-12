@@ -1,4 +1,4 @@
-// node_modules/.pnpm/@vue+shared@3.5.45/node_modules/@vue/shared/dist/shared.esm-bundler.js
+// node_modules/@vue/shared/dist/shared.esm-bundler.js
 // @__NO_SIDE_EFFECTS__
 function e(e) {
 	let t = /* @__PURE__ */ Object.create(null);
@@ -959,7 +959,7 @@ function hn(e, t = Infinity, n) {
 	}
 	return e;
 }
-// node_modules/.pnpm/@vue+runtime-core@3.5.45/node_modules/@vue/runtime-core/dist/runtime-core.esm-bundler.js
+// node_modules/@vue/runtime-core/dist/runtime-core.esm-bundler.js
 function gn(e, t, n, r) {
 	try {
 		return r ? e(...r) : e();
@@ -3101,7 +3101,7 @@ function Zo(e) {
 function Qo(e) {
 	return g(e) ? document.querySelector(e) : e;
 }
-// node_modules/.pnpm/pinia@3.0.4_vue@3.5.45/node_modules/pinia/dist/pinia.mjs
+// node_modules/pinia/dist/pinia.mjs
 var $o = typeof window < "u", es, ts = (e) => es = e, ns = Symbol();
 function rs(e) {
 	return e && typeof e == "object" && Object.prototype.toString.call(e) === "[object Object]" && typeof e.toJSON != "function";
@@ -3388,7 +3388,7 @@ function Ps(e) {
 	}
 	return i;
 }
-// node_modules/.pnpm/vue-router@4.6.4_vue@3.5.45/node_modules/vue-router/dist/devtools-EWN81iOl.mjs
+// node_modules/vue-router/dist/devtools-EWN81iOl.mjs
 var Fs = typeof document < "u";
 function Is(e) {
 	return typeof e == "object" || "displayName" in e || "props" in e || "__vccOpts" in e;
@@ -3660,7 +3660,7 @@ function Jc(e, t) {
 		i
 	];
 }
-// node_modules/.pnpm/vue-router@4.6.4_vue@3.5.45/node_modules/vue-router/dist/vue-router.mjs
+// node_modules/vue-router/dist/vue-router.mjs
 function Yc(e = "") {
 	let t = [], n = [["", {}]], r = 0;
 	e = Sc(e);
@@ -5655,7 +5655,7 @@ var Sd = (e, t) => {
 			}, [U("span", Jd, "v" + O(e[0]), 1), U("div", Yd, [U("p", null, O(e[1]), 1), U("div", Xd, [U("time", { datetime: e[2] }, O(F(_d)(e[2])), 9, Zd), r.value === "all" ? (V(), H("span", Qd, O(e[3] === "large" ? "Крупное" : "Мелкое"), 1)) : G("", !0)])])]))), 128))])) : (V(), H("p", $d, "По запросу минорные версии не найдены."))], 512)
 		]));
 	}
-}, [["__scopeId", "data-v-98ee138d"]]);
+}, [["__scopeId", "data-v-ce1fc81b"]]);
 // src/vue/version-history/legacyVersionHistoryBridge.js
 function tf({ mountVueFeature: e }) {
 	let t = window.SUNOBOOM_VERSION_HISTORY;
@@ -9095,7 +9095,7 @@ var Wx = {
 			}, [U("path", { d: "m9 18 6-6-6-6" })], -1)]], 8, Zx)
 		]));
 	}
-}, [["__scopeId", "data-v-10135052"]]), $x = Object.freeze({
+}, [["__scopeId", "data-v-c738b8ec"]]), $x = Object.freeze({
 	"/account/myideas": "myideas",
 	"/account/myprompts": "myprompts",
 	"/account/events": "events"
@@ -9918,7 +9918,7 @@ var uC = {
 			n[15] ||= U("p", { class: "sb-gt-note" }, "Схема показывает основные исторические влияния и стилистические пересечения. Жанры могут развиваться параллельно; стрелки не означают единственное происхождение.", -1)
 		]));
 	}
-}, [["__scopeId", "data-v-b69f1c53"]]);
+}, [["__scopeId", "data-v-6e70f61e"]]);
 // src/vue/academy/legacyGenreTreeBridge.js
 function JC({ mountVueFeature: e }) {
 	let t = window.SUNOBOOM_LEGACY_GENRE_TREE, n = document.getElementById("app");
