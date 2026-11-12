@@ -8121,24 +8121,12 @@ var ry = ["data-id", "aria-pressed"], iy = { class: "sbpc-song-main" }, ay = { c
 // src/vue/producer/legacyProducerSongListBridge.js
 function uy({ mountVueFeature: e }) {
 	let t = window.SUNOBOOM_LEGACY_PRODUCER_LIST, n = document.getElementById("app");
-	if (!t || typeof t.snapshot != "function" || !n) return () => {};
-	let r = null, i = !1;
-	function a() {
-		if (i) return;
-		let a = n.querySelector("#sbpc-list[data-sb-vue-producer-list]");
-		if (r?.node === a || (r &&= (r.unmount(), null), !a)) return;
-		let o = t.snapshot();
-		if (!o) return;
-		let s = e(a, ly, { model: o });
-		s && (r = {
-			node: a,
-			unmount: s
-		});
-	}
-	let o = new MutationObserver(a);
-	return o.observe(n, { childList: !0 }), a(), () => {
-		i = !0, o.disconnect(), r?.unmount(), r = null;
-	};
+	return !t?.snapshot || !n ? () => {} : hd({
+		root: n,
+		selectTarget: (e) => e.querySelector("#sbpc-list[data-sb-vue-producer-list]"),
+		readSnapshot: () => t.snapshot(),
+		mount: (t, n) => e(t, ly, { model: n })
+	});
 }
 // src/vue/producer/ProducerSongDetail.vue
 var dy = {
@@ -8326,24 +8314,12 @@ var dy = {
 // src/vue/producer/legacyProducerSongDetailBridge.js
 function Xy({ mountVueFeature: e }) {
 	let t = window.SUNOBOOM_LEGACY_PRODUCER_DETAIL, n = document.getElementById("app");
-	if (!t || typeof t.snapshot != "function" || !n) return () => {};
-	let r = null, i = !1;
-	function a() {
-		if (i) return;
-		let a = n.querySelector("#sb-vue-producer-detail[data-sb-vue-producer-host]");
-		if (r?.node === a || (r &&= (r.unmount(), null), !a)) return;
-		let o = t.snapshot();
-		if (!o) return;
-		let s = e(a, Yy, { model: o });
-		s && (r = {
-			node: a,
-			unmount: s
-		});
-	}
-	let o = new MutationObserver(a);
-	return o.observe(n, { childList: !0 }), a(), () => {
-		i = !0, o.disconnect(), r?.unmount(), r = null;
-	};
+	return !t?.snapshot || !n ? () => {} : hd({
+		root: n,
+		selectTarget: (e) => e.querySelector("#sb-vue-producer-detail[data-sb-vue-producer-host]"),
+		readSnapshot: () => t.snapshot(),
+		mount: (t, n) => e(t, Yy, { model: n })
+	});
 }
 // src/vue/account/TrackPassportList.vue
 var Zy = {
@@ -8399,24 +8375,12 @@ var Zy = {
 // src/vue/account/legacyTrackPassportListBridge.js
 function ib({ mountVueFeature: e }) {
 	let t = window.SUNOBOOM_LEGACY_TRACK_LIST, n = document.getElementById("app");
-	if (!t || typeof t.snapshot != "function" || !n) return () => {};
-	let r = null, i = !1;
-	function a() {
-		if (i) return;
-		let a = n.querySelector("#sb-vue-track-list[data-sb-vue-track-list]");
-		if (r?.node === a || (r &&= (r.unmount(), null), !a)) return;
-		let o = t.snapshot();
-		if (!o) return;
-		let s = e(a, rb, { model: o });
-		s && (r = {
-			node: a,
-			unmount: s
-		});
-	}
-	let o = new MutationObserver(a);
-	return o.observe(n, { childList: !0 }), a(), () => {
-		i = !0, o.disconnect(), r?.unmount(), r = null;
-	};
+	return !t?.snapshot || !n ? () => {} : hd({
+		root: n,
+		selectTarget: (e) => e.querySelector("#sb-vue-track-list[data-sb-vue-track-list]"),
+		readSnapshot: () => t.snapshot(),
+		mount: (t, n) => e(t, rb, { model: n })
+	});
 }
 // src/vue/account/TrackPassportDetail.vue
 var ab = {
@@ -8578,24 +8542,12 @@ var ab = {
 // src/vue/account/legacyTrackPassportDetailBridge.js
 function Pb({ mountVueFeature: e }) {
 	let t = window.SUNOBOOM_LEGACY_TRACK_DETAIL, n = document.getElementById("app");
-	if (!t || typeof t.snapshot != "function" || !n) return () => {};
-	let r = null, i = !1;
-	function a() {
-		if (i) return;
-		let a = n.querySelector("#sb-vue-track-detail[data-sb-vue-track-detail]");
-		if (r?.node === a || (r &&= (r.unmount(), null), !a)) return;
-		let o = t.snapshot();
-		if (!o) return;
-		let s = e(a, Nb, { model: o });
-		s && (r = {
-			node: a,
-			unmount: s
-		});
-	}
-	let o = new MutationObserver(a);
-	return o.observe(n, { childList: !0 }), a(), () => {
-		i = !0, o.disconnect(), r?.unmount(), r = null;
-	};
+	return !t?.snapshot || !n ? () => {} : hd({
+		root: n,
+		selectTarget: (e) => e.querySelector("#sb-vue-track-detail[data-sb-vue-track-detail]"),
+		readSnapshot: () => t.snapshot(),
+		mount: (t, n) => e(t, Nb, { model: n })
+	});
 }
 // src/vue/account/TrackPassportEditor.vue
 var Fb = {
