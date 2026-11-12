@@ -3455,6 +3455,44 @@ async function checkLayout(mobile) {
     await page.evaluate(() => go('home'));
     await page.locator('#sb-vue-dashboard[data-v-app]').waitFor({state:'attached',timeout:10000});
 
+    // v0.191: six Arranger hosts stay independent on fast Studio ↔ Ideas
+    // navigation. Native blocks/draft and neighbouring modules are preserved.
+    const arrangementBefore191 = await page.evaluate(() => ({
+      count: SUNOBOOM_ARRANGER.getBlockCount(),
+      draft: SUNOBOOM_ARRANGER.exportDraft()
+    }));
+    await page.evaluate(() => { for (const item of ['studio','myideas','studio','myideas','studio']) go(item); });
+    const arrangerHosts191 = [
+      '#sba-cards', '#sba-snake-track', '#sba-transition-hub-list',
+      '#sba-energy-chart', '.sba-preset-picker', '.sba-result'
+    ];
+    for (const target of arrangerHosts191)
+      await page.locator(target+'[data-v-app]').waitFor({state:'attached',timeout:10000});
+    const arrangementAfter191 = await page.evaluate(targets => ({
+      route:view.nav,
+      hosts:targets.map(selector => ({
+        selector,
+        total:document.querySelectorAll(selector).length,
+        mounted:document.querySelectorAll(selector+'[data-v-app]').length
+      })),
+      studio:document.querySelectorAll('.studio-grid[data-v-app]').length,
+      auditor:document.querySelectorAll('#sbpa-auditor[data-v-app]').length,
+      oldIdeaHosts:document.querySelectorAll('#sb-vue-idea-fields,#sb-vue-lyrics-source,#sb-vue-lyrics-tools').length,
+      blockCount:SUNOBOOM_ARRANGER.getBlockCount(),
+      draft:SUNOBOOM_ARRANGER.exportDraft()
+    }), arrangerHosts191);
+    if (arrangementAfter191.route!=='studio' ||
+        arrangementAfter191.hosts.some(item => item.total!==1 || item.mounted!==1) ||
+        arrangementAfter191.studio!==1 || arrangementAfter191.auditor!==1 ||
+        arrangementAfter191.oldIdeaHosts!==0 || 
+        arrangementAfter191.blockCount!==arrangementBefore191.count ||
+        JSON.stringify(arrangementAfter191.draft)!==JSON.stringify(arrangementBefore191.draft))
+      throw new Error('v0.191 Arranger remount lost native draft, siblings or Vue host: '+
+        JSON.stringify({route:arrangementAfter191.route,hosts:arrangementAfter191.hosts,
+          before:arrangementBefore191.count,after:arrangementAfter191.blockCount}));
+    await page.evaluate(() => go('home'));
+    await page.locator('#sb-vue-dashboard[data-v-app]').waitFor({state:'attached',timeout:10000});
+
     const version = await page.locator('.sb-app-version').first().textContent();
     if (!/^v?\d+\.\d+$/.test(String(version || '').trim())) throw new Error('Version display missing or malformed');
 

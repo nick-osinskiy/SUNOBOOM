@@ -1,6 +1,7 @@
 import ArrangementPanel from './ArrangementPanel.vue';
 import ArrangementPicker from './ArrangementPicker.vue';
 import ArrangementResult from './ArrangementResult.vue';
+import { observeLegacyIslands } from '../legacy/observeLegacyIslands.js';
 
 const targets = [
   ['#sba-cards', 'cards'],
@@ -11,37 +12,23 @@ const targets = [
   ['.sba-result', 'result', ArrangementResult]
 ];
 
-/** Keep the existing composer, Academy recommendations and drag handlers. */
+/** v0.191: reuse one shallow observer for all six arranger islands.
+ * The native composer, Academy presets, drag handlers and saved draft own data.
+ * Each host keeps its original complete HTML fallback without Vue.
+ */
 export function activateLegacyArranger({ mountVueFeature }) {
   const api = window.SUNOBOOM_LEGACY_ARRANGER;
   const root = document.getElementById('app');
-  if (!root || !api || typeof api.snapshot !== 'function') return () => {};
-
-  const active = new Map();
-  let disposed = false;
-  function sync() {
-    if (disposed) return;
-    for (const [selector, kind, component = ArrangementPanel] of targets) {
-      const target = root.querySelector(selector);
-      const old = active.get(kind);
-      if (old?.target === target) continue;
-      if (old) { old.unmount(); active.delete(kind); }
-      if (!target || !api.snapshot()) continue;
-      const unmount = mountVueFeature(target, component, component === ArrangementPanel ? { api, kind } : { api });
-      if (unmount) active.set(kind, { target, unmount });
-    }
-  }
-
-  // Observe only the outer route replacement, not Vue's internal changes.
-  const observer = new MutationObserver(sync);
-  observer.observe(root, { childList: true });
-  sync();
-
-  return () => {
-    if (disposed) return;
-    disposed = true;
-    observer.disconnect();
-    for (const value of active.values()) value.unmount();
-    active.clear();
-  };
+  if (!api?.snapshot || !root) return () => {};
+  return observeLegacyIslands({
+    root,
+    islands: targets.map(([selector, kind, component = ArrangementPanel]) => ({
+      key: kind,
+      selectTarget: parent => parent.querySelector(selector),
+      readSnapshot: () => api.snapshot(),
+      mount: node => mountVueFeature(
+        node, component, component === ArrangementPanel ? { api, kind } : { api }
+      )
+    }))
+  });
 }

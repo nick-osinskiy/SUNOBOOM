@@ -1613,3 +1613,83 @@ test('v0.190 Studio and three Idea Editor hosts preserve their unique native con
   assert.ok(ideas.includes('mountVueFeature(node, component, { api, initial })'));
   assert.doesNotMatch(ideas,/new MutationObserver|localStorage|indexedDB|subtree:\s*true/);
 });
+
+
+test('v0.191 arranger uses one shallow observer across six original hosts', () => {
+  const code = readFileSync(new URL('../src/vue/studio/legacyArrangerBridge.js', import.meta.url), 'utf8');
+  assert.ok(code.includes("import { observeLegacyIslands } from '../legacy/observeLegacyIslands.js';"));
+  assert.ok(code.includes('observeLegacyIslands({'));
+  assert.ok(code.includes('root,\n    islands: targets.map('));
+  for (const [selector, kind, component] of [
+    ['#sba-cards','cards','ArrangementPanel'],
+    ['#sba-snake-track','snake','ArrangementPanel'],
+    ['#sba-transition-hub-list','transitions','ArrangementPanel'],
+    ['#sba-energy-chart','energy','ArrangementPanel'],
+    ['.sba-preset-picker','picker','ArrangementPicker'],
+    ['.sba-result','result','ArrangementResult']
+  ]) {
+    assert.ok(code.includes("['" + selector + "', '" + kind + "'"), selector);
+    if (component !== 'ArrangementPanel') assert.ok(code.includes(component), kind);
+  }
+  assert.ok(code.includes('key: kind'));
+  assert.ok(code.includes('selectTarget: parent => parent.querySelector(selector)'));
+  assert.ok(code.includes('readSnapshot: () => api.snapshot()'));
+  assert.ok(code.includes("component === ArrangementPanel ? { api, kind } : { api }"));
+  assert.doesNotMatch(code, /new MutationObserver|subtree:\s*true|localStorage|indexedDB|saveDraft|writeFile/i);
+});
+
+test('v0.191 six arranger islands remount independently and preserve fallback on missing snapshot', () => {
+  const selectors = ['#sba-cards','#sba-snake-track','#sba-transition-hub-list',
+    '#sba-energy-chart','.sba-preset-picker','.sba-result'];
+  const hosts = new Map(selectors.map((selector,i) => [selector, { isConnected:true, name:'host'+i, html:'native '+i }]));
+  const root = { querySelector: selector => hosts.get(selector) || null };
+  const mounts = [], unmounts = [];
+  let notify, option, disconnected=0, disabled = false;
+  const stop = observeLegacyIslands({
+    root,
+    islands: selectors.map((selector,i) => ({
+      key:'island'+i,
+      selectTarget: parent => parent.querySelector(selector),
+      readSnapshot: () => disabled ? null : { original:true },
+      mount: (node,snapshot) => {
+        assert.equal(snapshot.original,true);
+        mounts.push(node.name);
+        return () => unmounts.push(node.name);
+      }
+    })),
+    createObserver: cb => ({
+      observe(target,opts) { assert.equal(target,root); notify=cb; option=opts; },
+      disconnect() { disconnected++; }
+    })
+  });
+  assert.deepEqual(option,{childList:true});
+  assert.deepEqual(mounts,['host0','host1','host2','host3','host4','host5']);
+  notify();notify();
+  assert.equal(mounts.length,6);
+  // Changing a single panel must not reset the five other arrangements.
+  const previous=hosts.get('#sba-snake-track');
+  previous.isConnected=false;
+  const replacement={isConnected:true,name:'newSnake',html:'native snake'};
+  hosts.set('#sba-snake-track',replacement);
+  notify();
+  assert.deepEqual(unmounts,['host1']);
+  assert.equal(mounts.at(-1),'newSnake');
+  assert.equal(mounts.length,7);
+  // Incomplete snapshots cannot erase the HTML fallback.
+  disabled=true;
+  const oldResult=hosts.get('.sba-result'); oldResult.isConnected=false;
+  hosts.set('.sba-result',{isConnected:true,name:'newResult',html:'native result'});
+  notify();
+  assert.equal(unmounts.at(-1),'host5');
+  assert.equal(mounts.length,7);
+  assert.equal(hosts.get('.sba-result').html,'native result');
+  disabled=false;
+  notify();
+  assert.equal(mounts.at(-1),'newResult');
+  stop();stop();
+  assert.equal(disconnected,1);
+  assert.equal(unmounts.length,7);
+  const before=mounts.length;
+  notify();
+  assert.equal(mounts.length,before);
+});
