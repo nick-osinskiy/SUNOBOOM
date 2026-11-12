@@ -342,6 +342,31 @@ async function checkLayout(mobile) {
         (mobile && brandSignature157.horizontalOverflow)) {
       throw new Error('Logo tagline geometry broken: ' + JSON.stringify(brandSignature157));
     }
+
+    // v0.182: narrow desktop still aligns the tagline under SUNOBOOM,
+    // without reintroducing a version beside its sidebar logo.
+    if (!mobile) {
+      await page.setViewportSize({ width: 1024, height: 900 });
+      const compact182 = await page.evaluate(() => {
+        const logo = document.querySelector('.side .brand .sb-brand-logo')?.getBoundingClientRect();
+        const tagline = document.querySelector('.side .brand .sb-brand-tagline')?.getBoundingClientRect();
+        const pill = document.querySelector('.top .sb-prototype-pill');
+        const version = pill?.querySelector('.sb-version-trigger');
+        const visible = Array.from(document.querySelectorAll('.sb-version-trigger'))
+          .filter(button => button.getClientRects().length).length;
+        return {
+          logoX: logo?.left, logoWidth: logo?.width, taglineX: tagline?.left,
+          offset: logo && tagline ? tagline.left - (logo.left + logo.width * 118 / 420) : null,
+          pillVisible: !!pill?.getClientRects().length,
+          versionVisible: !!version?.getClientRects().length,
+          versionCount: visible
+        };
+      });
+      if (compact182.offset === null || Math.abs(compact182.offset) > 3 ||
+          !compact182.pillVisible || !compact182.versionVisible || compact182.versionCount !== 1)
+        throw new Error('v0.182 compact desktop brand/version layout broken: ' + JSON.stringify(compact182));
+      await page.setViewportSize({ width: 1440, height: 900 });
+    }
     const fallbackSignature157 = await (await fetch(BASE)).text();
     if (!fallbackSignature157.includes('<small class="sb-brand-tagline">Больше, чем музыка</small>') ||
         fallbackSignature157.includes('MUSIC WORKSPACE')) {
