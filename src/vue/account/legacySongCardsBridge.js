@@ -1,24 +1,16 @@
 import SongCards from './SongCards.vue';
+import { observeLegacyIsland } from '../legacy/observeLegacyIsland.js';
 
-// Mount only the collection cards; forms, take manager and A/B audio remain legacy.
-// The original grid inside this host is a functional fallback if Vue fails to load.
+// v0.187: Vue owns only the original display/editor host.
+// Local media, autosave, actions and HTML fallback remain in legacy code.
 export function activateLegacySongCards({ mountVueFeature }) {
   const api = window.SUNOBOOM_LEGACY_SONG_CARDS;
   const root = document.getElementById('app');
-  if (!api || !root) return () => {};
-  let current = null;
-  let disposed = false;
-  function sync() {
-    if (disposed) return;
-    const node = root.querySelector('#sb-vue-song-cards');
-    if (current?.node === node) return;
-    if (current) { current.unmount(); current = null; }
-    if (!node || !api.snapshot()) return;
-    const unmount = mountVueFeature(node, SongCards, { api });
-    if (unmount) current = { node, unmount };
-  }
-  const observer = new MutationObserver(sync);
-  observer.observe(root, { childList: true });
-  sync();
-  return () => { disposed = true; observer.disconnect(); current?.unmount(); current = null; };
+  if (!api?.snapshot || !root) return () => {};
+  return observeLegacyIsland({
+    root,
+    selectTarget: parent => parent.querySelector('#sb-vue-song-cards'),
+    readSnapshot: () => api.snapshot(),
+    mount: (node, model) => mountVueFeature(node, SongCards, { api })
+  });
 }

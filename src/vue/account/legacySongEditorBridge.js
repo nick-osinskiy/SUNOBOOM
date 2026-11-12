@@ -1,26 +1,16 @@
 import SongEditor from './SongEditor.vue';
+import { observeLegacyIsland } from '../legacy/observeLegacyIsland.js';
 
-// Preserve the original form as fallback. The legacy module owns saving,
-// files, storage and automatic cover extraction.
+// v0.187: Vue owns only the original display/editor host.
+// Local media, autosave, actions and HTML fallback remain in legacy code.
 export function activateLegacySongEditor({ mountVueFeature }) {
   const api = window.SUNOBOOM_LEGACY_SONG_EDITOR;
   const root = document.getElementById('app');
-  if (!api || !root) return () => {};
-  let current = null;
-  let disposed = false;
-  function sync() {
-    if (disposed) return;
-    const node = root.querySelector('#sb-vue-song-editor');
-    if (current?.node === node) return;
-    if (current) { current.unmount(); current = null; }
-    if (!node) return;
-    const model = api.snapshot();
-    if (!model) return;
-    const unmount = mountVueFeature(node, SongEditor, { api, model });
-    if (unmount) current = { node, unmount };
-  }
-  const observer = new MutationObserver(sync);
-  observer.observe(root, { childList: true });
-  sync();
-  return () => { disposed = true; observer.disconnect(); current?.unmount(); current = null; };
+  if (!api?.snapshot || !root) return () => {};
+  return observeLegacyIsland({
+    root,
+    selectTarget: parent => parent.querySelector('#sb-vue-song-editor'),
+    readSnapshot: () => api.snapshot(),
+    mount: (node, model) => mountVueFeature(node, SongEditor, { api, model })
+  });
 }

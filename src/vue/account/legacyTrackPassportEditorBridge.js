@@ -1,33 +1,16 @@
 import TrackPassportEditor from './TrackPassportEditor.vue';
+import { observeLegacyIsland } from '../legacy/observeLegacyIsland.js';
 
-// Preserve the original sbTrackForm() as a complete HTML fallback and mount
-// Vue only in the dedicated editor host. Local records stay in legacy data.
+// v0.187: Vue owns only the original display/editor host.
+// Local media, autosave, actions and HTML fallback remain in legacy code.
 export function activateLegacyTrackPassportEditor({ mountVueFeature }) {
   const api = window.SUNOBOOM_LEGACY_TRACK_EDITOR;
   const root = document.getElementById('app');
-  if (!root || !api || typeof api.snapshot !== 'function') return () => {};
-
-  let current = null;
-  let disposed = false;
-  function sync() {
-    if (disposed) return;
-    const node = root.querySelector('#sb-vue-track-editor[data-sb-vue-track-editor]');
-    if (current?.node === node) return;
-    if (current) { current.unmount(); current = null; }
-    if (!node) return;
-    const model = api.snapshot();
-    if (!model) return;
-    const unmount = mountVueFeature(node, TrackPassportEditor, { model, api });
-    if (unmount) current = { node, unmount };
-  }
-  const observer = new MutationObserver(sync);
-  observer.observe(root, { childList: true });
-  sync();
-
-  return () => {
-    disposed = true;
-    observer.disconnect();
-    current?.unmount();
-    current = null;
-  };
+  if (!api?.snapshot || !root) return () => {};
+  return observeLegacyIsland({
+    root,
+    selectTarget: parent => parent.querySelector('#sb-vue-track-editor[data-sb-vue-track-editor]'),
+    readSnapshot: () => api.snapshot(),
+    mount: (node, model) => mountVueFeature(node, TrackPassportEditor, { model, api })
+  });
 }

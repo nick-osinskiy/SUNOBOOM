@@ -1461,3 +1461,21 @@ test('v0.186 track and Master display bridges keep their original snapshot contr
     assert.doesNotMatch(source, /new MutationObserver|subtree:\s*true|localStorage|indexedDB/i, file);
   }
 });
+
+
+test('v0.187 song library and track editor bridges retain API and Vue props', () => {
+  for (const [file, selector, component, api, props] of [
+    ['../src/vue/account/legacySongCardsBridge.js', '#sb-vue-song-cards', 'SongCards', 'SUNOBOOM_LEGACY_SONG_CARDS', '{ api }'],
+    ['../src/vue/account/legacySongDetailBridge.js', '#sb-vue-song-detail', 'SongDetail', 'SUNOBOOM_LEGACY_SONG_DETAIL', '{ api, model }'],
+    ['../src/vue/account/legacySongEditorBridge.js', '#sb-vue-song-editor', 'SongEditor', 'SUNOBOOM_LEGACY_SONG_EDITOR', '{ api, model }'],
+    ['../src/vue/account/legacyTrackPassportEditorBridge.js', '#sb-vue-track-editor[data-sb-vue-track-editor]', 'TrackPassportEditor', 'SUNOBOOM_LEGACY_TRACK_EDITOR', '{ model, api }']
+  ]) {
+    const source = readFileSync(new URL(file, import.meta.url), 'utf8');
+    assert.ok(source.includes('observeLegacyIsland({'), file);
+    assert.ok(source.includes('window.' + api), file);
+    assert.ok(source.includes("parent.querySelector('" + selector + "')"), file);
+    assert.ok(source.includes('readSnapshot: () => api.snapshot()'), file);
+    assert.ok(source.includes('mountVueFeature(node, ' + component + ', ' + props + ')'), file);
+    assert.doesNotMatch(source, /new MutationObserver|subtree:\s*true|localStorage|indexedDB/i, file);
+  }
+});

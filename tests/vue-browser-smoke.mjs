@@ -3329,6 +3329,33 @@ async function checkLayout(mobile) {
     await page.evaluate(() => go('home'));
     await page.locator('#sb-vue-dashboard[data-v-app]').waitFor({ state:'attached', timeout:10000 });
 
+    // v0.187: quick switches between Songs and Passports do not duplicate
+    // Vue collections, retain the original media store and mount only one host.
+    for (const [route, path, active, inactive] of [
+      ['songs', ['songs','tracks','songs'], '#sb-vue-song-cards', '#sb-vue-track-list'],
+      ['tracks', ['tracks','songs','tracks'], '#sb-vue-track-list', '#sb-vue-song-cards'],
+      ['songs', ['songs','tracks','songs'], '#sb-vue-song-cards', '#sb-vue-track-list']
+    ]) {
+      await page.evaluate(routes => {
+        view.sbTrackSelected = null;
+        view.sbTrackEdit = null;
+        for (const target of routes) go(target);
+      }, path);
+      await page.locator(active + '[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
+      const hosts = await page.evaluate(({active,inactive}) => ({
+        route:view.nav,
+        current:document.querySelectorAll(active).length,
+        vue:document.querySelectorAll(active+'[data-v-app]').length,
+        stale:document.querySelectorAll(inactive).length,
+        songStorage:!!localStorage.getItem('sunoboom-my-songs-v1')
+      }), {active,inactive});
+      if (hosts.route !== route || hosts.current !== 1 || hosts.vue !== 1 ||
+          hosts.stale !== 0 || !hosts.songStorage)
+        throw new Error('v0.187 rapid Songs/Passports switch lost or duplicated a Vue island: '+JSON.stringify(hosts));
+    }
+    await page.evaluate(() => go('home'));
+    await page.locator('#sb-vue-dashboard[data-v-app]').waitFor({ state:'attached', timeout:10000 });
+
     const version = await page.locator('.sb-app-version').first().textContent();
     if (!/^v?\d+\.\d+$/.test(String(version || '').trim())) throw new Error('Version display missing or malformed');
 

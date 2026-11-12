@@ -1,26 +1,16 @@
 import SongDetail from './SongDetail.vue';
+import { observeLegacyIsland } from '../legacy/observeLegacyIsland.js';
 
-// Mount only the detailed song card. The original section inside the host is
-// kept as the fallback whenever the production Vue module is unavailable.
+// v0.187: Vue owns only the original display/editor host.
+// Local media, autosave, actions and HTML fallback remain in legacy code.
 export function activateLegacySongDetail({ mountVueFeature }) {
   const api = window.SUNOBOOM_LEGACY_SONG_DETAIL;
   const root = document.getElementById('app');
-  if (!api || !root) return () => {};
-  let current = null;
-  let disposed = false;
-  function sync() {
-    if (disposed) return;
-    const node = root.querySelector('#sb-vue-song-detail');
-    if (current?.node === node) return;
-    if (current) { current.unmount(); current = null; }
-    if (!node) return;
-    const model = api.snapshot();
-    if (!model) return;
-    const unmount = mountVueFeature(node, SongDetail, { api, model });
-    if (unmount) current = { node, unmount };
-  }
-  const observer = new MutationObserver(sync);
-  observer.observe(root, { childList: true });
-  sync();
-  return () => { disposed = true; observer.disconnect(); current?.unmount(); current = null; };
+  if (!api?.snapshot || !root) return () => {};
+  return observeLegacyIsland({
+    root,
+    selectTarget: parent => parent.querySelector('#sb-vue-song-detail'),
+    readSnapshot: () => api.snapshot(),
+    mount: (node, model) => mountVueFeature(node, SongDetail, { api, model })
+  });
 }
