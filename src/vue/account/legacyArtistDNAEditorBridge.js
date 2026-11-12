@@ -1,26 +1,16 @@
 import ArtistDNAEditor from './ArtistDNAEditor.vue';
+import { observeLegacyIsland } from '../legacy/observeLegacyIsland.js';
 
-// The original editor is always rendered inside the host before Vue mounts.
-// Legacy actions, validation and localStorage remain functional as fallback.
+// v0.189: progressive enhancement of just the original HTML slot.
+// Legacy forms, catalog state, actions, snapshots and fallback stay authoritative.
 export function activateLegacyArtistDNAEditor({ mountVueFeature }) {
   const api = window.SUNOBOOM_LEGACY_DNA_EDITOR;
   const root = document.getElementById('app');
-  if (!api || !root) return () => {};
-  let current = null;
-  let disposed = false;
-  function sync() {
-    if (disposed) return;
-    const node = root.querySelector('#sb-vue-dna-editor');
-    if (current?.node === node) return;
-    if (current) { current.unmount(); current = null; }
-    if (!node) return;
-    const model = api.snapshot();
-    if (!model) return;
-    const unmount = mountVueFeature(node, ArtistDNAEditor, { model, api });
-    if (unmount) current = { node, unmount };
-  }
-  const observer = new MutationObserver(sync);
-  observer.observe(root, { childList: true });
-  sync();
-  return () => { disposed = true; observer.disconnect(); current?.unmount(); current = null; };
+  if (!api?.snapshot || !root) return () => {};
+  return observeLegacyIsland({
+    root,
+    selectTarget: parent => parent.querySelector('#sb-vue-dna-editor'),
+    readSnapshot: () => api.snapshot(),
+    mount: (node, model) => mountVueFeature(node, ArtistDNAEditor, { model, api })
+  });
 }

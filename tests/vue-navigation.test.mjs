@@ -1497,3 +1497,30 @@ test('v0.188 Player LAB, A/B, Mixer and Auditor preserve lifecycle and props', (
     assert.doesNotMatch(source, /new MutationObserver|subtree:\s*true|localStorage|indexedDB/i, file);
   }
 });
+
+
+test('v0.189 Academy, genre detail and editors share lifecycle without changing legacy API', () => {
+  for (const [file, selector, component, api, props] of [
+    ['../src/vue/account/legacyPromptEditorBridge.js', '#sb-vue-prompt-form', 'PromptEditor', 'SUNOBOOM_LEGACY_PROMPT_EDITOR', '{ initial: model }'],
+    ['../src/vue/account/legacyArtistDNAEditorBridge.js', '#sb-vue-dna-editor', 'ArtistDNAEditor', 'SUNOBOOM_LEGACY_DNA_EDITOR', '{ model, api }'],
+    ['../src/vue/academy/legacyAcademyBridge.js', '#sb-vue-academy-root', 'AcademyCatalog', 'SUNOBOOM_LEGACY_ACADEMY', 'snapshot: model'],
+    ['../src/vue/academy/legacyGenreDetailBridge.js', '#sb-vue-genre-detail', 'GenreDetail', 'SUNOBOOM_LEGACY_GENRE', 'genre: model']
+  ]) {
+    const code = readFileSync(new URL(file, import.meta.url), 'utf8');
+    assert.ok(code.includes('observeLegacyIsland({'), file);
+    assert.ok(code.includes('window.' + api), file);
+    assert.ok(code.includes("parent.querySelector('" + selector + "')"), file);
+    assert.ok(code.includes('api.snapshot()'), file);
+    assert.ok(code.includes('mountVueFeature(node, ' + component + ','), file);
+    assert.ok(code.includes(props), file);
+    assert.doesNotMatch(code, /new MutationObserver|subtree:\s*true|localStorage|indexedDB/i, file);
+  }
+  const catalog = readFileSync(new URL('../src/vue/academy/legacyAcademyBridge.js', import.meta.url), 'utf8');
+  assert.ok(catalog.includes('!model?.families?.length'));
+  for (const action of ['api.search(q)', 'api.setExpanded(kind, id, value)', "node.querySelector('label.search-box > svg')"])
+    assert.ok(catalog.includes(action), action);
+  const genre = readFileSync(new URL('../src/vue/academy/legacyGenreDetailBridge.js', import.meta.url), 'utf8');
+  assert.ok(genre.includes('!model?.id'));
+  assert.ok(genre.includes('api.tabContent(id, tab)'));
+  assert.ok(genre.includes('SUNOBOOM_ARTIST_PROFILES?.enhanceCards?.()'));
+});

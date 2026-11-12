@@ -3383,6 +3383,43 @@ async function checkLayout(mobile) {
     await page.evaluate(() => go('home'));
     await page.locator('#sb-vue-dashboard[data-v-app]').waitFor({ state:'attached', timeout:10000 });
 
+    // v0.189: native route replacements retain only the active Vue view.
+    // The Academy's independent tree stays outside its catalog slot.
+    await page.evaluate(() => { view.sbDnaEdit = null; view.sbDnaSelected = null; });
+    for (const [route, sequence, slot] of [
+      ['catalog', ['catalog','myprompts','catalog'], '#sb-vue-academy-root'],
+      ['myprompts', ['myprompts','artists','myprompts'], '#sb-vue-prompt-form'],
+      ['artists', ['artists','catalog','artists'], '#sb-vue-dna-view']
+    ]) {
+      await page.evaluate(routes => { for (const id of routes) go(id); }, sequence);
+      await page.locator(slot+'[data-v-app]').waitFor({ state:'attached', timeout:10000 });
+      const state = await page.evaluate(slot => ({
+        nav:view.nav, host:document.querySelectorAll(slot).length,
+        vue:document.querySelectorAll(slot+'[data-v-app]').length,
+        academy:document.querySelectorAll('#sb-vue-academy-root').length,
+        prompt:document.querySelectorAll('#sb-vue-prompt-form').length,
+        dna:document.querySelectorAll('#sb-vue-dna-view').length
+      }), slot);
+      if (state.nav!==route || state.host!==1 || state.vue!==1 ||
+          state.academy!==(route==='catalog'?1:0) ||
+          state.prompt!==(route==='myprompts'?1:0) ||
+          state.dna!==(route==='artists'?1:0))
+        throw new Error('v0.189 rapid Academy/editor route changes duplicated Vue hosts: '+JSON.stringify(state));
+    }
+    await page.evaluate(() => go('catalog'));
+    await page.locator('#sb-vue-academy-root[data-v-app]').waitFor({state:'attached',timeout:10000});
+    await page.evaluate(() => openGenre('reggae-ska'));
+    await page.locator('#sb-vue-genre-detail[data-v-app]').waitFor({state:'attached',timeout:10000});
+    if (await page.locator('#sb-vue-genre-detail[data-v-app]').count()!==1 ||
+        await page.locator('#sb-vue-academy-root').count()!==0)
+      throw new Error('v0.189 genre detail did not replace Academy catalog cleanly');
+    await page.locator('.gb-top [data-action="academy-back"]').click();
+    await page.locator('#sb-vue-academy-root[data-v-app]').waitFor({state:'attached',timeout:10000});
+    if (await page.locator('#sb-vue-genre-detail').count()!==0)
+      throw new Error('v0.189 genre detail was not unmounted on Academy return');
+    await page.evaluate(() => go('home'));
+    await page.locator('#sb-vue-dashboard[data-v-app]').waitFor({state:'attached',timeout:10000});
+
     const version = await page.locator('.sb-app-version').first().textContent();
     if (!/^v?\d+\.\d+$/.test(String(version || '').trim())) throw new Error('Version display missing or malformed');
 
