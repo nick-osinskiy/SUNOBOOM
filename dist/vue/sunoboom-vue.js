@@ -5366,28 +5366,30 @@ var Qu = Object.freeze([]), $u = Object.freeze({
 	}
 };
 // src/vue/legacy/observeLegacyIsland.js
-function Q({ root: e, selectTarget: t, readSnapshot: n, mount: r, createObserver: i = (e) => new MutationObserver(e) }) {
+function Q({ root: e, selectTarget: t, readSnapshot: n, mount: r, subscribe: i, createObserver: a = (e) => new MutationObserver(e) }) {
 	if (!e || typeof t != "function" || typeof n != "function" || typeof r != "function") return () => {};
-	let a = !1, o = null;
-	function s() {
-		let e = o;
-		o = null, e && e.unmount();
-	}
+	let o = !1, s = null;
 	function c() {
-		if (a) return;
+		let e = s;
+		s = null, e && e.unmount();
+	}
+	function l() {
+		if (o) return;
 		let i = t(e);
-		if (o?.target === i && i?.isConnected || (s(), !i?.isConnected)) return;
-		let c = n(i);
-		if (!c) return;
-		let l = r(i, c);
-		typeof l == "function" && (o = {
+		if (s?.target === i && i?.isConnected || (c(), !i?.isConnected)) return;
+		let a = n(i);
+		if (!a) return;
+		let l = r(i, a);
+		typeof l == "function" && (s = {
 			target: i,
 			unmount: l
 		});
 	}
-	let l = i(c);
-	return l.observe(e, { childList: !0 }), c(), () => {
-		a || (a = !0, l.disconnect(), s());
+	let u = a(l);
+	u.observe(e, { childList: !0 });
+	let d = typeof i == "function" ? i(l) : null;
+	return l(), () => {
+		o || (o = !0, u.disconnect(), typeof d == "function" && d(), c());
 	};
 }
 // src/vue/poetry/legacyIdeaCollectionsBridge.js
@@ -9933,33 +9935,31 @@ var uC = {
 // src/vue/academy/legacyGenreTreeBridge.js
 function JC({ mountVueFeature: e }) {
 	let t = window.SUNOBOOM_LEGACY_GENRE_TREE, n = document.getElementById("app");
-	if (!t?.snapshot || !n) return () => {};
-	let r = null, i = !1;
-	function a() {
-		if (i) return;
-		let a = n.querySelector("#sb-genre-tree"), o = a?.open ? a.querySelector("#sb-gt-inner") : null;
-		if (r?.target === o && o?.isConnected || (r &&= (r.unmount(), null), !o)) return;
-		let s = t.snapshot();
-		if (!s?.trees?.length || !s?.genres?.length) return;
-		let c = e(o, qC, {
-			snapshot: s,
+	return !t?.snapshot || !n ? () => {} : Q({
+		root: n,
+		selectTarget: (e) => {
+			let t = e.querySelector("#sb-genre-tree");
+			return t?.open ? t.querySelector("#sb-gt-inner") : null;
+		},
+		readSnapshot: () => {
+			let e = t.snapshot();
+			return e?.trees?.length && e?.genres?.length ? e : null;
+		},
+		mount: (n, r) => e(n, qC, {
+			snapshot: r,
 			treeApi: t
-		});
-		c && (r = {
-			target: o,
-			unmount: c
-		});
-	}
-	let o = new MutationObserver(a);
-	o.observe(n, { childList: !0 });
-	let s = (e) => {
-		e.target.id === "sb-genre-tree" && queueMicrotask(a);
-	}, c = (e) => {
-		e.target.closest?.("[data-sb-gt-action=\"reveal\"]") && queueMicrotask(a);
-	};
-	return document.addEventListener("toggle", s, !0), document.addEventListener("click", c), a(), () => {
-		i = !0, o.disconnect(), document.removeEventListener("toggle", s, !0), document.removeEventListener("click", c), r?.unmount(), r = null;
-	};
+		}),
+		subscribe: (e) => {
+			let t = (t) => {
+				t.target.id === "sb-genre-tree" && queueMicrotask(e);
+			}, n = (t) => {
+				t.target.closest?.("[data-sb-gt-action=\"reveal\"]") && queueMicrotask(e);
+			};
+			return document.addEventListener("toggle", t, !0), document.addEventListener("click", n), () => {
+				document.removeEventListener("toggle", t, !0), document.removeEventListener("click", n);
+			};
+		}
+	});
 }
 // src/vue/academy/GenreOverview.vue
 var YC = {
