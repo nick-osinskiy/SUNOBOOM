@@ -6014,24 +6014,12 @@ var tp = {
 // src/vue/account/legacyPromptEditorBridge.js
 function cp({ mountVueFeature: e }) {
 	let t = window.SUNOBOOM_LEGACY_PROMPT_EDITOR, n = document.getElementById("app");
-	if (!t || !n) return () => {};
-	let r = null, i = !1;
-	function a() {
-		if (i) return;
-		let a = n.querySelector("#sb-vue-prompt-form");
-		if (r?.node === a || (r &&= (r.unmount(), null), !a)) return;
-		let o = t.snapshot();
-		if (!o) return;
-		let s = e(a, sp, { initial: o });
-		s && (r = {
-			node: a,
-			unmount: s
-		});
-	}
-	let o = new MutationObserver(a);
-	return o.observe(n, { childList: !0 }), a(), () => {
-		i = !0, o.disconnect(), r?.unmount(), r = null;
-	};
+	return !t?.snapshot || !n ? () => {} : Q({
+		root: n,
+		selectTarget: (e) => e.querySelector("#sb-vue-prompt-form"),
+		readSnapshot: () => t.snapshot(),
+		mount: (t, n) => e(t, sp, { initial: n })
+	});
 }
 // src/vue/account/LibraryCollection.vue
 var lp = { class: "account-back" }, up = {
@@ -7287,27 +7275,15 @@ var Tg = {
 // src/vue/account/legacyArtistDNAEditorBridge.js
 function Qg({ mountVueFeature: e }) {
 	let t = window.SUNOBOOM_LEGACY_DNA_EDITOR, n = document.getElementById("app");
-	if (!t || !n) return () => {};
-	let r = null, i = !1;
-	function a() {
-		if (i) return;
-		let a = n.querySelector("#sb-vue-dna-editor");
-		if (r?.node === a || (r &&= (r.unmount(), null), !a)) return;
-		let o = t.snapshot();
-		if (!o) return;
-		let s = e(a, Zg, {
-			model: o,
+	return !t?.snapshot || !n ? () => {} : Q({
+		root: n,
+		selectTarget: (e) => e.querySelector("#sb-vue-dna-editor"),
+		readSnapshot: () => t.snapshot(),
+		mount: (n, r) => e(n, Zg, {
+			model: r,
 			api: t
-		});
-		s && (r = {
-			node: a,
-			unmount: s
-		});
-	}
-	let o = new MutationObserver(a);
-	return o.observe(n, { childList: !0 }), a(), () => {
-		i = !0, o.disconnect(), r?.unmount(), r = null;
-	};
+		})
+	});
 }
 // src/vue/account/AccountSettings.vue
 var $g = ["data-sb-preferred-theme", "data-sb-applied-theme"], e_ = { class: "sbs-layout" }, t_ = { class: "sbs-main-column" }, n_ = { class: "sbs-panel" }, r_ = {
@@ -9645,29 +9621,20 @@ var yS = ["data-id"], bS = { class: "genre-content" }, xS = { class: "kicker" },
 // src/vue/academy/legacyAcademyBridge.js
 function iC({ mountVueFeature: e }) {
 	let t = window.SUNOBOOM_LEGACY_ACADEMY, n = document.getElementById("app");
-	if (!t || !n || typeof t.snapshot != "function") return () => {};
-	let r = null, i = !1;
-	function a() {
-		if (i) return;
-		let a = n.querySelector("#sb-vue-academy-root");
-		if (r?.target === a || (r &&= (r.unmount(), null), !a)) return;
-		let o = t.snapshot();
-		if (!o?.families?.length) return;
-		let s = e(a, rC, {
-			snapshot: o,
+	return !t?.snapshot || !n ? () => {} : Q({
+		root: n,
+		selectTarget: (e) => e.querySelector("#sb-vue-academy-root"),
+		readSnapshot: () => {
+			let e = t.snapshot();
+			return e?.families?.length ? e : null;
+		},
+		mount: (n, r) => e(n, rC, {
+			snapshot: r,
 			search: (e) => t.search(e),
-			searchIcon: n.querySelector("#sb-vue-academy-root label.search-box > svg")?.outerHTML || "",
+			searchIcon: n.querySelector("label.search-box > svg")?.outerHTML || "",
 			setExpanded: (e, n, r) => t.setExpanded(e, n, r)
-		});
-		s && (r = {
-			target: a,
-			unmount: s
-		});
-	}
-	let o = new MutationObserver(a);
-	return o.observe(n, { childList: !0 }), a(), () => {
-		i || (i = !0, o.disconnect(), r?.unmount(), r = null);
-	};
+		})
+	});
 }
 // src/vue/academy/genre-tree-model.js
 var aC = (e) => String(e ?? "").trim().normalize("NFKC").toLocaleLowerCase("ru");
@@ -10422,29 +10389,20 @@ var JC = {
 // src/vue/academy/legacyGenreDetailBridge.js
 function wT({ mountVueFeature: e }) {
 	let t = window.SUNOBOOM_LEGACY_GENRE, n = document.getElementById("app");
-	if (!n || !t || typeof t.snapshot != "function") return () => {};
-	let r = null, i = !1;
-	function a() {
-		if (i) return;
-		let a = n.querySelector("#sb-vue-genre-detail");
-		if (r?.target === a || (r &&= (r.unmount(), null), !a)) return;
-		let o = t.snapshot();
-		if (!o?.id) return;
-		let s = e(a, CT, {
-			genre: o,
+	return !t?.snapshot || !n ? () => {} : Q({
+		root: n,
+		selectTarget: (e) => e.querySelector("#sb-vue-genre-detail"),
+		readSnapshot: () => {
+			let e = t.snapshot();
+			return e?.id ? e : null;
+		},
+		mount: (n, r) => e(n, CT, {
+			genre: r,
 			tabContent: (e, n) => t.tabContent(e, n),
 			artistCatalog: window.SUNOBOOM_ARTIST_CATALOG || null,
 			enhanceArtistProfiles: () => window.SUNOBOOM_ARTIST_PROFILES?.enhanceCards?.()
-		});
-		s && (r = {
-			target: a,
-			unmount: s
-		});
-	}
-	let o = new MutationObserver(a);
-	return o.observe(n, { childList: !0 }), a(), () => {
-		i || (i = !0, o.disconnect(), r?.unmount(), r = null);
-	};
+		})
+	});
 }
 // src/vue/studio/StudioBuilder.vue
 var TT = { class: "panel" }, ET = { class: "field" }, DT = ["value"], OT = ["value"], kT = { class: "form-grid" }, AT = { class: "field" }, jT = ["value"], MT = ["value"], NT = { class: "field" }, PT = ["value"], FT = ["value"], IT = { class: "field" }, LT = ["value"], RT = ["value"], zT = { class: "field" }, BT = ["value"], VT = ["value"], HT = { class: "field" }, UT = { for: "b-tempo" }, WT = {
