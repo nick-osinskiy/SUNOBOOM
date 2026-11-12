@@ -3254,6 +3254,34 @@ async function checkLayout(mobile) {
     }
     await page.locator('[data-sbs-action="close"]').click();
 
+    // v0.184: several native render() calls in the SAME JavaScript turn
+    // must settle on one connected Vue host per island, not duplicate UI.
+    await page.evaluate(() => {
+      for(const route of ['home','myprompts','myideas','myprompts','home']) go(route);
+    });
+    await page.waitForFunction(() =>
+      document.querySelector('.top[data-sb-vue-top][data-v-app]') &&
+      document.querySelector('#sb-vue-dashboard[data-v-app]') &&
+      document.querySelector('[data-sb-vue-sidebar][data-v-app]'));
+    const lifecycle184=await page.evaluate(() => ({
+      route:view.nav,
+      header:document.querySelectorAll('.top[data-sb-vue-top][data-v-app]').length,
+      dashboard:document.querySelectorAll('#sb-vue-dashboard[data-v-app]').length,
+      prompts:document.querySelectorAll('#sb-vue-prompts-list').length,
+      tags:document.querySelectorAll('#sb-vt-workbench').length,
+      settings:document.querySelectorAll('#sb-vue-account-settings').length,
+      versionsVisible:[...document.querySelectorAll('.sb-version-trigger')]
+        .filter(button=>button.getClientRects().length).length,
+      bells:document.querySelectorAll('.top .sb-notice-bell').length,
+      nav:document.querySelectorAll('[data-sb-vue-sidebar][data-v-app]').length
+    }));
+    if(lifecycle184.route!=='home' || lifecycle184.header!==1 ||
+       lifecycle184.dashboard!==1 || lifecycle184.nav!==1 ||
+       lifecycle184.prompts || lifecycle184.tags || lifecycle184.settings ||
+       lifecycle184.versionsVisible!==1 || lifecycle184.bells!==2)
+      throw new Error('v0.184 rapid legacy remount duplicated or lost Vue islands: '+
+        JSON.stringify(lifecycle184));
+
     const version = await page.locator('.sb-app-version').first().textContent();
     if (!/^v?\d+\.\d+$/.test(String(version || '').trim())) throw new Error('Version display missing or malformed');
 

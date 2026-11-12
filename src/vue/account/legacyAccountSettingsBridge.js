@@ -1,26 +1,15 @@
 import AccountSettings from './AccountSettings.vue';
+import { observeLegacyIsland } from '../legacy/observeLegacyIsland.js';
 
-// Legacy HTML is always present before this opt-in Vue mount. The original
-// settings module continues to own persistence, actions, navigation and reset.
+// Original settings persistence, navigation and delegated actions stay intact.
 export function activateLegacyAccountSettings({ mountVueFeature }) {
   const api = window.SUNOBOOM_LEGACY_SETTINGS;
   const root = document.getElementById('app');
-  if (!api || !root) return () => {};
-  let current = null;
-  let disposed = false;
-  function sync() {
-    if (disposed) return;
-    const node = root.querySelector('#sb-vue-account-settings');
-    if (current?.node === node) return;
-    if (current) { current.unmount(); current = null; }
-    if (!node) return;
-    const model = api.snapshot();
-    if (!model) return;
-    const unmount = mountVueFeature(node, AccountSettings, { model });
-    if (unmount) current = { node, unmount };
-  }
-  const observer = new MutationObserver(sync);
-  observer.observe(root, { childList: true });
-  sync();
-  return () => { disposed = true; observer.disconnect(); current?.unmount(); current = null; };
+  if (!api?.snapshot || !root) return () => {};
+  return observeLegacyIsland({
+    root,
+    selectTarget: parent => parent.querySelector('#sb-vue-account-settings'),
+    readSnapshot: () => api.snapshot(),
+    mount: (node, model) => mountVueFeature(node, AccountSettings, { model })
+  });
 }

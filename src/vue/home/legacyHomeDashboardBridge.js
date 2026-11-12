@@ -1,37 +1,26 @@
 import HomeDashboard from './HomeDashboard.vue';
 import { legacyMirrorRouter } from '../navigation/legacy-router-mirror.js';
 import { navigateFromVueShortcut } from '../navigation/navigation-dispatch.js';
+import { observeLegacyIsland } from '../legacy/observeLegacyIsland.js';
 
-// The root app and all personal records remain controlled by legacy code.
-// Mount only into the dashboard container whenever legacy render() replaces it.
+// Existing records, HTML fallback and navigation stay controlled by legacy.
 export function activateLegacyHomeDashboard({ mountVueFeature, sharedUi }) {
   const api = window.SUNOBOOM_LEGACY_DASHBOARD;
   const root = document.getElementById('app');
   if (!api?.snapshot || !root) return () => {};
-
-  let current = null;
-  let disposed = false;
-  function sync() {
-    if (disposed) return;
-    const node = root.querySelector('#sb-vue-dashboard');
-    if (current?.node === node) return;
-    if (current) { current.unmount(); current = null; }
-    if (!node) return;
-    const model = api.snapshot();
-    if (!model) return;
-    sharedUi.publishDashboardStats(model);
-    const unmount = mountVueFeature(node, HomeDashboard, {
-      model,
-      navigate: id => navigateFromVueShortcut(id, {
-        router: legacyMirrorRouter,
-        legacyApi: window.SUNOBOOM_LEGACY_NAV
-      })
-    });
-    if (unmount) current = { node, unmount };
-  }
-
-  const observer = new MutationObserver(sync);
-  observer.observe(root, { childList: true });
-  sync();
-  return () => { disposed = true; observer.disconnect(); current?.unmount(); current = null; };
+  return observeLegacyIsland({
+    root,
+    selectTarget: parent => parent.querySelector('#sb-vue-dashboard'),
+    readSnapshot: () => api.snapshot(),
+    mount: (node, model) => {
+      sharedUi.publishDashboardStats(model);
+      return mountVueFeature(node, HomeDashboard, {
+        model,
+        navigate: id => navigateFromVueShortcut(id, {
+          router: legacyMirrorRouter,
+          legacyApi: window.SUNOBOOM_LEGACY_NAV
+        })
+      });
+    }
+  });
 }

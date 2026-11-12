@@ -4,6 +4,7 @@ import { createPinia } from 'pinia';
 import { useLegacyUiStore } from '../src/vue/state/legacy-ui-store.js';
 import { normalizeLegacyAppearance } from '../src/vue/state/appearance-model.js';
 import { normalizeTopHeader } from '../src/vue/navigation/top-header-model.js';
+import { observeLegacyIsland } from '../src/vue/legacy/observeLegacyIsland.js';
 import { normalizeAcademyCatalog, normalizeAcademyFocus, normalizeAcademyTree } from '../src/vue/state/academy-ui-model.js';
 import { normalizeStudioSummary, normalizeMixerSummary, normalizeAuditorSummary, normalizeArrangerSummary } from '../src/vue/state/production-ui-model.js';
 import { normalizePlayerLabSummary, normalizePlayerAbSummary } from '../src/vue/state/player-ui-model.js';
@@ -1339,4 +1340,87 @@ test('v0.183 header view model validates bounded display data without personal r
     {...safe,logoSrc:'x'.repeat(20001)}]) {
     assert.equal(normalizeTopHeader(bad),null);
   }
+});
+
+test('v0.184 common island lifecycle remounts only changed connected host and disposes once', () => {
+  let current = { isConnected:true, marker:'first' };
+  const root = { querySelector: selector => selector === '#slot' ? current : null };
+  const calls = [], seen = [];
+  let notify, disconnected=false, observedOptions, snapshot={generation:1};
+  const stop = observeLegacyIsland({
+    root,
+    selectTarget: parent => parent.querySelector('#slot'),
+    readSnapshot: () => { seen.push('read'); return snapshot; },
+    mount: (node, model) => {
+      calls.push('mount:'+node.marker+':'+model.generation);
+      return () => calls.push('unmount:'+node.marker);
+    },
+    createObserver: callback => ({
+      observe(node,options) {
+        assert.strictEqual(node,root);
+        notify=callback;
+        observedOptions=options;
+      },
+      disconnect() { disconnected=true; }
+    })
+  });
+  assert.deepEqual(observedOptions,{childList:true});
+  assert.deepEqual(calls,['mount:first:1']);
+  notify();notify();
+  assert.deepEqual(calls,['mount:first:1']); // Vue child mutations cannot remount
+  current.isConnected=false;
+  current={isConnected:true,marker:'second'};
+  snapshot={generation:2};
+  notify();
+  assert.deepEqual(calls,['mount:first:1','unmount:first','mount:second:2']);
+  current=null;
+  notify();
+  assert.equal(calls.at(-1),'unmount:second');
+  snapshot=null;
+  current={isConnected:true,marker:'empty'};
+  notify();
+  assert.equal(calls.filter(x=>x.startsWith('mount:')).length,2);
+  snapshot={generation:3};
+  notify();
+  assert.equal(calls.at(-1),'mount:empty:3');
+  stop();
+  stop();
+  assert.equal(disconnected,true);
+  assert.equal(calls.at(-1),'unmount:empty');
+  const count=calls.length,reads=seen.length;
+  current={isConnected:true,marker:'later'};
+  notify();
+  assert.equal(calls.length,count);
+  assert.equal(seen.length,reads);
+});
+
+test('v0.184 lifecycle leaves HTML fallback untouched on absent snapshots or mount failure', () => {
+  const node={isConnected:true,originalHTML:'legacy markup'};
+  const root={querySelector: () => node};
+  let available=false,failMount=true,notify;
+  const calls=[];
+  const stop=observeLegacyIsland({
+    root,
+    selectTarget: parent => parent.querySelector('#content'),
+    readSnapshot: () => available ? { ready:true } : null,
+    mount: () => {
+      calls.push('attempt');
+      if(failMount)return null;
+      return () => calls.push('unmount');
+    },
+    createObserver: cb => ({observe(){notify=cb},disconnect(){calls.push('disconnect')}})
+  });
+  assert.equal(node.originalHTML,'legacy markup');
+  assert.deepEqual(calls,[]);
+  available=true;
+  notify(); // Failed Vue mount leaves the existing HTML fallback available.
+  assert.deepEqual(calls,['attempt']);
+  assert.equal(node.originalHTML,'legacy markup');
+  failMount=false;
+  notify();
+  assert.deepEqual(calls,['attempt','attempt']);
+  stop();
+  assert.deepEqual(calls,['attempt','attempt','disconnect','unmount']);
+  assert.equal(node.originalHTML,'legacy markup');
+  assert.equal(typeof observeLegacyIsland({root:null,selectTarget:()=>{},readSnapshot:()=>{},mount:()=>{}}),'function');
 });

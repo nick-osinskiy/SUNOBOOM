@@ -1,29 +1,16 @@
 import PerformanceTags from './PerformanceTags.vue';
+import { observeLegacyIsland } from '../legacy/observeLegacyIsland.js';
 
-/** Keep the original validation, consent and persistence handlers authoritative. */
+// The original generator remains authoritative for validation, consent,
+// settings, draft text and persistence. Only its UI island is mounted.
 export function activateLegacyTags({ mountVueFeature }) {
   const api = window.SUNOBOOM_LEGACY_TAGS;
   const root = document.getElementById('app');
-  if (!api || !root || typeof api.snapshot !== 'function') return () => {};
-
-  let current = null;
-  let disposed = false;
-  function sync() {
-    if (disposed) return;
-    const target = root.querySelector('#sb-vt-workbench');
-    if (current?.target === target) return;
-    if (current) { current.unmount(); current = null; }
-    if (!target || !api.snapshot()) return;
-    const unmount = mountVueFeature(target, PerformanceTags, { api });
-    if (unmount) current = { target, unmount };
-  }
-  const observer = new MutationObserver(sync);
-  observer.observe(root, { childList: true });
-  sync();
-  return () => {
-    disposed = true;
-    observer.disconnect();
-    current?.unmount();
-    current = null;
-  };
+  if (!api?.snapshot || !root) return () => {};
+  return observeLegacyIsland({
+    root,
+    selectTarget: parent => parent.querySelector('#sb-vt-workbench'),
+    readSnapshot: () => api.snapshot(),
+    mount: node => mountVueFeature(node, PerformanceTags, { api })
+  });
 }
