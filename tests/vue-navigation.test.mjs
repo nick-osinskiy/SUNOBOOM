@@ -1688,7 +1688,10 @@ test('v0.191 six arranger islands remount independently and preserve fallback on
   assert.equal(mounts.at(-1),'newResult');
   stop();stop();
   assert.equal(disconnected,1);
-  assert.equal(unmounts.length,7);
+  // Two replaced hosts were unmounted earlier, then six active hosts at dispose.
+  assert.equal(unmounts.length,8);
+  assert.equal(unmounts.filter(name => name === 'host1').length,1);
+  assert.equal(unmounts.filter(name => name === 'host5').length,1);
   const before=mounts.length;
   notify();
   assert.equal(mounts.length,before);
