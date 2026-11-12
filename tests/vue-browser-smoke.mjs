@@ -276,8 +276,11 @@ async function checkLayout(mobile) {
       const logo = wrapper?.querySelector(mobile ? '.sb-mobile-logo' : '.sb-brand-logo');
       const label = wrapper?.querySelector('.sb-brand-tagline');
       const version = wrapper?.querySelector('.sb-app-version');
+      const prototype = document.querySelector('.top .sb-prototype-pill');
+      const headerVersion = prototype?.querySelector('.sb-version-trigger');
       const l = logo?.getBoundingClientRect(), t = label?.getBoundingClientRect();
       const v = version?.getBoundingClientRect();
+      const p = prototype?.getBoundingClientRect(), h = headerVersion?.getBoundingClientRect();
       // Measure visible pixels, not the bounding box of the transparent PNG.
       let visibleLogoBottom = null;
       let visibleWordmarkLeft = null;
@@ -315,7 +318,14 @@ async function checkLayout(mobile) {
         below: Boolean(t && visibleLogoBottom !== null && t.top >= visibleLogoBottom - 3),
         gap: t && visibleLogoBottom !== null ? t.top - visibleLogoBottom : null,
         wordmarkXGap: t && visibleWordmarkLeft !== null ? t.left - visibleWordmarkLeft : null,
-        versionBeside: Boolean(l && v && v.left >= l.right - 2),
+        versionBeside: mobile ? Boolean(l && v && v.left >= l.right - 2) : true,
+        versionNearPrototype: mobile ? true : Boolean(p && h && h.width > 20 &&
+          h.left >= p.left && h.right <= p.right + 1 &&
+          p.width > 90 && prototype.textContent.includes('Прототип')),
+        sidebarVersionCount: document.querySelectorAll('.side .sb-version-trigger').length,
+        visibleVersionCount: [...document.querySelectorAll('.sb-version-trigger')]
+          .filter(el => el.getClientRects().length > 0).length,
+        desktopVersionHiddenOnPhone: !mobile || !h || !headerVersion.getClientRects().length,
         fits: Boolean(t && t.left >= 0 && t.right <= innerWidth + 1),
         scheme: getComputedStyle(label).color,
         horizontalOverflow: document.documentElement.scrollWidth > innerWidth + 1
@@ -323,7 +333,10 @@ async function checkLayout(mobile) {
     });
     if (brandSignature157.text !== 'Больше, чем музыка' ||
         !brandSignature157.visible || !brandSignature157.below ||
-        !brandSignature157.versionBeside || !brandSignature157.fits ||
+        !brandSignature157.versionBeside || !brandSignature157.versionNearPrototype ||
+        brandSignature157.sidebarVersionCount !== 0 ||
+        brandSignature157.visibleVersionCount !== 1 ||
+        !brandSignature157.desktopVersionHiddenOnPhone || !brandSignature157.fits ||
         brandSignature157.gap === null || Math.abs(brandSignature157.gap) > 3 ||
         brandSignature157.wordmarkXGap === null || Math.abs(brandSignature157.wordmarkXGap) > 3 ||
         (mobile && brandSignature157.horizontalOverflow)) {
