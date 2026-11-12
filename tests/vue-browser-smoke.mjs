@@ -3420,6 +3420,41 @@ async function checkLayout(mobile) {
     await page.evaluate(() => go('home'));
     await page.locator('#sb-vue-dashboard[data-v-app]').waitFor({state:'attached',timeout:10000});
 
+    // v0.190: Studio grid and all three Idea Editor islands share the
+    // standard lifecycle. No stale grid or duplicate native form elements.
+    await page.evaluate(() => { for (const route of ['myideas','studio','myideas']) go(route); });
+    for (const id of ['sb-vue-idea-fields','sb-vue-lyrics-source','sb-vue-lyrics-tools']) {
+      await page.locator('#'+id+'[data-v-app]').waitFor({state:'attached',timeout:10000});
+    }
+    const ideas190=await page.evaluate(() => ({
+      route:view.nav,
+      hosts:['sb-vue-idea-fields','sb-vue-lyrics-source','sb-vue-lyrics-tools']
+        .map(id=>({id,total:document.querySelectorAll('#'+id).length,
+          mounted:document.querySelectorAll('#'+id+'[data-v-app]').length})),
+      editor:document.querySelectorAll('#custom-idea-lyrics').length,
+      studio:document.querySelectorAll('.studio-grid').length,
+      legacyApi:typeof window.SUNOBOOM_LEGACY_IDEA_EDITOR?.snapshot
+    }));
+    if (ideas190.route!=='myideas' || ideas190.editor!==1 || ideas190.studio!==0 ||
+        ideas190.legacyApi!=='function' || ideas190.hosts.some(h=>h.total!==1||h.mounted!==1))
+      throw new Error('v0.190 Idea Editor multi-island remount regression: '+JSON.stringify(ideas190));
+    await page.evaluate(() => { for (const route of ['studio','myideas','studio']) go(route); });
+    await page.locator('.studio-grid[data-v-app]').waitFor({state:'attached',timeout:10000});
+    await page.locator('#sbpa-auditor[data-v-app]').waitFor({state:'attached',timeout:10000});
+    const studio190=await page.evaluate(() => ({
+      route:view.nav,
+      grid:document.querySelectorAll('.studio-grid[data-v-app]').length,
+      marker:document.querySelector('.studio-grid')?.dataset.sbVueStudio,
+      auditor:document.querySelectorAll('#sbpa-auditor[data-v-app]').length,
+      arranger:document.querySelectorAll('#sba-arranger').length,
+      ideas:document.querySelectorAll('#sb-vue-idea-fields,#sb-vue-lyrics-source,#sb-vue-lyrics-tools').length
+    }));
+    if (studio190.route!=='studio' || studio190.grid!==1 || studio190.marker!=='true' ||
+        studio190.auditor!==1 || studio190.arranger!==1 || studio190.ideas!==0)
+      throw new Error('v0.190 Studio mount lost native sibling modules: '+JSON.stringify(studio190));
+    await page.evaluate(() => go('home'));
+    await page.locator('#sb-vue-dashboard[data-v-app]').waitFor({state:'attached',timeout:10000});
+
     const version = await page.locator('.sb-app-version').first().textContent();
     if (!/^v?\d+\.\d+$/.test(String(version || '').trim())) throw new Error('Version display missing or malformed');
 

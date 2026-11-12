@@ -6,6 +6,7 @@ import { useLegacyUiStore } from '../src/vue/state/legacy-ui-store.js';
 import { normalizeLegacyAppearance } from '../src/vue/state/appearance-model.js';
 import { normalizeTopHeader } from '../src/vue/navigation/top-header-model.js';
 import { observeLegacyIsland } from '../src/vue/legacy/observeLegacyIsland.js';
+import { observeLegacyIslands } from '../src/vue/legacy/observeLegacyIslands.js';
 import { normalizeAcademyCatalog, normalizeAcademyFocus, normalizeAcademyTree } from '../src/vue/state/academy-ui-model.js';
 import { normalizeStudioSummary, normalizeMixerSummary, normalizeAuditorSummary, normalizeArrangerSummary } from '../src/vue/state/production-ui-model.js';
 import { normalizePlayerLabSummary, normalizePlayerAbSummary } from '../src/vue/state/player-ui-model.js';
@@ -1523,4 +1524,92 @@ test('v0.189 Academy, genre detail and editors share lifecycle without changing 
   assert.ok(genre.includes('!model?.id'));
   assert.ok(genre.includes('api.tabContent(id, tab)'));
   assert.ok(genre.includes('SUNOBOOM_ARTIST_PROFILES?.enhanceCards?.()'));
+});
+
+
+test('v0.190 multi-island lifecycle shares one shallow observer, retries missing hosts and disposes once', () => {
+  const a = { isConnected:true, id:'a0', originalHTML:'native a' };
+  const b = { isConnected:true, id:'b0', originalHTML:'native b' };
+  const c = { isConnected:true, id:'c0', originalHTML:'native c' };
+  const slots = new Map([['a',a],['b',b],['c',c]]);
+  const root = { querySelector: selector => slots.get(selector.slice(1)) || null };
+  const available = new Map([['a',true],['b',false],['c',true]]);
+  const events = [];
+  let notify, observerCount=0, observedOptions, disconnected=0, failC=true;
+  const stop = observeLegacyIslands({
+    root,
+    islands: ['a','b','c'].map(key => ({
+      key,
+      selectTarget: parent => parent.querySelector('#'+key),
+      readSnapshot: () => available.get(key) ? { key } : null,
+      mount: (node, snapshot) => {
+        assert.equal(snapshot.key,key);
+        events.push('mount:'+key+':'+node.id);
+        if (key==='c' && failC) return null;
+        return () => events.push('unmount:'+key+':'+node.id);
+      }
+    })),
+    createObserver: callback => ({
+      observe(node,options) { assert.equal(node,root); notify=callback; observedOptions=options; observerCount++; },
+      disconnect() { disconnected++; }
+    })
+  });
+  assert.deepEqual(observedOptions,{childList:true});
+  assert.equal(observerCount,1);
+  assert.deepEqual(events,['mount:a:a0','mount:c:c0']);
+  assert.equal(b.originalHTML,'native b');
+  assert.equal(c.originalHTML,'native c');
+  available.set('b',true);
+  failC=false;
+  notify();
+  assert.deepEqual(events.slice(-2),['mount:b:b0','mount:c:c0']);
+  const before=events.length;
+  notify();notify();
+  assert.equal(events.length,before); // Native input/Vue descendants don't remount.
+  const nextB={isConnected:true,id:'b1',originalHTML:'native b1'};
+  b.isConnected=false;
+  slots.set('b',nextB);
+  notify();
+  assert.deepEqual(events.slice(-2),['unmount:b:b0','mount:b:b1']);
+  slots.delete('c');
+  notify();
+  assert.equal(events.at(-1),'unmount:c:c0');
+  nextB.isConnected=false;
+  slots.set('b',{isConnected:true,id:'b2',originalHTML:'native b2'});
+  available.set('b',false);
+  notify();
+  assert.equal(events.at(-1),'unmount:b:b1');
+  assert.ok(!events.includes('mount:b:b2'));
+  stop();stop();
+  assert.equal(disconnected,1);
+  assert.equal(events.at(-1),'unmount:a:a0');
+  const after=events.length;
+  slots.set('a',{isConnected:true,id:'a1'});
+  notify();
+  assert.equal(events.length,after);
+  assert.equal(typeof observeLegacyIslands({root:null,islands:[]}), 'function');
+  assert.equal(typeof observeLegacyIslands({root,islands:[{key:'dup'},{key:'dup'}]}), 'function');
+});
+
+test('v0.190 Studio and three Idea Editor hosts preserve their unique native contracts', () => {
+  const studio=readFileSync(new URL('../src/vue/studio/legacyStudioBridge.js', import.meta.url),'utf8');
+  assert.match(studio,/observeLegacyIsland\(/);
+  assert.ok(studio.includes("parent.querySelector('.studio-grid')"));
+  assert.ok(studio.includes('mountVueFeature(node, StudioBuilder, { api })'));
+  assert.ok(studio.includes("node.dataset.sbVueStudio = 'true'"));
+  assert.ok(studio.includes('readSnapshot: () => api.snapshot()'));
+  assert.doesNotMatch(studio,/new MutationObserver|localStorage|indexedDB|subtree:\s*true/);
+  const ideas=readFileSync(new URL('../src/vue/poetry/legacyIdeaEditorBridge.js',import.meta.url),'utf8');
+  assert.ok(ideas.includes('observeLegacyIslands({'));
+  for (const [selector,component] of [
+    ['sb-vue-idea-fields','IdeaFields'],
+    ['sb-vue-lyrics-source','LyricsSource'],
+    ['sb-vue-lyrics-tools','LyricsTools']
+  ]) {
+    assert.ok(ideas.includes("['"+selector+"', "+component+']'));
+  }
+  assert.ok(ideas.includes("parent.querySelector('#' + id)"));
+  assert.ok(ideas.includes('readSnapshot: () => api.snapshot()'));
+  assert.ok(ideas.includes('mountVueFeature(node, component, { api, initial })'));
+  assert.doesNotMatch(ideas,/new MutationObserver|localStorage|indexedDB|subtree:\s*true/);
 });
