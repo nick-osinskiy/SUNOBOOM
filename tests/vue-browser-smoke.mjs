@@ -277,7 +277,8 @@ async function checkLayout(mobile) {
       const label = wrapper?.querySelector('.sb-brand-tagline');
       const version = wrapper?.querySelector('.sb-app-version');
       const prototype = document.querySelector('.top .sb-prototype-pill');
-      const headerVersion = prototype?.querySelector('.sb-version-trigger');
+      const headerVersion = prototype?.nextElementSibling?.matches('.sb-version-trigger')
+        ? prototype.nextElementSibling : null;
       const l = logo?.getBoundingClientRect(), t = label?.getBoundingClientRect();
       const v = version?.getBoundingClientRect();
       const p = prototype?.getBoundingClientRect(), h = headerVersion?.getBoundingClientRect();
@@ -320,8 +321,11 @@ async function checkLayout(mobile) {
         wordmarkXGap: t && visibleWordmarkLeft !== null ? t.left - visibleWordmarkLeft : null,
         versionBeside: mobile ? Boolean(l && v && v.left >= l.right - 2) : true,
         versionNearPrototype: mobile ? true : Boolean(p && h && h.width > 20 &&
-          h.left >= p.left && h.right <= p.right + 1 &&
-          p.width > 90 && prototype.textContent.includes('Прототип')),
+          h.left >= p.right && h.left - p.right <= 20 &&
+          Math.abs((h.top + h.bottom) / 2 - (p.top + p.bottom) / 2) <= 5 &&
+          prototype.textContent.trim() === '🧪 Прототип' &&
+          !prototype.querySelector('.sb-version-trigger') &&
+          headerVersion.parentElement === prototype.parentElement),
         sidebarVersionCount: document.querySelectorAll('.side .sb-version-trigger').length,
         visibleVersionCount: [...document.querySelectorAll('.sb-version-trigger')]
           .filter(el => el.getClientRects().length > 0).length,
@@ -351,7 +355,8 @@ async function checkLayout(mobile) {
         const logo = document.querySelector('.side .brand .sb-brand-logo')?.getBoundingClientRect();
         const tagline = document.querySelector('.side .brand .sb-brand-tagline')?.getBoundingClientRect();
         const pill = document.querySelector('.top .sb-prototype-pill');
-        const version = pill?.querySelector('.sb-version-trigger');
+        const version = pill?.nextElementSibling?.matches('.sb-version-trigger')
+          ? pill.nextElementSibling : null;
         const visible = Array.from(document.querySelectorAll('.sb-version-trigger'))
           .filter(button => button.getClientRects().length).length;
         return {
@@ -359,11 +364,17 @@ async function checkLayout(mobile) {
           offset: logo && tagline ? tagline.left - (logo.left + logo.width * 118 / 420) : null,
           pillVisible: !!pill?.getClientRects().length,
           versionVisible: !!version?.getClientRects().length,
+          versionSeparate: !!version && version.parentElement === pill.parentElement &&
+            !pill.contains(version),
+          versionGap: pill && version
+            ? version.getBoundingClientRect().left - pill.getBoundingClientRect().right : null,
           versionCount: visible
         };
       });
       if (compact182.offset === null || Math.abs(compact182.offset) > 3 ||
-          !compact182.pillVisible || !compact182.versionVisible || compact182.versionCount !== 1)
+          !compact182.pillVisible || !compact182.versionVisible ||
+          !compact182.versionSeparate || compact182.versionGap < 0 ||
+          compact182.versionGap > 20 || compact182.versionCount !== 1)
         throw new Error('v0.182 compact desktop brand/version layout broken: ' + JSON.stringify(compact182));
       await page.setViewportSize({ width: 1440, height: 900 });
     }
