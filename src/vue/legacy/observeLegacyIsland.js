@@ -2,7 +2,7 @@
 // Observe only direct child replacement on the supplied root. Observing subtree
 // would make Vue's own render trigger unnecessary remounts and input loss.
 export function observeLegacyIsland({
-  root, selectTarget, readSnapshot, mount,
+  root, selectTarget, readSnapshot, mount, subscribe,
   createObserver = callback => new MutationObserver(callback)
 }) {
   if (!root || typeof selectTarget !== 'function' ||
@@ -34,12 +34,15 @@ export function observeLegacyIsland({
 
   const observer = createObserver(sync);
   observer.observe(root, { childList: true });
+  // Optional external events (e.g. <details> toggle) do not alter #app children.
+  const unsubscribe = typeof subscribe === 'function' ? subscribe(sync) : null;
   sync();
 
   return () => {
     if (disposed) return;
     disposed = true;
     observer.disconnect();
+    if (typeof unsubscribe === 'function') unsubscribe();
     unmountCurrent();
   };
 }

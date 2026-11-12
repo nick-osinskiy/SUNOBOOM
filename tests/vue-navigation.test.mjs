@@ -1774,3 +1774,84 @@ test('v0.192 nested poetry stress lifecycle mounts on ready, unmounts on closed 
   notify();
   assert.equal(counts.analysis,1);
 });
+
+
+test('v0.193 Genre Tree bridge preserves nested details host, original API and toggle subscriptions', () => {
+  const code = readFileSync(new URL('../src/vue/academy/legacyGenreTreeBridge.js', import.meta.url), 'utf8');
+  const lifecycle = readFileSync(new URL('../src/vue/legacy/observeLegacyIsland.js', import.meta.url), 'utf8');
+  assert.ok(code.includes("import { observeLegacyIsland } from '../legacy/observeLegacyIsland.js';"));
+  assert.ok(code.includes('observeLegacyIsland({'));
+  assert.ok(code.includes("parent.querySelector('#sb-genre-tree')"));
+  assert.ok(code.includes("details?.open ? details.querySelector('#sb-gt-inner') : null"));
+  assert.ok(code.includes('snapshot?.trees?.length && snapshot?.genres?.length'));
+  assert.ok(code.includes('mountVueFeature(node, GenreTree, { snapshot, treeApi: api })'));
+  assert.ok(code.includes("document.addEventListener('toggle', onToggle, true)"));
+  assert.ok(code.includes("document.addEventListener('click', onReveal)"));
+  assert.ok(code.includes("document.removeEventListener('toggle', onToggle, true)"));
+  assert.ok(code.includes("document.removeEventListener('click', onReveal)"));
+  assert.ok(code.includes("queueMicrotask(sync)"));
+  assert.ok(lifecycle.includes("typeof subscribe === 'function' ? subscribe(sync) : null"));
+  assert.ok(lifecycle.includes("if (typeof unsubscribe === 'function') unsubscribe()"));
+  assert.ok(lifecycle.includes("observer.observe(root, { childList: true })"));
+  assert.doesNotMatch(code, /new MutationObserver|subtree:\s*true|localStorage|indexedDB|\.innerHTML\s*=/);
+});
+
+test('v0.193 single-island lifecycle reacts to native toggle and route replacement without remount leaks', () => {
+  let treeOpen = false, nestedConnected = true, validSnapshot = true;
+  let rootChanged, options, observeCount = 0, disconnectCount = 0, offCount = 0;
+  let externalSync;
+  const events = [];
+  const oldHost = { id:'oldTree', get isConnected(){return nestedConnected;} };
+  const nextHost = { id:'nextTree', isConnected:true };
+  let target = oldHost;
+  const root = { querySelector: selector => {
+    if(selector==='#sb-genre-tree') return { open:treeOpen, querySelector:()=>target };
+    return null;
+  }};
+  const stop = observeLegacyIsland({
+    root,
+    selectTarget: parent => {
+      const details = parent.querySelector('#sb-genre-tree');
+      return details?.open ? details.querySelector('#sb-gt-inner') : null;
+    },
+    readSnapshot:()=> validSnapshot ? { trees:[1], genres:[2] } : null,
+    mount:(node,model)=>{
+      assert.deepEqual(model,{ trees:[1], genres:[2] });
+      events.push('mount:'+node.id);
+      return ()=>events.push('unmount:'+node.id);
+    },
+    createObserver: callback => ({
+      observe(node, opts){ assert.equal(node,root);rootChanged=callback;options=opts;observeCount++; },
+      disconnect(){disconnectCount++;}
+    }),
+    subscribe: sync => { externalSync=sync;return ()=>{offCount++;}; }
+  });
+  assert.deepEqual(options,{childList:true});
+  assert.equal(observeCount,1);
+  assert.deepEqual(events,[]);
+  treeOpen=true;
+  externalSync();
+  assert.deepEqual(events,['mount:oldTree']);
+  externalSync();rootChanged();
+  assert.deepEqual(events,['mount:oldTree']); // input/zoom/search do not remount
+  treeOpen=false;
+  externalSync();
+  assert.deepEqual(events,['mount:oldTree','unmount:oldTree']);
+  treeOpen=true;validSnapshot=false;
+  externalSync();
+  assert.equal(events.length,2); // native HTML survives invalid snapshot
+  validSnapshot=true;
+  externalSync();
+  assert.equal(events.at(-1),'mount:oldTree');
+  // The catalog replacement detaches the old tree and renders a new host.
+  nestedConnected=false;target=nextHost;
+  rootChanged();
+  assert.deepEqual(events.slice(-2),['unmount:oldTree','mount:nextTree']);
+  stop();stop();
+  assert.equal(disconnectCount,1);
+  assert.equal(offCount,1);
+  assert.equal(events.at(-1),'unmount:nextTree');
+  const previousLength=events.length;
+  externalSync();rootChanged();
+  assert.equal(events.length,previousLength);
+});

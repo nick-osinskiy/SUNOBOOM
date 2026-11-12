@@ -768,6 +768,36 @@ async function checkLayout(mobile) {
       throw new Error('Pinia last-genre shortcut does not reflect the opened genealogy genre');
     }
 
+    // v0.193: native <details> toggles never replace #app's direct children.
+    // Closing must unmount Vue, reopening must mount one independent tree.
+    await genreTree.evaluate(node => { node.open = false; });
+    await page.waitForFunction(() => document.querySelectorAll(
+      '#sb-genre-tree #sb-gt-inner[data-v-app]').length === 0);
+    if (await genreTree.locator('#sb-gt-inner').count() !== 1 ||
+        await page.locator('#sb-vue-academy-root[data-v-app]').count() !== 1)
+      throw new Error('v0.193 native tree collapse lost its fallback host or catalog');
+    await genreTree.evaluate(node => { node.open = true; });
+    await genreTree.locator('#sb-gt-inner[data-v-app]').waitFor({
+      state:'attached', timeout:10000
+    });
+    await page.evaluate(() => {
+      const node=document.getElementById('sb-genre-tree');
+      node.dispatchEvent(new Event('toggle'));
+      node.dispatchEvent(new Event('toggle'));
+    });
+    const treeLifecycle193 = await page.evaluate(() => ({
+      tree:document.querySelectorAll('#sb-genre-tree #sb-gt-inner[data-v-app]').length,
+      nodes:document.querySelectorAll('#sb-genre-tree .sb-gt-node').length,
+      catalog:document.querySelectorAll('#sb-vue-academy-root[data-v-app]').length,
+      accidentalNested:document.querySelectorAll('#sb-vue-academy-root #sb-genre-tree').length,
+      route:view.nav
+    }));
+    if (treeLifecycle193.tree!==1 || treeLifecycle193.nodes<5 ||
+        treeLifecycle193.catalog!==1 || treeLifecycle193.accidentalNested!==0 ||
+        treeLifecycle193.route!=='catalog')
+      throw new Error('v0.193 genre tree toggle mounted duplicate Vue or lost route: '+
+        JSON.stringify(treeLifecycle193));
+
     const familyCount = await page.locator('#catalog-cards details.genre-family').count();
     const cardCount = await page.locator('#catalog-cards .genre-card').count();
     if (familyCount < 5 || cardCount < 20) {
