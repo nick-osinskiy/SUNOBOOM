@@ -3356,6 +3356,33 @@ async function checkLayout(mobile) {
     await page.evaluate(() => go('home'));
     await page.locator('#sb-vue-dashboard[data-v-app]').waitFor({ state:'attached', timeout:10000 });
 
+    // v0.188: re-entering the native Player, Mixer and Studio must yield
+    // one connected Vue island per active module and no stale route hosts.
+    for (const [route, routeList, target, stale] of [
+      ['mixer', ['mixer','studio','mixer'], '#sb-vue-mixer-root', '#sbpa-auditor'],
+      ['studio', ['studio','mixer','studio'], '#sbpa-auditor', '#sb-vue-mixer-root'],
+      ['player', ['player','studio','player'], '#sb-vue-player-lab', '#sbpa-auditor']
+    ]) {
+      await page.evaluate(list => { for (const item of list) go(item); }, routeList);
+      await page.locator(target+'[data-v-app]').waitFor({ state:'attached', timeout:10000 });
+      const counts=await page.evaluate(({target,stale}) => ({
+        route:view.nav,
+        host:document.querySelectorAll(target).length,
+        mounted:document.querySelectorAll(target+'[data-v-app]').length,
+        old:document.querySelectorAll(stale).length
+      }), {target,stale});
+      if (counts.route!==route || counts.host!==1 || counts.mounted!==1 || counts.old!==0)
+        throw new Error('v0.188 stale or duplicated Vue module after rapid navigation: '+JSON.stringify(counts));
+    }
+    await page.locator('.sbab-modes [data-mode="compare"]').click();
+    await page.locator('#sb-vue-player-ab[data-v-app]').waitFor({state:'attached',timeout:10000});
+    if (await page.locator('#sb-vue-player-ab[data-v-app]').count()!==1 ||
+        await page.locator('#sb-vue-player-ab [data-sbab-card]').count()!==2)
+      throw new Error('v0.188 A/B comparator lost a unique mounted Vue host');
+    await page.locator('.sbab-modes [data-mode="player"]').click();
+    await page.evaluate(() => go('home'));
+    await page.locator('#sb-vue-dashboard[data-v-app]').waitFor({ state:'attached', timeout:10000 });
+
     const version = await page.locator('.sb-app-version').first().textContent();
     if (!/^v?\d+\.\d+$/.test(String(version || '').trim())) throw new Error('Version display missing or malformed');
 

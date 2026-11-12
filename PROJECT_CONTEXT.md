@@ -1,6 +1,6 @@
 # SUNOBOOM — PROJECT_CONTEXT.md
 
-> **Быстрый контекст для нового чата или ИИ-разработчика.** Актуальный этап **v0.187**, 12 ноября 2026 г.: общий жизненный цикл ещё четырёх Vue-островов Моих песен и редактора Паспорта трека. База проверена по актуальному `main` на v0.186 (`b078a551d318e332c7587fbd7412e142a9cb1172`). Детали этапа — в разделе 36 ниже; ранние разделы сохраняют исторический контекст. Перед продолжением всегда проверять новый HEAD, CI и Pages. История — [SUNOBOOM_CONTEXT.md](./SUNOBOOM_CONTEXT.md), архитектура Vue — [src/vue/README.md](./src/vue/README.md).
+> **Быстрый контекст для нового чата или ИИ-разработчика.** Актуальный этап **v0.188**, 12 ноября 2026 г.: унификация жизненного цикла ещё четырёх Vue-островов Player LAB, A/B, Миксера и Аудитора. База проверена по актуальному `main` на v0.187 (`6e048ea57916959e94637daa3d14b5b1d26d8d71`). Детали этапа — в разделе 37 ниже; ранние разделы сохраняют исторический контекст. Перед продолжением всегда проверять новый HEAD, CI и Pages. История — [SUNOBOOM_CONTEXT.md](./SUNOBOOM_CONTEXT.md), архитектура Vue — [src/vue/README.md](./src/vue/README.md).
 
 ## 1. Что это и где работает
 
@@ -701,3 +701,11 @@ Vue memory router хранит проверенный id карточки Мас
 - Обработчики локальных файлов MP3/M4A/WAV, обложек, версий и сравнений, IndexedDB, `sunoboom-my-songs-v1`, validation Паспорта трека, исходные переходы и данные не затронуты. Механизм общего монтирования не наблюдает дочерние изменения Vue и освобождает старый слот при замене.
 - Дополнены unit-контракты четырёх мостов и браузерный desktop/mobile сценарий многократных переходов `songs ↔ tracks`, проверяющий единственный Vue-остров и сохранение локального каталога. Ранее существующие полные browser-smoke тесты редактирования песен и Паспортов треков остаются.
 - `index.html`, `version-history.js`, `src/vue/bootstrap.js` и архитектурная документация обновлены на v0.187. Статус CI, публикации нового `dist/vue` и Pages проверить по новому HEAD; не считать выпуск завершённым по одному коммиту.
+
+
+## 37. Дополнение v0.188 — общие lifecycle Player LAB, A/B, Миксера и Аудитора (2026-11-12)
+
+- Мигрированы ещё 4 UI-моста на `observeLegacyIsland()`: `src/vue/player/legacyPlayerLabBridge.js`, `legacyPlayerABBridge.js`, `src/vue/studio/legacyMixerBridge.js`, `legacyAuditorBridge.js`. Монтаж только в исходные контейнеры `#sb-vue-player-lab`, `#sb-vue-player-ab`, `#sb-vue-mixer-root`, `#sbpa-auditor`. Каждый `MutationObserver` подписан только на изменения прямых детей `#app`; вызывающий событие Vue не перемонтирует сам себя.
+- Контракты не менялись: `PlayerLab` и `PlayerAB` получают `{ api, initialModel: model }`; `GenreMixer` и `PromptAuditor` — `{ api }`. Для каждого до монтирования запрашивается старый `SUNOBOOM_LEGACY_* .snapshot()`. Если API/снимок/DOM отсутствуют, полноценный legacy HTML остаётся. Сохранились `player-lab.js`, `player-ab.js`, `genre-mixer.js`, `prompt-auditor.js`, их состояния и делегированные actions, аудио и Blob URL, ограничения 1000 символов и общий store.
+- `tests/vue-navigation.test.mjs` расширен статической проверкой селекторов, API/props и отсутствия отдельного DOM/Storage. `tests/vue-browser-smoke.mjs` дополнился сериями быстрых `mixer ↔ studio ↔ player` и верификацией одного A/B-острова без лишних/устаревших Vue контейнеров на desktop и mobile. Предыдущие полные тесты аудио, микса, аудита, темы и HTML fallback сохранены.
+- Обновлены `index.html`, `version-history.js`, `src/vue/bootstrap.js` и `src/vue/README.md` до v0.188. Прежние бизнес-методы, состав меню, маршруты, Vue Router/Pinia, `localStorage`, IndexedDB, редакторы и `mountVueFeature()` не изменены. **До объявления релиза проверить CI и Pages на итоговом bundle-коммите.**

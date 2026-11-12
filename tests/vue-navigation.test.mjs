@@ -1479,3 +1479,21 @@ test('v0.187 song library and track editor bridges retain API and Vue props', ()
     assert.doesNotMatch(source, /new MutationObserver|subtree:\s*true|localStorage|indexedDB/i, file);
   }
 });
+
+
+test('v0.188 Player LAB, A/B, Mixer and Auditor preserve lifecycle and props', () => {
+  for (const [file, selector, component, api, props] of [
+    ['../src/vue/player/legacyPlayerLabBridge.js', '#sb-vue-player-lab', 'PlayerLab', 'SUNOBOOM_LEGACY_PLAYER_LAB', '{ api, initialModel: model }'],
+    ['../src/vue/player/legacyPlayerABBridge.js', '#sb-vue-player-ab', 'PlayerAB', 'SUNOBOOM_LEGACY_PLAYER_AB', '{ api, initialModel: model }'],
+    ['../src/vue/studio/legacyMixerBridge.js', '#sb-vue-mixer-root', 'GenreMixer', 'SUNOBOOM_LEGACY_MIXER', '{ api }'],
+    ['../src/vue/studio/legacyAuditorBridge.js', '#sbpa-auditor', 'PromptAuditor', 'SUNOBOOM_LEGACY_AUDITOR', '{ api }']
+  ]) {
+    const source = readFileSync(new URL(file, import.meta.url), 'utf8');
+    assert.ok(source.includes('observeLegacyIsland({'), file);
+    assert.ok(source.includes('window.' + api), file);
+    assert.ok(source.includes("parent.querySelector('" + selector + "')"), file);
+    assert.ok(source.includes('readSnapshot: () => api.snapshot()'), file);
+    assert.ok(source.includes('mountVueFeature(node, ' + component + ', ' + props + ')'), file);
+    assert.doesNotMatch(source, /new MutationObserver|subtree:\s*true|localStorage|indexedDB/i, file);
+  }
+});
