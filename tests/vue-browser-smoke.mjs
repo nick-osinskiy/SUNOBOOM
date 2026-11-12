@@ -769,16 +769,17 @@ async function checkLayout(mobile) {
     }
 
     // v0.193: native <details> toggles never replace #app's direct children.
-    // Closing must unmount Vue, reopening must mount one independent tree.
+    // Closing must remove Vue's rendered contents, reopening renders one tree.
+    // Vue may retain the data-v-app marker after app.unmount().
     // Exercise the actual user interaction; direct .open assignment is not a
     // reliable substitute for a browser-dispatched native toggle event.
     await genreTree.locator('summary').first().click();
     await page.waitForFunction(() => document.querySelectorAll(
-      '#sb-genre-tree #sb-gt-inner[data-v-app]').length === 0, null, {timeout:10000})
+      '#sb-genre-tree #sb-gt-inner [data-sb-vue-genre-tree]').length === 0, null, {timeout:10000})
       .catch(async () => {
         const state=await page.evaluate(() => ({
           open:document.getElementById('sb-genre-tree')?.open,
-          vue:document.querySelectorAll('#sb-genre-tree #sb-gt-inner[data-v-app]').length,
+          vueContent:document.querySelectorAll('#sb-genre-tree #sb-gt-inner [data-sb-vue-genre-tree]').length,
           html:document.getElementById('sb-gt-inner')?.innerHTML?.slice(0,180),
           route:view.nav
         }));
@@ -788,7 +789,7 @@ async function checkLayout(mobile) {
         await page.locator('#sb-vue-academy-root[data-v-app]').count() !== 1)
       throw new Error('v0.193 native tree collapse lost its fallback host or catalog');
     await genreTree.locator('summary').first().click();
-    await genreTree.locator('#sb-gt-inner[data-v-app]').waitFor({
+    await genreTree.locator('#sb-gt-inner[data-v-app] [data-sb-vue-genre-tree]').waitFor({
       state:'attached', timeout:10000
     });
     await page.evaluate(() => {
@@ -797,7 +798,7 @@ async function checkLayout(mobile) {
       node.dispatchEvent(new Event('toggle'));
     });
     const treeLifecycle193 = await page.evaluate(() => ({
-      tree:document.querySelectorAll('#sb-genre-tree #sb-gt-inner[data-v-app]').length,
+      tree:document.querySelectorAll('#sb-genre-tree #sb-gt-inner[data-v-app] [data-sb-vue-genre-tree]').length,
       nodes:document.querySelectorAll('#sb-genre-tree .sb-gt-node').length,
       catalog:document.querySelectorAll('#sb-vue-academy-root[data-v-app]').length,
       accidentalNested:document.querySelectorAll('#sb-vue-academy-root #sb-genre-tree').length,
