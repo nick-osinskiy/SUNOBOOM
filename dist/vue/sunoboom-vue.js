@@ -11627,30 +11627,18 @@ var LD = ["data-sba-id", "data-sba-energy"], RD = { class: "sba-block-head" }, z
 ];
 function Dk({ mountVueFeature: e }) {
 	let t = window.SUNOBOOM_LEGACY_ARRANGER, n = document.getElementById("app");
-	if (!n || !t || typeof t.snapshot != "function") return () => {};
-	let r = /* @__PURE__ */ new Map(), i = !1;
-	function a() {
-		if (!i) for (let [i, a, o = ik] of Ek) {
-			let s = n.querySelector(i), c = r.get(a);
-			if (c?.target === s || (c && (c.unmount(), r.delete(a)), !s || !t.snapshot())) continue;
-			let l = e(s, o, o === ik ? {
+	return !t?.snapshot || !n ? () => {} : Vx({
+		root: n,
+		islands: Ek.map(([n, r, i = ik]) => ({
+			key: r,
+			selectTarget: (e) => e.querySelector(n),
+			readSnapshot: () => t.snapshot(),
+			mount: (n) => e(n, i, i === ik ? {
 				api: t,
-				kind: a
-			} : { api: t });
-			l && r.set(a, {
-				target: s,
-				unmount: l
-			});
-		}
-	}
-	let o = new MutationObserver(a);
-	return o.observe(n, { childList: !0 }), a(), () => {
-		if (!i) {
-			i = !0, o.disconnect();
-			for (let e of r.values()) e.unmount();
-			r.clear();
-		}
-	};
+				kind: r
+			} : { api: t })
+		}))
+	});
 }
 // src/vue/poetry/PoetryAnalysis.vue
 var Ok = {
