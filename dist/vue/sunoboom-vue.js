@@ -1,4 +1,4 @@
-// node_modules/@vue/shared/dist/shared.esm-bundler.js
+// node_modules/.pnpm/@vue+shared@3.5.45/node_modules/@vue/shared/dist/shared.esm-bundler.js
 // @__NO_SIDE_EFFECTS__
 function e(e) {
 	let t = /* @__PURE__ */ Object.create(null);
@@ -959,7 +959,7 @@ function hn(e, t = Infinity, n) {
 	}
 	return e;
 }
-// node_modules/@vue/runtime-core/dist/runtime-core.esm-bundler.js
+// node_modules/.pnpm/@vue+runtime-core@3.5.45/node_modules/@vue/runtime-core/dist/runtime-core.esm-bundler.js
 function gn(e, t, n, r) {
 	try {
 		return r ? e(...r) : e();
@@ -3101,7 +3101,7 @@ function Zo(e) {
 function Qo(e) {
 	return g(e) ? document.querySelector(e) : e;
 }
-// node_modules/pinia/dist/pinia.mjs
+// node_modules/.pnpm/pinia@3.0.4_vue@3.5.45/node_modules/pinia/dist/pinia.mjs
 var $o = typeof window < "u", es, ts = (e) => es = e, ns = Symbol();
 function rs(e) {
 	return e && typeof e == "object" && Object.prototype.toString.call(e) === "[object Object]" && typeof e.toJSON != "function";
@@ -3388,7 +3388,7 @@ function Ps(e) {
 	}
 	return i;
 }
-// node_modules/vue-router/dist/devtools-EWN81iOl.mjs
+// node_modules/.pnpm/vue-router@4.6.4_vue@3.5.45/node_modules/vue-router/dist/devtools-EWN81iOl.mjs
 var Fs = typeof document < "u";
 function Is(e) {
 	return typeof e == "object" || "displayName" in e || "props" in e || "__vccOpts" in e;
@@ -3660,7 +3660,7 @@ function Jc(e, t) {
 		i
 	];
 }
-// node_modules/vue-router/dist/vue-router.mjs
+// node_modules/.pnpm/vue-router@4.6.4_vue@3.5.45/node_modules/vue-router/dist/vue-router.mjs
 function Yc(e = "") {
 	let t = [], n = [["", {}]], r = 0;
 	e = Sc(e);
@@ -5655,7 +5655,7 @@ var Sd = (e, t) => {
 			}, [U("span", Jd, "v" + O(e[0]), 1), U("div", Yd, [U("p", null, O(e[1]), 1), U("div", Xd, [U("time", { datetime: e[2] }, O(F(_d)(e[2])), 9, Zd), r.value === "all" ? (V(), H("span", Qd, O(e[3] === "large" ? "Крупное" : "Мелкое"), 1)) : G("", !0)])])]))), 128))])) : (V(), H("p", $d, "По запросу минорные версии не найдены."))], 512)
 		]));
 	}
-}, [["__scopeId", "data-v-ce1fc81b"]]);
+}, [["__scopeId", "data-v-98ee138d"]]);
 // src/vue/version-history/legacyVersionHistoryBridge.js
 function tf({ mountVueFeature: e }) {
 	let t = window.SUNOBOOM_VERSION_HISTORY;
@@ -8895,30 +8895,34 @@ var ux = { class: "field" }, dx = { class: "field" }, fx = ["value"], px = { cla
 	}
 };
 // src/vue/legacy/observeLegacyIslands.js
-function Vx({ root: e, islands: t, subscribe: n, createObserver: r = (e) => new MutationObserver(e) }) {
+function Vx({ root: e, islands: t, subscribe: n, beforeSync: r, createObserver: i = (e) => new MutationObserver(e) }) {
 	if (!e || !Array.isArray(t) || !t.length || t.some((e) => !e || typeof e.key != "string" || !e.key || typeof e.selectTarget != "function" || typeof e.readSnapshot != "function" || typeof e.mount != "function") || new Set(t.map((e) => e.key)).size !== t.length) return () => {};
-	let i = /* @__PURE__ */ new Map(), a = !1;
-	function o() {
-		if (!a) for (let n of t) {
-			let t = n.selectTarget(e), r = i.get(n.key);
-			if (r?.target === t && t?.isConnected || (r && (i.delete(n.key), r.unmount()), !t?.isConnected)) continue;
-			let a = n.readSnapshot(t);
-			if (!a) continue;
-			let o = n.mount(t, a);
-			typeof o == "function" && i.set(n.key, {
-				target: t,
-				unmount: o
-			});
+	let a = /* @__PURE__ */ new Map(), o = !1;
+	function s() {
+		if (!o) {
+			typeof r == "function" && r();
+			for (let n of t) {
+				let t = n.selectTarget(e), r = a.get(n.key), i = typeof n.readRevision == "function" ? n.readRevision() : void 0;
+				if (r?.target === t && t?.isConnected && r.revision === i || (r && (a.delete(n.key), r.unmount()), !t?.isConnected)) continue;
+				let o = n.readSnapshot(t);
+				if (!o) continue;
+				let s = n.mount(t, o);
+				typeof s == "function" && a.set(n.key, {
+					target: t,
+					revision: i,
+					unmount: s
+				});
+			}
 		}
 	}
-	let s = r(o);
-	s.observe(e, { childList: !0 });
-	let c = typeof n == "function" ? n(o) : null;
-	return o(), () => {
-		if (!a) {
-			a = !0, s.disconnect(), typeof c == "function" && c();
-			for (let { unmount: e } of i.values()) e();
-			i.clear();
+	let c = i(s);
+	c.observe(e, { childList: !0 });
+	let l = typeof n == "function" ? n(s) : null;
+	return s(), () => {
+		if (!o) {
+			o = !0, c.disconnect(), typeof l == "function" && l();
+			for (let { unmount: e } of a.values()) e();
+			a.clear();
 		}
 	};
 }
@@ -9091,7 +9095,7 @@ var Wx = {
 			}, [U("path", { d: "m9 18 6-6-6-6" })], -1)]], 8, Zx)
 		]));
 	}
-}, [["__scopeId", "data-v-c738b8ec"]]), $x = Object.freeze({
+}, [["__scopeId", "data-v-10135052"]]), $x = Object.freeze({
 	"/account/myideas": "myideas",
 	"/account/myprompts": "myprompts",
 	"/account/events": "events"
@@ -9186,7 +9190,7 @@ var aS = [{
 function oS({ mountVueFeature: e, unmountVueFeature: t, sharedUi: n }) {
 	let r = window.SUNOBOOM_LEGACY_NAV, i = document.getElementById("app");
 	if (!r || !i || typeof r.snapshot != "function") return () => {};
-	let a = /* @__PURE__ */ new Map(), o = !1;
+	let a = () => {}, o = [], s, c = !1;
 	window.SUNOBOOM_VUE_ROUTE = Object.freeze({
 		snapshot: () => ou.value,
 		routerSnapshot: () => iu(),
@@ -9259,69 +9263,52 @@ function oS({ mountVueFeature: e, unmountVueFeature: t, sharedUi: n }) {
 			}), !0);
 		}
 	});
-	function s() {
-		if (o) return;
-		let t = r.snapshot();
-		su(t.active, { context: t.track?.id ? {
+	function l() {
+		let e = r.snapshot();
+		su(e.active, { context: e.track?.id ? {
 			kind: "track",
-			id: t.track.id
-		} : t.active === "producer" && t.production?.id ? {
+			id: e.track.id
+		} : e.active === "producer" && e.production?.id ? {
 			kind: "production",
-			id: t.production.id
-		} : null });
-		let s = Ps(t);
-		n.publishNavigation(s);
-		let c = JSON.stringify(s.map(({ active: e, ...t }) => t)), l = i.querySelector("[data-sb-vue-history]"), u = a.get("history");
-		if (!l) u?.unmount(), a.delete("history");
-		else if (u?.target !== l) {
-			u?.unmount();
-			let t = e(l, Qx, {
-				canRestore: (e) => rS(e, { legacyApi: r }),
-				onRestore: (e) => iS(e, { legacyApi: r })
-			}, { vueRouter: !0 });
-			t && a.set("history", {
-				target: l,
-				unmount: t
-			});
-		}
-		for (let { key: t, selector: n, mobile: o } of aS) {
-			let l = i.querySelector(n), u = a.get(t);
-			if (!l) {
-				u?.unmount(), a.delete(t);
-				continue;
-			}
-			if (u?.target === l && u.signature === c) continue;
-			u?.unmount();
-			let d = e(l, Jx, {
-				items: s,
-				mobile: o,
-				onNavigate: (e, t) => Lf(e, {
-					router: t,
-					legacyApi: r
-				})
-			}, { vueRouter: !0 });
-			d && a.set(t, {
-				target: l,
-				signature: c,
-				unmount: d
-			});
-		}
+			id: e.production.id
+		} : null }), o = Ps(e), n.publishNavigation(o), s = JSON.stringify(o.map(({ active: e, ...t }) => t));
 	}
-	let c = new MutationObserver(s), l = r.snapshot();
-	return su(l.active, { context: l.track?.id ? {
+	let u = r.snapshot();
+	return su(u.active, { context: u.track?.id ? {
 		kind: "track",
-		id: l.track.id
-	} : l.active === "producer" && l.production?.id ? {
+		id: u.track.id
+	} : u.active === "producer" && u.production?.id ? {
 		kind: "production",
-		id: l.production.id
+		id: u.production.id
 	} : null }), nu().then(() => {
-		o || (c.observe(i, { childList: !0 }), s());
+		c || (a = Vx({
+			root: i,
+			beforeSync: l,
+			islands: [{
+				key: "history",
+				selectTarget: (e) => e.querySelector("[data-sb-vue-history]"),
+				readSnapshot: () => r,
+				mount: (t) => e(t, Qx, {
+					canRestore: (e) => rS(e, { legacyApi: r }),
+					onRestore: (e) => iS(e, { legacyApi: r })
+				}, { vueRouter: !0 })
+			}, ...aS.map(({ key: t, selector: n, mobile: i }) => ({
+				key: t,
+				selectTarget: (e) => e.querySelector(n),
+				readRevision: () => s,
+				readSnapshot: () => o,
+				mount: (t, n) => e(t, Jx, {
+					items: n,
+					mobile: i,
+					onNavigate: (e, t) => Lf(e, {
+						router: t,
+						legacyApi: r
+					})
+				}, { vueRouter: !0 })
+			}))]
+		}));
 	}), function() {
-		if (!o) {
-			o = !0, c.disconnect();
-			for (let e of a.values()) e.unmount();
-			a.clear();
-		}
+		c || (c = !0, a());
 	};
 }
 // src/vue/navigation/TopHeader.vue
@@ -9931,7 +9918,7 @@ var uC = {
 			n[15] ||= U("p", { class: "sb-gt-note" }, "Схема показывает основные исторические влияния и стилистические пересечения. Жанры могут развиваться параллельно; стрелки не означают единственное происхождение.", -1)
 		]));
 	}
-}, [["__scopeId", "data-v-6e70f61e"]]);
+}, [["__scopeId", "data-v-b69f1c53"]]);
 // src/vue/academy/legacyGenreTreeBridge.js
 function JC({ mountVueFeature: e }) {
 	let t = window.SUNOBOOM_LEGACY_GENRE_TREE, n = document.getElementById("app");

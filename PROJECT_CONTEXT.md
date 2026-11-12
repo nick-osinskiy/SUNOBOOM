@@ -1,6 +1,6 @@
 # SUNOBOOM — PROJECT_CONTEXT.md
 
-> **Быстрый контекст для нового чата или ИИ-разработчика.** Актуальный этап **v0.193**, 12 ноября 2026 г.: общий lifecycle музыкального древа Академии с внешними событиями раскрытия/закрытия и без двойной отрисовки. База проверена по актуальному `main` на v0.192 (`3681c5e4297ab8c17d6a2d96d51baaea336298be`). Детали этапа — в разделе 42 ниже; ранние разделы сохраняют исторический контекст. Перед продолжением всегда проверять новый HEAD, CI и Pages. История — [SUNOBOOM_CONTEXT.md](./SUNOBOOM_CONTEXT.md), архитектура Vue — [src/vue/README.md](./src/vue/README.md).
+> **Быстрый контекст для нового чата или ИИ-разработчика.** Актуальный этап **v0.194**, 12 ноября 2026 г.: общий lifecycle desktop/mobile меню и истории навигации. База — проверенный main v0.193 (`b95faf74c6b9918592d39a2e444f618b84a058a8`). Детали — раздел 43; ранние разделы исторические. Перед продолжением проверять новый HEAD, CI и Pages. История — [SUNOBOOM_CONTEXT.md](./SUNOBOOM_CONTEXT.md), архитектура — [src/vue/README.md](./src/vue/README.md).
 
 ## 1. Что это и где работает
 
@@ -752,3 +752,14 @@ Vue memory router хранит проверенный id карточки Мас
 - Сохранён старый контракт HTML `<details>`: `toggle` в capture и `click` по `[data-sb-gt-action="reveal"]`, с `queueMicrotask(sync)` для обновления после действий исходного интерфейса. Древо остаётся отдельным sibling `#sb-vue-academy-root`, не попадает внутрь Vue-каталога. Смена карты, 100+ узлов, поиск `ска-панк`, zoom=1.15/reset, SVG relations, переход к карточке жанра и возврат, локальное состояние и cursor Pinia не менялись.
 - `tests/vue-navigation.test.mjs` расширен проверкой селекторов и событий + функциональной симуляцией открытия, закрытия, замены узла, отсутствующего snapshot и idempotent dispose. Desktop/mobile browser smoke расширен реальным toggling native `details` с повторными событиями, контролем одиночного монтирования и сохранения каталога. Остальные тесты и исходный резервный интерфейс сохранены.
 - Версии в `index.html`, `src/vue/bootstrap.js`, `version-history.js`, `src/vue/README.md` и документации обновлены до v0.193. **До объявления завершения проверить CI, auto-built bundle и финальную успешную GitHub Pages публикацию.**
+
+
+## 43. Дополнение v0.194 — общий lifecycle навигации (2026-11-12)
+
+- База: main b95faf74c6b9918592d39a2e444f618b84a058a8 (v0.193). Подтверждены успешные Vue CI исходного 3d6c183 и Pages bundle-коммита b95faf7.
+- navigation/legacyBridge.js использует observeLegacyIslands() для sidebar, mobile и history вместо собственного MutationObserver/Map. Сохранены селекторы, props, vueRouter:true, dispatch и методы SUNOBOOM_VUE_ROUTE. Запуск по-прежнему после whenLegacyRouterSettled(); dispose до готовности не запускает наблюдение.
+- В multi-helper добавлены необязательные beforeSync и readRevision. Перед монтированием навигация публикует прежний route и navigationSnapshot в общий Pinia. Структурная подпись меню исключает active: активный раздел обновляется реактивно; изменение состава меню перемонтирует только меню, а не toolbar истории. Остальные мосты без этих опций сохраняют прежний lifecycle; наблюдение только childList непосредственных детей #app.
+- Сохранены дизайн, маршруты, история жанров/Мастера/паспортов, legacy fallback и пользовательские данные. Центральный mountVueFeature(), компоненты экранов, localStorage/IndexedDB не менялись.
+- Node regression покрывает порядок публикации, структурные ревизии, отказ mount и повтор, замену/отключение hosts и повторный dispose. Browser smoke проверяет идентичность DOM трёх панелей после посторонних изменений shell; сохранены полные desktop/mobile/history/fallback сценарии. Исправлена CRLF-зависимость одной старой static-проверки; путь Python для smoke можно задать через PYTHON.
+- Следующий этап выбирать после проверки актуального main: унификация мостов завершена, не повторять её. Отдельно оценить lifecycle центрального mountVueFeature() и восстановление native HTML при ошибке mount. Это кандидат, не часть v0.194.
+- Локально: 71/71 Node tests, production build и полный Playwright smoke (desktop, mobile, HTML fallback) успешны. Статус CI и Pages сверять по итоговому HEAD.

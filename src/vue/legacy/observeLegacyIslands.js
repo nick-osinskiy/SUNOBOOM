@@ -1,7 +1,7 @@
 // v0.190: one shallow observer for several independent legacy Vue hosts.
 // Do not observe descendants: Vue updates and text input must not trigger remounts.
 export function observeLegacyIslands({
-  root, islands, subscribe, createObserver = callback => new MutationObserver(callback)
+  root, islands, subscribe, beforeSync, createObserver = callback => new MutationObserver(callback)
 }) {
   if (!root || !Array.isArray(islands) || !islands.length ||
       islands.some(item => !item || typeof item.key !== 'string' ||
@@ -14,10 +14,14 @@ export function observeLegacyIslands({
   let disposed = false;
   function sync() {
     if (disposed) return;
+    // Navigation publishes the shared route before any of its roots mount.
+    if (typeof beforeSync === 'function') beforeSync();
     for (const island of islands) {
       const target = island.selectTarget(root);
       const previous = active.get(island.key);
-      if (previous?.target === target && target?.isConnected) continue;
+      // Opt-in structural revision: reactive active-state changes keep the host.
+      const revision = typeof island.readRevision === 'function' ? island.readRevision() : undefined;
+      if (previous?.target === target && target?.isConnected && previous.revision === revision) continue;
       if (previous) {
         active.delete(island.key);
         previous.unmount();
@@ -27,7 +31,7 @@ export function observeLegacyIslands({
       const snapshot = island.readSnapshot(target);
       if (!snapshot) continue;
       const unmount = island.mount(target, snapshot);
-      if (typeof unmount === 'function') active.set(island.key, { target, unmount });
+      if (typeof unmount === 'function') active.set(island.key, { target, revision, unmount });
     }
   }
   const observer = createObserver(sync);

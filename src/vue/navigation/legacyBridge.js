@@ -1,3 +1,4 @@
+import { observeLegacyIslands } from '../legacy/observeLegacyIslands.js';
 import NavigationMenu from './NavigationMenu.vue';
 import VueHistoryControls from './VueHistoryControls.vue';
 import { navigationSnapshot } from './nav-model.js';
@@ -20,7 +21,9 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature, s
   const root = document.getElementById('app');
   if (!api || !root || typeof api.snapshot !== 'function') return () => {};
 
-  const instances = new Map();
+  let stopIslands = () => {};
+  let items = [];
+  let signature;
   let disposed = false;
   // Diagnostics plus explicit, guarded internal history restoration.
   // Browser Back and Forward are intentionally NOT intercepted.
@@ -95,56 +98,16 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature, s
     }
   });
 
-  function sync() {
-    if (disposed) return;
+  function publishNavigation() {
     const raw = api.snapshot();
-    // Publish before mounting either menu so both Vue roots see the same route.
+    // Both menus must see the same route before either mounts.
     syncLegacyRoute(raw.active, { context: raw.track?.id
       ? { kind: 'track', id: raw.track.id } : raw.active==='producer' && raw.production?.id ? {kind:'production',id:raw.production.id} : null });
-    const items = navigationSnapshot(raw);
+    items = navigationSnapshot(raw);
     sharedUi.publishNavigation(items);
-    // Only the menu's structure, not its reactive active state, needs remounting.
-    const signature = JSON.stringify(items.map(({ active, ...item }) => item));
-
-    // Separate toolbar outside the narrow mobile bottom bar and app header.
-    const historyHost = root.querySelector('[data-sb-vue-history]');
-    const priorHistory = instances.get('history');
-    if (!historyHost) {
-      priorHistory?.unmount();
-      instances.delete('history');
-    } else if (priorHistory?.target !== historyHost) {
-      priorHistory?.unmount();
-      const unmount = mountVueFeature(historyHost, VueHistoryControls, {
-        canRestore: direction => canRestoreLegacyMenuHistory(direction, { legacyApi: api }),
-        onRestore: direction => restoreLegacyMenuHistory(direction, { legacyApi: api })
-      }, { vueRouter: true });
-      if (unmount) instances.set('history', { target: historyHost, unmount });
-    }
-
-    for (const { key, selector, mobile } of SELECTORS) {
-      const target = root.querySelector(selector);
-      const prior = instances.get(key);
-
-      if (!target) {
-        prior?.unmount();
-        instances.delete(key);
-        continue;
-      }
-      if (prior?.target === target && prior.signature === signature) continue;
-      prior?.unmount();
-
-      const unmount = mountVueFeature(target, NavigationMenu, {
-        items,
-        mobile,
-        onNavigate: (id, router) => navigateFromVueMenu(id, { router, legacyApi: api })
-      }, { vueRouter: true });
-      if (unmount) instances.set(key, { target, signature, unmount });
-    }
+    signature = JSON.stringify(items.map(({ active, ...item }) => item));
   }
 
-  // Only observe replacement of the legacy application shell. Vue mutations
-  // occur deeper in the tree and therefore cannot create an observer loop.
-  const observer = new MutationObserver(sync);
   // Initialize the memory route before Vue Router is installed in any menu.
   // Otherwise a first-install bootstrap could overwrite the legacy route.
   const initial = api.snapshot();
@@ -153,15 +116,37 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature, s
       ? { kind: 'production', id: initial.production.id } : null });
   void whenLegacyRouterSettled().then(() => {
     if (disposed) return;
-    observer.observe(root, { childList: true });
-    sync();
+    stopIslands = observeLegacyIslands({
+      root,
+      beforeSync: publishNavigation,
+      islands: [
+        {
+          key: 'history',
+          selectTarget: root => root.querySelector('[data-sb-vue-history]'),
+          readSnapshot: () => api,
+          mount: target => mountVueFeature(target, VueHistoryControls, {
+            canRestore: direction => canRestoreLegacyMenuHistory(direction, { legacyApi: api }),
+            onRestore: direction => restoreLegacyMenuHistory(direction, { legacyApi: api })
+          }, { vueRouter: true })
+        },
+        ...SELECTORS.map(({ key, selector, mobile }) => ({
+          key,
+          selectTarget: root => root.querySelector(selector),
+          readRevision: () => signature,
+          readSnapshot: () => items,
+          mount: (target, items) => mountVueFeature(target, NavigationMenu, {
+            items,
+            mobile,
+            onNavigate: (id, router) => navigateFromVueMenu(id, { router, legacyApi: api })
+          }, { vueRouter: true })
+        }))
+      ]
+    });
   });
 
   return function dispose() {
     if (disposed) return;
     disposed = true;
-    observer.disconnect();
-    for (const instance of instances.values()) instance.unmount();
-    instances.clear();
+    stopIslands();
   };
 }

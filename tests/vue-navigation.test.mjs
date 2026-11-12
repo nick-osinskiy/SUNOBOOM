@@ -1619,7 +1619,7 @@ test('v0.191 arranger uses one shallow observer across six original hosts', () =
   const code = readFileSync(new URL('../src/vue/studio/legacyArrangerBridge.js', import.meta.url), 'utf8');
   assert.ok(code.includes("import { observeLegacyIslands } from '../legacy/observeLegacyIslands.js';"));
   assert.ok(code.includes('observeLegacyIslands({'));
-  assert.ok(code.includes('root,\n    islands: targets.map('));
+  assert.ok(code.replaceAll('\r\n', '\n').includes('root,\n    islands: targets.map('));
   for (const [selector, kind, component] of [
     ['#sba-cards','cards','ArrangementPanel'],
     ['#sba-snake-track','snake','ArrangementPanel'],
@@ -1854,4 +1854,72 @@ test('v0.193 single-island lifecycle reacts to native toggle and route replaceme
   const previousLength=events.length;
   externalSync();rootChanged();
   assert.equal(events.length,previousLength);
+});
+
+
+test('v0.194 navigation revisions remount menus only, publish before mounts and retry failed hosts', () => {
+  const root = {};
+  let sync, revision = 'menu-a', disconnected = 0, fail = false;
+  const events = [];
+  const hosts = { sidebar:{isConnected:true}, mobile:{isConnected:true}, history:{isConnected:true} };
+  const stop = observeLegacyIslands({
+    root,
+    beforeSync: () => events.push('publish'),
+    islands: Object.keys(hosts).map(key => ({
+      key, selectTarget: () => hosts[key],
+      ...(key === 'history' ? {} : { readRevision: () => revision }),
+      readSnapshot: () => ({revision}),
+      mount: (_, snapshot) => {
+        events.push('mount:'+key+':'+snapshot.revision);
+        if (fail && key === 'mobile') return null;
+        return () => events.push('unmount:'+key);
+      }
+    })),
+    createObserver: callback => ({
+      observe(node, options) { assert.equal(node,root); assert.deepEqual(options,{childList:true}); sync=callback; },
+      disconnect() { disconnected++; }
+    })
+  });
+  assert.deepEqual(events,['publish','mount:sidebar:menu-a','mount:mobile:menu-a','mount:history:menu-a']);
+  events.length=0; sync();
+  assert.deepEqual(events,['publish']);
+  revision='menu-b'; fail=true; events.length=0; sync();
+  assert.deepEqual(events,['publish','unmount:sidebar','mount:sidebar:menu-b','unmount:mobile','mount:mobile:menu-b']);
+  fail=false; events.length=0; sync();
+  assert.deepEqual(events,['publish','mount:mobile:menu-b']);
+  hosts.sidebar={isConnected:true}; events.length=0; sync();
+  assert.deepEqual(events,['publish','unmount:sidebar','mount:sidebar:menu-b']);
+  hosts.mobile.isConnected=false; events.length=0; sync();
+  assert.deepEqual(events,['publish','unmount:mobile']);
+  events.length=0; stop(); stop(); sync();
+  assert.equal(disconnected,1);
+  assert.deepEqual(events.sort(),['unmount:history','unmount:sidebar']);
+});
+
+test('v0.194 navigation uses shared lifecycle after router settlement with structural menu revisions', () => {
+  const code = readFileSync(new URL('../src/vue/navigation/legacyBridge.js', import.meta.url),'utf8');
+  assert.ok(code.includes('beforeSync: publishNavigation'));
+  assert.ok(code.includes('readRevision: () => signature'));
+  assert.ok(code.includes('items.map(({ active, ...item }) => item)'));
+  assert.ok(code.includes('whenLegacyRouterSettled().then(() => {'));
+  assert.ok(code.includes('if (disposed) return;'));
+  assert.ok(code.includes('stopIslands();'));
+  assert.equal((code.match(/vueRouter: true/g)||[]).length,2);
+  assert.doesNotMatch(code,/new MutationObserver|instances = new Map|subtree:\s*true/);
+});
+
+
+test('v0.194 disposing navigation before router settlement never mounts a late menu', async () => {
+  const code = readFileSync(new URL('../src/vue/navigation/legacyBridge.js', import.meta.url),'utf8')
+    .replace(/^import .*;\r?$/gm,'').replace('export function activateLegacyNavigation','function activateLegacyNavigation');
+  let settle, observed=0, snapshots=0;
+  const ready = new Promise(resolve => { settle=resolve; });
+  const window = { SUNOBOOM_LEGACY_NAV: { snapshot: () => { snapshots++; return {active:'home'}; } } };
+  const activate = new Function('window','document','observeLegacyIslands','syncLegacyRoute','whenLegacyRouterSettled',
+    code+'; return activateLegacyNavigation;')(window,{getElementById:()=>({})},
+    () => { observed++; return () => {}; }, () => {}, () => ready);
+  const stop = activate({ sharedUi:{}, mountVueFeature:()=>{ throw new Error('late mount'); } });
+  stop(); stop(); settle(); await ready; await Promise.resolve();
+  assert.equal(observed,0);
+  assert.equal(snapshots,1);
 });

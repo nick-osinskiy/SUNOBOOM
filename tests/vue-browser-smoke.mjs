@@ -3,7 +3,7 @@ import { setTimeout as pause } from 'node:timers/promises';
 import { chromium } from 'playwright';
 
 const BASE = 'http://127.0.0.1:8765/';
-const server = spawn('python3', ['-m', 'http.server', '8765', '--bind', '127.0.0.1'], {
+const server = spawn(process.env.PYTHON || 'python3', ['-m', 'http.server', '8765', '--bind', '127.0.0.1'], {
   stdio: ['ignore', 'pipe', 'pipe']
 });
 
@@ -118,6 +118,21 @@ async function checkLayout(mobile) {
         await page.locator('.top [data-sb-history-back]').count()) {
       throw new Error('History controls overlap mobile navigation or top shortcuts');
     }
+
+    // v0.194: unrelated shell mutations must retain all three navigation roots.
+    const stableNavigation194 = await page.evaluate(async () => {
+      const selectors = ['[data-sb-vue-sidebar]', '[data-sb-vue-mobile]', '[data-sb-vue-history]'];
+      const children = selectors.map(selector => document.querySelector(selector)?.firstElementChild);
+      const marker = document.createElement('span');
+      document.getElementById('app').append(marker);
+      await new Promise(resolve => setTimeout(resolve, 50));
+      marker.remove();
+      await new Promise(resolve => setTimeout(resolve, 50));
+      return selectors.every((selector, index) => children[index] &&
+        document.querySelectorAll(selector+'[data-v-app]').length === 1 &&
+        document.querySelector(selector)?.firstElementChild === children[index]);
+    });
+    if (!stableNavigation194) throw new Error('v0.194 navigation remounted on unchanged menu structure');
 
     // v0.162: one mounted Vue dashboard with unchanged legacy visual classes.
     const dashboard162 = page.locator('#sb-vue-dashboard[data-v-app] [data-sb-vue-dashboard]');
