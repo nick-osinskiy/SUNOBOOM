@@ -6302,22 +6302,12 @@ var Qp = {
 // src/vue/account/legacySongCardsBridge.js
 function dm({ mountVueFeature: e }) {
 	let t = window.SUNOBOOM_LEGACY_SONG_CARDS, n = document.getElementById("app");
-	if (!t || !n) return () => {};
-	let r = null, i = !1;
-	function a() {
-		if (i) return;
-		let a = n.querySelector("#sb-vue-song-cards");
-		if (r?.node === a || (r &&= (r.unmount(), null), !a || !t.snapshot())) return;
-		let o = e(a, um, { api: t });
-		o && (r = {
-			node: a,
-			unmount: o
-		});
-	}
-	let o = new MutationObserver(a);
-	return o.observe(n, { childList: !0 }), a(), () => {
-		i = !0, o.disconnect(), r?.unmount(), r = null;
-	};
+	return !t?.snapshot || !n ? () => {} : hd({
+		root: n,
+		selectTarget: (e) => e.querySelector("#sb-vue-song-cards"),
+		readSnapshot: () => t.snapshot(),
+		mount: (n, r) => e(n, um, { api: t })
+	});
 }
 // src/vue/account/SongVersions.vue
 var fm = {
@@ -6590,27 +6580,15 @@ var fm = {
 // src/vue/account/legacySongDetailBridge.js
 function sh({ mountVueFeature: e }) {
 	let t = window.SUNOBOOM_LEGACY_SONG_DETAIL, n = document.getElementById("app");
-	if (!t || !n) return () => {};
-	let r = null, i = !1;
-	function a() {
-		if (i) return;
-		let a = n.querySelector("#sb-vue-song-detail");
-		if (r?.node === a || (r &&= (r.unmount(), null), !a)) return;
-		let o = t.snapshot();
-		if (!o) return;
-		let s = e(a, oh, {
+	return !t?.snapshot || !n ? () => {} : hd({
+		root: n,
+		selectTarget: (e) => e.querySelector("#sb-vue-song-detail"),
+		readSnapshot: () => t.snapshot(),
+		mount: (n, r) => e(n, oh, {
 			api: t,
-			model: o
-		});
-		s && (r = {
-			node: a,
-			unmount: s
-		});
-	}
-	let o = new MutationObserver(a);
-	return o.observe(n, { childList: !0 }), a(), () => {
-		i = !0, o.disconnect(), r?.unmount(), r = null;
-	};
+			model: r
+		})
+	});
 }
 // src/vue/account/SongEditor.vue
 var ch = {
@@ -6882,27 +6860,15 @@ var ch = {
 // src/vue/account/legacySongEditorBridge.js
 function Uh({ mountVueFeature: e }) {
 	let t = window.SUNOBOOM_LEGACY_SONG_EDITOR, n = document.getElementById("app");
-	if (!t || !n) return () => {};
-	let r = null, i = !1;
-	function a() {
-		if (i) return;
-		let a = n.querySelector("#sb-vue-song-editor");
-		if (r?.node === a || (r &&= (r.unmount(), null), !a)) return;
-		let o = t.snapshot();
-		if (!o) return;
-		let s = e(a, Hh, {
+	return !t?.snapshot || !n ? () => {} : hd({
+		root: n,
+		selectTarget: (e) => e.querySelector("#sb-vue-song-editor"),
+		readSnapshot: () => t.snapshot(),
+		mount: (n, r) => e(n, Hh, {
 			api: t,
-			model: o
-		});
-		s && (r = {
-			node: a,
-			unmount: s
-		});
-	}
-	let o = new MutationObserver(a);
-	return o.observe(n, { childList: !0 }), a(), () => {
-		i = !0, o.disconnect(), r?.unmount(), r = null;
-	};
+			model: r
+		})
+	});
 }
 // src/vue/account/ArtistManager.vue
 var Wh = {
@@ -8774,27 +8740,15 @@ var Fb = {
 // src/vue/account/legacyTrackPassportEditorBridge.js
 function lx({ mountVueFeature: e }) {
 	let t = window.SUNOBOOM_LEGACY_TRACK_EDITOR, n = document.getElementById("app");
-	if (!n || !t || typeof t.snapshot != "function") return () => {};
-	let r = null, i = !1;
-	function a() {
-		if (i) return;
-		let a = n.querySelector("#sb-vue-track-editor[data-sb-vue-track-editor]");
-		if (r?.node === a || (r &&= (r.unmount(), null), !a)) return;
-		let o = t.snapshot();
-		if (!o) return;
-		let s = e(a, cx, {
-			model: o,
+	return !t?.snapshot || !n ? () => {} : hd({
+		root: n,
+		selectTarget: (e) => e.querySelector("#sb-vue-track-editor[data-sb-vue-track-editor]"),
+		readSnapshot: () => t.snapshot(),
+		mount: (n, r) => e(n, cx, {
+			model: r,
 			api: t
-		});
-		s && (r = {
-			node: a,
-			unmount: s
-		});
-	}
-	let o = new MutationObserver(a);
-	return o.observe(n, { childList: !0 }), a(), () => {
-		i = !0, o.disconnect(), r?.unmount(), r = null;
-	};
+		})
+	});
 }
 // src/vue/poetry/IdeaFields.vue
 var ux = { class: "field" }, dx = { class: "field" }, fx = ["value"], px = { class: "field" }, mx = {
