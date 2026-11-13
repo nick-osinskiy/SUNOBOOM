@@ -286,3 +286,8 @@ npm run test:vue-browser
 ## 2026-11-13 — v0.202, сроки напоминаний события
 
 На базе v0.201 e2433d4 перенесён только picker сроков: EventReminders/observeLegacyIsland, snapshot исходных preset и текущих DOM checked/raw values. Preset 0, свой срок 1–365, dedup/sort, старые defaults, отключение, event-save/cancel, notificationRead и движок уведомлений прежние. CSS/данные не менялись; native HTML сохранён. Детали — раздел 51 PROJECT_CONTEXT.md; выпуск подтверждать по CI/Pages итогового HEAD. Следующим предложить кнопкой v0.203: панель сохранения/отмены формы события, без изменения обработчиков.
+
+
+## 2026-11-13 — v0.203, сохранение/отмена события
+
+На базе v0.202 330f941 перенесены только кнопки в EventActions: read-only boolean editing, общий observeLegacyIsland, прежние labels/classes/data-action. Native handlers, валидация, сохранение и уведомления не менялись; HTML fallback сохранён. Все содержательные блоки событий теперь Vue-острова, общий shell и бизнес-логика остаются legacy. Детали — раздел 52 PROJECT_CONTEXT.md; выпуск подтверждать по CI/Pages итогового HEAD. Следующим предложить кнопкой v0.204: сводка кабинета (имя/аватар/счётчики), отдельно от плиток и backup.

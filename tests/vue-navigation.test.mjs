@@ -2162,3 +2162,25 @@ test('v0.202 native reminder validator retains 1-365 boundaries, zero preset and
   for(const [value,expected] of [['1',[7,1,0]],['365',[365,7,0]],['7',[7,0]]]){raw=value;assert.deepEqual(read(),expected);}
   enabled=false;assert.deepEqual(read(),[7,0]);
 });
+
+
+test('v0.203 action snapshot exposes only valid editing mode and guards other routes', () => {
+  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+  const start=html.indexOf('window.SUNOBOOM_LEGACY_EVENT_ACTIONS='),end=html.indexOf('function dashboardEventsView()',start);
+  const win={},view={nav:'home',editEvent:'203'},events=[{id:203,title:'Private event',notes:'Private notes'}];
+  new Function('window','view','dashboardSortedEvents',html.slice(start,end))(win,view,()=>events);
+  const api=win.SUNOBOOM_LEGACY_EVENT_ACTIONS;assert.equal(api.snapshot(),null);
+  view.nav='events';assert.deepEqual(api.snapshot(),{editing:true});
+  view.editEvent='missing';assert.deepEqual(api.snapshot(),{editing:false});
+  view.editEvent=null;assert.deepEqual(api.snapshot(),{editing:false});
+  assert.deepEqual(events,[{id:203,title:'Private event',notes:'Private notes'}]);
+});
+
+test('v0.203 action bar keeps delegated actions without local mutations or duplicate listeners', () => {
+  const component=readFileSync(new URL('../src/vue/account/EventActions.vue',import.meta.url),'utf8');
+  const bridge=readFileSync(new URL('../src/vue/account/legacyEventActionsBridge.js',import.meta.url),'utf8');
+  for(const action of ['event-save','event-cancel'])assert.equal(component.split('data-action="'+action+'"').length-1,1);
+  assert.ok(component.includes('v-if="model.editing"'));assert.ok(component.includes('type="button"'));
+  assert.doesNotMatch(component,/v-html|@click|@submit|localStorage|indexedDB|addEventListener/);
+  assert.ok(bridge.includes('observeLegacyIsland({'));assert.ok(bridge.includes('EventActions, { model }'));
+});

@@ -1,3 +1,4 @@
+import { activateLegacyEventActions } from './account/legacyEventActionsBridge.js';
 import { activateLegacyEventReminders } from './account/legacyEventRemindersBridge.js';
 import { activateLegacyEventEditor } from './account/legacyEventEditorBridge.js';
 import { activateLegacyEventCollection } from './account/legacyEventCollectionBridge.js';
@@ -253,4 +254,9 @@ export function startLegacyEventEditor() {
 /** Vue reminder picker; legacy validation, persistence and delivery are unchanged. */
 export function startLegacyEventReminders() {
   return activateLegacyEventReminders({ mountVueFeature });
+}
+
+/** Vue action buttons; all event validation and mutations remain native. */
+export function startLegacyEventActions() {
+  return activateLegacyEventActions({ mountVueFeature });
 }

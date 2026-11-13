@@ -558,3 +558,15 @@ npm run build:vue
 - Локально: 84/84 Node tests, production build и полный browser smoke (desktop/mobile/HTML fallback/delayed reminder drafts) успешны. CI и Pages сверять по итоговому HEAD перед объявлением выпуска.
 - Следующий небольшой этап v0.203: панель действий формы события (кнопки сохранения/отмены и их подписи по режиму) на Vue; оставить сами event-save/event-cancel и все правила/данные прежними. После него проверить, какие элементы раздела ещё принадлежат legacy, не объявлять весь сайт Vue SPA.
 - После завершения предложить следующий этап кнопкой; начать его только по выбору пользователя.
+
+
+## v0.203 — панель действий события (13 ноября 2026)
+- База main v0.202 330f941a0fcd844c876c8ff0661d893cd4b5c4d4. Перенесены только кнопки event-save/event-cancel внутри прежнего detail-actions с новым id #sb-vue-event-actions. Новая обёртка не добавлялась, CSS не менялся; исходные кнопки сохранены как fallback.
+- SUNOBOOM_LEGACY_EVENT_ACTIONS.snapshot() доступен только на events и отдаёт только boolean editing по исходным dashboardSortedEvents/view.editEvent. Приватные поля события и draft в модель кнопок не копируются. Несуществующий edit ID соответствует режиму создания, как в legacy.
+- EventActions.vue сохраняет type=button, классы, data-action и подписи Сохранить событие/Сохранить изменения/Отменить; cancel существует только в editing. Нет @click, submit, listener или нового хранения. legacyEventActionsBridge использует observeLegacyIsland с props { model }; entry/bootstrap запускают новый блок после полей/напоминаний и appearance.
+- Исходные event-save/event-cancel, валидация полей/сроков, persist, выбранное событие, notificationRead, уведомления и схема localStorage/IndexedDB не менялись. Сохранение и отмена инициируются прежним делегированным обработчиком ровно один раз.
+- Node regression исполняет snapshot для другого маршрута, numeric/string ID, существующего/несуществующего редактирования, проверяет минимальную модель без мутаций и контракты действий. Browser desktop/mobile/Vue-disabled проверяет единичность кнопок/подписей в обоих режимах, save через Enter без дубля записи, cancel через Space и reset после действий. Delayed new/edit проверяет правильный режим панели. Полные проверки reminder picker и HTML fallback сохранены.
+- Локально: 86/86 Node tests, production build и полный browser smoke (desktop/mobile/HTML fallback/delayed action mode) успешны. CI и Pages сверять по итоговому HEAD перед объявлением выпуска.
+- Состояние раздела событий: список, поля, reminder picker и панель действий теперь отдельные Vue-острова. Общий HTML shell/заголовок/кнопка возврата, рендер и бизнес-обработчики остаются legacy; это не полное Vue SPA.
+- Следующий небольшой этап v0.204: сводка Личного кабинета (имя/аватар и три счётчика) на Vue. Проверено, что account() всё ещё формирует account-head/account-stats; последующие wrappers добавляют плитки треков/ДНК. Плитки, настройки профиля и backup не смешивать с переносом сводки.
+- После завершения предложить следующий этап кнопкой; начать его только по выбору пользователя.

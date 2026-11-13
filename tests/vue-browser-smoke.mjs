@@ -122,9 +122,16 @@ async function checkEventCollection200(page,vue) {
     view.editEvent=null;go('events');
   });
   const root=page.locator('#sb-vue-events-list');
-  const ready=()=>page.waitForFunction(vue=>['#sb-vue-events-list','#sb-vue-event-fields','#sb-vue-event-reminders'].every(selector=>document.querySelector(selector+(vue?'[data-v-app]':':not([data-v-app])'))),vue);
+  const ready=()=>page.waitForFunction(vue=>['#sb-vue-events-list','#sb-vue-event-fields','#sb-vue-event-reminders','#sb-vue-event-actions'].every(selector=>document.querySelector(selector+(vue?'[data-v-app]':':not([data-v-app])'))),vue);
+  const mode203=async editing=>{
+    const actions=page.locator('#sb-vue-event-actions');
+    if(await actions.count()!==1 || await actions.locator('[data-action="event-save"]').count()!==1 ||
+      await actions.locator('[data-action="event-cancel"]').count()!==(editing?1:0) ||
+      await actions.locator('[data-action="event-save"]').textContent()!==(editing?'Сохранить изменения':'Сохранить событие'))throw Error('v0.203 action mode/label/uniqueness changed');
+  };
   try{
     await ready();
+    await mode203(false);
     if(await root.locator('#event-editor,input,textarea').count() || await root.count()!==1)throw Error('v0.200 list owns form or duplicated');
     const ids=await root.locator('[data-action="event-edit"]').evaluateAll(nodes=>nodes.map(n=>n.dataset.id));
     if(ids.join('|')!=='all200|early200|late200|future200|recent200|old200')throw Error('v0.200 native event order changed: '+ids);
@@ -143,20 +150,24 @@ async function checkEventCollection200(page,vue) {
     await page.locator('#event-title').fill('  Создано через форму 201  ');
     await page.locator('#event-date').fill('2030-01-02');await page.locator('#event-time').fill('14:30');
     await page.locator('#event-type').selectOption('recording');await page.locator('#event-notes').fill('  Описание формы 201  ');
-    await page.locator('[data-action="event-save"]').click();await ready();
+    await page.locator('[data-action="event-save"]').focus();await page.locator('[data-action="event-save"]').press('Enter');await ready();
+    await mode203(false);
     const created=await page.evaluate(()=>JSON.parse(localStorage.getItem('sunoboom-v1')).events.find(e=>e.title==='Создано через форму 201'));
     if(!created||created.date!=='2030-01-02'||created.time!=='14:30'||created.type!=='recording'||created.notes!=='Описание формы 201'||await root.locator('article').count()!==7)throw Error('v0.201 fields or single native save changed');
     if(await page.locator('#event-title').inputValue()!==''||await page.locator('#event-date').inputValue()!==''||await page.locator('#event-type').inputValue()!=='release')throw Error('v0.201 new form did not reset');
     page.once('dialog',dialog=>dialog.accept());await root.locator('[data-action="event-delete"][data-id="'+created.id+'"]').click();await ready();
     await future.locator('[data-action="event-edit"]').click();await ready();
+    await mode203(true);
     if(await page.locator('#event-title').inputValue()!=='Будущее 200')throw Error('v0.200 native edit did not open');
     await page.locator('#event-title').fill('Будущее изменено 200');
     await page.locator('[data-action="event-save"]').click();await ready();
+    await mode203(false);
     const stored=await page.evaluate(()=>JSON.parse(localStorage.getItem('sunoboom-v1')).events.find(e=>e.id==='future200'));
     if(stored.title!=='Будущее изменено 200'||JSON.stringify(stored.reminderDays)!=='[7,1]')throw Error('v0.200 saved edit/reminder days changed');
     await future.locator('[data-action="event-edit"]').click();await ready();
     await page.locator('#event-title').fill('Несохранено 200');
-    await page.locator('[data-action="event-cancel"]').click();await ready();
+    await page.locator('[data-action="event-cancel"]').focus();await page.locator('[data-action="event-cancel"]').press('Space');await ready();
+    await mode203(false);
     if(!(await future.textContent()).includes('Будущее изменено 200'))throw Error('v0.200 cancel edit changed record');
     page.once('dialog',dialog=>dialog.dismiss());await future.locator('[data-action="event-delete"]').click();
     if(await root.locator('article').count()!==6)throw Error('v0.200 cancelled deletion removed event');
