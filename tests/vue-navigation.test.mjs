@@ -2294,3 +2294,39 @@ test('v0.206 Ideas screen retains all delegated generator/catalog actions withou
   assert.doesNotMatch(component,/Math.random|localStorage|indexedDB|@click|@submit|fetch\(/);
   assert.ok(bridge.includes('observeLegacyIsland({'));assert.ok(bridge.includes('IdeasPage, { initial }'));
 });
+
+
+test('v0.207 shared-card decoder retains Unicode, limits, HTTPS-only URLs and ignores private metadata', () => {
+  const source=readFileSync(new URL('../my-songs.js',import.meta.url),'utf8');
+  const cleanStart=source.indexOf(' const clean='),cleanEnd=source.indexOf(' const state=',cleanStart);
+  const start=source.indexOf(' function decodeCard('),end=source.indexOf(' function encodeCard(',start);
+  const decode=new Function(source.slice(cleanStart,cleanEnd)+source.slice(start,end)+';return decodeCard;')();
+  const encode=x=>Buffer.from(JSON.stringify(x),'utf8').toString('base64url');
+  const model=decode(encode({v:1,title:'Ән <img> 🎵',artist:'Исполнитель',genre:'Rock',album:'EP',description:'Описание',
+    coverUrl:'https://media207.test/cover.svg',audioUrl:'https://media207.test/song.wav',listenUrl:'https://media207.test/listen',
+    id:'private',hasAudio:true,versions:[{id:'local'}],lyrics:'private lyrics'}));
+  assert.equal(model.title,'Ән <img> 🎵');assert.equal(model.audioUrl,'https://media207.test/song.wav');
+  assert.deepEqual(Object.keys(model).sort(),['album','artist','audioUrl','coverUrl','description','genre','listenUrl','title']);
+  for(const url of ['javascript:alert(1)','data:audio/wav;base64,AA','blob:https://site.test/id','http://media207.test/a','file:///a','/relative']){
+    const invalid=decode(encode({v:1,title:'Safe',coverUrl:url,audioUrl:url,listenUrl:url}));
+    assert.equal(invalid.coverUrl,'');assert.equal(invalid.audioUrl,'');assert.equal(invalid.listenUrl,'');
+  }
+  const long=decode(encode({v:1,title:'Я'.repeat(150),artist:'A'.repeat(150),genre:'G'.repeat(100),album:'B'.repeat(150),description:'D'.repeat(800)}));
+  assert.equal(long.title.length,120);assert.equal(long.artist.length,120);assert.equal(long.genre.length,80);assert.equal(long.album.length,120);assert.equal(long.description.length,700);
+  assert.equal(decode('not!base64'),null);assert.equal(decode('x'.repeat(14001)),null);
+  assert.equal(decode(encode({v:2,title:'Wrong version'})),null);assert.equal(decode(encode({v:1})),null);
+});
+
+test('v0.207 shared snapshot is isolated from the library and Vue keeps delegated home/media cleanup', () => {
+  const source=readFileSync(new URL('../my-songs.js',import.meta.url),'utf8');
+  const start=source.indexOf(' window.SUNOBOOM_LEGACY_SHARED_SONG='),end=source.indexOf(' function sharedPage(',start);
+  const win={},view={nav:'songs'},state={shared:{title:'Public',artist:'Artist',audioUrl:''}};
+  new Function('window','view','state',source.slice(start,end))(win,view,state);
+  const api=win.SUNOBOOM_LEGACY_SHARED_SONG;assert.equal(api.snapshot(),null);
+  view.nav='sharedSong';const snapshot=api.snapshot();snapshot.song.title='Changed';assert.equal(state.shared.title,'Public');
+  state.shared=null;assert.deepEqual(api.snapshot(),{song:null});
+  const component=readFileSync(new URL('../src/vue/account/SharedSongPage.vue',import.meta.url),'utf8');
+  assert.ok(component.includes('data-sbsong-action="shared-home"'));assert.ok(component.includes('rel="noopener noreferrer"'));
+  assert.ok(component.includes('audio.value.pause()'));assert.ok(component.includes("removeAttribute('src')"));
+  assert.doesNotMatch(component,/v-html|localStorage|indexedDB|@click|autoplay/);
+});

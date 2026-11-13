@@ -430,6 +430,78 @@ async function checkIdeasDelay206() {
   console.log('Delayed full Ideas page draft and generation PASS');
 }
 
+
+async function checkSharedSong207(page,vue) {
+  const before=await page.evaluate(()=>({main:localStorage.getItem('sunoboom-v1'),songs:localStorage.getItem('sunoboom-my-songs-v1')}));
+  const wav=Buffer.alloc(44+32000);wav.write('RIFF');wav.writeUInt32LE(36+32000,4);wav.write('WAVEfmt ',8);wav.writeUInt32LE(16,16);wav.writeUInt16LE(1,20);wav.writeUInt16LE(1,22);wav.writeUInt32LE(8000,24);wav.writeUInt32LE(16000,28);wav.writeUInt16LE(2,32);wav.writeUInt16LE(16,34);wav.write('data',36);wav.writeUInt32LE(32000,40);
+  const fixture='https://media207.test/**';
+  await page.context().route(fixture,route=>{
+    const url=route.request().url();
+    if(url.endsWith('/song.wav'))return route.fulfill({contentType:'audio/wav',body:wav});
+    if(url.endsWith('/cover.svg'))return route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4"><rect width="4" height="4" fill="purple"/></svg>'});
+    return route.fulfill({contentType:'text/html',body:'<p>Fixture listening page</p>'});
+  });
+  const root=page.locator('#sbsong-shared');
+  const encode=payload=>Buffer.from(JSON.stringify(payload),'utf8').toString('base64url');
+  const show=async(raw,title)=>{
+    await page.evaluate(hash=>new Promise(resolve=>{window.addEventListener('hashchange',()=>resolve(),{once:true});if(location.hash===hash)window.dispatchEvent(new HashChangeEvent('hashchange'));else location.hash=hash;}),'#sb-song='+raw);
+    await page.waitForFunction(({vue,title})=>{const root=document.getElementById('sbsong-shared');return view.nav==='sharedSong'&&root&&root.hasAttribute('data-v-app')===vue&&root.querySelector('h1')?.textContent===title;},{vue,title});
+    if(await root.count()!==1||await root.locator('[data-v-app]').count())throw Error('v0.207 duplicated/competing shared roots');
+  };
+  try{
+    const payload={v:1,title:'Ән <img>207 🎵',artist:'Исполнитель <b>207</b>',genre:'Рок',album:'EP 207',description:'Описание <script>207</script>',coverUrl:'https://media207.test/cover.svg',audioUrl:'https://media207.test/song.wav',listenUrl:'https://media207.test/listen'};
+    await show(encode(payload),payload.title);
+    if(await root.locator('.sbsong-hero img,.sbsong-hero b,script').count()||await root.locator('.sbsong-detail-description').textContent()!==payload.description)throw Error('v0.207 public text interpreted as HTML');
+    if(await root.locator('.sbsong-detail-tags span').allTextContents().then(x=>x.join('|'))!=='Рок|EP 207')throw Error('v0.207 public tags lost');
+    await page.waitForFunction(()=>document.querySelector('#sbsong-shared img')?.naturalWidth===4);
+    const audio=root.locator('audio');
+    if(await audio.getAttribute('src')!==payload.audioUrl||await audio.getAttribute('preload')!=='metadata'||await audio.getAttribute('autoplay')!==null)throw Error('v0.207 audio attributes changed');
+    await page.waitForFunction(()=>document.querySelector('#sbsong-shared audio')?.readyState>=1);
+    await root.locator('h1').click();
+    await audio.evaluate(async element=>{await element.play();window.__sharedAudio207=element;});
+    if(!await audio.evaluate(element=>!element.paused&&element.duration===2))throw Error('v0.207 fixture audio playback failed');
+    const link=root.locator('.sbsong-public-card a');
+    if(await link.getAttribute('target')!=='_blank'||await link.getAttribute('rel')!=='noopener noreferrer')throw Error('v0.207 external link protection changed');
+    const popupEvent=page.context().waitForEvent('page');await link.click();const popup=await popupEvent;await popup.waitForLoadState();
+    if(popup.url()!==payload.listenUrl||!await popup.evaluate(()=>window.opener===null))throw Error('v0.207 external listen navigation changed');await popup.close();
+    await show(encode({v:1,title:'Только внешняя ссылка 207',listenUrl:payload.listenUrl}),'Только внешняя ссылка 207');
+    if(await root.locator('audio,img').count()||await root.locator('.sbsong-public-card a').count()!==1||await root.locator('.sbsong-public-card .sbsong-public-notice').count())throw Error('v0.207 link-only state changed');
+    if(vue&&!await page.evaluate(()=>window.__sharedAudio207.paused&&window.__sharedAudio207.getAttribute('src')===null))throw Error('v0.207 replaced card kept playing/loading detached audio');
+    await page.evaluate(()=>{window.__sharedAudio207?.pause();});
+    await show(encode({v:1,title:'Локальный файл не передаётся 207',hasAudio:true,hasCover:true,id:'private-local',versions:[{id:'original'}]}),'Локальный файл не передаётся 207');
+    if(await root.locator('audio,img,a').count()||!(await root.locator('.sbsong-public-card .sbsong-public-notice').textContent()).includes('нет аудиозаписи'))throw Error('v0.207 metadata-only share exposed/promised local audio');
+    if(await root.locator('.sbsong-public-art').textContent()!=='♫')throw Error('v0.207 cover placeholder missing');
+    await show(encode({v:1,title:'Небезопасные адреса 207',coverUrl:'http://media207.test/cover.svg',audioUrl:'data:audio/wav;base64,AA',listenUrl:'javascript:alert(1)'}),'Небезопасные адреса 207');
+    if(await root.locator('audio,img,a').count())throw Error('v0.207 URL validation bypassed');
+    for(const raw of ['!broken!',encode({v:2,title:'Wrong'}),encode({v:1}),'x'.repeat(14001)]){
+      await show(raw,'Карточка недоступна');
+      if(await root.locator('.sbsong-public-card').count()||!(await root.locator('.sbsong-empty').textContent()).includes('Ссылка повреждена'))throw Error('v0.207 damaged-link state missing');
+    }
+    await root.locator('[data-sbsong-action="shared-home"]').click();
+    await page.waitForFunction(()=>view.nav==='home'&&!location.hash.startsWith('#sb-song='));
+    if(await root.count())throw Error('v0.207 shared screen leaked after home');
+    const after=await page.evaluate(()=>({main:localStorage.getItem('sunoboom-v1'),songs:localStorage.getItem('sunoboom-my-songs-v1')}));
+    if(JSON.stringify(after)!==JSON.stringify(before))throw Error('v0.207 viewing a share modified private libraries');
+  }finally{
+    await page.evaluate(()=>{if(window.__sharedAudio207){window.__sharedAudio207.pause();window.__sharedAudio207.removeAttribute('src');window.__sharedAudio207.load();delete window.__sharedAudio207;}go('home');});
+    await page.context().unroute(fixture);
+  }
+}
+
+async function checkSharedSongStartup207() {
+  for(const [mobile,vue,valid] of [[false,true,true],[true,true,false],[true,false,true]]){
+    const context=await browser.newContext({viewport:mobile?{width:375,height:812}:{width:1440,height:900},isMobile:mobile,hasTouch:mobile});const page=await context.newPage();
+    if(!vue)await page.route('**/dist/vue/**',r=>r.abort());
+    try{
+      const raw=valid?Buffer.from(JSON.stringify({v:1,title:'Прямая ссылка 207',artist:'Автор'}),'utf8').toString('base64url'):'!broken-startup!';
+      await page.goto(BASE+'#sb-song='+raw,{waitUntil:'domcontentloaded'});
+      await page.waitForFunction(({vue,valid})=>{const root=document.getElementById('sbsong-shared');return root&&root.hasAttribute('data-v-app')===vue&&root.querySelector('h1')?.textContent===(valid?'Прямая ссылка 207':'Карточка недоступна');},{vue,valid});
+      await page.locator('[data-sbsong-action="shared-home"]').click();await page.waitForFunction(()=>view.nav==='home'&&!location.hash);
+    }finally{await context.close();}
+  }
+  console.log('Direct shared-song links valid/damaged/native startup PASS');
+}
+
 async function checkLayout(mobile) {
   const context = await browser.newContext({
     viewport: mobile ? { width: 375, height: 812 } : { width: 1440, height: 900 },
@@ -4025,6 +4097,7 @@ async function checkLayout(mobile) {
     await checkAccountSummary204(page,true);
     await checkAccountHome205(page,true);
     await checkIdeasPage206(page,true);
+    await checkSharedSong207(page,true);
     console.log((mobile ? 'Mobile' : 'Desktop') + ' Vue navigation smoke PASS');
   } finally {
     await context.close();
@@ -4464,6 +4537,7 @@ async function checkEditorFallback() {
     await checkAccountSummary204(page,false);
     await checkAccountHome205(page,false);
     await checkIdeasPage206(page,false);
+    await checkSharedSong207(page,false);
     console.log('Original song editor, library, My Songs, artist manager, DNA, settings, player, Master and passports without Vue PASS');
   } finally { await context.close(); }
 }
@@ -4477,6 +4551,7 @@ try {
   await checkEventEditorDelay201();
   await checkAccountHomeDelay205();
   await checkIdeasDelay206();
+  await checkSharedSongStartup207();
   await checkEditorFallback();
   await checkMobileProjectFallback199();
 } finally {

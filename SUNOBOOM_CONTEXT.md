@@ -306,3 +306,8 @@ npm run test:vue-browser
 ## 2026-11-13 — v0.206, Идеи песен целиком
 
 На базе v0.205 3e505fa перенесён весь ideasView одним Vue root: генератор/результаты/фильтры/готовые сюжеты. Snapshot использует исходные каталоги и текущий draft; прежние runIdeaGenerator/cycle/seq, data-actions, copy/save/use/Studio и storage не менялись. Офлайн, без нового ИИ/backend. См. раздел 55 PROJECT_CONTEXT.md и CI/Pages итогового HEAD. Следующим предложить кнопкой v0.207: отдельный пока native экран карточки песни по ссылке, сохранив URL validation, privacy и ограничения локального аудио.
+
+
+## 2026-11-13 — v0.207, карточка песни по ссылке целиком
+
+На базе v0.206 2b52581 перенесён sharedPage в SharedSongPage/observeLegacyIsland внутри исходного #sbsong-shared. Native decode/clean/HTTPS/hash routing/home action и privacy сохранены; модель — только копия decoded public card, не библиотека. Аудио Vue очищается при unmount. См. раздел 56 PROJECT_CONTEXT.md и CI/Pages итогового HEAD. Следующим предложить кнопкой аудит остатка legacy и план завершения крупными этапами; за аудит не увеличивать версию, v0.208 назначать только следующему изменению.

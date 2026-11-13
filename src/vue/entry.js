@@ -1,3 +1,4 @@
+import { activateLegacySharedSong } from './account/legacySharedSongBridge.js';
 import { activateLegacyIdeasPage } from './ideas/legacyIdeasPageBridge.js';
 import { activateLegacyAccountHome } from './account/legacyAccountHomeBridge.js';
 import { activateLegacyAccountSummary } from './account/legacyAccountSummaryBridge.js';
@@ -277,4 +278,9 @@ export function startLegacyAccountHome() {
 /** Complete Ideas page with native offline generation, catalog and Studio actions. */
 export function startLegacyIdeasPage() {
   return activateLegacyIdeasPage({ mountVueFeature });
+}
+
+/** Public shared-song screen; native decoding, URL checks and route actions remain. */
+export function startLegacySharedSong() {
+  return activateLegacySharedSong({ mountVueFeature });
 }

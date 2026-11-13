@@ -547,6 +547,13 @@
    // Never include local media or unrelated private library data.
    return location.origin+location.pathname+SHARE_PREFIX+encodeCard(song);
  }
+ // This model contains only the already decoded public card, never the local library.
+ window.SUNOBOOM_LEGACY_SHARED_SONG=Object.freeze({
+   snapshot(){
+     if(view.nav!=="sharedSong")return null;
+     return {song:state.shared?{...state.shared}:null};
+   }
+ });
  function sharedPage(song){
    const title=song?.title||"Карточка недоступна";
    return '<section class="sbsong-page sbsong-shared" id="sbsong-shared">'+
