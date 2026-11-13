@@ -87,9 +87,20 @@ async function checkProjectCollection196(page, vue) {
     }
     if(await list.locator('.project-card').count() || !(await list.textContent()).includes('Проектов пока нет'))throw Error('v0.196 delete/empty fallback broken');
     if(await page.locator('#project-notes').count() || !(await page.locator('#sb-vue-project-detail').textContent()).includes('Начни со своего проекта'))throw Error('v0.198 empty working card missing');
-    await page.locator('#p-title').fill('Длинное название проекта '.repeat(5));
+    await page.locator('#p-title').fill('Я'.repeat(100));
     await page.locator('[data-action="create-project"]').click();await ready();
-    if(await list.locator('.project-card h3').textContent()!=='Длинное название проекта '.repeat(5).trim().slice(0,80))throw Error('v0.197 native 80-character limit changed');
+    if(await list.locator('.project-card h3').textContent()!=='Я'.repeat(100).trim().slice(0,80))throw Error('v0.197 native 80-character limit changed');
+    // v0.199: unbroken names must wrap in both panels without enlarging the grid.
+    const bounds199=await page.evaluate(()=>{
+      const width=document.documentElement.clientWidth;
+      return [...document.querySelectorAll('.projects-layout>.panel,.projects-layout h3')].every(node=>{
+        const r=node.getBoundingClientRect();return r.left>=-1 && r.right<=width+1 && node.scrollWidth<=node.clientWidth+1;
+      });
+    });
+    if(!bounds199)throw Error('v0.199 long project title overflows its panel/viewport');
+    await page.locator('#project-notes').fill('Длинное название: заметки доступны');
+    await page.locator('[data-action="save-project"]').click();
+    if(!await page.evaluate(()=>data.projects.some(p=>p.title==='Я'.repeat(80)&&p.notes==='Длинное название: заметки доступны')))throw Error('v0.199 save action unavailable');
     page.once('dialog',dialog=>dialog.accept());
     await page.locator('[data-action="delete-project"]').click();await ready();
   } finally {
@@ -3717,6 +3728,16 @@ async function checkProjectCreatorDelay197() {
   } finally {release();await context.close();}
 }
 
+
+async function checkMobileProjectFallback199() {
+  const context=await browser.newContext({viewport:{width:320,height:740},isMobile:true,hasTouch:true});
+  const page=await context.newPage();
+  await page.route('**/dist/vue/**',route=>route.abort());
+  try {await page.goto(BASE,{waitUntil:'domcontentloaded'});await checkProjectCollection196(page,false);
+    console.log('Narrow mobile project HTML fallback PASS');
+  } finally {await context.close();}
+}
+
 async function checkEditorFallback() {
   const context = await browser.newContext();
   const page = await context.newPage();
@@ -4092,6 +4113,7 @@ try {
   await checkLayout(true);
   await checkProjectCreatorDelay197();
   await checkEditorFallback();
+  await checkMobileProjectFallback199();
 } finally {
   await browser?.close();
   server.kill('SIGTERM');
