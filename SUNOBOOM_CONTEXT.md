@@ -281,3 +281,8 @@ npm run test:vue-browser
 ## 2026-11-13 — v0.201, основные поля события
 
 На базе main v0.200 e342c5c перенесены только заголовок режима и пять полей в EventEditor; native reminder picker и footer сохранения/отмены остаются вне Vue host. Snapshot читает текущий draft до mount; единый dashboardEventTypes для обеих форм. Исходные event-save/event-cancel/валидация/storage и CSS не менялись. Детали — раздел 50 PROJECT_CONTEXT.md; выпуск подтверждать по CI/Pages итогового HEAD. Следующим предложить кнопкой v0.202: только выбор сроков напоминаний, без изменения движка уведомлений.
+
+
+## 2026-11-13 — v0.202, сроки напоминаний события
+
+На базе v0.201 e2433d4 перенесён только picker сроков: EventReminders/observeLegacyIsland, snapshot исходных preset и текущих DOM checked/raw values. Preset 0, свой срок 1–365, dedup/sort, старые defaults, отключение, event-save/cancel, notificationRead и движок уведомлений прежние. CSS/данные не менялись; native HTML сохранён. Детали — раздел 51 PROJECT_CONTEXT.md; выпуск подтверждать по CI/Pages итогового HEAD. Следующим предложить кнопкой v0.203: панель сохранения/отмены формы события, без изменения обработчиков.

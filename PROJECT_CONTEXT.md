@@ -1,6 +1,6 @@
 # SUNOBOOM — PROJECT_CONTEXT.md
 
-> **Быстрый контекст для нового чата или ИИ-разработчика.** Актуальный этап **v0.201**, 13 ноября 2026 г.: основные поля формы события на Vue с прежними сохранением, отменой, напоминаниями и HTML fallback. База — main v0.200 (`e342c5c5efd458310dc936d95373a257abbd1e34`). Детали — раздел 50; ранние разделы исторические. Перед продолжением проверять новый HEAD, CI и Pages. История — [SUNOBOOM_CONTEXT.md](./SUNOBOOM_CONTEXT.md), архитектура — [src/vue/README.md](./src/vue/README.md).
+> **Быстрый контекст для нового чата или ИИ-разработчика.** Актуальный этап **v0.202**, 13 ноября 2026 г.: выбор сроков напоминаний на Vue с прежней валидацией, сохранением, уведомлениями и HTML fallback. База — main v0.201 (`e2433d45eed5761ebf0954dfa1b2dc2763e14251`). Детали — раздел 51; ранние разделы исторические. Перед продолжением проверять новый HEAD, CI и Pages. История — [SUNOBOOM_CONTEXT.md](./SUNOBOOM_CONTEXT.md), архитектура — [src/vue/README.md](./src/vue/README.md).
 
 ## 1. Что это и где работает
 
@@ -845,4 +845,16 @@ Vue memory router хранит проверенный id карточки Мас
 - Node regression исполняет snapshot для разных маршрутов/режимов, текущего draft, пустых/отсутствующих полей, типов и неизменности сохранённых записей. Browser desktop/mobile/Vue-disabled проверяет обязательные поля, создание со всеми пятью значениями, trim, один native save, reset, edit/cancel и прежние reminderDays. Delayed-bundle тест в режимах new/edit проверяет все поля, намеренно пустое описание, отсутствие автосохранения, shallow DOM mutations и неизменность native reminder checkboxes. Мобильный screenshot формы проверен визуально.
 - Локально: 82/82 Node tests, production build и полный browser smoke (desktop/mobile/HTML fallback/delayed new-edit) успешны. CI и Pages сверять по итоговому HEAD перед объявлением выпуска.
 - Следующий этап v0.202: отдельный перенос блока выбора сроков напоминаний формы события на Vue с сохранением SB_N37_PRESETS, выбранных/своего срока, IDs/name и исходной sbN37FormDays/валидации 1–365 дней. Движок уведомлений и новые каналы доставки не входят в этап.
+- После завершения предложить следующий этап кнопкой; начать его только по выбору пользователя.
+
+
+## 51. Дополнение v0.202 — выбор сроков напоминаний на Vue (2026-11-13)
+
+- База main v0.201 e2433d45eed5761ebf0954dfa1b2dc2763e14251. Перенесён только fieldset sbN37ReminderForm в #sb-vue-event-reminders. EventEditor и EventCollection не переписывались; footer event-save/event-cancel остаётся native. Исходный fieldset с checkbox/input сохраняется как fallback.
+- SUNOBOOM_LEGACY_EVENT_REMINDERS.snapshot() доступен только на events. Presets копируются из исходного SB_N37_PRESETS. Snapshot читает реальные checked preset/custom и raw custom input непосредственно перед mount, включая отсутствие галочек и пустую/невалидную строку. Если DOM отсутствует, используются исходные sbN37SelectedDays(editing), прежний первый нестандартный срок и default 10; для новой формы сроки не выбраны.
+- EventReminders.vue получает { initial }, хранит только локальный reactive draft. Сохранены fieldset/legend/тексты/CSS, name event-reminder-preset с числовыми value 0/1/3/7/14/30, IDs event-reminder-custom/custom-wrap/custom-days, min=1 max=365 step=1 inputmode=numeric и hidden при выключенном своём сроке. legacyEventRemindersBridge использует observeLegacyIsland; bootstrap запускает его после полей события.
+- Исходные sbN37FormDays, sbN37SelectedDays, event-save/event-cancel, сброс notificationRead, движок уведомлений, delivery и storage не менялись. Validator по-прежнему читает DOM: недопустимые custom значения возвращают null, сроки сортируются по убыванию и дедуплицируются; preset 0 допустим, custom 0 нет. Выключение всех сроков сохраняет remind:false/reminderDays:[]; старые записи без reminderDays получают прежние [1,0].
+- Node regression покрывает DOM draft/сохранённые/старые/пустые defaults, копии preset/selected, raw invalid/empty values и исполнение исходной валидации на границах/дубликатах. Browser desktop/mobile/без Vue проверяет готовые варианты, invalid custom, 1/365, сохранение/повторное редактирование, дедупликацию, отключение/скрытие, cancel и старые записи. Delayed new/edit сценарий проверяет выбранные галочки и намеренно пустой свой срок до Vue. Мобильный screenshot проверен визуально.
+- Локально: 84/84 Node tests, production build и полный browser smoke (desktop/mobile/HTML fallback/delayed reminder drafts) успешны. CI и Pages сверять по итоговому HEAD перед объявлением выпуска.
+- Следующий небольшой этап v0.203: панель действий формы события (кнопки сохранения/отмены и их подписи по режиму) на Vue; оставить сами event-save/event-cancel и все правила/данные прежними. После него проверить, какие элементы раздела ещё принадлежат legacy, не объявлять весь сайт Vue SPA.
 - После завершения предложить следующий этап кнопкой; начать его только по выбору пользователя.

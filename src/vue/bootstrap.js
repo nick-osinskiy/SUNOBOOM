@@ -4,11 +4,11 @@
 // and <meta name="sunoboom-vue-nav" content="enabled"> is explicitly added.
 const localDev = /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
 const productionEnabled = !!document.querySelector('meta[name="sunoboom-vue-nav"][content="enabled"]');
-const moduleUrl = productionEnabled ? '../../dist/vue/sunoboom-vue.js?v=201' : localDev ? './entry.js' : null;
+const moduleUrl = productionEnabled ? '../../dist/vue/sunoboom-vue.js?v=202' : localDev ? './entry.js' : null;
 
 if (moduleUrl && window.SUNOBOOM_LEGACY_NAV) {
   import(moduleUrl)
-    .then(({ startLegacyEventEditor, startLegacyEventCollection, startLegacyProjectDetail, startLegacyProjectCreator, startLegacyProjectCollection, startLegacyNavigation, startLegacyTopHeader, startLegacyAppearance, startLegacyAcademy, startLegacyGenreDetail, startLegacyStudio, startLegacyMixer, startLegacyAuditor, startLegacyArranger, startLegacyPoetry, startLegacyTags, startLegacyIdeaEditor, startLegacyIdeaCollections, startLegacyPromptCollection, startLegacyPromptEditor, startLegacyLibrary, startLegacySongCards, startLegacySongDetail, startLegacySongEditor, startLegacyArtistManager, startLegacyArtistDNA, startLegacyArtistDNAEditor, startLegacyAccountSettings, startLegacyPlayerLab, startLegacyPlayerAB, startLegacyProducerSongList, startLegacyProducerSongDetail, startLegacyTrackPassportList, startLegacyTrackPassportDetail, startLegacyTrackPassportEditor, startLegacyVersionHistory, startLegacyHomeDashboard, startLegacyGenreTree }) => {
+    .then(({ startLegacyEventReminders, startLegacyEventEditor, startLegacyEventCollection, startLegacyProjectDetail, startLegacyProjectCreator, startLegacyProjectCollection, startLegacyNavigation, startLegacyTopHeader, startLegacyAppearance, startLegacyAcademy, startLegacyGenreDetail, startLegacyStudio, startLegacyMixer, startLegacyAuditor, startLegacyArranger, startLegacyPoetry, startLegacyTags, startLegacyIdeaEditor, startLegacyIdeaCollections, startLegacyPromptCollection, startLegacyPromptEditor, startLegacyLibrary, startLegacySongCards, startLegacySongDetail, startLegacySongEditor, startLegacyArtistManager, startLegacyArtistDNA, startLegacyArtistDNAEditor, startLegacyAccountSettings, startLegacyPlayerLab, startLegacyPlayerAB, startLegacyProducerSongList, startLegacyProducerSongDetail, startLegacyTrackPassportList, startLegacyTrackPassportDetail, startLegacyTrackPassportEditor, startLegacyVersionHistory, startLegacyHomeDashboard, startLegacyGenreTree }) => {
       if (typeof startLegacyAppearance === 'function') startLegacyAppearance();
       if (typeof startLegacyNavigation === 'function') startLegacyNavigation();
       if (typeof startLegacyTopHeader === 'function') startLegacyTopHeader();
@@ -26,6 +26,7 @@ if (moduleUrl && window.SUNOBOOM_LEGACY_NAV) {
       if (typeof startLegacyProjectDetail === 'function') startLegacyProjectDetail();
       if (typeof startLegacyEventCollection === 'function') startLegacyEventCollection();
       if (typeof startLegacyEventEditor === 'function') startLegacyEventEditor();
+      if (typeof startLegacyEventReminders === 'function') startLegacyEventReminders();
       if (typeof startLegacyPromptEditor === 'function') startLegacyPromptEditor();
       if (typeof startLegacyLibrary === 'function') startLegacyLibrary();
       if (typeof startLegacySongCards === 'function') startLegacySongCards();

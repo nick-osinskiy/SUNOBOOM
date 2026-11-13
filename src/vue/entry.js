@@ -1,3 +1,4 @@
+import { activateLegacyEventReminders } from './account/legacyEventRemindersBridge.js';
 import { activateLegacyEventEditor } from './account/legacyEventEditorBridge.js';
 import { activateLegacyEventCollection } from './account/legacyEventCollectionBridge.js';
 import { activateLegacyProjectDetail } from './account/legacyProjectDetailBridge.js';
@@ -247,4 +248,9 @@ export function startLegacyEventCollection() {
 /** Vue event draft fields; native reminder controls and actions stay independent. */
 export function startLegacyEventEditor() {
   return activateLegacyEventEditor({ mountVueFeature });
+}
+
+/** Vue reminder picker; legacy validation, persistence and delivery are unchanged. */
+export function startLegacyEventReminders() {
+  return activateLegacyEventReminders({ mountVueFeature });
 }

@@ -122,7 +122,7 @@ async function checkEventCollection200(page,vue) {
     view.editEvent=null;go('events');
   });
   const root=page.locator('#sb-vue-events-list');
-  const ready=()=>page.waitForFunction(vue=>['#sb-vue-events-list','#sb-vue-event-fields'].every(selector=>document.querySelector(selector+(vue?'[data-v-app]':':not([data-v-app])'))),vue);
+  const ready=()=>page.waitForFunction(vue=>['#sb-vue-events-list','#sb-vue-event-fields','#sb-vue-event-reminders'].every(selector=>document.querySelector(selector+(vue?'[data-v-app]':':not([data-v-app])'))),vue);
   try{
     await ready();
     if(await root.locator('#event-editor,input,textarea').count() || await root.count()!==1)throw Error('v0.200 list owns form or duplicated');
@@ -167,6 +167,43 @@ async function checkEventCollection200(page,vue) {
   }finally{
     await page.evaluate(()=>{data.events=window.__events200.events;data.notificationRead=window.__events200.read;view.editEvent=window.__events200.edit;delete window.__events200;persist();go('home');});
   }
+}
+
+
+async function checkEventReminders202(page,vue) {
+  await page.evaluate(()=>{window.__reminders202={events:structuredClone(data.events),edit:view.editEvent,read:structuredClone(data.notificationRead)};data.events=[];view.editEvent=null;go('events');});
+  const ready=()=>page.waitForFunction(vue=>!!document.querySelector('#sb-vue-event-reminders'+(vue?'[data-v-app]':':not([data-v-app])')),vue);
+  const preset=days=>page.locator('input[name="event-reminder-preset"][value="'+days+'"]');
+  const save=()=>page.locator('[data-action="event-save"]').click();
+  const record=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('sunoboom-v1')).events.find(e=>e.title==='Напоминания 202'));
+  const edit=async()=>{await page.locator('#sb-vue-events-list [data-action="event-edit"]').first().click();await ready();};
+  try{
+    await ready();
+    if(await page.locator('input[name="event-reminder-preset"]').count()!==6 || await page.locator('input[name="event-reminder-preset"]:checked').count())throw Error('v0.202 preset defaults/duplicates');
+    if(await page.locator('#event-reminder-custom-wrap').isVisible())throw Error('v0.202 custom field initially visible');
+    await page.locator('#event-title').fill('Напоминания 202');await page.locator('#event-date').fill('2035-06-07');
+    await preset(0).check();await preset(7).check();await page.locator('#event-reminder-custom').check();
+    if(!await page.locator('#event-reminder-custom-wrap').isVisible())throw Error('v0.202 custom toggle does not reveal input');
+    for(const invalid of ['', '0','366','1.5']){
+      await page.locator('#event-reminder-custom-days').fill(invalid);await save();
+      if(!await page.evaluate(()=>data.events.length===0) || await page.locator('#event-title').inputValue()!=='Напоминания 202')throw Error('v0.202 invalid custom days saved/reset draft');
+    }
+    await page.locator('#event-reminder-custom-days').fill('365');await save();await ready();
+    let saved=await record();if(!saved.remind||JSON.stringify(saved.reminderDays)!=='[365,7,0]')throw Error('v0.202 maximum custom/preset persistence');
+    await edit();
+    if(!await page.locator('#event-reminder-custom').isChecked()||await page.locator('#event-reminder-custom-days').inputValue()!=='365'||!await preset(7).isChecked())throw Error('v0.202 editing lost selections/custom days');
+    await page.locator('#event-reminder-custom-days').fill('1');await save();await ready();
+    if(JSON.stringify((await record()).reminderDays)!=='[7,1,0]')throw Error('v0.202 minimum custom persistence');
+    await edit();if(!await preset(1).isChecked())throw Error('v0.202 saved custom day did not map to matching preset');await preset(1).uncheck();await page.locator('#event-reminder-custom').check();await page.locator('#event-reminder-custom-days').fill('7');await save();await ready();
+    if(JSON.stringify((await record()).reminderDays)!=='[7,0]')throw Error('v0.202 duplicate days not deduplicated');
+    await edit();await preset(0).uncheck();await preset(7).uncheck();await page.locator('#event-reminder-custom').uncheck();
+    if(await page.locator('#event-reminder-custom-wrap').isVisible())throw Error('v0.202 custom input did not hide');
+    await save();await ready();saved=await record();if(saved.remind!==false||saved.reminderDays.length)throw Error('v0.202 reminders not disabled');
+    await edit();await preset(14).check();await page.locator('[data-action="event-cancel"]').click();await ready();
+    if((await record()).reminderDays.length)throw Error('v0.202 cancel persisted reminder draft');
+    await page.evaluate(()=>{data.events=[{id:'legacy202',title:'Старое событие',date:'2035-06-07'}];view.editEvent='legacy202';go('events');});await ready();
+    if(!await preset(0).isChecked()||!await preset(1).isChecked())throw Error('v0.202 legacy reminder defaults changed');
+  }finally{await page.evaluate(()=>{data.events=window.__reminders202.events;data.notificationRead=window.__reminders202.read;view.editEvent=window.__reminders202.edit;delete window.__reminders202;persist();go('home');});}
 }
 
 async function checkLayout(mobile) {
@@ -3760,6 +3797,7 @@ async function checkLayout(mobile) {
     if (bad.length) throw new Error('Vue startup failure: ' + bad.join('; '));
     await checkProjectCollection196(page,true);
     await checkEventCollection200(page,true);
+    await checkEventReminders202(page,true);
     console.log((mobile ? 'Mobile' : 'Desktop') + ' Vue navigation smoke PASS');
   } finally {
     await context.close();
@@ -3813,11 +3851,14 @@ async function checkEventEditorDelay201() {
       for(const key of ['title','date','time','notes'])await page.locator('#event-'+key).fill(values[key]);
       await page.locator('#event-type').selectOption(values.type);
       await page.evaluate(()=>document.querySelectorAll('input[name="event-reminder-preset"]').forEach(n=>{n.checked=n.value==='7';}));
+      await page.locator('#event-reminder-custom').check();
+      await page.locator('#event-reminder-custom-days').fill('');
       release();await page.locator('#sb-vue-event-fields[data-v-app]').waitFor();
       for(const key of Object.keys(values))if(await page.locator('#event-'+key).inputValue()!==values[key])throw Error('v0.201 delayed mount erased '+key);
       if(await page.locator('#sb-vue-event-fields h2').textContent()!==(editing?'Редактирование события':'Добавить событие'))throw Error('v0.201 editor mode lost');
       const checked=await page.locator('input[name="event-reminder-preset"]:checked').evaluateAll(nodes=>nodes.map(n=>n.value));
       if(checked.join(',')!=='7')throw Error('v0.201 Vue mount changed native reminders');
+      if(!await page.locator('#event-reminder-custom').isChecked()||await page.locator('#event-reminder-custom-days').inputValue()!==''||!await page.locator('#event-reminder-custom-wrap').isVisible())throw Error('v0.202 delayed picker lost raw empty custom draft');
       await page.locator('#event-notes').fill('Черновик после Vue');
       await page.evaluate(()=>{const marker=document.createElement('i');document.getElementById('app').append(marker);queueMicrotask(()=>marker.remove());});await page.waitForTimeout(50);
       if(await page.locator('#event-notes').inputValue()!=='Черновик после Vue'||await page.locator('#event-title').count()!==1)throw Error('v0.201 shell mutation duplicated/erased form');
@@ -4192,6 +4233,7 @@ async function checkEditorFallback() {
     }
     await checkProjectCollection196(page,false);
     await checkEventCollection200(page,false);
+    await checkEventReminders202(page,false);
     console.log('Original song editor, library, My Songs, artist manager, DNA, settings, player, Master and passports without Vue PASS');
   } finally { await context.close(); }
 }

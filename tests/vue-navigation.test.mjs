@@ -2126,3 +2126,39 @@ test('v0.201 editor hands only five fields to Vue, keeping native reminders and 
   assert.doesNotMatch(code,/localStorage|indexedDB|@click|@submit|reminder|data-action/);
   assert.ok(bridge.includes('observeLegacyIsland({'));assert.ok(bridge.includes('EventEditor, { initial: model }'));
 });
+
+
+test('v0.202 reminder snapshot preserves raw DOM drafts and native saved/legacy defaults', () => {
+  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+  const presetStart=html.indexOf('const SB_N37_PRESETS='),presetEnd=html.indexOf('function sbN37DayDiff(',presetStart);
+  const start=html.indexOf('window.SUNOBOOM_LEGACY_EVENT_REMINDERS='),end=html.indexOf('function sbN37ReminderForm(',start);
+  const win={},view={nav:'home',editEvent:'saved202'},saved={id:'saved202',reminderDays:[7,10,1]};
+  let inputs=[{value:'0',checked:false},{value:'7',checked:true}];
+  const fields={'event-reminder-custom':{checked:false},'event-reminder-custom-days':{value:''}};
+  new Function('window','view','document','dashboardSortedEvents',html.slice(presetStart,presetEnd)+html.slice(start,end))(win,view,
+    {querySelectorAll:()=>inputs,getElementById:id=>fields[id]},()=>[saved]);
+  const api=win.SUNOBOOM_LEGACY_EVENT_REMINDERS;assert.equal(api.snapshot(),null);
+  view.nav='events';let model=api.snapshot();
+  assert.deepEqual(model.values,{selected:[7],custom:false,customDays:''});
+  assert.deepEqual(model.presets.map(p=>p.days),[0,1,3,7,14,30]);
+  inputs.forEach(n=>n.checked=false);assert.deepEqual(api.snapshot().values.selected,[]);
+  fields['event-reminder-custom'].checked=true;fields['event-reminder-custom-days'].value='1.5';
+  assert.equal(api.snapshot().values.customDays,'1.5');
+  inputs=[];for(const id of Object.keys(fields))delete fields[id];
+  model=api.snapshot();assert.deepEqual(model.values,{selected:[7,1],custom:true,customDays:'10'});
+  model.values.selected.push(30);assert.deepEqual(saved.reminderDays,[7,10,1]);
+  delete saved.reminderDays;assert.deepEqual(api.snapshot().values,{selected:[1,0],custom:false,customDays:'10'});
+  saved.remind=false;assert.deepEqual(api.snapshot().values.selected,[]);
+  view.editEvent=null;assert.deepEqual(api.snapshot().values,{selected:[],custom:false,customDays:'10'});
+});
+
+test('v0.202 native reminder validator retains 1-365 boundaries, zero preset and deduplication', () => {
+  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+  const start=html.indexOf('function sbN37FormDays(){'),end=html.indexOf("document.addEventListener('change'",start);
+  let raw='',enabled=true;
+  const read=new Function('document',html.slice(start,end)+';return sbN37FormDays;')({
+    querySelectorAll:()=>[{value:'0'},{value:'7'}],getElementById:id=>id==='event-reminder-custom'?{checked:enabled}:{value:raw}});
+  for(const invalid of ['', '0','366','1.5','-1']){raw=invalid;assert.equal(read(),null);}
+  for(const [value,expected] of [['1',[7,1,0]],['365',[365,7,0]],['7',[7,0]]]){raw=value;assert.deepEqual(read(),expected);}
+  enabled=false;assert.deepEqual(read(),[7,0]);
+});
