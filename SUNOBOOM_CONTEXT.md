@@ -301,3 +301,8 @@ npm run test:vue-browser
 ## 2026-11-13 — v0.205, главный экран кабинета целиком
 
 На базе v0.204 68332d6 завершён account home одним Vue root: переиспользована сводка, добавлены все окончательные плитки после wrappers, профиль, backup, заголовок и privacy notice. Режим settings остаётся ранее перенесённым отдельным экраном. Сохранены source DOM tile contracts, native actions/formats/confirm/storage и fallback; исключены конкурирующие summary apps. См. раздел 54 PROJECT_CONTEXT.md и CI/Pages итогового HEAD. Пользователь просит более цельные этапы: далее предложить кнопкой v0.206, весь раздел Идеи песен (генератор + каталог/фильтры/результаты), без нового backend или дробления на кнопки.
+
+
+## 2026-11-13 — v0.206, Идеи песен целиком
+
+На базе v0.205 3e505fa перенесён весь ideasView одним Vue root: генератор/результаты/фильтры/готовые сюжеты. Snapshot использует исходные каталоги и текущий draft; прежние runIdeaGenerator/cycle/seq, data-actions, copy/save/use/Studio и storage не менялись. Офлайн, без нового ИИ/backend. См. раздел 55 PROJECT_CONTEXT.md и CI/Pages итогового HEAD. Следующим предложить кнопкой v0.207: отдельный пока native экран карточки песни по ссылке, сохранив URL validation, privacy и ограничения локального аудио.

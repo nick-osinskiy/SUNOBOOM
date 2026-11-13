@@ -341,6 +341,95 @@ async function checkAccountHomeDelay205() {
   console.log('Delayed complete account home draft and ownership PASS');
 }
 
+
+async function checkIdeasPage206(page,vue) {
+  await page.evaluate(()=>{
+    window.__ideas206={data:structuredClone(data),params:{...ideaGen},results:structuredClone(generatedIdeas),seq:generatedSeq,cycle:generatedCycle,family:view.ideaFamily,builder:structuredClone(builder),copy:copyText,copied:null};
+    copyText=text=>{window.__ideas206.copied=String(text);};
+    data.savedIdeas=[];data.savedGeneratedIdeas=[];generatedIdeas=[];generatedSeq=0;generatedCycle=0;view.ideaFamily='Все';
+    Object.assign(ideaGen,{genre:'alternative-rock',topic:Object.keys(IDEA_BANK)[0],mood:'energetic',story:'twist',language:'Russian',vocal:'female',count:3,detail:''});go('ideas');
+  });
+  const root=page.locator('#sb-vue-ideas-page');
+  const ready=async()=>{await page.waitForFunction(vue=>!!document.querySelector('#sb-vue-ideas-page'+(vue?'[data-v-app]':':not([data-v-app])')),vue);await page.evaluate(()=>window.scrollTo({top:window.scrollY,behavior:'instant'}));};
+  const compare=async()=>{
+    const equal=await page.evaluate(()=>{
+      const describe=root=>({
+        fields:[...root.querySelectorAll('.generator-form select')].map(n=>({id:n.id,key:n.dataset.ideaGenerator,value:n.value,options:[...n.options].map(o=>[o.value,o.textContent])})),
+        detail:root.querySelector('#gen-detail').value,
+        filters:[...root.querySelectorAll('[data-action="idea-filter"]')].map(n=>[n.dataset.filter,n.classList.contains('on')]),
+        cards:[...root.querySelectorAll('.idea')].map(n=>({kind:n.classList.contains('generated-card')?'generated':'catalog',badge:n.querySelector('.idea-badge').textContent,title:n.querySelector('h3').textContent,
+          paragraphs:[...n.querySelectorAll('p')].map(p=>p.textContent),hook:n.querySelector('.generator-hook')?.textContent,
+          actions:[...n.querySelectorAll('[data-action]')].map(b=>[b.dataset.action,b.dataset.id,b.dataset.i,b.textContent.trim()])}))});
+      const source=document.createElement('template');source.innerHTML=ideasView();
+      return JSON.stringify(describe(source.content))===JSON.stringify(describe(document.getElementById('sb-vue-ideas-page')));
+    });
+    if(!equal)throw Error('v0.206 Ideas form/options/filter/card contract differs from native source');
+  };
+  try{
+    await ready();await compare();
+    if(await root.locator('select').count()!==7||await root.locator('#gen-detail').count()!==1||await root.locator('[data-v-app]').count())throw Error('v0.206 missing/duplicated form or competing roots');
+    const topic=await page.evaluate(()=>Object.keys(IDEA_BANK)[1]);
+    const values={genre:'alternative-rock',topic,mood:'dreamy',story:'dialogue',vocal:'duet',language:'Kazakh',count:'3'};
+    for(const [key,id] of [['genre','gen-genre'],['topic','gen-topic'],['mood','gen-mood'],['story','gen-story'],['vocal','gen-voice'],['language','gen-language'],['count','gen-count']])await page.locator('#'+id).selectOption(values[key]);
+    const detail='<img src=x> Ночной поезд';await page.locator('#gen-detail').fill(detail);
+    await root.locator('.generator-bar [data-action="generate-ideas"]').click();await ready();await compare();
+    if(await root.locator('.generated-card').count()!==3||await root.locator('.generator-detail img').count())throw Error('v0.206 three results/detail escaping failed');
+    const state=await page.evaluate(()=>({cycle:generatedCycle,seq:generatedSeq,results:structuredClone(generatedIdeas)}));
+    if(state.cycle!==1||state.seq!==3||state.results.some(x=>x.genre!=='alternative-rock'||x.mood!=='dreamy'||x.language!=='Kazakh'||x.vocal!=='duet'||x.detail!==detail))throw Error('v0.206 native generator inputs/count changed');
+    await root.locator('#generated-results [data-action="generate-ideas"]').click();await ready();
+    const first=await page.evaluate(()=>structuredClone(generatedIdeas[0]));
+    if(!await page.evaluate(old=>generatedCycle===2&&generatedSeq===6&&generatedIdeas.every(x=>!old.includes(x.id)&&x.title.endsWith(' — год спустя')),state.results.map(x=>x.id)))throw Error('v0.206 next variants changed cycle or reused IDs');
+    await root.locator('[data-action="generated-save"]').first().click();await ready();
+    await root.locator('[data-action="generated-save"]').first().click();await ready();
+    if(!await page.evaluate(id=>JSON.parse(localStorage.getItem('sunoboom-v1')).savedGeneratedIdeas.filter(x=>x.id===id).length===1,first.id)||!(await root.locator('[data-action="generated-save"]').first().textContent()).includes('Сохранено'))throw Error('v0.206 generated save duplicated/lost record or label');
+    await root.locator('[data-action="generated-copy"]').first().click();
+    if(!await page.evaluate(id=>window.__ideas206.copied===generatedIdeaText(fetchGenerated(id)),first.id))throw Error('v0.206 native copy text changed');
+    await root.locator('[data-action="generated-use"]').first().click();
+    if(!await page.evaluate(x=>view.nav==='studio'&&builder.genre===x.genre&&builder.mood===x.mood&&builder.vocal===x.vocal&&builder.language===x.language&&builder.theme===[x.title+': '+x.pitch,x.detail?'Деталь: '+x.detail:'','Хук: '+x.hook].filter(Boolean).join(' ').slice(0,400),first))throw Error('v0.206 generated idea transfer to Studio changed');
+    await page.evaluate(()=>go('myideas'));
+    if(vue)await page.locator('#sb-vue-idea-collections[data-v-app]').waitFor();
+    if(await page.locator('[data-action="generated-use"][data-id="'+first.id+'"]').count()!==1)throw Error('v0.206 saved result missing in My ideas');
+    await page.evaluate(()=>go('ideas'));await ready();await page.locator('#gen-count').selectOption('5');
+    await root.locator('.generator-bar [data-action="generate-ideas"]').click();await ready();
+    if(await root.locator('.generated-card').count()!==5||!await page.evaluate(()=>generatedCycle===3&&generatedSeq===11))throw Error('v0.206 five results/cycle failed');
+    await root.locator('[data-action="surprise-ideas"]').click();await ready();await compare();
+    if(!await page.evaluate(()=>generatedCycle===4&&generatedIdeas.length===5&&generatedIdeas.every(x=>x.genre===ideaGen.genre&&x.mood===ideaGen.mood&&x.topic===ideaGen.topic&&x.storyLine===GEN_STORY_LINES[ideaGen.story])))throw Error('v0.206 surprise bypassed native settings/count');
+    const family=await root.locator('[data-action="idea-filter"]').nth(1).getAttribute('data-filter');
+    await root.locator('[data-action="idea-filter"]').nth(1).click();await ready();await compare();
+    if(!await page.evaluate(f=>view.ideaFamily===f,family))throw Error('v0.206 family filter not delegated');
+    await root.locator('[data-action="idea-filter"]').first().click();await ready();
+    const catalog=await page.evaluate(()=>({id:GENRES[0].id,title:GENRES[0].ideas[0].title,pitch:GENRES[0].ideas[0].pitch}));
+    await root.locator('[data-action="idea-save"]').first().click();await ready();
+    if(!await page.evaluate(id=>JSON.parse(localStorage.getItem('sunoboom-v1')).savedIdeas.includes(id+':0'),catalog.id))throw Error('v0.206 catalog save failed');
+    await root.locator('[data-action="idea-save"]').first().click();await ready();
+    if(!await page.evaluate(()=>data.savedIdeas.length===0))throw Error('v0.206 catalog unsave failed');
+    await root.locator('[data-action="idea-use"]').first().click();
+    if(!await page.evaluate(x=>view.nav==='studio'&&builder.genre===x.id&&builder.theme===x.title+': '+x.pitch,catalog))throw Error('v0.206 catalog transfer to Studio failed');
+    await page.evaluate(()=>go('ideas'));await ready();await root.locator('[data-action="random-idea"]').click();
+    if(!await page.evaluate(()=>view.nav==='studio'&&findGenre(builder.genre).ideas.some(x=>x.pitch===builder.theme)))throw Error('v0.206 random catalog action failed');
+    await page.evaluate(()=>{go('ideas');go('account');go('ideas');});await ready();
+    await page.locator('#gen-detail').fill('Черновик после обновлений');
+    const stable=await page.evaluate(async()=>{const input=document.getElementById('gen-detail');const marker=document.createElement('i');document.getElementById('app').append(marker);queueMicrotask(()=>marker.remove());await new Promise(r=>setTimeout(r,50));return input===document.getElementById('gen-detail')&&input.value==='Черновик после обновлений';});
+    if(!stable||await root.count()!==1)throw Error('v0.206 shallow mutation/rapid routes duplicated screen or erased draft');
+  }finally{
+    await page.evaluate(()=>{const old=window.__ideas206;data=old.data;Object.assign(ideaGen,old.params);generatedIdeas=old.results;generatedSeq=old.seq;generatedCycle=old.cycle;view.ideaFamily=old.family;builder=old.builder;copyText=old.copy;delete window.__ideas206;persist();go('home');});
+  }
+}
+
+async function checkIdeasDelay206() {
+  const context=await browser.newContext();const page=await context.newPage();let release;const gate=new Promise(r=>{release=r;});
+  await page.route('**/dist/vue/sunoboom-vue.js*',async route=>{await gate;await route.continue();});
+  try{
+    await page.goto(BASE,{waitUntil:'domcontentloaded'});await page.evaluate(()=>go('ideas'));
+    await page.locator('#gen-count').selectOption('5');await page.locator('#gen-language').selectOption('Kazakh');await page.locator('#gen-detail').fill('До загрузки Vue <img>');
+    release();await page.locator('#sb-vue-ideas-page[data-v-app]').waitFor();
+    if(await page.locator('#gen-detail').inputValue()!=='До загрузки Vue <img>'||await page.locator('#gen-count').inputValue()!=='5'||await page.locator('#gen-language').inputValue()!=='Kazakh')throw Error('v0.206 delayed mount lost generator draft');
+    await page.locator('.generator-bar [data-action="generate-ideas"]').click();await page.locator('#sb-vue-ideas-page[data-v-app] .generated-card').first().waitFor();
+    if(!await page.evaluate(()=>generatedIdeas.length===5&&generatedIdeas.every(x=>x.detail==='До загрузки Vue <img>'&&x.language==='Kazakh')))throw Error('v0.206 delayed fields did not reach native generator');
+  }finally{release();await context.close();}
+  console.log('Delayed full Ideas page draft and generation PASS');
+}
+
 async function checkLayout(mobile) {
   const context = await browser.newContext({
     viewport: mobile ? { width: 375, height: 812 } : { width: 1440, height: 900 },
@@ -3935,6 +4024,7 @@ async function checkLayout(mobile) {
     await checkEventReminders202(page,true);
     await checkAccountSummary204(page,true);
     await checkAccountHome205(page,true);
+    await checkIdeasPage206(page,true);
     console.log((mobile ? 'Mobile' : 'Desktop') + ' Vue navigation smoke PASS');
   } finally {
     await context.close();
@@ -4373,6 +4463,7 @@ async function checkEditorFallback() {
     await checkEventReminders202(page,false);
     await checkAccountSummary204(page,false);
     await checkAccountHome205(page,false);
+    await checkIdeasPage206(page,false);
     console.log('Original song editor, library, My Songs, artist manager, DNA, settings, player, Master and passports without Vue PASS');
   } finally { await context.close(); }
 }
@@ -4385,6 +4476,7 @@ try {
   await checkProjectCreatorDelay197();
   await checkEventEditorDelay201();
   await checkAccountHomeDelay205();
+  await checkIdeasDelay206();
   await checkEditorFallback();
   await checkMobileProjectFallback199();
 } finally {

@@ -1,3 +1,4 @@
+import { activateLegacyIdeasPage } from './ideas/legacyIdeasPageBridge.js';
 import { activateLegacyAccountHome } from './account/legacyAccountHomeBridge.js';
 import { activateLegacyAccountSummary } from './account/legacyAccountSummaryBridge.js';
 import { activateLegacyEventActions } from './account/legacyEventActionsBridge.js';
@@ -271,4 +272,9 @@ export function startLegacyAccountSummary() {
 /** Complete account home, reusing summary and all native profile/backup/tile actions. */
 export function startLegacyAccountHome() {
   return activateLegacyAccountHome({ mountVueFeature });
+}
+
+/** Complete Ideas page with native offline generation, catalog and Studio actions. */
+export function startLegacyIdeasPage() {
+  return activateLegacyIdeasPage({ mountVueFeature });
 }

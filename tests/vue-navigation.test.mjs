@@ -2259,3 +2259,38 @@ test('v0.205 one account root owns the home while legacy summary compatibility s
   assert.ok(!bootstrap.includes("if (typeof startLegacyAccountSummary === 'function')"));
   assert.ok(old.includes("target?.closest('#sb-vue-account-home') ? null : target"));
 });
+
+
+test('v0.206 Ideas page snapshot retains source options, filters, saved IDs and live generator drafts', () => {
+  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+  const start=html.indexOf('window.SUNOBOOM_LEGACY_IDEAS_PAGE='),end=html.indexOf('function ideasView()',start);
+  const win={},view={nav:'home',ideaFamily:'Все'},data={savedIdeas:['g1:1'],savedGeneratedIdeas:[{id:'gen1'}]};
+  const genres=[{id:'g1',name:'Жанр 1',family:'A',ideas:[{title:'One',pitch:'First',mood:'dark'},{title:'<img>',pitch:'Literal',mood:'dreamy'}]},
+    {id:'g2',name:'Жанр 2',family:'B',ideas:[{title:'Two',pitch:'Second',mood:'romantic'}]}];
+  const generator={genre:'g1',topic:'Тема',mood:'dark',story:'twist',vocal:'male',language:'Russian',count:3,detail:'Saved detail'};
+  const results=[{id:'gen1',genre:'g1',topic:'Тема',title:'<img>Result',pitch:'Pitch',storyLine:'Story',hook:'Hook',detail:'Raw <b>detail'}];
+  const fields={'gen-genre':{value:'g2'},'gen-count':{value:'5'},'gen-detail':{value:''}};
+  const choices=[['dark','Мрачно']];
+  new Function('window','view','data','document','GENRES','IDEA_BANK','GEN_MOODS','GEN_STORIES','GEN_VOCALS','GEN_LANG','ideaGen','generatedIdeas','familyOrder','findGenre','I',html.slice(start,end))(
+    win,view,data,{getElementById:id=>fields[id]},genres,{'Тема':[]},choices,[['twist','Поворот']],[['male','Мужской']],[['Russian','Русский']],generator,results,['A','B','Empty'],id=>genres.find(g=>g.id===id),()=>'<svg></svg>');
+  const api=win.SUNOBOOM_LEGACY_IDEAS_PAGE;assert.equal(api.snapshot(),null);
+  view.nav='ideas';const model=api.snapshot();
+  assert.equal(model.values.genre,'g2');assert.equal(model.values.count,5);assert.equal(model.values.detail,'');
+  assert.deepEqual(model.catalog.map(x=>x.key),['g1:0','g1:1','g2:0']);assert.equal(model.catalog[1].saved,true);
+  assert.deepEqual(model.families,['Все','A','B']);assert.equal(model.generated[0].saved,true);
+  assert.equal(model.generated[0].title,'<img>Result');assert.equal(model.generated[0].detail,'Raw <b>detail');
+  model.fields[2].options[0].label='changed';assert.equal(choices[0][1],'Мрачно');
+  model.generated[0].title='changed';assert.equal(results[0].title,'<img>Result');
+  view.ideaFamily='B';assert.deepEqual(api.snapshot().catalog.map(x=>x.key),['g2:0']);
+  view.ideaFamily='Missing';assert.equal(api.snapshot().catalog.length,0);
+  delete fields['gen-count'];assert.equal(api.snapshot().values.count,3);
+});
+
+test('v0.206 Ideas screen retains all delegated generator/catalog actions without business duplication', () => {
+  const component=readFileSync(new URL('../src/vue/ideas/IdeasPage.vue',import.meta.url),'utf8');
+  const bridge=readFileSync(new URL('../src/vue/ideas/legacyIdeasPageBridge.js',import.meta.url),'utf8');
+  for(const action of ['generate-ideas','surprise-ideas','generated-use','generated-copy','generated-save','idea-filter','random-idea','idea-use','idea-save'])assert.ok(component.includes('data-action="'+action+'"'));
+  assert.ok(component.includes('id="generated-results"'));assert.ok(component.includes('data-idea-generator="detail"'));
+  assert.doesNotMatch(component,/Math.random|localStorage|indexedDB|@click|@submit|fetch\(/);
+  assert.ok(bridge.includes('observeLegacyIsland({'));assert.ok(bridge.includes('IdeasPage, { initial }'));
+});
