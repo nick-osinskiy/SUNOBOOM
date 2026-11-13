@@ -1,3 +1,4 @@
+import { activateLegacyAccountHome } from './account/legacyAccountHomeBridge.js';
 import { activateLegacyAccountSummary } from './account/legacyAccountSummaryBridge.js';
 import { activateLegacyEventActions } from './account/legacyEventActionsBridge.js';
 import { activateLegacyEventReminders } from './account/legacyEventRemindersBridge.js';
@@ -265,4 +266,9 @@ export function startLegacyEventActions() {
 /** Vue profile summary and counters inside the original account containers. */
 export function startLegacyAccountSummary() {
   return activateLegacyAccountSummary({ mountVueFeature });
+}
+
+/** Complete account home, reusing summary and all native profile/backup/tile actions. */
+export function startLegacyAccountHome() {
+  return activateLegacyAccountHome({ mountVueFeature });
 }

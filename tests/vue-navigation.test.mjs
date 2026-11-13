@@ -2214,3 +2214,48 @@ test('v0.204 summary keeps both native containers and one shared observer withou
   assert.equal(component.split('class="stat"').length-1,3);
   assert.doesNotMatch(component,/v-html|localStorage|indexedDB|@click|v-model/);
 });
+
+
+test('v0.205 final native tiles retain order, attributes, icon markup and trailing badges', async () => {
+  const { readAccountTiles }=await import('../src/vue/account/account-home-model.js');
+  const node=(tag,attributes={},text='',html='')=>({tagName:tag,attributes:Object.entries(attributes).map(([name,value])=>({name,value})),
+    textContent:text,innerHTML:html,classList:{contains:name=>(attributes.class||'').split(' ').includes(name)}});
+  const icon=node('svg',{viewBox:'0 0 24 24','stroke-width':'1.8','stroke-linecap':'round'},'', '<path d="test"/>');
+  const title=node('strong',{},'Мои песни');const description=node('span',{},'<img>Text');
+  const badge=node('b',{class:'tile-count'},'4');const arrow=node('span',{class:'account-tile-arrow'},'↗');
+  const tile={...node('button',{class:'account-tile sbsong-account-tile','data-sbsong-action':'open-library','aria-label':'Мои песни',onclick:'bad()'}),
+    children:[icon,title,description,badge,arrow],querySelector:()=>title};
+  const model=readAccountTiles({querySelectorAll:()=>[tile]});
+  assert.equal(model.length,1);assert.equal(model[0].attrs['data-sbsong-action'],'open-library');
+  assert.equal(model[0].attrs.onclick,undefined);assert.equal(model[0].parts[0].attrs['stroke-width'],'1.8');
+  assert.equal(model[0].parts[0].html,'<path d="test"/>');
+  assert.equal(model[0].parts[2].text,'<img>Text');assert.equal(model[0].parts[2].icon,false);
+  assert.equal(model[0].parts[3].text,'4');assert.equal(model[0].parts[3].icon,false);
+  assert.equal(readAccountTiles({querySelectorAll:()=>[]}),null);
+  assert.equal(readAccountTiles({querySelectorAll:()=>[{querySelector:()=>null}]}),null);
+});
+
+test('v0.205 account home snapshot keeps live profile draft and delegates native scrolling', () => {
+  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+  const start=html.indexOf('window.SUNOBOOM_LEGACY_ACCOUNT_HOME='),end=html.indexOf('function account()',start);
+  const view={nav:'home'},data={profileName:'Saved'},win={SUNOBOOM_LEGACY_ACCOUNT_SUMMARY:{snapshot:()=>({name:'Saved',counts:{projects:1}})}};
+  let value='  Native draft  ',host=true,scrolled;
+  new Function('window','view','data','document','I','sbSyncAccountStatsFade',html.slice(start,end))(win,view,data,
+    {getElementById:id=>id==='sb-vue-account-home'?(host?{}:null):(value===null?null:{value})},icon=>'<svg>'+icon+'</svg>',el=>{scrolled=el;});
+  const api=win.SUNOBOOM_LEGACY_ACCOUNT_HOME;assert.equal(api.snapshot(),null);
+  view.nav='account';assert.equal(api.snapshot().profileName,'  Native draft  ');
+  value='';assert.equal(api.snapshot().profileName,'');value=null;assert.equal(api.snapshot().profileName,'Saved');
+  host=false;assert.equal(api.snapshot(),null);api.syncStats('native host');assert.equal(scrolled,'native host');
+});
+
+test('v0.205 one account root owns the home while legacy summary compatibility skips its children', () => {
+  const code=readFileSync(new URL('../src/vue/account/AccountHome.vue',import.meta.url),'utf8');
+  const bootstrap=readFileSync(new URL('../src/vue/bootstrap.js',import.meta.url),'utf8');
+  const old=readFileSync(new URL('../src/vue/account/legacyAccountSummaryBridge.js',import.meta.url),'utf8');
+  for(const action of ['save-profile','export','import'])assert.ok(code.includes('data-action="'+action+'"'));
+  assert.ok(code.includes('id="import-file"'));assert.ok(code.includes('id="profile-name"'));
+  assert.ok(code.includes('AccountSummary'));assert.doesNotMatch(code,/localStorage|indexedDB|@click|@submit/);
+  assert.ok(bootstrap.includes("startLegacyAccountHome === 'function'"));
+  assert.ok(!bootstrap.includes("if (typeof startLegacyAccountSummary === 'function')"));
+  assert.ok(old.includes("target?.closest('#sb-vue-account-home') ? null : target"));
+});

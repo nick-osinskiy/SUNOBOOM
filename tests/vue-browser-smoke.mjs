@@ -229,7 +229,7 @@ async function checkAccountSummary204(page,vue) {
     data.savedIdeas=items(2,'academy');data.savedGeneratedIdeas=items(1,'generated');data.manualIdeas=items(3,'manual');data.savedPrompts=items(4,'prompt');
     go('account');
   });
-  const ready=()=>page.waitForFunction(vue=>['#sb-vue-account-profile','#sb-vue-account-stats'].every(selector=>document.querySelector(selector+(vue?'[data-v-app]':':not([data-v-app])'))),vue);
+  const ready=()=>page.waitForFunction(vue=>!!document.querySelector('#sb-vue-account-home'+(vue?'[data-v-app]':':not([data-v-app])'))&&['#sb-vue-account-profile','#sb-vue-account-stats'].every(selector=>document.querySelector(selector)),vue);
   const assertSummary=async(name,avatar,projects)=>{
     const profile=page.locator('#sb-vue-account-profile'),stats=page.locator('#sb-vue-account-stats');
     if(await profile.count()!==1||await stats.count()!==1||await profile.locator('h2').textContent()!==name||await profile.locator('.account-avatar').textContent()!==avatar)throw Error('v0.204 profile name/avatar/root changed');
@@ -263,6 +263,82 @@ async function checkAccountSummary204(page,vue) {
   }finally{
     await page.evaluate(()=>{Object.assign(data,window.__summary204);view.selectedProject=window.__summary204Selection;delete window.__summary204;delete window.__summary204Selection;persist();go('home');});
   }
+}
+
+
+async function checkAccountHome205(page,vue) {
+  await page.evaluate(()=>{window.__accountHome205={data:structuredClone(data),selected:view.selectedProject};go('account');});
+  const ready=()=>page.waitForFunction(vue=>!!document.querySelector('#sb-vue-account-home'+(vue?'[data-v-app]':':not([data-v-app])')),vue);
+  const home=page.locator('#sb-vue-account-home');
+  try{
+    await ready();
+    const comparison=await page.evaluate(()=>{
+      const attrs=node=>Object.fromEntries([...node.attributes].filter(a=>a.name!=='type').map(a=>[a.name,a.name==='style'?node.style.cssText:a.value]).sort((a,b)=>a[0].localeCompare(b[0])));
+      const describe=root=>[...root.querySelectorAll('.account-grid > .account-tile')].map(tile=>({attrs:attrs(tile),parts:[...tile.children].map(n=>({tag:n.tagName,attrs:attrs(n),text:n.textContent,html:n.tagName.toLowerCase()==='svg'?n.innerHTML:undefined}))}));
+      const source=document.createElement('template');source.innerHTML=account();
+      return {expected:describe(source.content),actual:describe(document.getElementById('sb-vue-account-home'))};
+    });
+    if(JSON.stringify(comparison.actual)!==JSON.stringify(comparison.expected))throw Error('v0.205 final native tile order/attributes/icons/counts changed: '+JSON.stringify(comparison));
+    if(await home.locator('[data-v-app]').count())throw Error('v0.205 competing nested Vue roots');
+    const destinations=await home.locator('.account-tile').evaluateAll(nodes=>nodes.map((n,index)=>({index,nav:n.dataset.nav,action:n.dataset.action,songs:n.dataset.sbsongAction,settings:n.dataset.sbsAction})));
+    for(const item of destinations){
+      await home.locator('.account-tile').nth(item.index).click();
+      if(item.settings==='open'){
+        await page.locator('#sbs-page').waitFor();await page.locator('[data-sbs-action="close"]').click();
+      }else{
+        const target=item.nav||(item.songs==='open-library'?'songs':item.action==='open-poetry'?'myideas':null);
+        if(!target||await page.evaluate(()=>view.nav)!==target)throw Error('v0.205 tile destination changed: '+JSON.stringify(item));
+        await page.evaluate(()=>go('account'));
+      }
+      await ready();
+    }
+    const savedName=await page.evaluate(()=>data.profileName);
+    await page.locator('#profile-name').fill('   ');await page.locator('[data-action="save-profile"]').click();
+    if(await page.evaluate(()=>data.profileName)!==savedName||await page.locator('#profile-name').inputValue()!=='   ')throw Error('v0.205 empty-name validation changed');
+    await page.locator('#profile-name').fill('  Кабинет 205  ');await page.locator('[data-action="save-profile"]').click();await ready();
+    if(await home.locator('.account-head h2').textContent()!=='Кабинет 205')throw Error('v0.205 profile save failed');
+    const downloadEvent=page.waitForEvent('download');await page.locator('[data-action="export"]').click();const download=await downloadEvent;
+    const stream=await download.createReadStream();let text='';for await(const chunk of stream)text+=chunk.toString();
+    const exported=JSON.parse(text);
+    if(download.suggestedFilename()!=='sunoboom-backup.json'||exported.app!=='SUNOBOOM'||exported.data.profileName!=='Кабинет 205'||!Array.isArray(exported.data.projects))throw Error('v0.205 backup export format changed');
+    const imported={...exported,data:{...exported.data,profileName:'Импорт <img>205',projects:[{id:'import205',title:'Восстановлен',genre:'alternative-rock',notes:'Заметки из копии'}]}};
+    const upload=async(name,accept)=>{
+      const chooserEvent=page.waitForEvent('filechooser');await page.locator('[data-action="import"]').click();const chooser=await chooserEvent;
+      const dialogEvent=page.waitForEvent('dialog').then(dialog=>accept?dialog.accept():dialog.dismiss());
+      await chooser.setFiles({name,mimeType:'application/json',buffer:Buffer.from(JSON.stringify(imported))});await dialogEvent;
+    };
+    await upload('cancel205.json',false);
+    if(await page.evaluate(()=>data.profileName)!=='Кабинет 205')throw Error('v0.205 cancelled import replaced data');
+    await upload('restore205.json',true);
+    await page.waitForFunction(()=>data.profileName==='Импорт <img>205');await ready();
+    if(await home.locator('.account-head h2').textContent()!=='Импорт <img>205'||await home.locator('.account-head img').count()||await home.locator('.account-stats strong').first().textContent()!=='1')throw Error('v0.205 restored profile/counters/escaping changed');
+    if(!await page.evaluate(()=>JSON.parse(localStorage.getItem('sunoboom-v1')).projects[0].notes==='Заметки из копии'))throw Error('v0.205 restored data missing');
+    await page.evaluate(()=>{go('account');go('projects');go('account');});await ready();
+    if(await home.count()!==1||await home.locator('#profile-name,#import-file').count()!==2)throw Error('v0.205 rapid routes duplicated account controls');
+  }finally{
+    await page.evaluate(()=>{data=window.__accountHome205.data;view.selectedProject=window.__accountHome205.selected;delete window.__accountHome205;persist();go('home');});
+  }
+}
+
+async function checkAccountHomeDelay205() {
+  const context=await browser.newContext();const page=await context.newPage();let release;
+  const gate=new Promise(resolve=>{release=resolve;});
+  await page.route('**/dist/vue/sunoboom-vue.js*',async route=>{await gate;await route.continue();});
+  try{
+    await page.goto(BASE,{waitUntil:'domcontentloaded'});await page.evaluate(()=>go('account'));
+    const before=await page.evaluate(()=>data.profileName);
+    await page.locator('#profile-name').fill('  Черновик до Vue 205  ');release();
+    await page.locator('#sb-vue-account-home[data-v-app]').waitFor();
+    if(await page.locator('#profile-name').inputValue()!=='  Черновик до Vue 205  '||await page.evaluate(()=>data.profileName)!==before)throw Error('v0.205 delayed mount lost/autosaved profile draft');
+    const stable=await page.evaluate(async()=>{
+      const root=document.getElementById('sb-vue-account-home'),first=root.querySelector('.account-tile');
+      const marker=document.createElement('i');document.getElementById('app').append(marker);queueMicrotask(()=>marker.remove());await new Promise(r=>setTimeout(r,50));
+      const module=await import('./dist/vue/sunoboom-vue.js');const stop=module.startLegacyAccountSummary();stop();
+      return first===root.querySelector('.account-tile')&&root.querySelectorAll('[data-v-app]').length===0;
+    });
+    if(!stable)throw Error('v0.205 remounted draft or activated competing summary roots');
+  }finally{release();await context.close();}
+  console.log('Delayed complete account home draft and ownership PASS');
 }
 
 async function checkLayout(mobile) {
@@ -3858,6 +3934,7 @@ async function checkLayout(mobile) {
     await checkEventCollection200(page,true);
     await checkEventReminders202(page,true);
     await checkAccountSummary204(page,true);
+    await checkAccountHome205(page,true);
     console.log((mobile ? 'Mobile' : 'Desktop') + ' Vue navigation smoke PASS');
   } finally {
     await context.close();
@@ -4295,6 +4372,7 @@ async function checkEditorFallback() {
     await checkEventCollection200(page,false);
     await checkEventReminders202(page,false);
     await checkAccountSummary204(page,false);
+    await checkAccountHome205(page,false);
     console.log('Original song editor, library, My Songs, artist manager, DNA, settings, player, Master and passports without Vue PASS');
   } finally { await context.close(); }
 }
@@ -4306,6 +4384,7 @@ try {
   await checkLayout(true);
   await checkProjectCreatorDelay197();
   await checkEventEditorDelay201();
+  await checkAccountHomeDelay205();
   await checkEditorFallback();
   await checkMobileProjectFallback199();
 } finally {

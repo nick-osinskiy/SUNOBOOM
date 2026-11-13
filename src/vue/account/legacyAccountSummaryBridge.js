@@ -13,7 +13,10 @@ export function activateLegacyAccountSummary({ mountVueFeature }) {
       ['stats', 'sb-vue-account-stats']
     ].map(([kind, id]) => ({
       key: kind,
-      selectTarget: parent => parent.querySelector('#' + id),
+      selectTarget: parent => {
+        const target = parent.querySelector('#' + id);
+        return target?.closest('#sb-vue-account-home') ? null : target;
+      },
       readSnapshot: () => api.snapshot(),
       mount: (node, model) => mountVueFeature(node, AccountSummary, { model, kind })
     }))
