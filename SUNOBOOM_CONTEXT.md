@@ -276,3 +276,8 @@ npm run test:vue-browser
 ## 2026-11-13 — v0.200, список Моих событий
 
 На базе main v0.199 6ef2d1e перенесены только upcoming/past списки dashboardEventsView: EventCollection, read-only native snapshot, observeLegacyIsland. Исходные сортировка, local today, формат дат, типы и reminder summary сохранены. Native editor, настройки напоминаний, edit/delete/confirm/persist и CSS не менялись. Детали — раздел 49 PROJECT_CONTEXT.md; выпуск подтверждать по CI/Pages итогового HEAD. Следующим предложить кнопкой v0.201: основные поля формы события, оставив reminder controls native.
+
+
+## 2026-11-13 — v0.201, основные поля события
+
+На базе main v0.200 e342c5c перенесены только заголовок режима и пять полей в EventEditor; native reminder picker и footer сохранения/отмены остаются вне Vue host. Snapshot читает текущий draft до mount; единый dashboardEventTypes для обеих форм. Исходные event-save/event-cancel/валидация/storage и CSS не менялись. Детали — раздел 50 PROJECT_CONTEXT.md; выпуск подтверждать по CI/Pages итогового HEAD. Следующим предложить кнопкой v0.202: только выбор сроков напоминаний, без изменения движка уведомлений.

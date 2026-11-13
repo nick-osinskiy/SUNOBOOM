@@ -122,7 +122,7 @@ async function checkEventCollection200(page,vue) {
     view.editEvent=null;go('events');
   });
   const root=page.locator('#sb-vue-events-list');
-  const ready=()=>page.waitForFunction(vue=>!!document.querySelector('#sb-vue-events-list'+(vue?'[data-v-app]':':not([data-v-app])')),vue);
+  const ready=()=>page.waitForFunction(vue=>['#sb-vue-events-list','#sb-vue-event-fields'].every(selector=>document.querySelector(selector+(vue?'[data-v-app]':':not([data-v-app])'))),vue);
   try{
     await ready();
     if(await root.locator('#event-editor,input,textarea').count() || await root.count()!==1)throw Error('v0.200 list owns form or duplicated');
@@ -133,6 +133,21 @@ async function checkEventCollection200(page,vue) {
     const reminder=await page.evaluate(()=>sbN37ReminderSummary(data.events.find(e=>e.id==='future200')));
     const future=root.locator('article').filter({has:page.locator('[data-action="event-edit"][data-id="future200"]')});
     if(await future.locator('.sb-event-reminder-summary').textContent()!==reminder)throw Error('v0.200 reminder summary changed');
+    // v0.201: the native footer and reminder controls remain outside the Vue fields.
+    if(await page.locator('#sb-vue-event-fields [data-action],#sb-vue-event-fields input[name="event-reminder-preset"]').count())throw Error('v0.201 editor owns native controls');
+    for(const values of [{title:'',date:''},{title:'   ',date:'2030-01-02'},{title:'Без даты',date:''}]){
+      await page.locator('#event-title').fill(values.title);await page.locator('#event-date').fill(values.date);
+      await page.locator('[data-action="event-save"]').click();
+      if(await root.locator('article').count()!==6||await page.locator('#event-title').inputValue()!==values.title)throw Error('v0.201 validation/draft changed');
+    }
+    await page.locator('#event-title').fill('  Создано через форму 201  ');
+    await page.locator('#event-date').fill('2030-01-02');await page.locator('#event-time').fill('14:30');
+    await page.locator('#event-type').selectOption('recording');await page.locator('#event-notes').fill('  Описание формы 201  ');
+    await page.locator('[data-action="event-save"]').click();await ready();
+    const created=await page.evaluate(()=>JSON.parse(localStorage.getItem('sunoboom-v1')).events.find(e=>e.title==='Создано через форму 201'));
+    if(!created||created.date!=='2030-01-02'||created.time!=='14:30'||created.type!=='recording'||created.notes!=='Описание формы 201'||await root.locator('article').count()!==7)throw Error('v0.201 fields or single native save changed');
+    if(await page.locator('#event-title').inputValue()!==''||await page.locator('#event-date').inputValue()!==''||await page.locator('#event-type').inputValue()!=='release')throw Error('v0.201 new form did not reset');
+    page.once('dialog',dialog=>dialog.accept());await root.locator('[data-action="event-delete"][data-id="'+created.id+'"]').click();await ready();
     await future.locator('[data-action="event-edit"]').click();await ready();
     if(await page.locator('#event-title').inputValue()!=='Будущее 200')throw Error('v0.200 native edit did not open');
     await page.locator('#event-title').fill('Будущее изменено 200');
@@ -3785,6 +3800,33 @@ async function checkMobileProjectFallback199() {
   } finally {await context.close();}
 }
 
+
+async function checkEventEditorDelay201() {
+  for(const editing of [false,true]){
+    const context=await browser.newContext();const page=await context.newPage();
+    let release;const gate=new Promise(resolve=>{release=resolve;});
+    await page.route('**/dist/vue/sunoboom-vue.js*',async route=>{await gate;await route.continue();});
+    try{
+      await page.goto(BASE,{waitUntil:'domcontentloaded'});
+      await page.evaluate(editing=>{data.events=[{id:'delay201',title:'Сохранено',date:'2030-01-02',time:'18:00',type:'meeting',notes:'Сохранённое описание',reminderDays:[7,1]}];view.editEvent=editing?'delay201':null;go('events');},editing);
+      const values={title:'Черновик до Vue 201',date:'2030-02-03',time:'19:45',type:'other',notes:''};
+      for(const key of ['title','date','time','notes'])await page.locator('#event-'+key).fill(values[key]);
+      await page.locator('#event-type').selectOption(values.type);
+      await page.evaluate(()=>document.querySelectorAll('input[name="event-reminder-preset"]').forEach(n=>{n.checked=n.value==='7';}));
+      release();await page.locator('#sb-vue-event-fields[data-v-app]').waitFor();
+      for(const key of Object.keys(values))if(await page.locator('#event-'+key).inputValue()!==values[key])throw Error('v0.201 delayed mount erased '+key);
+      if(await page.locator('#sb-vue-event-fields h2').textContent()!==(editing?'Редактирование события':'Добавить событие'))throw Error('v0.201 editor mode lost');
+      const checked=await page.locator('input[name="event-reminder-preset"]:checked').evaluateAll(nodes=>nodes.map(n=>n.value));
+      if(checked.join(',')!=='7')throw Error('v0.201 Vue mount changed native reminders');
+      await page.locator('#event-notes').fill('Черновик после Vue');
+      await page.evaluate(()=>{const marker=document.createElement('i');document.getElementById('app').append(marker);queueMicrotask(()=>marker.remove());});await page.waitForTimeout(50);
+      if(await page.locator('#event-notes').inputValue()!=='Черновик после Vue'||await page.locator('#event-title').count()!==1)throw Error('v0.201 shell mutation duplicated/erased form');
+      if(!await page.evaluate(()=>data.events[0].title==='Сохранено'&&data.events[0].notes==='Сохранённое описание'))throw Error('v0.201 draft autosaved without action');
+    }finally{release();await context.close();}
+  }
+  console.log('Delayed event editor new/edit drafts and native reminders PASS');
+}
+
 async function checkEditorFallback() {
   const context = await browser.newContext();
   const page = await context.newPage();
@@ -4160,6 +4202,7 @@ try {
   await checkLayout(false);
   await checkLayout(true);
   await checkProjectCreatorDelay197();
+  await checkEventEditorDelay201();
   await checkEditorFallback();
   await checkMobileProjectFallback199();
 } finally {

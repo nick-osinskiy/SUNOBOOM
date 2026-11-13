@@ -1,3 +1,4 @@
+import { activateLegacyEventEditor } from './account/legacyEventEditorBridge.js';
 import { activateLegacyEventCollection } from './account/legacyEventCollectionBridge.js';
 import { activateLegacyProjectDetail } from './account/legacyProjectDetailBridge.js';
 import { activateLegacyProjectCreator } from './account/legacyProjectCreatorBridge.js';
@@ -241,4 +242,9 @@ export function startLegacyProjectDetail() {
 /** Vue event lists; native editor, reminder rules and actions retain ownership. */
 export function startLegacyEventCollection() {
   return activateLegacyEventCollection({ mountVueFeature });
+}
+
+/** Vue event draft fields; native reminder controls and actions stay independent. */
+export function startLegacyEventEditor() {
+  return activateLegacyEventEditor({ mountVueFeature });
 }

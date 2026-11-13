@@ -2097,3 +2097,32 @@ test('v0.200 event list owns only cards and keeps native delegated actions', () 
   assert.ok(bridge.includes('observeLegacyIsland({'));
   assert.ok(bridge.includes('EventCollection, { model }'));
 });
+
+
+test('v0.201 event editor snapshot preserves native drafts and uses saved fields only as fallback', () => {
+  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+  const start=html.indexOf('function dashboardEventTypes(){'),end=html.indexOf('function dashboardEventsView()',start);
+  const win={},view={nav:'home',editEvent:'event201'};
+  const saved={id:'event201',title:'Saved',date:'2026-11-20',time:'18:00',type:'meeting',notes:'Saved notes'};
+  const fields=Object.fromEntries(['title','date','time','type','notes'].map(k=>['event-'+k,{value:'draft '+k}]));
+  new Function('window','view','document','dashboardSortedEvents',html.slice(start,end))(win,view,{getElementById:id=>fields[id]},()=>[saved]);
+  const api=win.SUNOBOOM_LEGACY_EVENT_EDITOR;assert.equal(api.snapshot(),null);
+  view.nav='events';let model=api.snapshot();assert.equal(model.editing,true);
+  assert.deepEqual(model.values,{title:'draft title',date:'draft date',time:'draft time',type:'draft type',notes:'draft notes'});
+  assert.deepEqual(model.types.map(t=>t.id),['release','recording','meeting','task','other']);
+  fields['event-notes'].value='';assert.equal(api.snapshot().values.notes,'');
+  for(const id of Object.keys(fields))delete fields[id];
+  assert.deepEqual(api.snapshot().values,{title:'Saved',date:'2026-11-20',time:'18:00',type:'meeting',notes:'Saved notes'});
+  model.values.title='changed';assert.equal(saved.title,'Saved');
+  view.editEvent=null;model=api.snapshot();assert.equal(model.editing,false);
+  assert.deepEqual(model.values,{title:'',date:'',time:'',type:'release',notes:''});
+});
+
+test('v0.201 editor hands only five fields to Vue, keeping native reminders and save/cancel', () => {
+  const code=readFileSync(new URL('../src/vue/account/EventEditor.vue',import.meta.url),'utf8');
+  const bridge=readFileSync(new URL('../src/vue/account/legacyEventEditorBridge.js',import.meta.url),'utf8');
+  for(const id of ['title','date','time','type','notes'])assert.ok(code.includes('id="event-'+id+'" v-model="draft.'+id+'"'));
+  assert.ok(code.includes('maxlength="120"'));assert.ok(code.includes('maxlength="1200"'));
+  assert.doesNotMatch(code,/localStorage|indexedDB|@click|@submit|reminder|data-action/);
+  assert.ok(bridge.includes('observeLegacyIsland({'));assert.ok(bridge.includes('EventEditor, { initial: model }'));
+});
