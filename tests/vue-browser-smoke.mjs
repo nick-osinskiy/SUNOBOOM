@@ -217,6 +217,54 @@ async function checkEventReminders202(page,vue) {
   }finally{await page.evaluate(()=>{data.events=window.__reminders202.events;data.notificationRead=window.__reminders202.read;view.editEvent=window.__reminders202.edit;delete window.__reminders202;persist();go('home');});}
 }
 
+
+async function checkAccountSummary204(page,vue) {
+  await page.evaluate(()=>{
+    const keys=['profileName','projects','favorites','savedIdeas','savedGeneratedIdeas','manualIdeas','savedPrompts'];
+    window.__summary204=Object.fromEntries(keys.map(k=>[k,structuredClone(data[k])]));window.__summary204Selection=view.selectedProject;
+    data.profileName='ёжик <img>';
+    data.projects=[{id:'summary-a',title:'Проект A',genre:'alternative-rock',notes:'private'},{id:'summary-b',title:'Проект B',genre:'alternative-rock'}];
+    data.favorites=['alternative-rock'];
+    const items=(n,prefix)=>Array.from({length:n},(_,i)=>({id:prefix+i,title:prefix+i,genre:'alternative-rock',text:'private',lyrics:'private'}));
+    data.savedIdeas=items(2,'academy');data.savedGeneratedIdeas=items(1,'generated');data.manualIdeas=items(3,'manual');data.savedPrompts=items(4,'prompt');
+    go('account');
+  });
+  const ready=()=>page.waitForFunction(vue=>['#sb-vue-account-profile','#sb-vue-account-stats'].every(selector=>document.querySelector(selector+(vue?'[data-v-app]':':not([data-v-app])'))),vue);
+  const assertSummary=async(name,avatar,projects)=>{
+    const profile=page.locator('#sb-vue-account-profile'),stats=page.locator('#sb-vue-account-stats');
+    if(await profile.count()!==1||await stats.count()!==1||await profile.locator('h2').textContent()!==name||await profile.locator('.account-avatar').textContent()!==avatar)throw Error('v0.204 profile name/avatar/root changed');
+    const numbers=await stats.locator('.stat strong').allTextContents();
+    if(numbers.join('|')!==[projects,1,10].join('|'))throw Error('v0.204 summary totals changed: '+numbers);
+  };
+  try{
+    await ready();await assertSummary('ёжик <img>','Ё',2);
+    if(await page.locator('#sb-vue-account-profile img').count())throw Error('v0.204 name interpreted as HTML');
+    const stable=await page.evaluate(async()=>{
+      const stats=document.getElementById('sb-vue-account-stats'),first=stats.firstElementChild;
+      const max=stats.scrollWidth-stats.clientWidth;
+      if(max>2){stats.scrollLeft=max;stats.dispatchEvent(new Event('scroll'));}
+      const marker=document.createElement('i');document.getElementById('app').append(marker);queueMicrotask(()=>marker.remove());
+      await new Promise(resolve=>setTimeout(resolve,50));
+      return {same:first===stats.firstElementChild,max,left:stats.scrollLeft,fade:stats.style.getPropertyValue('--stats-fade-left'),right:stats.style.getPropertyValue('--stats-fade-right')};
+    });
+    if(!stable.same||(stable.max>2&&(stable.left<stable.max-2||stable.fade!=='18px'||stable.right!=='0px')))throw Error('v0.204 native stats scrolling/fade or stable child lost: '+JSON.stringify(stable));
+    await page.locator('#profile-name').fill('  Юлия 204  ');await page.locator('[data-action="save-profile"]').click();await ready();
+    await assertSummary('Юлия 204','Ю',2);
+    if(await page.evaluate(()=>JSON.parse(localStorage.getItem('sunoboom-v1')).profileName)!=='Юлия 204')throw Error('v0.204 legacy profile persistence changed');
+    await page.locator('.account-grid [data-nav="projects"]').click();
+    if(vue)await page.locator('#sb-vue-project-creator[data-v-app]').waitFor();
+    await page.locator('#p-title').fill('Новый проект 204');await page.locator('[data-action="create-project"]').click();
+    await page.evaluate(()=>go('account'));await ready();await assertSummary('Юлия 204','Ю',3);
+    await page.locator('[data-sbs-action="open"]').click();await page.locator('#sbs-page').waitFor();
+    if(await page.locator('#sb-vue-account-profile,#sb-vue-account-stats').count())throw Error('v0.204 summary leaked into settings');
+    await page.locator('[data-sbs-action="close"]').click();await ready();await assertSummary('Юлия 204','Ю',3);
+    await page.evaluate(()=>{go('account');go('projects');go('account');});await ready();await assertSummary('Юлия 204','Ю',3);
+    if(await page.locator('.account-grid [data-nav="tracks"]').count()!==1||await page.locator('.account-grid [data-nav="artists"]').count()!==1)throw Error('v0.204 account extension tiles lost');
+  }finally{
+    await page.evaluate(()=>{Object.assign(data,window.__summary204);view.selectedProject=window.__summary204Selection;delete window.__summary204;delete window.__summary204Selection;persist();go('home');});
+  }
+}
+
 async function checkLayout(mobile) {
   const context = await browser.newContext({
     viewport: mobile ? { width: 375, height: 812 } : { width: 1440, height: 900 },
@@ -3809,6 +3857,7 @@ async function checkLayout(mobile) {
     await checkProjectCollection196(page,true);
     await checkEventCollection200(page,true);
     await checkEventReminders202(page,true);
+    await checkAccountSummary204(page,true);
     console.log((mobile ? 'Mobile' : 'Desktop') + ' Vue navigation smoke PASS');
   } finally {
     await context.close();
@@ -4245,6 +4294,7 @@ async function checkEditorFallback() {
     await checkProjectCollection196(page,false);
     await checkEventCollection200(page,false);
     await checkEventReminders202(page,false);
+    await checkAccountSummary204(page,false);
     console.log('Original song editor, library, My Songs, artist manager, DNA, settings, player, Master and passports without Vue PASS');
   } finally { await context.close(); }
 }

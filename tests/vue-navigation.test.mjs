@@ -2184,3 +2184,33 @@ test('v0.203 action bar keeps delegated actions without local mutations or dupli
   assert.doesNotMatch(component,/v-html|@click|@submit|localStorage|indexedDB|addEventListener/);
   assert.ok(bridge.includes('observeLegacyIsland({'));assert.ok(bridge.includes('EventActions, { model }'));
 });
+
+
+test('v0.204 account summary retains native name/avatar and all collection totals without records', () => {
+  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+  const start=html.indexOf('window.SUNOBOOM_LEGACY_ACCOUNT_SUMMARY='),end=html.indexOf('function account()',start);
+  const win={},view={nav:'home'},data={profileName:'ёжик <img>',projects:[{notes:'private'},{}],favorites:['rock'],
+    savedIdeas:[{},{}],savedGeneratedIdeas:[{}],manualIdeas:[{},{},{}],savedPrompts:[{},{},{},{}]};
+  const before=JSON.stringify(data);
+  new Function('window','view','data',html.slice(start,end))(win,view,data);
+  const api=win.SUNOBOOM_LEGACY_ACCOUNT_SUMMARY;assert.equal(api.snapshot(),null);
+  view.nav='account';const model=api.snapshot();
+  assert.deepEqual(model,{name:'ёжик <img>',avatar:'Ё',counts:{projects:2,favorites:1,saved:10}});
+  model.counts.projects=99;assert.equal(JSON.stringify(data),before);
+  assert.ok(!JSON.stringify(model).includes('private'));
+  data.profileName='';delete data.savedIdeas;delete data.savedGeneratedIdeas;delete data.manualIdeas;
+  assert.deepEqual(api.snapshot(),{name:'Музыкант',avatar:'М',counts:{projects:2,favorites:1,saved:4}});
+  data.projects=[];data.favorites=[];data.savedPrompts=[];
+  assert.deepEqual(api.snapshot().counts,{projects:0,favorites:0,saved:0});
+});
+
+test('v0.204 summary keeps both native containers and one shared observer without new storage', () => {
+  const bridge=readFileSync(new URL('../src/vue/account/legacyAccountSummaryBridge.js',import.meta.url),'utf8');
+  const component=readFileSync(new URL('../src/vue/account/AccountSummary.vue',import.meta.url),'utf8');
+  assert.ok(bridge.includes('observeLegacyIslands({'));
+  for(const id of ['sb-vue-account-profile','sb-vue-account-stats'])assert.ok(bridge.includes(id));
+  assert.ok(bridge.includes('AccountSummary, { model, kind }'));
+  assert.ok(component.includes('{{ model.name }}'));
+  assert.equal(component.split('class="stat"').length-1,3);
+  assert.doesNotMatch(component,/v-html|localStorage|indexedDB|@click|v-model/);
+});

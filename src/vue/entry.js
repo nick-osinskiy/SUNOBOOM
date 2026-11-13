@@ -1,3 +1,4 @@
+import { activateLegacyAccountSummary } from './account/legacyAccountSummaryBridge.js';
 import { activateLegacyEventActions } from './account/legacyEventActionsBridge.js';
 import { activateLegacyEventReminders } from './account/legacyEventRemindersBridge.js';
 import { activateLegacyEventEditor } from './account/legacyEventEditorBridge.js';
@@ -259,4 +260,9 @@ export function startLegacyEventReminders() {
 /** Vue action buttons; all event validation and mutations remain native. */
 export function startLegacyEventActions() {
   return activateLegacyEventActions({ mountVueFeature });
+}
+
+/** Vue profile summary and counters inside the original account containers. */
+export function startLegacyAccountSummary() {
+  return activateLegacyAccountSummary({ mountVueFeature });
 }
