@@ -108,6 +108,52 @@ async function checkProjectCollection196(page, vue) {
   }
 }
 
+
+async function checkEventCollection200(page,vue) {
+  await page.evaluate(()=>{
+    window.__events200={events:structuredClone(data.events),edit:view.editEvent,read:structuredClone(data.notificationRead)};
+    const date=offset=>{const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+offset);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+    data.events=[{id:'future200',title:'Будущее 200',date:date(10),type:'release',notes:'Описание будущего',remind:true,reminderDays:[7,1]},
+      {id:'old200',title:'Давнее 200',date:date(-2),type:'task',remind:false},
+      {id:'late200',title:'<img src=x onerror=alert(1)> Сегодня 200',date:date(0),time:'18:00',type:'meeting',notes:'<b>Без HTML</b>',remind:false},
+      {id:'recent200',title:'Вчера 200',date:date(-1),type:'recording',remind:false},
+      {id:'early200',title:'Утро 200',date:date(0),time:'09:00',type:'other',remind:false},
+      {id:'all200',title:'Весь день 200',date:date(0),type:'task',remind:false}];
+    view.editEvent=null;go('events');
+  });
+  const root=page.locator('#sb-vue-events-list');
+  const ready=()=>page.waitForFunction(vue=>!!document.querySelector('#sb-vue-events-list'+(vue?'[data-v-app]':':not([data-v-app])')),vue);
+  try{
+    await ready();
+    if(await root.locator('#event-editor,input,textarea').count() || await root.count()!==1)throw Error('v0.200 list owns form or duplicated');
+    const ids=await root.locator('[data-action="event-edit"]').evaluateAll(nodes=>nodes.map(n=>n.dataset.id));
+    if(ids.join('|')!=='all200|early200|late200|future200|recent200|old200')throw Error('v0.200 native event order changed: '+ids);
+    if(await root.locator('img,b').count())throw Error('v0.200 event text interpreted as HTML');
+    if(!(await root.locator('.dash-event-date span').first().textContent()).includes('Весь день'))throw Error('v0.200 all-day label missing');
+    const reminder=await page.evaluate(()=>sbN37ReminderSummary(data.events.find(e=>e.id==='future200')));
+    const future=root.locator('article').filter({has:page.locator('[data-action="event-edit"][data-id="future200"]')});
+    if(await future.locator('.sb-event-reminder-summary').textContent()!==reminder)throw Error('v0.200 reminder summary changed');
+    await future.locator('[data-action="event-edit"]').click();await ready();
+    if(await page.locator('#event-title').inputValue()!=='Будущее 200')throw Error('v0.200 native edit did not open');
+    await page.locator('#event-title').fill('Будущее изменено 200');
+    await page.locator('[data-action="event-save"]').click();await ready();
+    const stored=await page.evaluate(()=>JSON.parse(localStorage.getItem('sunoboom-v1')).events.find(e=>e.id==='future200'));
+    if(stored.title!=='Будущее изменено 200'||JSON.stringify(stored.reminderDays)!=='[7,1]')throw Error('v0.200 saved edit/reminder days changed');
+    await future.locator('[data-action="event-edit"]').click();await ready();
+    await page.locator('#event-title').fill('Несохранено 200');
+    await page.locator('[data-action="event-cancel"]').click();await ready();
+    if(!(await future.textContent()).includes('Будущее изменено 200'))throw Error('v0.200 cancel edit changed record');
+    page.once('dialog',dialog=>dialog.dismiss());await future.locator('[data-action="event-delete"]').click();
+    if(await root.locator('article').count()!==6)throw Error('v0.200 cancelled deletion removed event');
+    await page.evaluate(()=>{go('home');go('events');go('home');go('events');});await ready();
+    if(await root.count()!==1||await root.locator('article').count()!==6)throw Error('v0.200 repeated navigation duplicated/lost list');
+    for(let i=0;i<6;i++){page.once('dialog',dialog=>dialog.accept());await root.locator('[data-action="event-delete"]').first().click();await ready();}
+    if(await root.locator('article').count()||await root.locator('.dash-simple-empty').count()!==2)throw Error('v0.200 empty event groups missing');
+  }finally{
+    await page.evaluate(()=>{data.events=window.__events200.events;data.notificationRead=window.__events200.read;view.editEvent=window.__events200.edit;delete window.__events200;persist();go('home');});
+  }
+}
+
 async function checkLayout(mobile) {
   const context = await browser.newContext({
     viewport: mobile ? { width: 375, height: 812 } : { width: 1440, height: 900 },
@@ -3698,6 +3744,7 @@ async function checkLayout(mobile) {
     const bad = errors.filter(error => /Vue navigation unavailable|Vue mount failed|Failed to resolve module/i.test(error));
     if (bad.length) throw new Error('Vue startup failure: ' + bad.join('; '));
     await checkProjectCollection196(page,true);
+    await checkEventCollection200(page,true);
     console.log((mobile ? 'Mobile' : 'Desktop') + ' Vue navigation smoke PASS');
   } finally {
     await context.close();
@@ -4102,6 +4149,7 @@ async function checkEditorFallback() {
       throw new Error('Original passport filter fallback did not work');
     }
     await checkProjectCollection196(page,false);
+    await checkEventCollection200(page,false);
     console.log('Original song editor, library, My Songs, artist manager, DNA, settings, player, Master and passports without Vue PASS');
   } finally { await context.close(); }
 }

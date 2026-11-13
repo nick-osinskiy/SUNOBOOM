@@ -1,6 +1,6 @@
 # SUNOBOOM — PROJECT_CONTEXT.md
 
-> **Быстрый контекст для нового чата или ИИ-разработчика.** Актуальный этап **v0.199**, 13 ноября 2026 г.: исправлен перенос длинных названий проектов на телефоне, включая HTML fallback. База — main v0.198 (`8014c83ae5ff51ee535329fef3990c0cf62caa7c`). Детали — раздел 48; ранние разделы исторические. Перед продолжением проверять новый HEAD, CI и Pages. История — [SUNOBOOM_CONTEXT.md](./SUNOBOOM_CONTEXT.md), архитектура — [src/vue/README.md](./src/vue/README.md).
+> **Быстрый контекст для нового чата или ИИ-разработчика.** Актуальный этап **v0.200**, 13 ноября 2026 г.: список Моих событий на Vue с прежними датами, напоминаниями, действиями и HTML fallback. База — main v0.199 (`6ef2d1e3baec8e528630938779f577f946149f6b`). Детали — раздел 49; ранние разделы исторические. Перед продолжением проверять новый HEAD, CI и Pages. История — [SUNOBOOM_CONTEXT.md](./SUNOBOOM_CONTEXT.md), архитектура — [src/vue/README.md](./src/vue/README.md).
 
 ## 1. Что это и где работает
 
@@ -822,3 +822,15 @@ Vue memory router хранит проверенный id карточки Мас
 - Версия/кеш обновлены до 0.199; Vue bundle пересобран для проверки совместимости. Локально 78/78 Node tests, production build и полный browser smoke успешны; отдельно пройден native mobile fallback на 320 px. CI и Pages проверять по итоговому HEAD.
 - Следующий небольшой этап: v0.200, список Моих событий (предстоящие/прошедшие карточки dashboardEventsView) на Vue. Сохранить текущие сортировку/даты, типы, reminder summary, event-edit/event-delete и native fallback. Форму события и настройку напоминаний переносить отдельно.
 - Пожелание пользователя: после каждого завершённого этапа предлагать один конкретный следующий шаг с вариантом запуска кнопкой; не начинать следующий этап до выбора пользователя.
+
+
+## 49. Дополнение v0.200 — список Моих событий на Vue (2026-11-13)
+
+- База main v0.199 6ef2d1e3baec8e528630938779f577f946149f6b. Только два списка карточек dashboardEventsView обёрнуты в #sb-vue-events-list. Редактор #event-editor, поля и настройки напоминаний остались native; исходный HTML карточек остаётся fallback.
+- SUNOBOOM_LEGACY_EVENT_LIST.snapshot() доступен только на events; использует исходные dashboardSortedEvents(), dashboardToday(), dashboardDate(), dashboardEventType() и sbN37ReminderSummary(). groups upcoming/past сохраняют разделение date>=today и date<today, порядок upcoming по возрастанию даты/времени и reverse для past. Новых правил даты/таймзоны/уведомлений нет.
+- Snapshot отдаёт копии отображаемых id/title/date/time/type/notes/reminder. EventCollection.vue выводит текст без v-html, сохраняет section-title/dash-event-list/dash-event-row, date/main/controls и reminder summary, оба empty state, кнопки event-edit/event-delete с data-id. Собственное хранилище, listeners сохранения и DOM формы не добавлены.
+- legacyEventCollectionBridge.js использует observeLegacyIsland() с props { model }; entry.js/bootstrap.js запускают новый список после appearance и других частей кабинета. CSS, native event handlers, confirm, persist, reminderDays/notificationRead и схема localStorage/IndexedDB не менялись.
+- Node regression исполняет исходную dashboardSortedEvents и snapshot для today/all-day/time, будущих и прошедших дат, неверной даты, пустых групп, route guard и неизменности записей. Browser smoke desktop/mobile/Vue-disabled проверяет порядок шести карточек, текстовое экранирование, reminder summary, редактирование/отмену, сохранение reminderDays, отмену удаления, быстрые переходы и удаление до пустых групп. Мобильный screenshot проверен визуально; отдельные focused mobile Vue/native сценарии успешны.
+- Локально: 80/80 Node tests, production build и полный browser smoke (desktop/mobile/HTML fallback, включая события) успешны. CI и Pages сверять по итоговому HEAD перед объявлением выпуска.
+- Следующий этап v0.201: основные поля формы события (название, дата, время, тип, описание) на Vue с прежними event-save/event-cancel. Настройки напоминаний и их валидацию оставить native отдельным блоком, переносить после отдельной сверки. Не повторять перенос списка.
+- После завершения предложить следующий этап кнопкой; начать его только по выбору пользователя.

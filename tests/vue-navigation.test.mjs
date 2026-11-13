@@ -2064,3 +2064,36 @@ test('v0.198 detail delegates original actions and keeps notes as a local draft'
   assert.ok(bridge.includes('observeLegacyIsland({'));
   assert.ok(bridge.includes('ProjectDetail, { initial: model }'));
 });
+
+
+test('v0.200 event snapshot uses native sorting and date/reminder rules without mutating records', () => {
+  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+  const start=html.indexOf('window.SUNOBOOM_LEGACY_EVENT_LIST=');const end=html.indexOf('function dashboardEventsView()',start);
+  const sortedStart=html.indexOf('function dashboardSortedEvents(){'),sortedEnd=html.indexOf('function dashboardIdeaTimestamp(',sortedStart);
+  const data={events:[{id:'future',title:'Future',date:'2026-11-15',reminderDays:[7,1]},
+    {id:'old',title:'Old',date:'2026-11-01'}, {id:'todayLate',title:'<img>Today',date:'2026-11-13',time:'18:00',notes:'<b>notes</b>'},
+    {id:'recent',title:'Recent',date:'2026-11-12'}, {id:'todayEarly',title:'Early',date:'2026-11-13',time:'09:00'},
+    {id:'todayAllDay',title:'All day',date:'2026-11-13'}, {id:'invalid',title:'bad date',date:'bad'}]};
+  const before=JSON.stringify(data),view={nav:'home'},win={};
+  new Function('window','view','data','dashboardToday','dashboardDate','dashboardEventType','sbN37ReminderSummary',
+    html.slice(sortedStart,sortedEnd)+html.slice(start,end))(win,view,data,()=> '2026-11-13',d=>'date '+d,t=>'type '+t,e=>'remind '+(e.reminderDays||[]).join(','));
+  assert.equal(win.SUNOBOOM_LEGACY_EVENT_LIST.snapshot(),null);
+  view.nav='events';const model=win.SUNOBOOM_LEGACY_EVENT_LIST.snapshot();
+  assert.deepEqual(model.groups[0].items.map(e=>e.id),['todayAllDay','todayEarly','todayLate','future']);
+  assert.deepEqual(model.groups[1].items.map(e=>e.id),['recent','old']);
+  assert.equal(model.groups[0].items[0].time,'Весь день');
+  assert.equal(model.groups[0].items[3].reminder,'remind 7,1');
+  assert.equal(model.groups[0].items[2].title,'<img>Today');
+  model.groups[0].items[0].title='Changed';assert.equal(JSON.stringify(data),before);
+  data.events=[];assert.deepEqual(win.SUNOBOOM_LEGACY_EVENT_LIST.snapshot().groups.map(g=>g.items),[[],[]]);
+});
+
+test('v0.200 event list owns only cards and keeps native delegated actions', () => {
+  const component=readFileSync(new URL('../src/vue/account/EventCollection.vue',import.meta.url),'utf8');
+  const bridge=readFileSync(new URL('../src/vue/account/legacyEventCollectionBridge.js',import.meta.url),'utf8');
+  for(const name of ['dash-event-row','dash-event-date','dash-event-main','sb-event-reminder-summary','dash-event-controls'])assert.ok(component.includes(name));
+  for(const action of ['event-edit','event-delete'])assert.ok(component.includes('data-action="'+action+'"'));
+  assert.doesNotMatch(component,/v-html|v-model|localStorage|indexedDB|@click|new Date/);
+  assert.ok(bridge.includes('observeLegacyIsland({'));
+  assert.ok(bridge.includes('EventCollection, { model }'));
+});

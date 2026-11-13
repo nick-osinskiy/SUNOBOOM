@@ -1,3 +1,4 @@
+import { activateLegacyEventCollection } from './account/legacyEventCollectionBridge.js';
 import { activateLegacyProjectDetail } from './account/legacyProjectDetailBridge.js';
 import { activateLegacyProjectCreator } from './account/legacyProjectCreatorBridge.js';
 import { activateLegacyProjectCollection } from './account/legacyProjectCollectionBridge.js';
@@ -235,4 +236,9 @@ export function startLegacyProjectCreator() {
 /** Vue working project card; native actions own persistence and navigation. */
 export function startLegacyProjectDetail() {
   return activateLegacyProjectDetail({ mountVueFeature });
+}
+
+/** Vue event lists; native editor, reminder rules and actions retain ownership. */
+export function startLegacyEventCollection() {
+  return activateLegacyEventCollection({ mountVueFeature });
 }

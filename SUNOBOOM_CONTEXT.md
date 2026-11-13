@@ -271,3 +271,8 @@ npm run test:vue-browser
 ## 2026-11-13 — v0.199, мобильная вёрстка проектов
 
 На базе v0.198 8014c83 исправлена min-content ширина панелей и перенос длинных названий без пробелов. Изменения CSS ограничены projects-layout; Vue и native HTML используют одинаковую вёрстку. Тест проверяет 80 букв без пробелов, границы панелей и кнопки сохранения/удаления; добавлен fallback на 320 px. Детали — раздел 48 PROJECT_CONTEXT.md. После выпуска предлагать один следующий шаг кнопкой: список событий v0.200; форму и reminders отдельно.
+
+
+## 2026-11-13 — v0.200, список Моих событий
+
+На базе main v0.199 6ef2d1e перенесены только upcoming/past списки dashboardEventsView: EventCollection, read-only native snapshot, observeLegacyIsland. Исходные сортировка, local today, формат дат, типы и reminder summary сохранены. Native editor, настройки напоминаний, edit/delete/confirm/persist и CSS не менялись. Детали — раздел 49 PROJECT_CONTEXT.md; выпуск подтверждать по CI/Pages итогового HEAD. Следующим предложить кнопкой v0.201: основные поля формы события, оставив reminder controls native.
