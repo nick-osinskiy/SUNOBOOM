@@ -22,6 +22,50 @@ async function ready() {
   throw new Error('Local HTTP server not ready: ' + serverError.slice(0, 350));
 }
 
+
+async function checkProjectCollection196(page, vue) {
+  await page.evaluate(() => {
+    window.__projects196={projects:structuredClone(data.projects),selected:view.selectedProject};
+    data.projects=[];view.selectedProject=null;persist();go('projects');
+  });
+  const list=page.locator('#sb-vue-projects-list');
+  const ready=async()=>{
+    await page.waitForFunction(vue => !!document.querySelector(vue ? '#sb-vue-projects-list[data-v-app]' : '#sb-vue-projects-list:not([data-v-app])'),vue);
+  };
+  try {
+    await ready();
+    if(!(await list.textContent()).includes('Проектов пока нет'))throw Error('v0.196 empty state missing');
+    if(await list.locator('#p-title,#project-notes').count())throw Error('v0.196 Vue owns native forms');
+    const titles=['<img src=x onerror=alert(1)> Проект 196','Второй проект 196'];
+    for(const title of titles){
+      await page.locator('#p-title').fill(title);
+      await page.locator('[data-action="create-project"]').click();await ready();
+    }
+    if(await list.locator('.project-card').count()!==2 || await list.locator('img').count())throw Error('v0.196 cards or text escaping broken');
+    const first=list.locator('.project-card').filter({hasText:titles[0]});
+    await first.focus();await first.press('Enter');await ready();
+    if(await list.locator('.project-card.selected h3').textContent()!==titles[0])throw Error('v0.196 Enter selection broken');
+    await page.locator('#project-notes').fill('Заметки проекта 196');
+    await page.locator('[data-action="save-project"]').click();
+    const stored=await page.evaluate(()=>JSON.parse(localStorage.getItem('sunoboom-v1')).projects.find(p=>p.title.startsWith('<img'))?.notes);
+    if(stored!=='Заметки проекта 196')throw Error('v0.196 legacy notes not saved');
+    const second=list.locator('.project-card').filter({hasText:titles[1]});
+    await second.focus();await second.press('Space');await ready();
+    if(await list.locator('.project-card.selected h3').textContent()!==titles[1])throw Error('v0.196 Space selection broken');
+    await page.locator('[data-action="use-genre"]').click();
+    await page.waitForFunction(()=>view.nav==='studio');
+    await page.evaluate(()=>go('projects'));await ready();
+    if(await list.locator('.project-card').count()!==2)throw Error('v0.196 project list lost after Studio');
+    for(let i=0;i<2;i++){
+      page.once('dialog',dialog=>dialog.accept());
+      await page.locator('[data-action="delete-project"]').click();await ready();
+    }
+    if(await list.locator('.project-card').count() || !(await list.textContent()).includes('Проектов пока нет'))throw Error('v0.196 delete/empty fallback broken');
+  } finally {
+    await page.evaluate(()=>{data.projects=window.__projects196.projects;view.selectedProject=window.__projects196.selected;delete window.__projects196;persist();go('home');});
+  }
+}
+
 async function checkLayout(mobile) {
   const context = await browser.newContext({
     viewport: mobile ? { width: 375, height: 812 } : { width: 1440, height: 900 },
@@ -3611,6 +3655,7 @@ async function checkLayout(mobile) {
 
     const bad = errors.filter(error => /Vue navigation unavailable|Vue mount failed|Failed to resolve module/i.test(error));
     if (bad.length) throw new Error('Vue startup failure: ' + bad.join('; '));
+    await checkProjectCollection196(page,true);
     console.log((mobile ? 'Mobile' : 'Desktop') + ' Vue navigation smoke PASS');
   } finally {
     await context.close();
@@ -3980,6 +4025,7 @@ async function checkEditorFallback() {
         !(await page.locator('#sb-vue-track-list').textContent()).includes('Fallback Passport 126')) {
       throw new Error('Original passport filter fallback did not work');
     }
+    await checkProjectCollection196(page,false);
     console.log('Original song editor, library, My Songs, artist manager, DNA, settings, player, Master and passports without Vue PASS');
   } finally { await context.close(); }
 }

@@ -251,3 +251,8 @@ npm run test:vue-browser
 ## 2026-11-13 — v0.195, центральное подключение Vue
 
 На базе main v0.194 3b69abf укреплены mountVueFeature/unmountVueFeature: общий тестируемый createFeatureMounter, снятие владения перед cleanup, защита от старого disposer, восстановление исходного HTML и host-атрибутов, обработка ошибок создания/плагинов и начального setup/render/mounted. API, Pinia и opt-in Router сохранены; асинхронные ошибки работающих компонентов и сохранение данных вне этого этапа. Детали, проверки и ограничения — раздел 44 PROJECT_CONTEXT.md. Статус выпуска сверять по CI и Pages итогового HEAD.
+
+
+## 2026-11-13 — v0.196, список Моих проектов
+
+На базе main v0.195 3116f74 добавлен ProjectCollection с read-only snapshot и общим observeLegacyIsland. Vue владеет только заголовком/списком/empty state #sb-vue-projects-list; форма создания, заметки, выбор, удаление, Studio, порядок проектов и storage остаются исходными. Дизайн сохранён; тесты включают клавиатуру, экранирование названий, заметки и HTML fallback. Детали — раздел 45 PROJECT_CONTEXT.md. Выпуск подтверждать по CI/Pages итогового HEAD.

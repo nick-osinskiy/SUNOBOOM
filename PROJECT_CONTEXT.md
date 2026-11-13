@@ -1,6 +1,6 @@
 # SUNOBOOM — PROJECT_CONTEXT.md
 
-> **Быстрый контекст для нового чата или ИИ-разработчика.** Актуальный этап **v0.195**, 13 ноября 2026 г.: безопасное центральное подключение Vue, очистка и восстановление HTML fallback. База — main v0.194 (`3b69abf59558e5b3dcf504a909227eac0ef1c82f`). Детали — раздел 44; ранние разделы исторические. Перед продолжением проверять новый HEAD, CI и Pages. История — [SUNOBOOM_CONTEXT.md](./SUNOBOOM_CONTEXT.md), архитектура — [src/vue/README.md](./src/vue/README.md).
+> **Быстрый контекст для нового чата или ИИ-разработчика.** Актуальный этап **v0.196**, 13 ноября 2026 г.: список Моих проектов на Vue, исходные формы/данные/действия сохранены. База — main v0.195 (`3116f74f04080c62bcdafe2d055368dd34c67a4c`). Детали — раздел 45; ранние разделы исторические. Перед продолжением проверять новый HEAD, CI и Pages. История — [SUNOBOOM_CONTEXT.md](./SUNOBOOM_CONTEXT.md), архитектура — [src/vue/README.md](./src/vue/README.md).
 
 ## 1. Что это и где работает
 
@@ -775,3 +775,14 @@ Vue memory router хранит проверенный id карточки Мас
 - Node regression проверяет отказы create/plugin/render/mount, ошибку cleanup, fallback, подключение Router по запросу, повторный dispose и устаревший disposer. Browser smoke проверяет настоящий production Vue с ошибками setup/render/mounted, повторным mount и рабочей делегированной кнопкой fallback на desktop/mobile; прежние полные сценарии сохранены.
 - Локально: 72/72 Node tests, production build и полный browser smoke (desktop/mobile/HTML fallback) успешны; отдельно пройден production replacement-failure recovery. CI и Pages проверить по итоговому HEAD перед объявлением выпуска.
 - Далее: выбрать один оставшийся legacy-блок кабинета после сверки исходников (например, список проектов или событий). Не повторять унификацию мостов и не переносить всю маршрутизацию одновременно.
+
+
+## 45. Дополнение v0.196 — список Моих проектов на Vue (2026-11-13)
+
+- База: актуальный main v0.195 3116f74f04080c62bcdafe2d055368dd34c67a4c. Перенесён только список проектов внутри первого panel исходного projects-layout. Формы создания и заметок, рабочая карточка справа, сохранение/удаление/переход в Studio остаются legacy.
+- В index.html добавлен host #sb-vue-projects-list вокруг прежней секции с заголовком, карточками и empty state; исходный HTML остаётся fallback. SUNOBOOM_LEGACY_PROJECT_LIST.snapshot() отдаёт копии полей id/title/genre/date, selectedId с прежним выбором первого проекта при отсутствии selectedProject и SVG music. Заметки не копируются в Vue-модель; порядок data.projects и исходный findGenre сохранены.
+- account/ProjectCollection.vue сохраняет классы section-title/project-card/selected/empty, тексты и data-action=select-project с data-id. Для клавиатуры сохранены div role=button tabindex=0 и существующий document keydown Enter/Space, добавлен aria-pressed. Названия выводятся текстом, не HTML. CSS не менялся.
+- legacyProjectCollectionBridge.js использует observeLegacyIsland(), снимок только на маршруте projects и props { model }. Подключение через startLegacyProjectCollection в entry.js/bootstrap.js. Общий Pinia, Router и схема localStorage sunoboom-v1/IndexedDB не менялись; нового Vue-хранилища нет.
+- Node regression исполняет snapshot с пустым списком, существующим/отсутствующим выбором, порядком, жанрами, опасным названием, независимостью копии и отсутствием заметок. Browser smoke дополнен desktop/mobile и Vue-disabled сценариями создания двух проектов, текстового экранирования, выбора Enter/Space, сохранения заметок в исходный storage, перехода в Studio/возврата и удаления до пустого состояния. Существующие полные тесты сохранены.
+- Локально: 74/74 Node tests, production build и полный browser smoke (desktop/mobile/HTML fallback, включая проекты) успешны. GitHub Actions и Pages проверять по итоговому HEAD перед объявлением выпуска.
+- Следующий кандидат — отдельный перенос формы проекта, только после проверки актуальных исходников; список повторно не переносить. Правила данных и backup в этот этап не входят.

@@ -1968,3 +1968,40 @@ test('v0.195 feature mounting restores native HTML, cleans failures and ignores 
   assert.equal(node.innerHTML,'<button>Native</button>');
   assert.equal(warnings,5);
 });
+
+
+test('v0.196 project snapshot retains order, selection fallback and reads no private notes', () => {
+  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+  const start=html.indexOf('window.SUNOBOOM_LEGACY_PROJECT_LIST=');
+  const end=html.indexOf('function projects()',start);
+  const view={nav:'home',selectedProject:'b'};
+  const data={projects:[{id:'a',title:'<script>name</script>',genre:'rock',date:'one',notes:'private'},
+    {id:'b',title:'Second',genre:'jazz',date:'two'}]};
+  const win={};
+  new Function('window','view','data','findGenre','I',html.slice(start,end))(win,view,data,id=>({name:'genre '+id}),()=>'<svg></svg>');
+  assert.equal(win.SUNOBOOM_LEGACY_PROJECT_LIST.snapshot(),null);
+  view.nav='projects';let snapshot=win.SUNOBOOM_LEGACY_PROJECT_LIST.snapshot();
+  assert.equal(snapshot.selectedId,'b');
+  assert.deepEqual(snapshot.items.map(p=>p.id),['a','b']);
+  assert.equal(snapshot.items[0].title,'<script>name</script>');
+  assert.equal(snapshot.items[0].genre,'genre rock');
+  assert.ok(!JSON.stringify(snapshot).includes('private'));
+  snapshot.items[0].title='changed';assert.equal(data.projects[0].title,'<script>name</script>');
+  view.selectedProject='missing';assert.equal(win.SUNOBOOM_LEGACY_PROJECT_LIST.snapshot().selectedId,'a');
+  data.projects=[];assert.deepEqual(win.SUNOBOOM_LEGACY_PROJECT_LIST.snapshot().items,[]);
+  assert.equal(win.SUNOBOOM_LEGACY_PROJECT_LIST.snapshot().selectedId,null);
+});
+
+test('v0.196 only the project collection is Vue-owned with existing delegated keyboard actions', () => {
+  const bridge=readFileSync(new URL('../src/vue/account/legacyProjectCollectionBridge.js',import.meta.url),'utf8');
+  const component=readFileSync(new URL('../src/vue/account/ProjectCollection.vue',import.meta.url),'utf8');
+  assert.ok(bridge.includes('observeLegacyIsland({'));
+  assert.ok(bridge.includes("parent.querySelector('#sb-vue-projects-list')"));
+  assert.ok(bridge.includes('mountVueFeature(node, ProjectCollection, { model })'));
+  assert.ok(component.includes('data-action="select-project"'));
+  assert.ok(component.includes('role="button" tabindex="0"'));
+  assert.ok(component.includes('{{ project.title }}'));
+  assert.doesNotMatch(component,/localStorage|indexedDB|v-model|@click|@keydown/);
+  const bootstrap=readFileSync(new URL('../src/vue/bootstrap.js',import.meta.url),'utf8');
+  assert.ok(bootstrap.includes("startLegacyProjectCollection === 'function'"));
+});

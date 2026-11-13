@@ -1,3 +1,4 @@
+import { activateLegacyProjectCollection } from './account/legacyProjectCollectionBridge.js';
 import { createFeatureMounter } from './legacy/createFeatureMounter.js';
 import { activateLegacyIdeaCollections } from './poetry/legacyIdeaCollectionsBridge.js';
 import { activateLegacyVersionHistory } from './version-history/legacyVersionHistoryBridge.js';
@@ -217,4 +218,9 @@ export function startLegacyHomeDashboard() {
 /** Vue genealogy explorer; original genre graph and full HTML fallback retained. */
 export function startLegacyGenreTree() {
   return activateLegacyGenreTree({ mountVueFeature });
+}
+
+/** Vue project list; native forms and storage retain ownership. */
+export function startLegacyProjectCollection() {
+  return activateLegacyProjectCollection({ mountVueFeature });
 }
