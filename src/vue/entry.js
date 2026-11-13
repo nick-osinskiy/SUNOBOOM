@@ -1,3 +1,4 @@
+import { createFeatureMounter } from './legacy/createFeatureMounter.js';
 import { activateLegacyIdeaCollections } from './poetry/legacyIdeaCollectionsBridge.js';
 import { activateLegacyVersionHistory } from './version-history/legacyVersionHistoryBridge.js';
 import { activateLegacyHomeDashboard } from './home/legacyHomeDashboardBridge.js';
@@ -42,51 +43,16 @@ import { activateLegacyTags } from './poetry/legacyTagsBridge.js';
 const pinia = createPinia();
 // One Pinia instance shared by every island, including both navigation roots.
 const sharedUi = useLegacyUiStore(pinia);
-const mounted = new WeakMap();
+
 
 function resolveTarget(target) {
   if (typeof document === 'undefined') return null;
   return typeof target === 'string' ? document.querySelector(target) : target;
 }
 
-export function mountVueFeature(target, component, componentProps = {}, { vueRouter = false } = {}) {
-  const element = resolveTarget(target);
-  if (!element || element.nodeType !== 1 || !component) return null;
-
-  const previous = mounted.get(element);
-  if (previous) previous.unmount();
-
-  const oldMarkup = element.innerHTML;
-  const app = createApp(VueFeatureHost, { component, componentProps });
-  app.use(pinia);
-  // Enable Vue Router only for explicitly opted-in Vue islands.
-  if (vueRouter) app.use(legacyMirrorRouter);
-  try {
-    app.mount(element);
-  } catch (error) {
-    // Preserve the previous functional legacy menu if Vue cannot initialize.
-    element.innerHTML = oldMarkup;
-    console.warn('[SUNOBOOM] Vue mount failed; legacy navigation retained.', error);
-    return null;
-  }
-  mounted.set(element, app);
-
-  // Call before the legacy render() replaces the container.
-  return () => {
-    if (mounted.get(element) !== app) return;
-    app.unmount();
-    mounted.delete(element);
-  };
-}
-
-export function unmountVueFeature(target) {
-  const element = resolveTarget(target);
-  if (!element) return;
-  const app = mounted.get(element);
-  if (!app) return;
-  app.unmount();
-  mounted.delete(element);
-}
+export const { mountVueFeature, unmountVueFeature } = createFeatureMounter({
+  createApp, host: VueFeatureHost, pinia, router: legacyMirrorRouter, resolveTarget
+});
 
 /** Mirror settings.js appearance into Pinia before any Vue island mounts. */
 export function startLegacyAppearance() {

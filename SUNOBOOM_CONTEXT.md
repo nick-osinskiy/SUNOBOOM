@@ -246,3 +246,8 @@ npm run test:vue-browser
 ## 2026-11-12 — v0.194, lifecycle навигации
 
 Продолжение проверенного main v0.193 b95faf7. Desktop/mobile меню и toolbar истории используют observeLegacyIslands с необязательными beforeSync/readRevision: сначала публикация маршрута и общего меню, затем mount; active исключён из структурной подписи. Ожидание router settlement, props, dispatch, история и HTML fallback сохранены; данные и дизайн не менялись. Детали и проверки — раздел 43 PROJECT_CONTEXT.md. Следующий этап выбирать по актуальному HEAD и CI, не повторять завершённые этапы.
+
+
+## 2026-11-13 — v0.195, центральное подключение Vue
+
+На базе main v0.194 3b69abf укреплены mountVueFeature/unmountVueFeature: общий тестируемый createFeatureMounter, снятие владения перед cleanup, защита от старого disposer, восстановление исходного HTML и host-атрибутов, обработка ошибок создания/плагинов и начального setup/render/mounted. API, Pinia и opt-in Router сохранены; асинхронные ошибки работающих компонентов и сохранение данных вне этого этапа. Детали, проверки и ограничения — раздел 44 PROJECT_CONTEXT.md. Статус выпуска сверять по CI и Pages итогового HEAD.

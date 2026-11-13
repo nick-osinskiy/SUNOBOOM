@@ -1923,3 +1923,48 @@ test('v0.194 disposing navigation before router settlement never mounts a late m
   assert.equal(observed,0);
   assert.equal(snapshots,1);
 });
+
+
+test('v0.195 feature mounting restores native HTML, cleans failures and ignores stale disposers', async () => {
+  const { createFeatureMounter } = await import('../src/vue/legacy/createFeatureMounter.js');
+  const attrs = new Map([['v-cloak','']]);
+  const node = {nodeType:1, innerHTML:'<button>Native</button>',
+    getAttribute:key=>attrs.get(key)??null, setAttribute:(key,value)=>attrs.set(key,value), removeAttribute:key=>attrs.delete(key)};
+  const apps=[]; let failure=''; let warnings=0;
+  const pinia={}, router={};
+  const api = createFeatureMounter({host:{},pinia,router,resolveTarget:target=>target===node?node:null,
+    warn:()=>warnings++, createApp:()=>{
+      if(failure==='create') throw Error('create');
+      const app={config:{},plugins:[],unmounts:0,
+        use(plugin){this.plugins.push(plugin);if(failure==='plugin')throw Error('plugin');},
+        mount(el){el.innerHTML='Vue';el.setAttribute('data-v-app','');el.removeAttribute('v-cloak');
+          if(failure==='render')this.config.errorHandler(Error('render'));
+          if(failure==='mount')throw Error('mount');},
+        unmount(){this.unmounts++;node.innerHTML='';if(failure==='cleanup')throw Error('cleanup');}
+      }; apps.push(app);return app;
+    }});
+  assert.equal(api.mountVueFeature(null,{}),null);
+  const first=api.mountVueFeature(node,{}, {}, {vueRouter:true});
+  assert.deepEqual(apps[0].plugins,[pinia,router]);
+  const second=api.mountVueFeature(node,{});
+  assert.equal(apps[0].unmounts,1);
+  first(); assert.equal(node.innerHTML,'Vue');
+  second();second();api.unmountVueFeature(node);
+  assert.equal(apps[1].unmounts,1);
+  assert.equal(node.innerHTML,'<button>Native</button>');
+  assert.equal(attrs.get('v-cloak'),'');assert.equal(attrs.has('data-v-app'),false);
+  for(const stage of ['create','plugin','render','mount']){
+    failure='';const stale=api.mountVueFeature(node,{});
+    failure=stage;assert.equal(api.mountVueFeature(node,{}),null);
+    assert.equal(node.innerHTML,'<button>Native</button>');
+    assert.equal(attrs.has('data-v-app'),false);
+    if(stage!=='create')assert.equal(apps.at(-1).unmounts,1);
+    stale();assert.equal(node.innerHTML,'<button>Native</button>');
+    api.unmountVueFeature(node); // failed app has no retained ownership
+  }
+  failure='';const third=api.mountVueFeature(node,{});
+  failure='cleanup';third();third();
+  assert.equal(apps.at(-1).unmounts,1);
+  assert.equal(node.innerHTML,'<button>Native</button>');
+  assert.equal(warnings,5);
+});

@@ -53,6 +53,40 @@ async function checkLayout(mobile) {
 
   try {
     await page.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    // Exercise real production Vue error handling, including swallowed render errors.
+    await page.evaluate(async () => {
+      const { mountVueFeature, unmountVueFeature } = await import('./dist/vue/sunoboom-vue.js');
+      const host = document.createElement('div');
+      host.innerHTML='<button type="button">Native fallback</button>';
+      host.setAttribute('v-cloak','');document.body.append(host);
+      let clicks=0, cleanups=0;
+      host.addEventListener('click',()=>clicks++);
+      const assertFallback=()=>{
+        if(host.innerHTML!=='<button type="button">Native fallback</button>' ||
+          host.hasAttribute('data-v-app') || !host.hasAttribute('v-cloak'))
+          throw Error('v0.195 native fallback or host attributes lost');
+        host.querySelector('button').click();
+      };
+      try {
+        const first=mountVueFeature(host,{render:()=>null,unmounted(){cleanups++;}});
+        const second=mountVueFeature(host,{render:()=>null,unmounted(){cleanups++;}});
+        first();if(cleanups!==1)throw Error('v0.195 stale disposer removed replacement');
+        second();second();unmountVueFeature(host);
+        if(cleanups!==2)throw Error('v0.195 duplicate or missing cleanup');
+        assertFallback();
+        for(const stage of ['setup','render','mounted']){
+          const stale=mountVueFeature(host,{render:()=>null});
+          const component={render:()=>null,[stage](){throw Error('intentional v0.195 '+stage);}};
+          if(mountVueFeature(host,component)!==null)throw Error('v0.195 failed app retained');
+          stale();assertFallback();unmountVueFeature(host);
+        }
+        const retry=mountVueFeature(host,{render:()=>null});
+        if(typeof retry!=='function')throw Error('v0.195 failed host cannot retry');
+        retry();assertFallback();
+        if(clicks!==5)throw Error('v0.195 native delegated action broken');
+      } finally {unmountVueFeature(host);host.remove();}
+    });
+
 
     // Both menus are enhanced; the initial Master link must already exist.
     try {
