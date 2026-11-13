@@ -1,3 +1,4 @@
+import { activateLegacyProjectDetail } from './account/legacyProjectDetailBridge.js';
 import { activateLegacyProjectCreator } from './account/legacyProjectCreatorBridge.js';
 import { activateLegacyProjectCollection } from './account/legacyProjectCollectionBridge.js';
 import { createFeatureMounter } from './legacy/createFeatureMounter.js';
@@ -229,4 +230,9 @@ export function startLegacyProjectCollection() {
 /** Vue project draft fields; the original create action remains authoritative. */
 export function startLegacyProjectCreator() {
   return activateLegacyProjectCreator({ mountVueFeature });
+}
+
+/** Vue working project card; native actions own persistence and navigation. */
+export function startLegacyProjectDetail() {
+  return activateLegacyProjectDetail({ mountVueFeature });
 }

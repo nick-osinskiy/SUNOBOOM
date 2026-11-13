@@ -261,3 +261,8 @@ npm run test:vue-browser
 ## 2026-11-13 — v0.197, форма создания проекта
 
 На базе main v0.196 061bd96 перенесён только Новый проект: ProjectCreator и observeLegacyIsland с чтением текущих native полей до mount. Прежние IDs, GENRES, default genre, create-project, trim/80 символов, выбранный проект, persist/render и fallback сохранены. Список и заметки не переписывались, схемы данных и дизайн не менялись. Детали и проверки — раздел 46 PROJECT_CONTEXT.md; выпуск подтверждать по CI/Pages итогового HEAD.
+
+
+## 2026-11-13 — v0.198, рабочая карточка проекта и заметки
+
+На базе main v0.197 de8ed6e перенесён второй panel проектов: ProjectDetail с read-only snapshot выбранной карточки и текущих native notes до mount. Локальный Vue draft не пишет в storage сам; исходные save-project/use-genre/delete-project, confirm, persist/render, дизайн и HTML fallback сохранены. Список и форма не переписывались. Детали и проверки — раздел 47 PROJECT_CONTEXT.md. Вёрстка названий без пробелов остаётся отдельной задачей; выпуск подтверждать по CI/Pages итогового HEAD.

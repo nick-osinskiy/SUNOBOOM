@@ -2035,3 +2035,32 @@ test('v0.197 creator retains native field IDs and delegates creation without par
   assert.ok(bridge.includes('observeLegacyIsland({'));
   assert.ok(bridge.includes('ProjectCreator, { initial: model }'));
 });
+
+
+test('v0.198 project detail snapshot keeps selection, current notes and data isolated', () => {
+  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+  const start=html.indexOf('window.SUNOBOOM_LEGACY_PROJECT_DETAIL=');const end=html.indexOf('function projects()',start);
+  const win={},view={nav:'home',selectedProject:'b'},data={projects:[{id:'a',title:'First',genre:'rock',date:'one',notes:'stored first'},
+    {id:'b',title:'<img>Second',genre:'jazz',date:'two',notes:'stored second'}]};
+  let field={value:'Unsaved native notes'};
+  new Function('window','view','data','document','findGenre','I',html.slice(start,end))(win,view,data,{getElementById:()=>field},id=>({name:'genre '+id}),name=>'<svg>'+name+'</svg>');
+  const api=win.SUNOBOOM_LEGACY_PROJECT_DETAIL;assert.equal(api.snapshot(),null);
+  view.nav='projects';let model=api.snapshot();
+  assert.deepEqual(model.project,{id:'b',title:'<img>Second',genre:'jazz',genreName:'genre jazz',date:'two',notes:'Unsaved native notes'});
+  model.project.notes='changed';assert.equal(data.projects[1].notes,'stored second');
+  field.value='';assert.equal(api.snapshot().project.notes,'');
+  field=null;assert.equal(api.snapshot().project.notes,'stored second');
+  view.selectedProject='missing';assert.equal(api.snapshot().project.id,'a');
+  data.projects=[];assert.equal(api.snapshot().project,null);
+});
+
+test('v0.198 detail delegates original actions and keeps notes as a local draft', () => {
+  const component=readFileSync(new URL('../src/vue/account/ProjectDetail.vue',import.meta.url),'utf8');
+  const bridge=readFileSync(new URL('../src/vue/account/legacyProjectDetailBridge.js',import.meta.url),'utf8');
+  assert.ok(component.includes('id="project-notes" v-model="notes" rows="12"'));
+  for(const action of ['save-project','use-genre','delete-project'])assert.ok(component.includes('data-action="'+action+'"'));
+  assert.ok(component.includes('{{ initial.project.title }}'));
+  assert.doesNotMatch(component,/localStorage|indexedDB|@click|@submit|confirm\(/);
+  assert.ok(bridge.includes('observeLegacyIsland({'));
+  assert.ok(bridge.includes('ProjectDetail, { initial: model }'));
+});

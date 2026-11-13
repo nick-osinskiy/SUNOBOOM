@@ -30,7 +30,7 @@ async function checkProjectCollection196(page, vue) {
   });
   const list=page.locator('#sb-vue-projects-list');
   const ready=async()=>{
-    await page.waitForFunction(vue => ['#sb-vue-projects-list','#sb-vue-project-creator'].every(selector=>document.querySelector(selector+(vue?'[data-v-app]':':not([data-v-app])'))),vue);
+    await page.waitForFunction(vue => ['#sb-vue-projects-list','#sb-vue-project-creator','#sb-vue-project-detail'].every(selector=>document.querySelector(selector+(vue?'[data-v-app]':':not([data-v-app])'))),vue);
   };
   try {
     await ready();
@@ -63,15 +63,30 @@ async function checkProjectCollection196(page, vue) {
     const second=list.locator('.project-card').filter({hasText:titles[1]});
     await second.focus();await second.press('Space');await ready();
     if(await list.locator('.project-card.selected h3').textContent()!==titles[1])throw Error('v0.196 Space selection broken');
+    // v0.198: independent notes per project; cancel deletion must keep the draft.
+    await page.locator('#project-notes').fill('Заметки второго проекта 198');
+    await page.locator('[data-action="save-project"]').click();
+    await first.click();await ready();
+    if(await page.locator('#project-notes').inputValue()!=='Заметки проекта 196')throw Error('v0.198 notes mixed across projects');
+    await page.locator('#project-notes').fill('Несохранённые заметки 198');
+    await page.evaluate(()=>{const marker=document.createElement('i');document.getElementById('app').append(marker);queueMicrotask(()=>marker.remove());});
+    await page.waitForTimeout(50);
+    page.once('dialog',dialog=>dialog.dismiss());
+    await page.locator('[data-action="delete-project"]').click();
+    if(await list.locator('.project-card').count()!==2 || await page.locator('#project-notes').inputValue()!=='Несохранённые заметки 198')throw Error('v0.198 cancelled deletion or shallow mutation lost notes');
+    const stored198=await page.evaluate(()=>data.projects.map(p=>p.notes));
+    if(!stored198.includes('Заметки второго проекта 198') || !stored198.includes('Заметки проекта 196'))throw Error('v0.198 unsaved draft mutated stored projects');
     await page.locator('[data-action="use-genre"]').click();
     await page.waitForFunction(()=>view.nav==='studio');
     await page.evaluate(()=>go('projects'));await ready();
     if(await list.locator('.project-card').count()!==2)throw Error('v0.196 project list lost after Studio');
+    if(await page.locator('#project-notes').inputValue()!=='Заметки проекта 196')throw Error('v0.198 saved notes lost after Studio');
     for(let i=0;i<2;i++){
       page.once('dialog',dialog=>dialog.accept());
       await page.locator('[data-action="delete-project"]').click();await ready();
     }
     if(await list.locator('.project-card').count() || !(await list.textContent()).includes('Проектов пока нет'))throw Error('v0.196 delete/empty fallback broken');
+    if(await page.locator('#project-notes').count() || !(await page.locator('#sb-vue-project-detail').textContent()).includes('Начни со своего проекта'))throw Error('v0.198 empty working card missing');
     await page.locator('#p-title').fill('Длинное название проекта '.repeat(5));
     await page.locator('[data-action="create-project"]').click();await ready();
     if(await list.locator('.project-card h3').textContent()!=='Длинное название проекта '.repeat(5).trim().slice(0,80))throw Error('v0.197 native 80-character limit changed');
@@ -3685,11 +3700,14 @@ async function checkProjectCreatorDelay197() {
   await page.route('**/dist/vue/sunoboom-vue.js*',async route=>{await gate;await route.continue();});
   try {
     await page.goto(BASE,{waitUntil:'domcontentloaded'});
-    await page.evaluate(()=>go('projects'));
+    await page.evaluate(()=>{data.projects=[{id:'delay198',title:'Тест заметок 198',genre:'alternative-rock',date:'13.11.2026',notes:'Сохранено'}];view.selectedProject='delay198';go('projects');});
+    await page.locator('#project-notes').fill('Заметки до Vue 198');
     await page.locator('#p-title').fill('Черновик до Vue');
     const genre=await page.locator('#p-genre option').nth(1).getAttribute('value');
     await page.locator('#p-genre').selectOption(genre);
     release();await page.locator('#sb-vue-project-creator[data-v-app]').waitFor();
+    await page.locator('#sb-vue-project-detail[data-v-app]').waitFor();
+    if(await page.locator('#project-notes').inputValue()!=='Заметки до Vue 198')throw Error('v0.198 delayed mount erased native notes');
     if(await page.locator('#p-title').inputValue()!=='Черновик до Vue' || await page.locator('#p-genre').inputValue()!==genre)throw Error('v0.197 delayed mount erased native draft');
     await page.locator('#p-title').fill('Черновик после Vue');
     await page.evaluate(()=>{const marker=document.createElement('i');document.getElementById('app').append(marker);queueMicrotask(()=>marker.remove());});
