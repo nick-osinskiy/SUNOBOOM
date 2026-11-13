@@ -2005,3 +2005,33 @@ test('v0.196 only the project collection is Vue-owned with existing delegated ke
   const bootstrap=readFileSync(new URL('../src/vue/bootstrap.js',import.meta.url),'utf8');
   assert.ok(bootstrap.includes("startLegacyProjectCollection === 'function'"));
 });
+
+
+test('v0.197 project creator snapshot preserves native draft values before Vue mounts', () => {
+  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+  const start=html.indexOf('window.SUNOBOOM_LEGACY_PROJECT_CREATOR=');
+  const end=html.indexOf('function projects()',start);
+  const win={},view={nav:'home'},genres=[{id:'alternative-rock',name:'Альтернативный рок'},{id:'jazz',name:'Джаз'}];
+  const fields={'p-title':{value:'  Живой черновик  '},'p-genre':{value:'jazz'}};
+  new Function('window','view','document','GENRES','I',html.slice(start,end))(win,view,{getElementById:id=>fields[id]},genres,()=>'<svg></svg>');
+  assert.equal(win.SUNOBOOM_LEGACY_PROJECT_CREATOR.snapshot(),null);
+  view.nav='projects';const snapshot=win.SUNOBOOM_LEGACY_PROJECT_CREATOR.snapshot();
+  assert.deepEqual(snapshot.values,{title:'  Живой черновик  ',genre:'jazz'});
+  assert.deepEqual(snapshot.genres,genres);
+  snapshot.genres[0].name='changed';assert.equal(genres[0].name,'Альтернативный рок');
+  fields['p-title'].value='';fields['p-genre'].value='';
+  assert.deepEqual(win.SUNOBOOM_LEGACY_PROJECT_CREATOR.snapshot().values,{title:'',genre:''});
+  delete fields['p-title'];delete fields['p-genre'];
+  assert.deepEqual(win.SUNOBOOM_LEGACY_PROJECT_CREATOR.snapshot().values,{title:'',genre:'alternative-rock'});
+});
+
+test('v0.197 creator retains native field IDs and delegates creation without parallel storage', () => {
+  const code=readFileSync(new URL('../src/vue/account/ProjectCreator.vue',import.meta.url),'utf8');
+  const bridge=readFileSync(new URL('../src/vue/account/legacyProjectCreatorBridge.js',import.meta.url),'utf8');
+  assert.ok(code.includes('id="p-title" v-model="draft.title"'));
+  assert.ok(code.includes('id="p-genre" v-model="draft.genre"'));
+  assert.ok(code.includes('data-action="create-project"'));
+  assert.doesNotMatch(code,/localStorage|indexedDB|@click|@submit|maxlength/);
+  assert.ok(bridge.includes('observeLegacyIsland({'));
+  assert.ok(bridge.includes('ProjectCreator, { initial: model }'));
+});

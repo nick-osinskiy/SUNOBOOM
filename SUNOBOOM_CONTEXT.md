@@ -256,3 +256,8 @@ npm run test:vue-browser
 ## 2026-11-13 — v0.196, список Моих проектов
 
 На базе main v0.195 3116f74 добавлен ProjectCollection с read-only snapshot и общим observeLegacyIsland. Vue владеет только заголовком/списком/empty state #sb-vue-projects-list; форма создания, заметки, выбор, удаление, Studio, порядок проектов и storage остаются исходными. Дизайн сохранён; тесты включают клавиатуру, экранирование названий, заметки и HTML fallback. Детали — раздел 45 PROJECT_CONTEXT.md. Выпуск подтверждать по CI/Pages итогового HEAD.
+
+
+## 2026-11-13 — v0.197, форма создания проекта
+
+На базе main v0.196 061bd96 перенесён только Новый проект: ProjectCreator и observeLegacyIsland с чтением текущих native полей до mount. Прежние IDs, GENRES, default genre, create-project, trim/80 символов, выбранный проект, persist/render и fallback сохранены. Список и заметки не переписывались, схемы данных и дизайн не менялись. Детали и проверки — раздел 46 PROJECT_CONTEXT.md; выпуск подтверждать по CI/Pages итогового HEAD.

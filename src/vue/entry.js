@@ -1,3 +1,4 @@
+import { activateLegacyProjectCreator } from './account/legacyProjectCreatorBridge.js';
 import { activateLegacyProjectCollection } from './account/legacyProjectCollectionBridge.js';
 import { createFeatureMounter } from './legacy/createFeatureMounter.js';
 import { activateLegacyIdeaCollections } from './poetry/legacyIdeaCollectionsBridge.js';
@@ -223,4 +224,9 @@ export function startLegacyGenreTree() {
 /** Vue project list; native forms and storage retain ownership. */
 export function startLegacyProjectCollection() {
   return activateLegacyProjectCollection({ mountVueFeature });
+}
+
+/** Vue project draft fields; the original create action remains authoritative. */
+export function startLegacyProjectCreator() {
+  return activateLegacyProjectCreator({ mountVueFeature });
 }

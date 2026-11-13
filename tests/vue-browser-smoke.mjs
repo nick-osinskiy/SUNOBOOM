@@ -30,17 +30,28 @@ async function checkProjectCollection196(page, vue) {
   });
   const list=page.locator('#sb-vue-projects-list');
   const ready=async()=>{
-    await page.waitForFunction(vue => !!document.querySelector(vue ? '#sb-vue-projects-list[data-v-app]' : '#sb-vue-projects-list:not([data-v-app])'),vue);
+    await page.waitForFunction(vue => ['#sb-vue-projects-list','#sb-vue-project-creator'].every(selector=>document.querySelector(selector+(vue?'[data-v-app]':':not([data-v-app])'))),vue);
   };
   try {
     await ready();
     if(!(await list.textContent()).includes('Проектов пока нет'))throw Error('v0.196 empty state missing');
     if(await list.locator('#p-title,#project-notes').count())throw Error('v0.196 Vue owns native forms');
+    // v0.197 original validation must reject empty and whitespace-only names.
+    for(const title of ['', '   ']){
+      await page.locator('#p-title').fill(title);
+      await page.locator('[data-action="create-project"]').click();
+      if(await list.locator('.project-card').count() || await page.locator('#p-title').inputValue()!==title)throw Error('v0.197 validation or retained draft broken');
+    }
+    if(await page.locator('#p-genre').inputValue()!=='alternative-rock')throw Error('v0.197 default genre changed');
+    const chosenGenre=await page.locator('#p-genre option').nth(1).getAttribute('value');
     const titles=['<img src=x onerror=alert(1)> Проект 196','Второй проект 196'];
     for(const title of titles){
-      await page.locator('#p-title').fill(title);
+      await page.locator('#p-title').fill('  '+title+'  ');
+      await page.locator('#p-genre').selectOption(chosenGenre);
       await page.locator('[data-action="create-project"]').click();await ready();
+      if(await page.locator('#p-title').inputValue()!=='')throw Error('v0.197 draft not reset after creation');
     }
+    if(!await page.evaluate(genre=>data.projects.every(p=>p.genre===genre)&&view.selectedProject===data.projects[0].id,chosenGenre))throw Error('v0.197 genre or automatic selection lost');
     if(await list.locator('.project-card').count()!==2 || await list.locator('img').count())throw Error('v0.196 cards or text escaping broken');
     const first=list.locator('.project-card').filter({hasText:titles[0]});
     await first.focus();await first.press('Enter');await ready();
@@ -61,6 +72,11 @@ async function checkProjectCollection196(page, vue) {
       await page.locator('[data-action="delete-project"]').click();await ready();
     }
     if(await list.locator('.project-card').count() || !(await list.textContent()).includes('Проектов пока нет'))throw Error('v0.196 delete/empty fallback broken');
+    await page.locator('#p-title').fill('Длинное название проекта '.repeat(5));
+    await page.locator('[data-action="create-project"]').click();await ready();
+    if(await list.locator('.project-card h3').textContent()!=='Длинное название проекта '.repeat(5).trim().slice(0,80))throw Error('v0.197 native 80-character limit changed');
+    page.once('dialog',dialog=>dialog.accept());
+    await page.locator('[data-action="delete-project"]').click();await ready();
   } finally {
     await page.evaluate(()=>{data.projects=window.__projects196.projects;view.selectedProject=window.__projects196.selected;delete window.__projects196;persist();go('home');});
   }
@@ -3662,6 +3678,27 @@ async function checkLayout(mobile) {
   }
 }
 
+
+async function checkProjectCreatorDelay197() {
+  const context=await browser.newContext();const page=await context.newPage();
+  let release;const gate=new Promise(resolve=>{release=resolve;});
+  await page.route('**/dist/vue/sunoboom-vue.js*',async route=>{await gate;await route.continue();});
+  try {
+    await page.goto(BASE,{waitUntil:'domcontentloaded'});
+    await page.evaluate(()=>go('projects'));
+    await page.locator('#p-title').fill('Черновик до Vue');
+    const genre=await page.locator('#p-genre option').nth(1).getAttribute('value');
+    await page.locator('#p-genre').selectOption(genre);
+    release();await page.locator('#sb-vue-project-creator[data-v-app]').waitFor();
+    if(await page.locator('#p-title').inputValue()!=='Черновик до Vue' || await page.locator('#p-genre').inputValue()!==genre)throw Error('v0.197 delayed mount erased native draft');
+    await page.locator('#p-title').fill('Черновик после Vue');
+    await page.evaluate(()=>{const marker=document.createElement('i');document.getElementById('app').append(marker);queueMicrotask(()=>marker.remove());});
+    await page.waitForTimeout(50);
+    if(await page.locator('#p-title').inputValue()!=='Черновик после Vue' || await page.locator('#p-genre').count()!==1)throw Error('v0.197 unchanged host remounted or duplicated');
+    console.log('Delayed project creator draft preservation PASS');
+  } finally {release();await context.close();}
+}
+
 async function checkEditorFallback() {
   const context = await browser.newContext();
   const page = await context.newPage();
@@ -4035,6 +4072,7 @@ try {
   browser = await chromium.launch({ headless: true });
   await checkLayout(false);
   await checkLayout(true);
+  await checkProjectCreatorDelay197();
   await checkEditorFallback();
 } finally {
   await browser?.close();
