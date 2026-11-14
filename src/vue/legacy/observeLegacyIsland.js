@@ -1,3 +1,4 @@
+import { collectLegacyIsland,availableIsland } from './featureCollection.js';
 // v0.184 — one lifecycle for simple Vue islands inside the original HTML shell.
 // Observe only direct child replacement on the supplied root. Observing subtree
 // would make Vue's own render trigger unnecessary remounts and input loss.
@@ -8,6 +9,8 @@ export function observeLegacyIsland({
   if (!root || typeof selectTarget !== 'function' ||
       typeof readSnapshot !== 'function' || typeof mount !== 'function')
     return () => {};
+
+  if(collectLegacyIsland({root,selectTarget,readSnapshot,mount}))return ()=>{};
 
   let disposed = false;
   let current = null;
@@ -20,7 +23,7 @@ export function observeLegacyIsland({
 
   function sync() {
     if (disposed) return;
-    const target = selectTarget(root);
+    const target = availableIsland(selectTarget(root));
     if (current?.target === target && target?.isConnected) return;
     unmountCurrent();
     // A detached old host must never be mounted again. Its original HTML

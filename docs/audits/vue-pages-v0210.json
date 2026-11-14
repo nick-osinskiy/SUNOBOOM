@@ -1,0 +1,430 @@
+{
+  "version": "0.210",
+  "base": "812413a67e25a795d4b09789bce2416dba97220a",
+  "samples": [
+    {
+      "width": 1440,
+      "route": "home",
+      "pageApps": 1,
+      "composedHosts": [
+        "sb-vue-dashboard"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": []
+    },
+    {
+      "width": 1440,
+      "route": "account",
+      "pageApps": 1,
+      "composedHosts": [
+        "sb-vue-account-home"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": []
+    },
+    {
+      "width": 1440,
+      "route": "ideas",
+      "pageApps": 1,
+      "composedHosts": [
+        "sb-vue-ideas-page"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": []
+    },
+    {
+      "width": 1440,
+      "route": "saved",
+      "pageApps": 1,
+      "composedHosts": [
+        "sb-vue-library-collection"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": []
+    },
+    {
+      "width": 1440,
+      "route": "projects",
+      "pageApps": 1,
+      "composedHosts": [
+        "back",
+        "sb-vue-project-creator",
+        "sb-vue-projects-list",
+        "sb-vue-project-detail"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": []
+    },
+    {
+      "width": 1440,
+      "route": "events",
+      "pageApps": 1,
+      "composedHosts": [
+        "back",
+        "sb-vue-event-fields",
+        "sb-vue-event-reminders",
+        "sb-vue-event-actions",
+        "sb-vue-events-list"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": []
+    },
+    {
+      "width": 1440,
+      "route": "myprompts",
+      "pageApps": 1,
+      "composedHosts": [
+        "back",
+        "sb-vue-prompt-form",
+        "prompt-auditor",
+        "prompt-actions",
+        "sb-vue-prompts-list"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": []
+    },
+    {
+      "width": 1440,
+      "route": "myideas",
+      "pageApps": 1,
+      "composedHosts": [
+        "back",
+        "quick-poetry",
+        "sb-vue-idea-fields",
+        "sb-vue-lyrics-source",
+        "poetry-tools",
+        "sb-poetry-result",
+        "sb-vt-workbench",
+        "sb-vue-lyrics-tools",
+        "idea-actions",
+        "sb-vue-idea-collections"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": [
+        "sb-poetry-auto-stress"
+      ]
+    },
+    {
+      "width": 1440,
+      "route": "catalog",
+      "pageApps": 1,
+      "composedHosts": [
+        "tree-launch",
+        "artist-launch",
+        "sb-vue-academy-root"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": [
+        "sb-gt-inner"
+      ]
+    },
+    {
+      "width": 1440,
+      "route": "studio",
+      "pageApps": 1,
+      "composedHosts": [
+        "mixer-banner",
+        "arranger-jump",
+        "studio-grid",
+        "song-blueprint",
+        "sba-preset-picker",
+        "apply",
+        "sba-preset-confirm",
+        "snake-tools",
+        "sba-snake-track",
+        "sba-transition-hub-list",
+        "expand",
+        "sba-add-editor",
+        "sba-cards",
+        "end-add",
+        "sba-energy-chart",
+        "sba-result",
+        "sbpa-auditor"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": []
+    },
+    {
+      "width": 1440,
+      "route": "player",
+      "pageApps": 1,
+      "composedHosts": [
+        "player-modes",
+        "sb-vue-player-ab",
+        "sb-vue-player-lab"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": []
+    },
+    {
+      "width": 1440,
+      "route": "producer",
+      "pageApps": 1,
+      "composedHosts": [
+        "producer-create",
+        "producer-search",
+        "sbpc-list"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": []
+    },
+    {
+      "width": 1440,
+      "route": "tracks",
+      "pageApps": 1,
+      "composedHosts": [
+        "back",
+        "track-toolbar",
+        "sb-vue-track-list"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": []
+    },
+    {
+      "width": 1440,
+      "route": "artists",
+      "pageApps": 1,
+      "composedHosts": [
+        "back",
+        "dna-toolbar",
+        "sb-vue-dna-view"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": []
+    },
+    {
+      "width": 1440,
+      "route": "songs",
+      "pageApps": 1,
+      "composedHosts": [
+        "songs-header",
+        "songs-search",
+        "sb-vue-song-cards"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": []
+    },
+    {
+      "width": 1440,
+      "route": "mixer",
+      "pageApps": 1,
+      "composedHosts": [
+        "sb-vue-mixer-root"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": []
+    },
+    {
+      "width": 375,
+      "route": "home",
+      "pageApps": 1,
+      "composedHosts": [
+        "sb-vue-dashboard"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": []
+    },
+    {
+      "width": 375,
+      "route": "account",
+      "pageApps": 1,
+      "composedHosts": [
+        "sb-vue-account-home"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": []
+    },
+    {
+      "width": 375,
+      "route": "ideas",
+      "pageApps": 1,
+      "composedHosts": [
+        "sb-vue-ideas-page"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": []
+    },
+    {
+      "width": 375,
+      "route": "saved",
+      "pageApps": 1,
+      "composedHosts": [
+        "sb-vue-library-collection"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": []
+    },
+    {
+      "width": 375,
+      "route": "projects",
+      "pageApps": 1,
+      "composedHosts": [
+        "back",
+        "sb-vue-project-creator",
+        "sb-vue-projects-list",
+        "sb-vue-project-detail"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": []
+    },
+    {
+      "width": 375,
+      "route": "events",
+      "pageApps": 1,
+      "composedHosts": [
+        "back",
+        "sb-vue-event-fields",
+        "sb-vue-event-reminders",
+        "sb-vue-event-actions",
+        "sb-vue-events-list"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": []
+    },
+    {
+      "width": 375,
+      "route": "myprompts",
+      "pageApps": 1,
+      "composedHosts": [
+        "back",
+        "sb-vue-prompt-form",
+        "prompt-auditor",
+        "prompt-actions",
+        "sb-vue-prompts-list"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": []
+    },
+    {
+      "width": 375,
+      "route": "myideas",
+      "pageApps": 1,
+      "composedHosts": [
+        "back",
+        "quick-poetry",
+        "sb-vue-idea-fields",
+        "sb-vue-lyrics-source",
+        "poetry-tools",
+        "sb-poetry-result",
+        "sb-vt-workbench",
+        "sb-vue-lyrics-tools",
+        "idea-actions",
+        "sb-vue-idea-collections"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": [
+        "sb-poetry-auto-stress"
+      ]
+    },
+    {
+      "width": 375,
+      "route": "catalog",
+      "pageApps": 1,
+      "composedHosts": [
+        "tree-launch",
+        "artist-launch",
+        "sb-vue-academy-root"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": [
+        "sb-gt-inner"
+      ]
+    },
+    {
+      "width": 375,
+      "route": "studio",
+      "pageApps": 1,
+      "composedHosts": [
+        "mixer-banner",
+        "arranger-jump",
+        "studio-grid",
+        "song-blueprint",
+        "sba-preset-picker",
+        "apply",
+        "sba-preset-confirm",
+        "snake-tools",
+        "sba-snake-track",
+        "sba-transition-hub-list",
+        "expand",
+        "sba-add-editor",
+        "sba-cards",
+        "end-add",
+        "sba-energy-chart",
+        "sba-result",
+        "sbpa-auditor"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": []
+    },
+    {
+      "width": 375,
+      "route": "player",
+      "pageApps": 1,
+      "composedHosts": [
+        "player-modes",
+        "sb-vue-player-ab",
+        "sb-vue-player-lab"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": []
+    },
+    {
+      "width": 375,
+      "route": "producer",
+      "pageApps": 1,
+      "composedHosts": [
+        "producer-create",
+        "producer-search",
+        "sbpc-list"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": []
+    },
+    {
+      "width": 375,
+      "route": "tracks",
+      "pageApps": 1,
+      "composedHosts": [
+        "back",
+        "track-toolbar",
+        "sb-vue-track-list"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": []
+    },
+    {
+      "width": 375,
+      "route": "artists",
+      "pageApps": 1,
+      "composedHosts": [
+        "back",
+        "dna-toolbar",
+        "sb-vue-dna-view"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": []
+    },
+    {
+      "width": 375,
+      "route": "songs",
+      "pageApps": 1,
+      "composedHosts": [
+        "songs-header",
+        "songs-search",
+        "sb-vue-song-cards"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": []
+    },
+    {
+      "width": 375,
+      "route": "mixer",
+      "pageApps": 1,
+      "composedHosts": [
+        "sb-vue-mixer-root"
+      ],
+      "childApps": 0,
+      "nativeBoundaries": []
+    }
+  ]
+}

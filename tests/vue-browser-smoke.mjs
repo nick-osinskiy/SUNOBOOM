@@ -1,3 +1,4 @@
+import {checkPageComposition,checkPageRecovery,checkPageEditorHandoff} from './vue-pages.mjs';
 import { checkWorkspace, checkWorkspaceStartup } from './vue-workspace.mjs';
 import { checkArtistProfiles, checkArtistProfilesStartup } from './vue-artist-profiles.mjs';
 import { spawn } from 'node:child_process';
@@ -4102,6 +4103,7 @@ async function checkLayout(mobile) {
     await checkSharedSong207(page,true);
     await checkArtistProfiles(page,true);
     await checkWorkspace(page,true);
+    await checkPageComposition(page);
     console.log((mobile ? 'Mobile' : 'Desktop') + ' Vue navigation smoke PASS');
   } finally {
     await context.close();
@@ -4560,6 +4562,8 @@ try {
   await checkSharedSongStartup207();
   await checkArtistProfilesStartup(browser,BASE);
   await checkWorkspaceStartup(browser,BASE);
+  await checkPageRecovery(browser,BASE);
+  await checkPageEditorHandoff(browser,BASE);
   await checkEditorFallback();
   await checkMobileProjectFallback199();
 } finally {

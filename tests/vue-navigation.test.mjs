@@ -1,3 +1,4 @@
+import { withFeatureCollection,availableIsland } from '../src/vue/legacy/featureCollection.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -2330,4 +2331,32 @@ test('v0.207 shared snapshot is isolated from the library and Vue keeps delegate
   assert.ok(component.includes('data-sbsong-action="shared-home"'));assert.ok(component.includes('rel="noopener noreferrer"'));
   assert.ok(component.includes('audio.value.pause()'));assert.ok(component.includes("removeAttribute('src')"));
   assert.doesNotMatch(component,/v-html|localStorage|indexedDB|@click|autoplay/);
+});
+
+
+test('page feature collection reuses contracts without observers/subscriptions and always resets',()=>{
+  const root={},seen=[];
+  const options={root,selectTarget:()=>null,readSnapshot:()=>null,mount:()=>{throw Error('must not mount');},
+    subscribe:()=>{throw Error('must not subscribe');},createObserver:()=>{throw Error('must not observe');}};
+  withFeatureCollection(item=>seen.push(item),()=>{
+    observeLegacyIsland(options);
+    observeLegacyIslands({...options,islands:[{...options,key:'a'},{...options,key:'b'}]});
+  });
+  assert.equal(seen.length,3);assert.ok(seen.every(item=>item.root===root));
+  assert.throws(()=>withFeatureCollection(()=>{},()=>{throw Error('test');}),/test/);
+  let observed=false;
+  observeLegacyIsland({...options,subscribe:undefined,createObserver:()=>({observe(){observed=true;},disconnect(){}})} )();
+  assert.equal(observed,true,'collection cannot leak into later lifecycle');
+});
+
+test('page ownership suppresses nested apps, permits named lazy boundaries and protects raw fallback',()=>{
+  const page={};
+  const node={closest:selector=>selector==='[data-sb-vue-page][data-v-app]'?page:null};
+  assert.equal(availableIsland(node),null);
+  const boundary={closest:selector=>selector==='[data-sb-vue-page][data-v-app]'?page:selector==='[data-sb-native-boundary]'?{}:null};
+  assert.equal(availableIsland(boundary),boundary);
+  const fallback={};const raw={closest:selector=>selector==='[data-sb-page-fallback]'?fallback:null};
+  assert.equal(availableIsland(raw),null);
+  fallback.closest=selector=>selector==='[data-sb-page-fallback]'?fallback:null;
+  assert.equal(availableIsland(fallback),fallback,'the page itself can retry on the next render');
 });

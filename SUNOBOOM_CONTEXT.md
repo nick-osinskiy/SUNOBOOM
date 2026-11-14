@@ -326,3 +326,8 @@ npm run test:vue-browser
 ## 2026-11-14 — v0.209, управление рабочими разделами и уведомления
 
 После v0.208 выполнен следующий широкий блок этапа 1: Notifications, WorkspaceControls с явным registry, SongBlueprint и оставшиеся controls аранжировщика; общие actions/поиск/создание/плеерные режимы/launcher-ы на Vue. Существующие данные, алгоритмы, native dispatcher и полный fallback сохранены. Проверяется поздний draft и render failure recovery. Подробности — раздел 59 PROJECT_CONTEXT.md и tests/vue-workspace.mjs. Весь этап 1 ещё требует цельной композиции page views и общей приёмки; далее именно это, а не новые версии за отдельную кнопку. Этапы 2–4 не начинались.
+
+
+## 2026-11-14 — v0.210, цельные page views и приёмка этапа 1
+
+На базе 812413a переиспользованы текущие feature bridges как providers дескрипторов: PageView объединяет существующие компоненты в один обычный Vue page app. Native структурные boundaries дерева/поэтического preview сохраняют реальные DOM nodes; guards исключают competing mounts. Failure — целиком native page с прежними полями, файлами и действиями, retry на новом render. Источники данных, root render, Router mirror и DOM-derived layout остаются явно учтённой работой этапов 2–4. См. раздел 60 PROJECT_CONTEXT.md, STAGE1_ACCEPTANCE.md и CI итогового SHA. После зелёной приёмки предложить этап 2 кнопкой; не продолжать дробление интерфейса на отдельные релизы.

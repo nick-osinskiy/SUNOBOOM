@@ -1,3 +1,4 @@
+import { collectLegacyIsland,availableIsland } from './featureCollection.js';
 // v0.190: one shallow observer for several independent legacy Vue hosts.
 // Do not observe descendants: Vue updates and text input must not trigger remounts.
 export function observeLegacyIslands({
@@ -10,6 +11,11 @@ export function observeLegacyIslands({
       new Set(islands.map(item => item.key)).size !== islands.length)
     return () => {};
 
+  if(collectLegacyIsland({root,...islands[0]})){
+    for(const island of islands.slice(1))collectLegacyIsland({root,...island});
+    return ()=>{};
+  }
+
   const active = new Map();
   let disposed = false;
   function sync() {
@@ -17,7 +23,7 @@ export function observeLegacyIslands({
     // Navigation publishes the shared route before any of its roots mount.
     if (typeof beforeSync === 'function') beforeSync();
     for (const island of islands) {
-      const target = island.selectTarget(root);
+      const target = availableIsland(island.selectTarget(root));
       const previous = active.get(island.key);
       // Opt-in structural revision: reactive active-state changes keep the host.
       const revision = typeof island.readRevision === 'function' ? island.readRevision() : undefined;

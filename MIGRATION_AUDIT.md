@@ -4,6 +4,8 @@
 
 ## Текущее исполнение плана
 
+v0.210: заключительная композиция page views и приёмка **этапа 1** — [STAGE1_ACCEPTANCE.md](./STAGE1_ACCEPTANCE.md). Один actual Vue app на обычный body экрана, готовые child components, две явные native/lazy boundaries и целиком native page fallback при ошибке. Layout descriptors пока читаются из native HTML, команды/данные/root render/router mirror не перенесены: это **учтённые задачи этапов 2–4**. Исторические записи v0.208/209 ниже не являются актуальным списком незавершённых UI-панелей. Итог этапа 1 подтверждать успешными тестами/CI выпуска, не одним DOM inventory.
+
 v0.209: перенесены Notifications и панели управления рабочих разделов (Мастер, песни, плеер, поэзия/промпты, паспорт/ДНК, Studio/blueprint/arranger, launcher-ы Академии). Явные descriptors, прежние data-actions/хранилища, managed editor boundaries и полный fallback. Проверяются desktop/mobile, read-state reload, drafts, render failure. **Остаток этапа 1: цельные page views из готовых компонентов и итоговая общая приёмка всех веток.** Root render/команды DOM не входят в этот выпуск — это последующие этапы. Подробности — раздел 59 PROJECT_CONTEXT.md.
 
 v0.208, 14 ноября 2026: **F1 исправлена**, энциклопедия и справочный профиль целиком на Vue; GenreArtists больше не получает native DOM-кнопки. Проверки включены в browser smoke: Vue/native, desktop/mobile, поздняя загрузка и ошибки mount с восстановлением рабочего HTML. Ниже сохранён исходный аудит v0.207 как доказательство проблемы. **Этап 1 остаётся открытым**: уведомления, остальные shells/controls и композиция views требуют общей приёмки. Этапы 2–4 не начинались; они не заменяются очередью мелких релизов.

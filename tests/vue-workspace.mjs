@@ -128,7 +128,7 @@ export async function checkWorkspaceStartup(browser,base){
         return model;
       }});
     });
-    release();await page.waitForFunction(()=>document.querySelector('[data-sb-workspace="producer-search"][data-v-app]'));
+    release();await page.waitForFunction(()=>document.querySelector('[data-sb-vue-page][data-sb-page-fallback]'));
     assert.equal(await page.locator('[data-sb-workspace="producer-create"]').getAttribute('data-v-app'),null);
     assert.equal(await page.locator('#sbpc-new-title').inputValue(),'Черновик после ошибки Vue 209');
     await page.locator('[data-pc-action="create"]').click();

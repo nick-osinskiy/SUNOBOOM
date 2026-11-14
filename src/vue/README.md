@@ -626,3 +626,12 @@ AcademyCatalog composes ArtistProfileHub; GenreArtists owns profile/favorite but
 ### v0.209 — workspace controls and notifications
 
 workspace-vue-bridge.js registers explicit read-only descriptors. WorkspaceControls owns handed-off toolbars/forms, Notifications owns panel/banner presentation, SongBlueprint renders the structure generator. The original command dispatcher and persistence remain authoritative. ArrangementComposer reuses the arranger API; native update functions skip these Vue hosts. First form values are captured before mount and restored on failure. Workspace observes only #app direct child replacement plus the two poetry preview lifecycle events. Lyrics source/caret/stress mirror, preview textarea and the auto-stress busy flag remain explicit native editor boundaries. Page composition and final UI-parity acceptance still remain within stage 1; this does not switch the router or data owner.
+
+
+### v0.210 — composed pages (stage 1)
+
+PageView composes the existing components, using bridge definitions as synchronous feature providers. withFeatureCollection installs no apps/observers/subscriptions. availableIsland prevents ordinary legacy island mounts inside a composed page. Child data-v-app attributes are compatibility ownership markers; only __vue_app__ identifies an actual app.
+
+The final native layout is converted to static VNode descriptors while feature hosts become real child components. This transitional DOM-derived model is explicit stage-2 debt. It is not RouterView, a global AppShell or domain state migration. The native templates remain the full fallback. Navigation/header/history and independent dialogs stay outside the page root.
+
+NativeBoundary is restricted to sb-gt-inner and sb-poetry-auto-stress. It moves the original child nodes once, retaining textarea value/selection, mirrors and native listeners; lazy bridge apps inside those boundaries are allowed. If page collection or mounting fails, the entire page becomes native and child retries are suppressed until a later render. Original form nodes/FileLists/editor boundary nodes are restored on mount failure. See STAGE1_ACCEPTANCE.md for acceptance and the remaining architecture work.

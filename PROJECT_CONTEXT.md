@@ -1,6 +1,6 @@
 # SUNOBOOM — PROJECT_CONTEXT.md
 
-> **Актуально после v0.209, 14 ноября 2026 г.** Этап 1: F1 исправлена в v0.208; в v0.209 перенесены уведомления и оставшиеся панели управления рабочих разделов. Подробности — раздел 59. Данные, маршруты и движки пока native; весь этап 1 не объявлен закрытым. Следующая заключительная часть этапа: композиция готовых компонентов в цельные page views и итоговая приёмка скрытых веток/границ редакторов. План — [MIGRATION_AUDIT.md](./MIGRATION_AUDIT.md). Этапы 2–4 не начинались. Проверять свежие main/CI/Pages.
+> **v0.210, заключительная приёмка этапа 1, 14 ноября 2026 г.** Готовые компоненты собраны в один Vue page app на обычный экран; исключены конкурирующие дочерние apps. Явные lazy/editor boundaries сохранены. Отчёт — [STAGE1_ACCEPTANCE.md](./STAGE1_ACCEPTANCE.md), детали — раздел 60. Старые данные/команды/HTML-layout descriptors/root render/Router mirror остаются — это задачи этапов 2–4, а не незавершённые кнопки этапа 1. Итоговые CI/Pages проверять по SHA. Следующим предложить этап 2 — прикладное ядро без глобального DOM.
 
 ## 1. Что это и где работает
 
@@ -963,3 +963,19 @@ SUNOBOOM_ARTIST_PROFILES остаётся одним владельцем инд
 Локально перед коммитом v0.209: сборка успешно, **95/95 Node tests**, полный browser smoke desktop/mobile + новый workspace suite + delayed/failure recovery + native fallback прошли. CI/Pages подтверждать по итоговому SHA.
 
 **Следующий шаг — заключительная часть этапа 1:** скомпоновать готовые компоненты и панели в цельные page views, проверить ветки empty/edit/detail/error/overlays и зафиксировать общую приёмку UI parity. Не начинать этап 2 до этого. Не выдавать нулевой initial DOM inventory за окончание всей миграции.
+
+
+## 60. v0.210 — композиция page views и приёмка этапа 1
+
+База: main 812413a67e25a795d4b09789bce2416dba97220a. Имеющиеся bridge contracts переиспользуются синхронным feature collection; collection не создаёт observers/subscriptions/apps. PageView рендерит настоящие Vue child components с их исходными props/API, не вставляет страницу через v-html. Статический layout пока преобразуется из окончательного native HTML в VNode descriptors: это явный временный адаптер, который предстоит убрать в этапе 2 вместе с остальными DOM-derived models и заменить typed page models. Сами legacy templates ещё нужны для полного fallback. Это НЕ переход на Vue Router/AppShell и НЕ новое владение доменными данными.
+
+- Один [data-sb-vue-page] оборачивает body существующего chrome(). Bootstrap запускает page composition перед feature bridges. Header/nav/history/dialogs остаются вне page root; единая общая оболочка — этап 3.
+- Обычный экран содержит один фактический __vue_app__. Дочерние hosts имеют data-sb-composed-feature и совместимый data-v-app, чтобы существующие native guards не писали в Vue content. data-v-app сам по себе не доказывает отдельный app: проверять __vue_app__.
+- availableIsland подавляет старые mounts внутри composed page. Функции startLegacy* остаются compatibility/fallback contracts; их observer layer пока не удалён. Обязательный cleanup — этапы 3–4, не считать это финальным SPA.
+- Две явные native structural boundaries: #sb-gt-inner (lazy tree lifecycle) и #sb-poetry-auto-stress (dictionary preview/mirror/async choices). NativeBoundary переносит реальные дочерние DOM-узлы; value/selection/listeners и ручные правки не теряются. Внутри этих границ разрешены отдельные lazy bridge apps. Остальные редакторские ref/v-once и audio engines сохраняют существующие контракты.
+- Начальные snapshots захватываются ДО удаления native HTML. Компоненты, которые сами читают api.snapshot в setup, получают первый captured snapshot, затем снова живой API. Не копируется состояние доменов в Pinia.
+- При ошибке сборки модели или компонента **весь body экрана остаётся native**, отмечен data-sb-page-fallback. Дочерние Vue retries блокируются до нового render. После ошибки mount восстанавливаются исходные DOM-поля/их обработчики, выделение, checked/select и выбранные файлы, а также реальные editor boundary nodes. Следующий нормальный render может снова собрать Vue page.
+
+Проверки: tests/vue-pages.mjs — фактические apps/child components на 16 маршрутах в обоих layouts, stable draft/identity; принудительные snapshot/render failures, рабочий native create, raw form identity/FileList и последующий retry; mobile delayed poetry с тем же preview textarea, ручными ударениями/selection и apply. Полный существующий browser smoke обязателен для остальных empty/edit/detail/error, shared-card, overlays/keyboard, локального аудио/версий/A-B и native fallback. Сохранены проверки v0.208/209; тест failure v0.209 обновлён на более строгий whole-page fallback.
+
+Критерии и свидетельства итоговой приёмки — STAGE1_ACCEPTANCE.md. Если любой финальный CI/smoke не зелёный, исправить в рамках этого же этапа; не объявлять завершённым до успешного прогона. Следующий согласованный крупный этап после приёмки — 2: команды с payload/result, repositories JSON/IDB и один владелец состояния без глобального DOM. Не начинать его автоматически.

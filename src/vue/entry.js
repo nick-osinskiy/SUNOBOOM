@@ -1,3 +1,4 @@
+import { activateLegacyPages } from './pages/legacyPageBridge.js';
 import { activateLegacyWorkspace } from './workspace/legacyWorkspaceBridge.js';
 import { activateLegacyArtistProfiles } from './academy/legacyArtistProfilesBridge.js';
 import { activateLegacySharedSong } from './account/legacySharedSongBridge.js';
@@ -292,3 +293,7 @@ export function startLegacyArtistProfiles() {
 }
 
 export function startLegacyWorkspace() { return activateLegacyWorkspace({mountVueFeature}); }
+
+export function startLegacyPages(){
+  return activateLegacyPages({mountVueFeature,sharedUi,activations:[activateLegacyWorkspace,activateLegacySharedSong,activateLegacyIdeasPage,activateLegacyAccountHome,activateLegacyEventActions,activateLegacyEventReminders,activateLegacyEventEditor,activateLegacyEventCollection,activateLegacyProjectDetail,activateLegacyProjectCreator,activateLegacyProjectCollection,activateLegacyIdeaCollections,activateLegacyHomeDashboard,activateLegacyPromptCollection,activateLegacyPromptEditor,activateLegacyLibrary,activateLegacySongCards,activateLegacySongDetail,activateLegacySongEditor,activateLegacyArtistManager,activateLegacyArtistDNA,activateLegacyArtistDNAEditor,activateLegacyAccountSettings,activateLegacyPlayerLab,activateLegacyPlayerAB,activateLegacyProducerSongList,activateLegacyProducerSongDetail,activateLegacyTrackPassportList,activateLegacyTrackPassportDetail,activateLegacyTrackPassportEditor,activateLegacyIdeaEditor,activateLegacyAcademy,activateLegacyGenreTree,activateLegacyGenreDetail,activateLegacyStudio,activateLegacyMixer,activateLegacyAuditor,activateLegacyArranger,activateLegacyPoetry,activateLegacyTags]});
+}
