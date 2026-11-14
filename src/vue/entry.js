@@ -1,3 +1,4 @@
+import { activateLegacyWorkspace } from './workspace/legacyWorkspaceBridge.js';
 import { activateLegacyArtistProfiles } from './academy/legacyArtistProfilesBridge.js';
 import { activateLegacySharedSong } from './account/legacySharedSongBridge.js';
 import { activateLegacyIdeasPage } from './ideas/legacyIdeasPageBridge.js';
@@ -289,3 +290,5 @@ export function startLegacySharedSong() {
 export function startLegacyArtistProfiles() {
   return activateLegacyArtistProfiles({ mountVueFeature });
 }
+
+export function startLegacyWorkspace() { return activateLegacyWorkspace({mountVueFeature}); }

@@ -257,8 +257,8 @@
   const oldStudio=studio;
   studio=function(){
     const info=Array.isArray(builder.mixerBlend)&&builder.mixerBlend.length>=2
-      ?`<div class="gm-studio-banner gm-studio-active"><strong>🎛️ Активен жанровый микс</strong><span>${esc(builder.mixerBlend.map(r=>byId(r.id)?.name||'').join(' + '))}. Настройки студии влияют на готовый промпт.</span><button class="btn ghost small" data-action="nav" data-nav="mixer">Изменить микс</button><button class="btn ghost small" data-action="gm-unlink">Обычный жанр</button></div>`
-      :`<div class="gm-studio-banner"><strong>🎚️ Жанровый миксер</strong><span>Смешай 2–4 направления в одной аранжировке.</span><button class="btn ghost small" data-action="nav" data-nav="mixer">Открыть миксер →</button></div>`;
+      ?`<div class="gm-studio-banner gm-studio-active" data-sb-workspace="mixer-banner"><strong>🎛️ Активен жанровый микс</strong><span>${esc(builder.mixerBlend.map(r=>byId(r.id)?.name||'').join(' + '))}. Настройки студии влияют на готовый промпт.</span><button class="btn ghost small" data-action="nav" data-nav="mixer">Изменить микс</button><button class="btn ghost small" data-action="gm-unlink">Обычный жанр</button></div>`
+      :`<div class="gm-studio-banner" data-sb-workspace="mixer-banner"><strong>🎚️ Жанровый миксер</strong><span>Смешай 2–4 направления в одной аранжировке.</span><button class="btn ghost small" data-action="nav" data-nav="mixer">Открыть миксер →</button></div>`;
     return oldStudio().replace('<div class="studio-grid">',info+'<div class="studio-grid">');
   };
   const oldPrompt=promptValue;
@@ -317,4 +317,7 @@
   });
   // Preserve the currently visible page after loading the add-on.
   render();
+ window.SUNOBOOM_WORKSPACE_UI?.register('mixer-banner',()=>{
+ const active=Array.isArray(builder.mixerBlend)&&builder.mixerBlend.length>=2;
+ return {kind:'mixer-banner',active,description:active?builder.mixerBlend.map(r=>byId(r.id)?.name||'').join(' + ')+'. Настройки студии влияют на готовый промпт.':'Смешай 2–4 направления в одной аранжировке.'};});
 })();

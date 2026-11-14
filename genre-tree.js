@@ -166,7 +166,7 @@
   const current=()=>state.tree==="all"?fullCatalogTree():(TREES.find(t=>t.id===state.tree)||TREES[0]);
   const esc=s=>escapeHTML(String(s??""));
   const childSelector='[data-sb-gt-action]';
-  const tile=`<button type="button" class="encyclopedia-section sb-gt-entry" data-sb-gt-action="reveal"><span class="encyclopedia-section-icon" aria-hidden="true">🕸️</span><span><strong>Музыкальное древо</strong><small>Истоки, связи и влияние жанров</small></span><span class="encyclopedia-section-status">Открыть</span></button>`;
+  const tile='<span data-sb-workspace="tree-launch" style="display:contents">'+`<button type="button" class="encyclopedia-section sb-gt-entry" data-sb-gt-action="reveal"><span class="encyclopedia-section-icon" aria-hidden="true">🕸️</span><span><strong>Музыкальное древо</strong><small>Истоки, связи и влияние жанров</small></span><span class="encyclopedia-section-status">Открыть</span></button>`+'</span>';
   const details=`<details id="sb-genre-tree" class="sb-gt-section"><summary><span class="sb-gt-summary-icon">🕸️</span><span><strong>Музыкальное древо жанров</strong><small>Интерактивная карта происхождения и смешения музыки</small></span><span class="sb-gt-summary-hint">Исследовать связи</span><span class="sb-gt-chevron">⌄</span></summary><div id="sb-gt-inner" class="sb-gt-inner"></div></details>`;
   const baseCatalog=catalog;
   catalog=function(){

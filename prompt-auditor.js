@@ -187,8 +187,8 @@
   const oldMyPrompts=myprompts;
   myprompts=function(){
     const html=oldMyPrompts.apply(this,arguments);
-    const key='<div class="detail-actions">';
-    const extra='<div class="sbpa-editor-entry"><button type="button" data-sbpa-action="from-editor">🔎 Проверить этот промпт в аудиторе</button>'+
+    const key='<div class="detail-actions" data-sb-workspace="prompt-actions">';
+    const extra='<div class="sbpa-editor-entry" data-sb-workspace="prompt-auditor"><button type="button" data-sbpa-action="from-editor">🔎 Проверить этот промпт в аудиторе</button>'+
       '<span>Переносит текст на проверку, не сохраняя и не изменяя текущую запись.</span></div>';
     return html.includes(key)?html.replace(key,extra+key):html;
   };

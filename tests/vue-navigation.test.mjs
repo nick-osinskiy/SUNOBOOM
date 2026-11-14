@@ -1634,7 +1634,7 @@ test('v0.191 arranger uses one shallow observer across six original hosts', () =
   assert.ok(code.includes('key: kind'));
   assert.ok(code.includes('selectTarget: parent => parent.querySelector(selector)'));
   assert.ok(code.includes('readSnapshot: () => api.snapshot()'));
-  assert.ok(code.includes("component === ArrangementPanel ? { api, kind } : { api }"));
+  assert.ok(code.includes("component === ArrangementPanel || component === ArrangementComposer ? { api, kind, initial } : { api }"));
   assert.doesNotMatch(code, /new MutationObserver|subtree:\s*true|localStorage|indexedDB|saveDraft|writeFile/i);
 });
 

@@ -104,7 +104,7 @@
     }
     return rec;
   };
-  const tile='<button type="button" class="encyclopedia-section sb-ap-tile" data-sb-ap-action="hub-open"><span class="encyclopedia-section-icon" aria-hidden="true">🎙️</span><span><strong>Профили исполнителей</strong><small>История, звучание и важные произведения</small></span><span class="encyclopedia-section-status">Открыть</span></button>';
+  const tile='<span data-sb-workspace="artist-launch" style="display:contents">'+'<button type="button" class="encyclopedia-section sb-ap-tile" data-sb-ap-action="hub-open"><span class="encyclopedia-section-icon" aria-hidden="true">🎙️</span><span><strong>Профили исполнителей</strong><small>История, звучание и важные произведения</small></span><span class="encyclopedia-section-status">Открыть</span></button>'+'</span>';
   const hub='<details id="sb-ap-hub" class="sb-ap-hub"><summary><span class="sb-ap-sym">🎙️</span><span><strong>Профили исполнителей</strong><small>Мировая и русскоязычная сцены SUNOBOOM</small></span><span class="sb-ap-chevron">⌄</span></summary><div id="sb-ap-hub-content"></div></details>';
   const originalCatalog=catalog;
   catalog=function(){

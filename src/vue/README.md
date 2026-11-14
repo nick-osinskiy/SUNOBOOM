@@ -621,3 +621,8 @@ npm run build:vue
 ### v0.208 — artist encyclopedia boundary
 
 AcademyCatalog composes ArtistProfileHub; GenreArtists owns profile/favorite buttons. Both consume SUNOBOOM_ARTIST_PROFILES descriptors/commands/subscriptions, with the existing index and favorites key remaining authoritative. ArtistProfileDialog owns only #sb-ap-dialog-body; the native overlay service owns visibility, Escape/Tab, scroll lock and return focus. Native renderHub/hubResults/enhanceCards never mutate Vue-owned content. A failed Academy mount restores the current native hub state. Stage 1 UI parity remains in progress; routing/data ownership are unchanged.
+
+
+### v0.209 — workspace controls and notifications
+
+workspace-vue-bridge.js registers explicit read-only descriptors. WorkspaceControls owns handed-off toolbars/forms, Notifications owns panel/banner presentation, SongBlueprint renders the structure generator. The original command dispatcher and persistence remain authoritative. ArrangementComposer reuses the arranger API; native update functions skip these Vue hosts. First form values are captured before mount and restored on failure. Workspace observes only #app direct child replacement plus the two poetry preview lifecycle events. Lyrics source/caret/stress mirror, preview textarea and the auto-stress busy flag remain explicit native editor boundaries. Page composition and final UI-parity acceptance still remain within stage 1; this does not switch the router or data owner.

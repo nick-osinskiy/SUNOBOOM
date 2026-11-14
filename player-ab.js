@@ -85,7 +85,7 @@
    '</section>';
  }
  function modeTabs(){
-  return '<div class="sbab-modes" role="group" aria-label="Режим плеера">'+
+  return '<div class="sbab-modes" data-sb-workspace="player-modes" role="group" aria-label="Режим плеера">'+
   '<button type="button" data-sbab-action="mode" data-mode="player" aria-pressed="'+(state.mode==="player")+'">♫ Обычный плеер</button>'+
   '<button type="button" data-sbab-action="mode" data-mode="compare" aria-pressed="'+(state.mode==="compare")+'">⇄ Сравнение A/B <span>НОВОЕ</span></button></div>';
  }
@@ -103,7 +103,8 @@
   const compare=host.querySelector("#"+rootID);
   if(compare)compare.hidden=state.mode!=="compare";
   host.classList.toggle("sbab-compare-mode",state.mode==="compare");
-  host.querySelectorAll(".sbab-modes button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.mode===state.mode)));
+  host.querySelectorAll(".sbab-modes:not([data-v-app]) button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.mode===state.mode)));
+  window.dispatchEvent(new Event("sunoboom:player-mode"));
   sync();
  }
  function sync(){
@@ -377,4 +378,7 @@
  });
  window.SUNOBOOM_AB_COMPARE=Object.freeze({version:"0.65",getActive:()=>state.active,hasBoth:()=>!!files.A&&!!files.B,isPlaying:()=>!activeAudio().paused&&!!files[state.active],getMode:()=>state.mode});
  if(view.nav==="player")render();
+ window.SUNOBOOM_WORKSPACE_UI?.register('player-modes',()=>({kind:'player-modes',event:'sunoboom:player-mode',buttons:[
+ {label:'♫ Обычный плеер',attrs:{type:'button','data-sbab-action':'mode','data-mode':'player','aria-pressed':state.mode==='player'}},
+ {label:'⇄ Сравнение A/B ',badge:'НОВОЕ',attrs:{type:'button','data-sbab-action':'mode','data-mode':'compare','aria-pressed':state.mode==='compare'}}]}));
 })();

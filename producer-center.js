@@ -319,11 +319,11 @@
        '<div class="sbpc-hero-stats"><span><strong>'+records.length+'</strong> песен в работе</span>'+
        '<span><strong>'+records.filter(x=>completed(x)===STEPS.length).length+'</strong> полностью пройдено</span>'+
        '<span>Хранение: этот браузер</span></div></header>'+
-     '<section class="sbpc-create"><div><h2>Начать работу над песней</h2><p>Создай новую карточку или выбери существующую идею, песню либо паспорт.</p></div>'+
+     '<section class="sbpc-create" data-sb-workspace="producer-create"><div><h2>Начать работу над песней</h2><p>Создай новую карточку или выбери существующую идею, песню либо паспорт.</p></div>'+
        '<div class="sbpc-create-controls"><input type="text" id="sbpc-new-title" maxlength="120" placeholder="Название новой песни (можно оставить пустым при выборе материала)">'+
        '<select id="sbpc-new-source" aria-label="Исходный материал">'+importOptions()+'</select>'+
        '<button type="button" class="sbpc-main-btn" data-pc-action="create">+ Создать рабочую карточку</button></div></section>'+
-     '<div class="sbpc-layout"><aside class="sbpc-sidebar"><div class="sbpc-side-heading"><h2>Песни ('+records.length+')</h2>'+
+     '<div class="sbpc-layout"><aside class="sbpc-sidebar"><div class="sbpc-side-heading" data-sb-workspace="producer-search"><h2>Песни ('+records.length+')</h2>'+
        '<input id="sbpc-search" type="search" value="'+e(state.query)+'" placeholder="Найти песню или артиста" aria-label="Поиск по песням"></div>'+
        '<div id="sbpc-list" class="sbpc-song-list" data-sb-vue-producer-list>'+(records.length?cards():'<p class="sbpc-empty">Пока нет рабочих карточек. Начни с первой песни выше.</p>')+'</div></aside>'+
        (selected?'<div id="sb-vue-producer-detail" data-sb-vue-producer-host>'+detail(selected)+'</div>':'<div class="sbpc-empty-state"><strong>Пока нет песен в работе</strong>'+
@@ -504,4 +504,8 @@
  if(view.nav==="producer" ||
     !document.querySelector('.mobile-nav [data-nav="producer"]') ||
     !document.querySelector('.side [data-nav="producer"]'))render();
+ window.SUNOBOOM_WORKSPACE_UI?.register('producer-create',()=>({kind:'producer-create',
+   title:document.getElementById('sbpc-new-title')?.value||'',source:document.getElementById('sbpc-new-source')?.value||'',
+   groups:[["passport","Паспорта треков"],["song","Мои песни"],["idea","Мои идеи"],["generated","Идеи из Idea Lab"],["project","Мои проекты"]].map(([type,title])=>({type,title,items:listFor(type).map(x=>({id:x.id,name:resourceName(x,type)}))})).filter(g=>g.items.length)}));
+ window.SUNOBOOM_WORKSPACE_UI?.register('producer-search',()=>({kind:'producer-search',count:items().length,query:document.getElementById('sbpc-search')?.value??state.query}));
 })();

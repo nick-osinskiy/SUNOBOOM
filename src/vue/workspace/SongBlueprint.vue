@@ -1,0 +1,11 @@
+<script setup>
+import { computed } from 'vue';
+const props=defineProps({initial:{type:Object,required:true}});
+const duration=computed(()=>props.initial.forms.find(f=>f.id===props.initial.form)?.duration||'');
+</script>
+<template>
+  <div class="eyebrow">SUNOBOOM · SONG BLUEPRINT</div><h3>Генератор структуры песни</h3><p>Создавай форму трека с учётом текущего жанра, настроения, темпа и темы. Каждый блок включает подсказки для музыки и текста.</p>
+  <div class="form-grid"><div class="field"><label for="song-form">Форма песни</label><select id="song-form" :value="initial.form"><option v-for="form in initial.forms" :key="form.id" :value="form.id">{{ form.name }}</option></select></div><div class="field"><label>Длительность (ориентир)</label><div class="notice">{{ duration }}</div></div></div>
+  <button class="btn primary" data-action="song-generate"><span v-html="initial.icons.ideas" aria-hidden="true" style="display:contents"></span> Создать структуру</button><p class="hint" style="margin-top:10px">Офлайн-генератор, без внешнего ИИ. Структура — план, а не готовые слова песни.</p>
+  <div v-if="initial.song" class="panel" style="margin-top:16px"><div class="eyebrow">SONG BLUEPRINT · {{ initial.song.duration }}</div><h3>{{ initial.song.title }}</h3><p>{{ initial.song.genreName }} · {{ initial.song.formName }} · {{ initial.song.bpm }} BPM</p><div class="notice"><strong>Динамика:</strong> {{ initial.song.advice }}<br><strong>Звучание:</strong> {{ initial.song.arrangement }}</div><div class="saved-list" style="margin-top:14px"><div v-for="(section,i) in initial.song.sections" :key="i" class="saved-item"><div class="row"><h3>{{ i+1 }}. [{{ section.tag }}]</h3><span class="sub">{{ section.bars }} тактов</span></div><p><strong>Аранжировка:</strong> {{ section.music }}</p><p><strong>Текст:</strong> {{ section.lyrics }}</p></div></div><div class="detail-actions" style="margin-top:14px"><button class="btn primary small" data-action="song-copy" :data-id="initial.song.id"><span v-html="initial.icons.copy" aria-hidden="true" style="display:contents"></span> Копировать план</button><button class="btn ghost small" data-action="song-save" :data-id="initial.song.id"><span v-html="initial.icons.saved" aria-hidden="true" style="display:contents"></span> Сохранить</button></div></div>
+</template>

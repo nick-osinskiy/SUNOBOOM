@@ -321,3 +321,8 @@ npm run test:vue-browser
 ## 2026-11-14 — v0.208, первый результат этапа 1: энциклопедия исполнителей
 
 На базе 2a450b8 восстановлена F1 целиком: Vue ArtistProfileHub + ArtistProfileDialog, реальные profile/favorite controls GenreArtists без native DOM enhancements. Индекс/фильтры/избранное остаются в одном native service; Vue получает descriptors и подписки. Старый storage/fallback/overlay keyboard/focus сохранены; проверяется delayed bundle и mount failure recovery. Подробности — раздел 58 PROJECT_CONTEXT.md. Этап 1 не закрыт: дальше уведомления и оставшиеся оболочки рабочих разделов, затем общая приёмка UI parity; этапы 2–4 не начинались. Не создавать новые этапы за отдельные кнопки.
+
+
+## 2026-11-14 — v0.209, управление рабочими разделами и уведомления
+
+После v0.208 выполнен следующий широкий блок этапа 1: Notifications, WorkspaceControls с явным registry, SongBlueprint и оставшиеся controls аранжировщика; общие actions/поиск/создание/плеерные режимы/launcher-ы на Vue. Существующие данные, алгоритмы, native dispatcher и полный fallback сохранены. Проверяется поздний draft и render failure recovery. Подробности — раздел 59 PROJECT_CONTEXT.md и tests/vue-workspace.mjs. Весь этап 1 ещё требует цельной композиции page views и общей приёмки; далее именно это, а не новые версии за отдельную кнопку. Этапы 2–4 не начинались.

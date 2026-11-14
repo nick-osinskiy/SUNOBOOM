@@ -215,12 +215,12 @@
       '<div class="sba-preset-search-row"><input type="search" id="sba-preset-search" autocomplete="off" placeholder="Найти жанр или шаблон..." aria-label="Поиск жанра"/><button type="button" data-sba-action="menu-close" aria-label="Закрыть меню">×</button></div>'+
       '<div class="sba-preset-filters" role="group" aria-label="Тип вариантов"><button type="button" data-sba-action="menu-filter" data-filter="all">Все</button><button type="button" data-sba-action="menu-filter" data-filter="templates">Шаблоны</button><button type="button" data-sba-action="menu-filter" data-filter="genres">Жанры Академии ('+genreCount+')</button></div>'+
       '<div class="sba-preset-results" id="sba-preset-results" role="listbox" aria-label="Доступные шаблоны и жанры"></div></div></div>'+
-      '<button type="button" data-sba-action="request-preset" class="sba-btn sba-preset-btn">Применить шаблон</button>'+
+      '<span data-sb-arranger-controls="apply" style="display:contents"><button type="button" data-sba-action="request-preset" class="sba-btn sba-preset-btn">Применить шаблон</button></span>'+
       '<span class="sba-draft-saved" id="sba-saved">Черновик сохраняется в браузере</span></div>'+
-      '<div id="sba-preset-confirm" aria-live="polite"></div>'+
+      '<div id="sba-preset-confirm" data-sb-arranger-controls="preset-confirm" aria-live="polite"></div>'+
       '<section class="sba-snake-overview" aria-label="Краткая схема последовательности блоков">'+
         '<div class="sba-snake-top"><div><span class="sba-snake-eyebrow">СХЕМА ПЕСНИ</span><h3>Змейка аранжировки <span aria-hidden="true">〰</span></h3></div>'+
-        '<div class="sba-snake-tools"><span id="sba-snake-meta" class="sba-snake-meta"></span><button type="button" id="sba-snake-toggle" data-sba-action="snake-toggle" hidden>Показать все</button></div></div>'+
+        '<div class="sba-snake-tools" data-sb-arranger-controls="snake-tools"><span id="sba-snake-meta" class="sba-snake-meta"></span><button type="button" id="sba-snake-toggle" data-sba-action="snake-toggle" hidden>Показать все</button></div></div>'+
         '<div id="sba-snake-track" class="sba-snake-track" aria-live="polite"></div>'+
         '<p class="sba-snake-footnote">Перетаскивай блоки в змейке мышью или пальцем. Порядок и черновик обновятся автоматически.</p>'+
         '<span id="sba-snake-status" class="sba-sr-only" role="status" aria-live="polite"></span>'+
@@ -232,19 +232,19 @@
           '<p>Соедини соседние блоки сбивкой, нарастанием, паузой, плавным переходом, затуханием или акцентом. Выбирай здесь — эффект появится в тегах Suno.</p>'+
         '</div><span id="sba-transition-hub-meta" class="sba-transition-hub-meta"></span></div>'+
         '<div id="sba-transition-hub-list" class="sba-transition-hub-list"></div>'+
-        '<button type="button" id="sba-transition-hub-expand" class="sba-transition-hub-expand" data-sba-action="transition-hub-expand" hidden>Показать все переходы</button>'+
+        '<span data-sb-arranger-controls="expand" style="display:contents"><button type="button" id="sba-transition-hub-expand" class="sba-transition-hub-expand" data-sba-action="transition-hub-expand" hidden>Показать все переходы</button></span>'+
       '</section>'+
       '<div class="sba-body">'+
       '<div class="sba-editor">'+
         '<div class="sba-panel-title"><div><h3>Структура песни</h3><p>Перетаскивай блоки на компьютере или используй ↑ ↓ на телефоне.</p></div><span id="sba-section-count" class="sba-count"></span></div>'+
-        '<div class="sba-add" id="sba-add-editor"><div class="sba-add-title"><strong>+ Новый блок</strong><span id="sba-add-placement" role="status">Добавится в конец композиции</span></div>'+
+        '<div class="sba-add" id="sba-add-editor" data-sb-arranger-controls="composer"><div class="sba-add-title"><strong>+ Новый блок</strong><span id="sba-add-placement" role="status">Добавится в конец композиции</span></div>'+
           '<div class="sba-add-row"><label for="sba-add-type">Тип фрагмента<select id="sba-add-type">'+Object.entries(SECTION).map(([k,v])=>'<option value="'+k+'">'+esc(v.ru)+'</option>').join("")+'</select></label>'+
           '<label id="sba-custom-name-wrap" for="sba-new-block-title" hidden>Название своего блока<input id="sba-new-block-title" type="text" maxlength="48" placeholder="Например: Разговорный переход" autocomplete="off"/></label></div>'+
           '<div class="sba-add-row sba-add-controls"><button class="sba-btn sba-add-btn" data-sba-action="add" type="button">+ Добавить блок</button><button class="sba-btn sba-placement-reset" data-sba-action="reset-insert" type="button" hidden>Добавлять в конец</button></div>'+
           '<p class="sba-add-hint">Выбери куплет, припев, дроп или свой фрагмент. После добавления можно настроить такты, энергию, вокал и инструменты.</p>'+
         '</div>'+
         '<div id="sba-cards" class="sba-block-list"></div>'+
-        '<button type="button" class="sba-end-add" data-sba-action="insert-end">+ Добавить блок в конец</button>'+
+        '<span data-sb-arranger-controls="end-add" style="display:contents"><button type="button" class="sba-end-add" data-sba-action="insert-end">+ Добавить блок в конец</button></span>'+
         '<div class="sba-chart-panel"><div class="sba-panel-title"><div><h3>Кривая энергии</h3><p>Схематичная динамика от тихого вступления до кульминации.</p></div></div><div id="sba-energy-chart" class="sba-chart" role="img"></div></div>'+
       '</div>'+
       '<aside class="sba-result">'+
@@ -859,13 +859,14 @@
       (shown<total?'<p class="sba-snake-more">… и ещё '+(total-shown)+' блоков</p>':""):
       '<p class="sba-snake-empty">Добавь первый блок, и здесь появится схема композиции.</p>';
     const meta=document.getElementById("sba-snake-meta");
-    if(meta)meta.textContent=total+" блоков · ≈ "+lengthString();
+    if(meta&&!meta.closest("[data-v-app]"))meta.textContent=total+" блоков · ≈ "+lengthString();
     const toggle=document.getElementById("sba-snake-toggle");
-    if(toggle){
+    if(toggle&&!toggle.closest("[data-v-app]")){
       toggle.hidden=total<=SNAKE_PREVIEW_COUNT;
       toggle.textContent=state.snakeExpanded?"Свернуть":"Показать все ("+total+")";
       toggle.setAttribute("aria-expanded",String(state.snakeExpanded));
     }
+
   }
 
 
@@ -903,11 +904,12 @@
     const meta=document.getElementById("sba-transition-hub-meta");
     if(meta)meta.textContent=count+" переходов · "+active+" настроено";
     const expand=document.getElementById("sba-transition-hub-expand");
-    if(expand){
+    if(expand&&!expand.closest("[data-v-app]")){
       expand.hidden=count<=3;
       expand.textContent=state.transitionHubExpanded?"Свернуть список":"Показать все ("+count+")";
       expand.setAttribute("aria-expanded",String(state.transitionHubExpanded));
     }
+
   }
 
   function updateDerived(){
@@ -928,6 +930,7 @@
   function updateAddComposer(){
     const afterIndex=state.insertAfter===null?-1:findIndex(state.insertAfter);
     if(state.insertAfter!==null&&afterIndex<0)state.insertAfter=null;
+    if(document.getElementById("sba-add-editor")?.hasAttribute("data-v-app")){window.dispatchEvent(new Event("sunoboom:arranger-updated"));return;}
     const placement=document.getElementById("sba-add-placement");
     if(placement)placement.textContent=state.insertAfter===null?"Добавится в конец композиции":"После блока "+(afterIndex+1)+" — "+SECTION[state.blocks[afterIndex].type].ru;
     const reset=document.querySelector(".sba-placement-reset");if(reset)reset.hidden=state.insertAfter===null;
@@ -946,6 +949,7 @@
   }
   function drawPresetPrompt(){
     const el=document.getElementById("sba-preset-confirm");if(!el)return;
+    if(el.hasAttribute("data-v-app")){window.dispatchEvent(new Event("sunoboom:arranger-updated"));return;}
     el.innerHTML=state.presetPending?'<div class="sba-confirm"><span>Заменить текущую структуру шаблоном «'+esc(choiceMeta(state.presetPending)?.ru||"")+'»? Текущие блоки будут заменены.</span><button type="button" data-sba-action="preset-accept">Заменить</button><button type="button" data-sba-action="preset-cancel">Отмена</button></div>':"";
   }
   function drawTransfer(){
@@ -1040,7 +1044,7 @@
   studio=function(){
     const original=oldStudio.apply(this,arguments);
     return original.replace('<div class="studio-grid">',
-      '<button type="button" class="sba-jump" data-sba-action="jump"><span>♬</span> Конструктор аранжировки <small>Создать структуру песни</small> <span>↓</span></button><div class="studio-grid">')+
+      '<span data-sb-workspace="arranger-jump" style="display:contents"><button type="button" class="sba-jump" data-sba-action="jump"><span>♬</span> Конструктор аранжировки <small>Создать структуру песни</small> <span>↓</span></button></span><div class="studio-grid">')+
       panel();
   };
   function enter(){
@@ -1058,9 +1062,9 @@
     const control=event.target?.closest?.("[data-sba-action]");
     if(!control||view.nav!=="studio")return;
     const action=control.dataset.sbaAction;
-    if(action==="snake-toggle"){state.snakeExpanded=!state.snakeExpanded;updateSnakeOverview();return;}
+    if(action==="snake-toggle"){state.snakeExpanded=!state.snakeExpanded;updateSnakeOverview();window.dispatchEvent(new Event("sunoboom:arranger-updated"));return;}
     if(action==="transition-hub-expand"){
-      state.transitionHubExpanded=!state.transitionHubExpanded;updateTransitionHub();return;
+      state.transitionHubExpanded=!state.transitionHubExpanded;updateTransitionHub();window.dispatchEvent(new Event("sunoboom:arranger-updated"));return;
     }
     if(action==="transition-hub-jump"){
       const id=control.dataset.id,index=findIndex(id);
@@ -1466,6 +1470,10 @@
   }
   // Vue reads the real arrangement state. All existing rules remain authoritative.
   window.SUNOBOOM_LEGACY_ARRANGER=Object.freeze({
+    restoreComposer(values){
+      const type=document.getElementById("sba-add-type"),title=document.getElementById("sba-new-block-title");
+      if(type)type.value=values.type;if(title)title.value=values.title;updateAddComposer();
+    },
     snapshot(){
       if(view.nav!=="studio")return null;
       const blocks=state.blocks.map((b,i)=>({
@@ -1481,6 +1489,10 @@
       }));
       const mapped=entries=>Object.entries(entries).map(([id,item])=>({id,name:item.ru}));
       return {
+        controls:{total:state.blocks.length,previewCount:SNAKE_PREVIEW_COUNT,transitions:Math.max(0,state.blocks.length-1),
+          snakeMeta:state.blocks.length+" блоков · ≈ "+lengthString(),pending:state.presetPending?(choiceMeta(state.presetPending)?.ru||""):"",
+          type:document.getElementById('sba-add-type')?.value||Object.keys(SECTION)[0],title:document.getElementById('sba-new-block-title')?.value||'',
+          inserting:state.insertAfter!==null,placement:state.insertAfter===null?"Добавится в конец композиции":"После блока "+(findIndex(state.insertAfter)+1)+" — "+(SECTION[state.blocks[findIndex(state.insertAfter)]?.type]?.ru||'')},
         blocks,sections:mapped(SECTION),voices:mapped(VOICES),
         picker:arrangerPickerSnapshot(),
         result:{
@@ -1505,4 +1517,5 @@
   });
   window.SUNOBOOM_ARRANGER=Object.freeze({version:"0.90",getBlockCount:()=>state.blocks.length,getLyrics:generatedLyrics,getStyle:fullDynamics,getDurationEstimate:()=>lengthString(),exportDraft,importDraft});
   if(view.nav==="studio")render();
+ window.SUNOBOOM_WORKSPACE_UI?.register('arranger-jump',()=>({kind:'arranger-jump'}));
 })();

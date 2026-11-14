@@ -505,7 +505,7 @@
    const shown=ordered.filter(song=>(song.title+" "+song.artist+" "+song.genre+" "+song.album).toLowerCase().includes(q));
    const selected=get(state.selectedId);
    return '<section class="sbsong-page" id="sbsong-page">'+
-     '<header class="sbsong-hero"><div class="sbsong-eyebrow">SUNOBOOM · ЛИЧНЫЙ КАБИНЕТ</div>'+
+     '<header class="sbsong-hero" data-sb-workspace="songs-header"><div class="sbsong-eyebrow">SUNOBOOM · ЛИЧНЫЙ КАБИНЕТ</div>'+
      '<button type="button" data-sbsong-action="back" class="sbsong-back">← В личный кабинет</button>'+
      '<div class="sbsong-hero-row"><div><h1>Мои песни</h1>'+
      '<p>Личная коллекция песен: карточки, обложки, MP3, M4A, WAV и версии записей.</p></div>'+
@@ -518,7 +518,7 @@
      (!state.showForm&&state.showArtistManager?artistManager():"")+
      (state.showForm?formPage(get(state.editId)):"")+
      (selected&&!state.showForm?detail(selected):"")+
-     '<div class="sbsong-collection-head"><h2>Коллекция</h2><input type="search" id="sbsong-search" placeholder="Найти песню или исполнителя…" value="'+esc(state.search)+'" aria-label="Поиск песен"></div>'+
+     '<div class="sbsong-collection-head" data-sb-workspace="songs-search"><h2>Коллекция</h2><input type="search" id="sbsong-search" placeholder="Найти песню или исполнителя…" value="'+esc(state.search)+'" aria-label="Поиск песен"></div>'+
      '<div id="sb-vue-song-cards">'+
      (shown.length?'<div class="sbsong-grid">'+shown.map(card).join("")+'</div>':
        '<div class="sbsong-empty">'+(songs.length?"По этому запросу песен нет.":"Песен пока нет. Добавь первую карточку и загрузи аудиофайл.")+'</div>')+
@@ -1031,4 +1031,6 @@
       hasAudio:x.hasAudio,hasCover:x.hasCover,versionCount:songVersions(x).length,audioUrl:x.audioUrl,listenUrl:x.listenUrl})),
     openCard,openLibrary,decodeCard});
  if(!routeShare())render();
+ window.SUNOBOOM_WORKSPACE_UI?.register('songs-header',()=>({kind:'songs-header',count:songs.length,versions:songs.reduce((n,s)=>n+songVersions(s).length,0),artists:customArtists().length}));
+ window.SUNOBOOM_WORKSPACE_UI?.register('songs-search',()=>({kind:'songs-search',query:document.getElementById('sbsong-search')?.value??state.search}));
 })();

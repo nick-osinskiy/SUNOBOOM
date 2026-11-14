@@ -1,9 +1,11 @@
+import ArrangementComposer from './ArrangementComposer.vue';
 import ArrangementPanel from './ArrangementPanel.vue';
 import ArrangementPicker from './ArrangementPicker.vue';
 import ArrangementResult from './ArrangementResult.vue';
 import { observeLegacyIslands } from '../legacy/observeLegacyIslands.js';
 
 const targets = [
+  ...['composer','apply','expand','snake-tools','preset-confirm','end-add'].map(kind=>[`[data-sb-arranger-controls="${kind}"]`,kind,ArrangementComposer]),
   ['#sba-cards', 'cards'],
   ['#sba-snake-track', 'snake'],
   ['#sba-transition-hub-list', 'transitions'],
@@ -26,9 +28,11 @@ export function activateLegacyArranger({ mountVueFeature }) {
       key: kind,
       selectTarget: parent => parent.querySelector(selector),
       readSnapshot: () => api.snapshot(),
-      mount: node => mountVueFeature(
-        node, component, component === ArrangementPanel ? { api, kind } : { api }
-      )
+      mount: (node, initial) => {
+        const stop=mountVueFeature(node, component, component === ArrangementPanel || component === ArrangementComposer ? { api, kind, initial } : { api });
+        if(!stop&&kind==='composer')api.restoreComposer(initial.controls);
+        return stop;
+      }
     }))
   });
 }
