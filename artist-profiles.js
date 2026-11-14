@@ -53,6 +53,8 @@
     "grunge":["панк-рок","хард-рок","гаражный рок"],"funk-classic":["соул","ритм-энд-блюз"],"disco-classic":["фанк","соул","танцевальная поп-музыка"],
     "hiphop-boombap":["классический хип-хоп","сэмплирование"],"hiphop-trap":["южный хип-хоп"],"techno":["электрофанк","диско","электронная музыка"]
   };
+  const listeners=new Set();
+  const publish=()=>{for(const listener of [...listeners])listener();};
   const state={hubOpen:false,locale:"all",query:"",savedOnly:false,page:0,active:null,lastFocus:null};
   let index=null;
   let favorites;try{favorites=new Set(JSON.parse(localStorage.getItem(FAV_KEY)||"[]").filter(x=>typeof x==="string"));}catch(_){favorites=new Set();}
@@ -118,7 +120,7 @@
   }
   function hubResults(){
     const root=document.querySelector("#sb-ap-hub-content");
-    if(!root)return;
+    if(!root||root.closest("[data-sb-vue-profile-hub]"))return;
     const rows=filteredArtists();
     const out=root.querySelector("#sb-ap-results"),count=root.querySelector("#sb-ap-count");
     if(count)count.textContent="Найдено "+rows.length+" исполнителей · в избранном "+favorites.size;
@@ -133,14 +135,14 @@
   }
   function renderHub(){
     const node=document.querySelector("#sb-ap-hub-content");
-    if(!node)return;
+    if(!node||node.closest("[data-sb-vue-profile-hub]"))return;
     node.innerHTML='<div class="sb-ap-heading"><div><span class="sb-ap-overline">SUNOBOOM · МУЗЫКАЛЬНАЯ АКАДЕМИЯ</span><h2>Энциклопедия исполнителей</h2><p>Все существующие подборки артистов собраны в единый указатель. Профиль показывает сведения из Академии, а для отдельных исполнителей — расширенную редакционную справку.</p></div><div class="sb-ap-total">'+getIndex().size+' имён в базе</div></div><div class="sb-ap-tools"><label>Поиск по имени или жанру<input id="sb-ap-search" type="search" placeholder="Например: Distemper или поп" autocomplete="off" value="'+esc(state.query)+'"></label><label>Подборка<select id="sb-ap-locale"><option value="all"'+(state.locale==="all"?" selected":"")+'>Все сцены</option><option value="ru"'+(state.locale==="ru"?" selected":"")+'>Русскоязычная сцена</option><option value="world"'+(state.locale==="world"?" selected":"")+'>Мировая сцена</option></select></label><label class="sb-ap-check"><input id="sb-ap-saved-only" type="checkbox"'+(state.savedOnly?" checked":"")+'> Только избранные</label></div><p id="sb-ap-count" class="sb-ap-count" aria-live="polite"></p><div id="sb-ap-results" class="sb-ap-index-grid"></div><button type="button" id="sb-ap-more" class="sb-ap-more" data-sb-ap-action="more" hidden>Показать ещё</button><p class="sb-ap-disclaimer">Периоды в исходных карточках ориентировочные. Присутствие в подборке жанра не обязательно означает, что это единственное направление или прямое влияние на исполнителя.</p>';
     hubResults();
   }
   function enhanceExistingCards(){
     if(view.nav!=="detail"||view.tab!=="artists")return;
     for(const card of document.querySelectorAll(".ahx-card,.ah-card")){
-      if(card.querySelector("[data-sb-ap-action='profile']"))continue;
+      if(card.closest("[data-sb-vue-artists]")||card.querySelector("[data-sb-ap-action='profile']"))continue;
       const title=card.querySelector(".ahx-title h4,.ah-id h4")?.textContent?.trim();
       if(!title)continue;
       const buttons=document.createElement("div");buttons.className="sb-ap-inline-actions";
@@ -187,21 +189,25 @@
       overlay.innerHTML='<div class="sb-ap-backdrop" data-sb-ap-action="close"></div><section class="sb-ap-dialog" role="dialog" aria-modal="true" aria-labelledby="sb-ap-dialog-heading" tabindex="-1"><div id="sb-ap-dialog-body"></div></section>';
       document.body.appendChild(overlay);
     }
-    overlay.querySelector("#sb-ap-dialog-body").innerHTML=profileHTML(rec);
+    const body=overlay.querySelector("#sb-ap-dialog-body");
+    if(!body.hasAttribute("data-v-app"))body.innerHTML=profileHTML(rec);
     overlay.hidden=false;
     if(!document.body.classList.contains("sb-ap-dialog-open"))previousOverflow=document.body.style.overflow;
     document.body.classList.add("sb-ap-dialog-open");document.body.style.overflow="hidden";
-    overlay.querySelector("[data-sb-ap-action='close']")?.focus();
+    publish();
+    overlay.querySelector("button[data-sb-ap-action='close']")?.focus();
   }
   function closeProfile(){
     const overlay=document.getElementById("sb-ap-overlay");
-    if(overlay)overlay.hidden=true;
+    if(!overlay||overlay.hidden)return;
+    overlay.hidden=true;
     document.body.classList.remove("sb-ap-dialog-open");document.body.style.overflow=previousOverflow;
-    state.active=null;
+    state.active=null;publish();
     if(state.lastFocus?.isConnected)state.lastFocus.focus();
   }
   function refreshFavoriteButtons(){
     document.querySelectorAll("[data-sb-ap-action='favorite']").forEach(btn=>{
+      if(btn.closest("[data-v-app]"))return;
       const isFav=favorites.has(artistKey(btn.dataset.name));
       btn.setAttribute("aria-pressed",String(isFav));
       if(btn.classList.contains("sb-ap-fav-main"))btn.textContent=isFav?"★ В избранном":"☆ Сохранить в избранное";
@@ -215,14 +221,14 @@
     const act=btn.dataset.sbApAction;
     if(act==="hub-open"){
       const hubNode=document.getElementById("sb-ap-hub");if(!hubNode)return;
-      hubNode.open=true;state.hubOpen=true;renderHub();hubNode.scrollIntoView({behavior:"smooth",block:"start"});return;
+      hubNode.open=true;state.hubOpen=true;publish();renderHub();hubNode.scrollIntoView({behavior:"smooth",block:"start"});return;
     }
     if(act==="profile"){openProfile(btn.dataset.name,currentCardDetails(btn),btn);return;}
     if(act==="close"){closeProfile();return;}
     if(act==="favorite"){
       const key=artistKey(btn.dataset.name);if(!key)return;
       if(favorites.has(key))favorites.delete(key);else favorites.add(key);
-      saveFavorites();refreshFavoriteButtons();return;
+      saveFavorites();refreshFavoriteButtons();publish();return;
     }
     if(act==="more"){state.page++;hubResults();return;}
     if(act==="genre"){
@@ -240,7 +246,7 @@
   });
   document.addEventListener("toggle",event=>{
     if(event.target?.id!=="sb-ap-hub")return;
-    state.hubOpen=event.target.open;
+    state.hubOpen=event.target.open;publish();
     if(state.hubOpen)renderHub();
   },true);
   document.addEventListener("input",event=>{
@@ -263,10 +269,58 @@
       else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}
     }
   });
-  // Vue-backed artist cards are mounted after the legacy render() returns.
-  // Allow them to receive the existing profile/favorite controls as well.
+  // One data owner for both renderers. Vue reads descriptors, never native HTML.
+  // Native rendering stays available when the bundle or a mount fails.
+  function profileSnapshot(){
+    const rec=getIndex().get(state.active);if(!rec)return null;
+    const info=EDITORIAL[rec.key]||null,genres=genreMatches(rec);
+    const main=genres.find(g=>g.id===view.selected)||genres[0];
+    const exactYears=ACTIVITY_YEARS[rec.key]||"";
+    return {key:rec.key,name:rec.name,scene:labelScene(rec),editorial:!!info,
+      initials:rec.name.split(/\s+/).slice(0,2).map(x=>x[0]).join("").slice(0,2),
+      biography:info?.bio||firstUseful(rec.bios)||"В Академии пока есть только краткая привязка к жанру; расширенная биография ещё не добавлена.",
+      exactYears:!!exactYears,period:exactYears||[...rec.periods].filter(Boolean)[0]||"Не уточнён",
+      sound:info?.sound||(main?"Характерный контекст направления «"+main.name+"»: "+[main.tagline,main.instruments].filter(Boolean).join(". "):"В материалах пока нет отдельного описания звучания исполнителя."),
+      roots:[...(info?.influences||STYLE_ROOTS[main?.id]||[])],
+      songs:[...new Set([...(info?.tracks||[]),...rec.tracks])].filter(Boolean),
+      genres:genres.map(g=>({id:g.id,name:g.name})),favorite:favorites.has(rec.key)};
+  }
   window.SUNOBOOM_ARTIST_PROFILES=Object.freeze({
-    enhanceCards:enhanceExistingCards
+    enhanceCards:enhanceExistingCards,
+    restoreNativeHub:renderHub,
+    subscribe(listener){listeners.add(listener);return ()=>listeners.delete(listener);},
+    favoriteKeys:()=>[...favorites],key:artistKey,
+    hubSnapshot(){
+      const rows=filteredArtists(),shown=rows.slice(0,(state.page+1)*24);
+      return {open:state.hubOpen,query:state.query,locale:state.locale,savedOnly:state.savedOnly,
+        total:getIndex().size,count:rows.length,favorites:favorites.size,remaining:Math.max(0,rows.length-shown.length),
+        artists:shown.map(rec=>({key:rec.key,name:rec.name,scene:labelScene(rec),
+          initials:rec.name.replace(/[^A-Za-zА-Яа-яЁё0-9 ]/g,"").trim().split(/\s+/).slice(0,2).map(x=>x[0]).join("").slice(0,2)||"♫",
+          overview:firstUseful(rec.bios)||"Краткая справка доступна в материалах жанра.",
+          genres:genreMatches(rec).slice(0,3).map(g=>g.name),favorite:favorites.has(rec.key)}))};
+    },
+    setOpen(open){if(state.hubOpen===!!open)return;state.hubOpen=!!open;publish();},
+    filter(values){
+      if(typeof values.query==="string")state.query=values.query;
+      if(["all","ru","world"].includes(values.locale))state.locale=values.locale;
+      if(typeof values.savedOnly==="boolean")state.savedOnly=values.savedOnly;
+      state.page=0;publish();
+    },
+    more(){state.page++;publish();},
+    toggleFavorite(name){
+      const key=artistKey(name);if(!key)return;
+      if(favorites.has(key))favorites.delete(key);else favorites.add(key);
+      saveFavorites();refreshFavoriteButtons();publish();
+    },
+    openProfile,closeProfile,profileSnapshot,
+    openGenre(id){if(genreFor(id)){closeProfile();openGenre(id,"artists");}},
+    copy(name){
+      const rec=getIndex().get(artistKey(name));if(!rec)return;
+      const info=EDITORIAL[rec.key]||{};
+      const body=[rec.name,info.bio||firstUseful(rec.bios),info.sound||"",[...new Set([...(info.tracks||[]),...rec.tracks])].join(", ")].filter(Boolean).join("\n\n");
+      if(navigator.clipboard?.writeText)return navigator.clipboard.writeText(body).then(()=>toast("Справка скопирована")).catch(()=>toast("Не получилось скопировать справку"));
+      if(typeof toast==="function")toast("Копирование не поддерживается браузером");
+    }
   });
   if(view.nav==="detail")enhanceExistingCards();
 })();

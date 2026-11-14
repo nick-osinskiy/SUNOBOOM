@@ -2,8 +2,10 @@
 import { computed, reactive, ref, watch } from 'vue';
 import { useLegacyUiStore } from '../state/legacy-ui-store.js';
 import GenreCards from './GenreCards.vue';
+import ArtistProfileHub from './ArtistProfileHub.vue';
 
 const props = defineProps({
+  artistProfiles: { type: Object, default: null },
   snapshot: { type: Object, required: true },
   search: { type: Function, required: true },
   setExpanded: { type: Function, required: true },
@@ -80,6 +82,7 @@ function religiousNoun(n) {
 </script>
 
 <template>
+  <ArtistProfileHub v-if="artistProfiles" :api="artistProfiles" />
   <div class="genre-family-toolbar">
     <label class="search-box">
       <span v-html="searchIcon" aria-hidden="true"></span>

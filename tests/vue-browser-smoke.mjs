@@ -1,3 +1,4 @@
+import { checkArtistProfiles, checkArtistProfilesStartup } from './vue-artist-profiles.mjs';
 import { spawn } from 'node:child_process';
 import { setTimeout as pause } from 'node:timers/promises';
 import { chromium } from 'playwright';
@@ -4098,6 +4099,7 @@ async function checkLayout(mobile) {
     await checkAccountHome205(page,true);
     await checkIdeasPage206(page,true);
     await checkSharedSong207(page,true);
+    await checkArtistProfiles(page,true);
     console.log((mobile ? 'Mobile' : 'Desktop') + ' Vue navigation smoke PASS');
   } finally {
     await context.close();
@@ -4538,6 +4540,7 @@ async function checkEditorFallback() {
     await checkAccountHome205(page,false);
     await checkIdeasPage206(page,false);
     await checkSharedSong207(page,false);
+    await checkArtistProfiles(page,false);
     console.log('Original song editor, library, My Songs, artist manager, DNA, settings, player, Master and passports without Vue PASS');
   } finally { await context.close(); }
 }
@@ -4552,6 +4555,7 @@ try {
   await checkAccountHomeDelay205();
   await checkIdeasDelay206();
   await checkSharedSongStartup207();
+  await checkArtistProfilesStartup(browser,BASE);
   await checkEditorFallback();
   await checkMobileProjectFallback199();
 } finally {

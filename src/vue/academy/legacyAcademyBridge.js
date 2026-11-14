@@ -15,6 +15,10 @@ export function activateLegacyAcademy({ mountVueFeature }) {
       if (!model?.families?.length) return null;
       return model;
     },
-    mount: (node, model) => mountVueFeature(node, AcademyCatalog, { snapshot: model, search: q => api.search(q), searchIcon: node.querySelector('label.search-box > svg')?.outerHTML || '', setExpanded: (kind, id, value) => api.setExpanded(kind, id, value) })
+    mount: (node, model) => {
+      const unmount = mountVueFeature(node, AcademyCatalog, { artistProfiles: window.SUNOBOOM_ARTIST_PROFILES || null, snapshot: model, search: q => api.search(q), searchIcon: node.querySelector('label.search-box > svg')?.outerHTML || '', setExpanded: (kind, id, value) => api.setExpanded(kind, id, value) });
+      if (!unmount) window.SUNOBOOM_ARTIST_PROFILES?.restoreNativeHub?.();
+      return unmount;
+    }
   });
 }

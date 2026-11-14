@@ -15,6 +15,6 @@ export function activateLegacyGenreDetail({ mountVueFeature }) {
       if (!model?.id) return null;
       return model;
     },
-    mount: (node, model) => mountVueFeature(node, GenreDetail, { genre: model, tabContent: (id, tab) => api.tabContent(id, tab), artistCatalog: window.SUNOBOOM_ARTIST_CATALOG || null, enhanceArtistProfiles: () => window.SUNOBOOM_ARTIST_PROFILES?.enhanceCards?.() })
+    mount: (node, model) => mountVueFeature(node, GenreDetail, { genre: model, tabContent: (id, tab) => api.tabContent(id, tab), artistCatalog: window.SUNOBOOM_ARTIST_CATALOG || null, artistProfiles: window.SUNOBOOM_ARTIST_PROFILES || null })
   });
 }

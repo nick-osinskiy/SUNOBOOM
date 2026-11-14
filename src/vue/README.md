@@ -616,3 +616,8 @@ npm run build:vue
 - Локально: 95/95 Node tests, production build и полный browser smoke (desktop/mobile/HTML fallback, audio playback/cleanup и direct shared-link startup) успешны. CI и Pages сверять по итоговому HEAD перед объявлением выпуска.
 - Следующий шаг — финальная инвентаризация оставшегося legacy и план завершения миграции крупными этапами. Проверить владение DOM, маршруты, store/данные, оставшиеся native экраны и зависимости modules/render; отделить уже перенесённый UI от ещё legacy бизнес-логики. Не предлагать бесконечные версии за отдельные кнопки и не объявлять всё Vue SPA. Аудит сам по себе не требует новой версии; v0.208 назначать только следующему реальному изменению после выбранного плана.
 - После завершения предложить этот следующий шаг кнопкой; начинать только по выбору пользователя.
+
+
+### v0.208 — artist encyclopedia boundary
+
+AcademyCatalog composes ArtistProfileHub; GenreArtists owns profile/favorite buttons. Both consume SUNOBOOM_ARTIST_PROFILES descriptors/commands/subscriptions, with the existing index and favorites key remaining authoritative. ArtistProfileDialog owns only #sb-ap-dialog-body; the native overlay service owns visibility, Escape/Tab, scroll lock and return focus. Native renderHub/hubResults/enhanceCards never mutate Vue-owned content. A failed Academy mount restores the current native hub state. Stage 1 UI parity remains in progress; routing/data ownership are unchanged.

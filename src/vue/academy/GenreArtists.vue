@@ -1,12 +1,19 @@
 <script setup>
-import { computed, nextTick, onMounted, onUpdated, ref } from 'vue';
+import { computed, onUnmounted, ref, shallowRef } from 'vue';
 
 const props = defineProps({
   genre: { type: Object, required: true },
   catalog: { type: Object, required: true },
-  enhanceProfiles: { type: Function, default: null }
+  profiles: { type: Object, default: null }
 });
 
+const favorites = shallowRef(new Set(props.profiles?.favoriteKeys() || []));
+const unsubscribe = props.profiles?.subscribe(() => { favorites.value = new Set(props.profiles.favoriteKeys()); });
+onUnmounted(() => unsubscribe?.());
+const isFavorite = name => favorites.value.has(props.profiles?.key(name));
+function openProfile(artist, button) {
+  props.profiles?.openProfile(artist.name, {genre:props.genre.id,locale:scene.value,period:artist.period,bio:artist.bio,track:artist.track}, button);
+}
 const scene = ref(props.catalog.initialScene());
 const query = ref('');
 const selectedFilter = ref('all');
@@ -26,20 +33,16 @@ const groups = computed(() => (data.value?.groups || []).map(section => ({
 const shownCount = computed(() => groups.value.reduce((n, group) => n + group.artists.length, 0));
 const totalCount = computed(() => (data.value?.groups || []).reduce((n,group) => n + group.artists.length,0));
 
-async function selectScene(nextScene) {
+function selectScene(nextScene) {
   if (nextScene !== 'ru' && nextScene !== 'world') return;
   scene.value = nextScene;
   props.catalog.setScene(nextScene);
   query.value = '';
   selectedFilter.value = 'all';
-  await nextTick();
-  props.enhanceProfiles?.();
 }
 function profileFavoriteLabel(artist) {
   return 'Добавить в избранное: ' + artist.name;
 }
-onMounted(() => props.enhanceProfiles?.());
-onUpdated(() => props.enhanceProfiles?.());
 </script>
 
 <template>
@@ -99,8 +102,10 @@ onUpdated(() => props.enhanceProfiles?.());
             <div class="ahx-track" v-if="artist.track">
               <small>Ориентир для прослушивания</small><strong>♫ {{ artist.track }}</strong>
             </div>
-            <!-- The existing artist-profiles module adds real profile and favorite
-                 buttons to this card when it is rendered. -->
+            <div v-if="profiles" class="sb-ap-inline-actions">
+              <button type="button" class="sb-ap-inline-open" data-sb-ap-action="profile" :data-name="artist.name" @click.stop="openProfile(artist,$event.currentTarget)">Полный профиль →</button>
+              <button type="button" class="sb-ap-inline-star" data-sb-ap-action="favorite" :data-name="artist.name" :aria-label="profileFavoriteLabel(artist)" :aria-pressed="isFavorite(artist.name)" @click.stop="profiles.toggleFavorite(artist.name)">{{ isFavorite(artist.name) ? '★' : '☆' }}</button>
+            </div>
           </article>
         </div>
       </section>

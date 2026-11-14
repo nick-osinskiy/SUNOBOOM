@@ -1,3 +1,4 @@
+import { activateLegacyArtistProfiles } from './academy/legacyArtistProfilesBridge.js';
 import { activateLegacySharedSong } from './account/legacySharedSongBridge.js';
 import { activateLegacyIdeasPage } from './ideas/legacyIdeasPageBridge.js';
 import { activateLegacyAccountHome } from './account/legacyAccountHomeBridge.js';
@@ -283,4 +284,8 @@ export function startLegacyIdeasPage() {
 /** Public shared-song screen; native decoding, URL checks and route actions remain. */
 export function startLegacySharedSong() {
   return activateLegacySharedSong({ mountVueFeature });
+}
+
+export function startLegacyArtistProfiles() {
+  return activateLegacyArtistProfiles({ mountVueFeature });
 }

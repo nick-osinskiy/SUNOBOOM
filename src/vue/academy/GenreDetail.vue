@@ -10,7 +10,7 @@ const props = defineProps({
   genre: { type: Object, required: true },
   tabContent: { type: Function, required: true },
   artistCatalog: { type: Object, default: null },
-  enhanceArtistProfiles: { type: Function, default: null }
+  artistProfiles: { type: Object, default: null }
 });
 
 const tabs = [
@@ -97,7 +97,7 @@ async function chooseTab(tab) {
       <section class="genre-detail-content" id="genre-nav-content" aria-label="Содержимое раздела жанра">
         <GenreOverview v-if="activeTab === 'overview'" :genre="genre" @select-tab="chooseTab" />
         <GenreArtists v-else-if="activeTab === 'artists' && artistCatalog"
-          :genre="genre" :catalog="artistCatalog" :enhance-profiles="enhanceArtistProfiles" />
+          :genre="genre" :catalog="artistCatalog" :profiles="artistProfiles" />
         <GenreIdeas v-else-if="activeTab === 'ideas'" :genre="genre" />
         <GenrePrompts v-else-if="activeTab === 'prompts'" :genre="genre" />
         <!-- Legacy HTML output is retained only as a defensive fallback for

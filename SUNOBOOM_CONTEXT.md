@@ -316,3 +316,8 @@ npm run test:vue-browser
 ## 2026-11-14 — аудит миграции, версия остаётся v0.207
 
 Проверен main 4d6778f. Результат — MIGRATION_AUDIT.md и раздел 57 PROJECT_CONTEXT.md: 17 маршрутов на desktop/mobile, native overlays, свежие 95 Node tests и подтверждённый baseline CI. Выявлена F1: Vue-каталог уничтожает native #sb-ap-hub энциклопедии; без Vue поиск и 24 профиля работают. Следующий план: четыре крупных этапа UI parity → независимые domain commands/repos → Vue shell/RouterView → cleanup/final acceptance. Не дробить на кнопки; сохранить данные/ссылки/дизайн, отдельно согласовать судьбу полноценного HTML fallback. Аудит не меняет продуктовый код или версию и не исправляет F1.
+
+
+## 2026-11-14 — v0.208, первый результат этапа 1: энциклопедия исполнителей
+
+На базе 2a450b8 восстановлена F1 целиком: Vue ArtistProfileHub + ArtistProfileDialog, реальные profile/favorite controls GenreArtists без native DOM enhancements. Индекс/фильтры/избранное остаются в одном native service; Vue получает descriptors и подписки. Старый storage/fallback/overlay keyboard/focus сохранены; проверяется delayed bundle и mount failure recovery. Подробности — раздел 58 PROJECT_CONTEXT.md. Этап 1 не закрыт: дальше уведомления и оставшиеся оболочки рабочих разделов, затем общая приёмка UI parity; этапы 2–4 не начинались. Не создавать новые этапы за отдельные кнопки.

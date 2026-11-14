@@ -1523,7 +1523,7 @@ test('v0.189 Academy, genre detail and editors share lifecycle without changing 
   const genre = readFileSync(new URL('../src/vue/academy/legacyGenreDetailBridge.js', import.meta.url), 'utf8');
   assert.ok(genre.includes('!model?.id'));
   assert.ok(genre.includes('api.tabContent(id, tab)'));
-  assert.ok(genre.includes('SUNOBOOM_ARTIST_PROFILES?.enhanceCards?.()'));
+  assert.ok(genre.includes('artistProfiles: window.SUNOBOOM_ARTIST_PROFILES || null'));
 });
 
 
