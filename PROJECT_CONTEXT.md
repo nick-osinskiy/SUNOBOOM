@@ -949,6 +949,7 @@ SUNOBOOM_ARTIST_PROFILES остаётся одним владельцем инд
 
 База main 3cff884ffea42990d02c3ee2f0298d95355bee93. Выполнен согласованный блок этапа 1 сразу для рабочих разделов, без релизов за отдельные кнопки.
 
+- При проверке опубликованного сайта дополнительно исправлен старый startup defect: sbN37 date helpers теперь объявлены в первом notification script ДО его render; reload с непустыми persisted events не вызывает ReferenceError. Формулы/сроки не менялись, перенесены только определения pure helpers. Workspace smoke явно проверяет pageerror на этом reload.
 - Notifications: панель, banner, пустое состояние, отметки read/read-all, открытие/создание события. Используются те же sbN35ReminderCandidates/sbN35Unread, ключи read и сохранение. Vue добавляет управляемый focus/Escape/Tab; напоминания остаются внутри открытого сайта, без нового push/backend.
 - WorkspaceControls + registry workspace-vue-bridge.js: явные descriptors, а не парсинг итогового HTML. Назад, quickbar и действия идей/промптов/аудитора, создание паспорта/ДНК, launcher-ы Академии, mixer banner, шапка/поиск Моих песен, создание/выбор источника/поиск Мастера и режимы Player LAB/A-B. Исходные data-actions/IDs и обработчики сохранены.
 - SongBlueprint: форма/длительность/создание/результат/сохранение/копирование структуры целиком. Исходный songMake и savedStructures не менялись.

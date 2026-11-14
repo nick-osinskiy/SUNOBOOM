@@ -4302,6 +4302,35 @@ handleAction=function(button){
 render();
 </script><script>
 /* SUNOBOOM v0.35 — In-app event reminders */
+// Date helpers must exist before the first reminder render with persisted events.
+function sbN37SelectedDays(event){
+ if(Array.isArray(event?.reminderDays)){
+  return [...new Set(event.reminderDays.map(Number).filter(n=>Number.isInteger(n)&&n>=0&&n<=365))].sort((a,b)=>b-a);
+ }
+ if(event?.remind===false)return [];
+ // Preserve the existing reminder preferences of events created before v0.37.
+ return [1,0];
+}
+function sbN37DayDiff(eventDate,day){
+ const parts=s=>String(s||'').split('-').map(Number);
+ const a=parts(eventDate),b=parts(day);
+ if(a.length!==3||b.length!==3||a.some(x=>!Number.isFinite(x))||b.some(x=>!Number.isFinite(x)))return NaN;
+ return Math.round((Date.UTC(a[0],a[1]-1,a[2])-Date.UTC(b[0],b[1]-1,b[2]))/86400000);
+}
+function sbN37ReminderPeriod(days){
+ if(days===0)return 'В день события';
+ if(days===1)return 'За день';
+ if(days===3)return 'За 3 дня';
+ if(days===7)return 'За неделю';
+ if(days===14)return 'За 2 недели';
+ if(days===30)return 'За 30 дней';
+ return 'За '+days+' '+(days%10===1&&days%100!==11?'день':([2,3,4].includes(days%10)&&![12,13,14].includes(days%100)?'дня':'дней'));
+}
+function sbN37DaysUntil(days){
+ if(days===0)return 'Сегодня';
+ if(days===1)return 'Завтра';
+ return 'Через '+days+' '+(days%10===1&&days%100!==11?'день':([2,3,4].includes(days%10)&&![12,13,14].includes(days%100)?'дня':'дней'));
+}
 function sbN35DateAfterToday(days){
  const d=new Date();
  d.setHours(12,0,0,0);
@@ -4448,34 +4477,10 @@ render();
 /* SUNOBOOM v0.37 — Custom event reminder schedules.
    Calendar-day math avoids timezone and DST off-by-one errors. */
 const SB_N37_PRESETS=[[0,'В день события'],[1,'За день'],[3,'За 3 дня'],[7,'За неделю'],[14,'За 2 недели'],[30,'За 30 дней']];
-function sbN37SelectedDays(event){
- if(Array.isArray(event?.reminderDays)){
-  return [...new Set(event.reminderDays.map(Number).filter(n=>Number.isInteger(n)&&n>=0&&n<=365))].sort((a,b)=>b-a);
- }
- if(event?.remind===false)return [];
- // Preserve the existing reminder preferences of events created before v0.37.
- return [1,0];
-}
-function sbN37DayDiff(eventDate,day){
- const parts=s=>String(s||'').split('-').map(Number);
- const a=parts(eventDate),b=parts(day);
- if(a.length!==3||b.length!==3||a.some(x=>!Number.isFinite(x))||b.some(x=>!Number.isFinite(x)))return NaN;
- return Math.round((Date.UTC(a[0],a[1]-1,a[2])-Date.UTC(b[0],b[1]-1,b[2]))/86400000);
-}
-function sbN37ReminderPeriod(days){
- if(days===0)return 'В день события';
- if(days===1)return 'За день';
- if(days===3)return 'За 3 дня';
- if(days===7)return 'За неделю';
- if(days===14)return 'За 2 недели';
- if(days===30)return 'За 30 дней';
- return 'За '+days+' '+(days%10===1&&days%100!==11?'день':([2,3,4].includes(days%10)&&![12,13,14].includes(days%100)?'дня':'дней'));
-}
-function sbN37DaysUntil(days){
- if(days===0)return 'Сегодня';
- if(days===1)return 'Завтра';
- return 'Через '+days+' '+(days%10===1&&days%100!==11?'день':([2,3,4].includes(days%10)&&![12,13,14].includes(days%100)?'дня':'дней'));
-}
+
+
+
+
 function sbN37ReminderSummary(event){
  const days=sbN37SelectedDays(event);
  return days.length?'🔔 '+days.map(sbN37ReminderPeriod).join(' · '):'🔕 Без уведомлений';

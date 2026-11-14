@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 
 const routes=['home','account','ideas','saved','projects','events','myprompts','myideas','catalog','studio','player','producer','tracks','artists','songs','mixer'];
 export async function checkWorkspace(page,vue) {
+  const errors=[];const onError=error=>errors.push(error.message);page.on('pageerror',onError);
   const ready=async key=>{
     await page.waitForFunction(({key,vue})=>{
       const el=document.querySelector(`[data-sb-workspace="${key}"]`);
@@ -84,6 +85,8 @@ export async function checkWorkspace(page,vue) {
   }finally{
     await page.evaluate(backup=>{data.events=backup.events;data.notificationRead=backup.read;view.sbNoticeOpen=false;persist();go('home');},backup);
   }
+  page.off('pageerror',onError);
+  assert.deepEqual(errors,[],'no errors during reload with persisted events');
   console.log(`Workspace control inventory, poetry commands and notifications ${vue?'Vue':'native'} PASS`);
 }
 

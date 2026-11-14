@@ -2130,12 +2130,13 @@ test('v0.201 editor hands only five fields to Vue, keeping native reminders and 
 
 test('v0.202 reminder snapshot preserves raw DOM drafts and native saved/legacy defaults', () => {
   const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
-  const presetStart=html.indexOf('const SB_N37_PRESETS='),presetEnd=html.indexOf('function sbN37DayDiff(',presetStart);
+  const presetStart=html.indexOf('const SB_N37_PRESETS='),presetEnd=html.indexOf(';',presetStart)+1;
+  const daysStart=html.indexOf('function sbN37SelectedDays('),daysEnd=html.indexOf('function sbN37DayDiff(',daysStart);
   const start=html.indexOf('window.SUNOBOOM_LEGACY_EVENT_REMINDERS='),end=html.indexOf('function sbN37ReminderForm(',start);
   const win={},view={nav:'home',editEvent:'saved202'},saved={id:'saved202',reminderDays:[7,10,1]};
   let inputs=[{value:'0',checked:false},{value:'7',checked:true}];
   const fields={'event-reminder-custom':{checked:false},'event-reminder-custom-days':{value:''}};
-  new Function('window','view','document','dashboardSortedEvents',html.slice(presetStart,presetEnd)+html.slice(start,end))(win,view,
+  new Function('window','view','document','dashboardSortedEvents',html.slice(presetStart,presetEnd)+html.slice(daysStart,daysEnd)+html.slice(start,end))(win,view,
     {querySelectorAll:()=>inputs,getElementById:id=>fields[id]},()=>[saved]);
   const api=win.SUNOBOOM_LEGACY_EVENT_REMINDERS;assert.equal(api.snapshot(),null);
   view.nav='events';let model=api.snapshot();
