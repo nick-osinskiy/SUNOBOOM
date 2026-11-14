@@ -4,6 +4,8 @@
 
 ## Текущее исполнение плана
 
+**Этап 1 закрыт на v0.210**: 97 tests + full browser smoke + [CI success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43625601565) + [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43625951503), опубликованный сайт desktop/mobile проверен. [Акт приёмки](./STAGE1_ACCEPTANCE.md). Следующим остаётся этап 2; этапы 2–4 не выполнены. Более ранние записи ниже — история работ и критериев, а не актуальные блокеры этапа 1.
+
 v0.210: заключительная композиция page views и приёмка **этапа 1** — [STAGE1_ACCEPTANCE.md](./STAGE1_ACCEPTANCE.md). Один actual Vue app на обычный body экрана, готовые child components, две явные native/lazy boundaries и целиком native page fallback при ошибке. Layout descriptors пока читаются из native HTML, команды/данные/root render/router mirror не перенесены: это **учтённые задачи этапов 2–4**. Исторические записи v0.208/209 ниже не являются актуальным списком незавершённых UI-панелей. Итог этапа 1 подтверждать успешными тестами/CI выпуска, не одним DOM inventory.
 
 v0.209: перенесены Notifications и панели управления рабочих разделов (Мастер, песни, плеер, поэзия/промпты, паспорт/ДНК, Studio/blueprint/arranger, launcher-ы Академии). Явные descriptors, прежние data-actions/хранилища, managed editor boundaries и полный fallback. Проверяются desktop/mobile, read-state reload, drafts, render failure. **Остаток этапа 1: цельные page views из готовых компонентов и итоговая общая приёмка всех веток.** Root render/команды DOM не входят в этот выпуск — это последующие этапы. Подробности — раздел 59 PROJECT_CONTEXT.md.

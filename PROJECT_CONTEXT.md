@@ -1,6 +1,6 @@
 # SUNOBOOM — PROJECT_CONTEXT.md
 
-> **v0.210, заключительная приёмка этапа 1, 14 ноября 2026 г.** Готовые компоненты собраны в один Vue page app на обычный экран; исключены конкурирующие дочерние apps. Явные lazy/editor boundaries сохранены. Отчёт — [STAGE1_ACCEPTANCE.md](./STAGE1_ACCEPTANCE.md), детали — раздел 60. Старые данные/команды/HTML-layout descriptors/root render/Router mirror остаются — это задачи этапов 2–4, а не незавершённые кнопки этапа 1. Итоговые CI/Pages проверять по SHA. Следующим предложить этап 2 — прикладное ядро без глобального DOM.
+> **v0.210 — этап 1 закрыт, 14 ноября 2026 г.** Готовые компоненты собраны в цельные page views; сохранены функции/данные/дизайн и полный fallback. 97/97 Node tests, полный browser smoke, CI и Pages прошли, опубликованный сайт проверен desktop/mobile. Приёмка — [STAGE1_ACCEPTANCE.md](./STAGE1_ACCEPTANCE.md), детали — раздел 60. Следующий крупный этап 2: команды/repositories/один владелец состояния без global DOM, включая устранение DOM-derived layout adapter. Root render/Router mirror/AppShell — этап 3, cleanup — этап 4. Не объявлять завершённой всю миграцию и не начинать этап 2 автоматически.
 
 ## 1. Что это и где работает
 
@@ -979,3 +979,6 @@ SUNOBOOM_ARTIST_PROFILES остаётся одним владельцем инд
 Проверки: tests/vue-pages.mjs — фактические apps/child components на 16 маршрутах в обоих layouts, stable draft/identity; принудительные snapshot/render failures, рабочий native create, raw form identity/FileList и последующий retry; mobile delayed poetry с тем же preview textarea, ручными ударениями/selection и apply. Полный существующий browser smoke обязателен для остальных empty/edit/detail/error, shared-card, overlays/keyboard, локального аудио/версий/A-B и native fallback. Сохранены проверки v0.208/209; тест failure v0.209 обновлён на более строгий whole-page fallback.
 
 Критерии и свидетельства итоговой приёмки — STAGE1_ACCEPTANCE.md. Если любой финальный CI/smoke не зелёный, исправить в рамках этого же этапа; не объявлять завершённым до успешного прогона. Следующий согласованный крупный этап после приёмки — 2: команды с payload/result, repositories JSON/IDB и один владелец состояния без глобального DOM. Не начинать его автоматически.
+
+
+Итог приёмки v0.210: **этап 1 закрыт**. Source a4a04e92cd66c8a7c6aca8545362e09a9c069486; browser-tested bundle 51d6a0dae76441dc131cef079a4d1387709fa1b8. [CI success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43625601565) и [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43625951503). Опубликованная версия проверена новым browser context на desktop/mobile: один actual page app на обычный маршрут и workspace/notifications/reload без pageerror. Следующий этап — 2, по отдельному запуску пользователя.

@@ -331,3 +331,8 @@ npm run test:vue-browser
 ## 2026-11-14 — v0.210, цельные page views и приёмка этапа 1
 
 На базе 812413a переиспользованы текущие feature bridges как providers дескрипторов: PageView объединяет существующие компоненты в один обычный Vue page app. Native структурные boundaries дерева/поэтического preview сохраняют реальные DOM nodes; guards исключают competing mounts. Failure — целиком native page с прежними полями, файлами и действиями, retry на новом render. Источники данных, root render, Router mirror и DOM-derived layout остаются явно учтённой работой этапов 2–4. См. раздел 60 PROJECT_CONTEXT.md, STAGE1_ACCEPTANCE.md и CI итогового SHA. После зелёной приёмки предложить этап 2 кнопкой; не продолжать дробление интерфейса на отдельные релизы.
+
+
+### Приёмка этапа 1 завершена
+
+v0.210: source a4a04e9, bundle 51d6a0d. 97/97 Node tests, полный browser smoke, [CI](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43625601565) и [Pages](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43625951503) успешны; опубликованный сайт дополнительно проверен desktop/mobile без ошибок JavaScript. Этап 1 закрыт, акт STAGE1_ACCEPTANCE.md. Далее предложить кнопкой **этап 2 — прикладное ядро без global DOM**, сохраняя repositories/старые данные/одного владельца состояния. Этапы 2–4 остаются; не заявлять, что всё приложение стало самостоятельным Vue SPA.

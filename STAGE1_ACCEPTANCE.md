@@ -1,6 +1,6 @@
 # Этап 1 — функциональный паритет и цельные экраны
 
-Кандидат: **v0.210**, 14 ноября 2026 г. База main: `812413a67e25a795d4b09789bce2416dba97220a` (v0.209). План — [MIGRATION_AUDIT.md](MIGRATION_AUDIT.md). Закрытие этапа подтверждается зелёным итоговым CI/Pages выпуска, а не числом перенесённых кнопок.
+Выпуск: **v0.210**, 14 ноября 2026 г. База main: `812413a67e25a795d4b09789bce2416dba97220a` (v0.209). План — [MIGRATION_AUDIT.md](MIGRATION_AUDIT.md). **Этап 1 принят и закрыт.** Исходный коммит — [a4a04e9](https://github.com/nick-osinskiy/SUNOBOOM/commit/a4a04e92cd66c8a7c6aca8545362e09a9c069486), проверенный bundle — [51d6a0d](https://github.com/nick-osinskiy/SUNOBOOM/commit/51d6a0dae76441dc131cef079a4d1387709fa1b8). [CI: success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43625601565), [Pages: success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43625951503). На опубликованной v0.210 повторно пройдены page composition/workspace/notifications на desktop и mobile без pageerror. Это приёмка интерфейсного этапа, не всей миграции.
 
 ## Результат
 
@@ -50,4 +50,4 @@
 
 ## Выпуск и проверки
 
-Локальная приёмка завершена: **97/97 Node tests**, сборка и полный browser smoke прошли; отдельно пройден финальный failure recovery с сохранением исходных buttons/fields/FileList. CI/Pages и опубликованный bundle подтвердить по итоговому SHA выпуска. Требуемый набор: `test:vue-nav` (97 tests), `build:vue`, полный `test:vue-browser`, проверка опубликованного bundle. Исторические результаты v0.208/209 не подменяют эту приёмку.
+Локальная приёмка завершена: **97/97 Node tests**, сборка и полный browser smoke прошли; отдельно пройден финальный failure recovery с сохранением исходных buttons/fields/FileList. CI/Pages и опубликованный bundle подтверждены ссылками выше. Требуемый набор: `test:vue-nav` (97 tests), `build:vue`, полный `test:vue-browser`, проверка опубликованного bundle. Исторические результаты v0.208/209 не подменяют эту приёмку.
