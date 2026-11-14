@@ -311,3 +311,8 @@ npm run test:vue-browser
 ## 2026-11-13 — v0.207, карточка песни по ссылке целиком
 
 На базе v0.206 2b52581 перенесён sharedPage в SharedSongPage/observeLegacyIsland внутри исходного #sbsong-shared. Native decode/clean/HTTPS/hash routing/home action и privacy сохранены; модель — только копия decoded public card, не библиотека. Аудио Vue очищается при unmount. См. раздел 56 PROJECT_CONTEXT.md и CI/Pages итогового HEAD. Следующим предложить кнопкой аудит остатка legacy и план завершения крупными этапами; за аудит не увеличивать версию, v0.208 назначать только следующему изменению.
+
+
+## 2026-11-14 — аудит миграции, версия остаётся v0.207
+
+Проверен main 4d6778f. Результат — MIGRATION_AUDIT.md и раздел 57 PROJECT_CONTEXT.md: 17 маршрутов на desktop/mobile, native overlays, свежие 95 Node tests и подтверждённый baseline CI. Выявлена F1: Vue-каталог уничтожает native #sb-ap-hub энциклопедии; без Vue поиск и 24 профиля работают. Следующий план: четыре крупных этапа UI parity → независимые domain commands/repos → Vue shell/RouterView → cleanup/final acceptance. Не дробить на кнопки; сохранить данные/ссылки/дизайн, отдельно согласовать судьбу полноценного HTML fallback. Аудит не меняет продуктовый код или версию и не исправляет F1.

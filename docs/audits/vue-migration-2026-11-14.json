@@ -1,0 +1,1008 @@
+{
+  "base": "4d6778fe1766b75fd960d758e5ad2e2965c33a10",
+  "date": "2026-11-14",
+  "samples": [
+    {
+      "layout": "desktop",
+      "route": "home",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sb-vue-dashboard",
+        "sbVueMobile"
+      ],
+      "native": [],
+      "vueControls": 23
+    },
+    {
+      "layout": "desktop",
+      "route": "account",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sb-vue-account-home",
+        "sbVueMobile"
+      ],
+      "native": [],
+      "vueControls": 29
+    },
+    {
+      "layout": "desktop",
+      "route": "ideas",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sb-vue-ideas-page",
+        "sbVueMobile"
+      ],
+      "native": [],
+      "vueControls": 1178
+    },
+    {
+      "layout": "desktop",
+      "route": "projects",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sb-vue-project-creator",
+        "sb-vue-projects-list",
+        "sb-vue-project-detail",
+        "sbVueMobile"
+      ],
+      "native": [
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "workspace-back",
+          "label": "← Идеи песен"
+        }
+      ],
+      "vueControls": 17
+    },
+    {
+      "layout": "desktop",
+      "route": "events",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sb-vue-event-fields",
+        "sb-vue-event-reminders",
+        "sb-vue-event-actions",
+        "sb-vue-events-list",
+        "sbVueMobile"
+      ],
+      "native": [
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "workspace-back",
+          "label": "← Идеи песен"
+        }
+      ],
+      "vueControls": 27
+    },
+    {
+      "layout": "desktop",
+      "route": "myprompts",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sb-vue-prompt-form",
+        "sb-vue-prompts-list",
+        "sbVueMobile"
+      ],
+      "native": [
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "workspace-back",
+          "label": "← Идеи песен"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "",
+          "label": "🔎 Проверить этот промпт в аудиторе"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "save-manual-prompt",
+          "label": "Сохранить промпт"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "nav",
+          "label": "Открыть Suno Studio →"
+        }
+      ],
+      "vueControls": 17
+    },
+    {
+      "layout": "desktop",
+      "route": "saved",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sb-vue-library-collection",
+        "sbVueMobile"
+      ],
+      "native": [],
+      "vueControls": 21
+    },
+    {
+      "layout": "desktop",
+      "route": "myideas",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sb-vue-idea-fields",
+        "sb-vue-lyrics-source",
+        "sb-poetry-result",
+        "sb-vt-workbench",
+        "sb-vue-lyrics-tools",
+        "sb-vue-idea-collections",
+        "sbVueMobile"
+      ],
+      "native": [
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "workspace-back",
+          "label": "← Идеи песен"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "jump-poetry",
+          "label": "Перейти к редактору ↓"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "sb-poetry-analyze",
+          "label": "Разобрать текст песни"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "sb-poetry-auto-stress",
+          "label": "✨ Автоударения"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "sb-poetry-accent",
+          "label": "´ Отметить ударение"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "save-manual-idea",
+          "label": "Сохранить идею"
+        }
+      ],
+      "vueControls": 41
+    },
+    {
+      "layout": "desktop",
+      "route": "catalog",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sb-vue-academy-root",
+        "sbVueMobile"
+      ],
+      "native": [
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "",
+          "label": "🕸️Музыкальное древоИстоки, связи и влияние жанровОткрыть"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "hub-open",
+          "label": "🎙️Профили исполнителейИстория, звучание и важные произведенияОткрыть"
+        }
+      ],
+      "vueControls": 202
+    },
+    {
+      "layout": "desktop",
+      "route": "detail",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sb-vue-genre-detail",
+        "sbVueMobile"
+      ],
+      "native": [],
+      "vueControls": 23
+    },
+    {
+      "layout": "desktop",
+      "route": "studio",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sbVueStudio",
+        "",
+        "sba-snake-track",
+        "sba-transition-hub-list",
+        "sba-cards",
+        "sba-energy-chart",
+        "",
+        "sbpa-auditor",
+        "sbVueMobile"
+      ],
+      "native": [
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "nav",
+          "label": "Открыть миксер →"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "",
+          "label": "♬ Конструктор аранжировки Создать структуру песни ↓"
+        },
+        {
+          "tag": "SELECT",
+          "id": "song-form",
+          "action": "",
+          "label": "Короткая песняКуплет — припевГимн / стадионный припевИстория с поворот"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "song-generate",
+          "label": "Создать структуру"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "",
+          "label": "Применить шаблон"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "sba-transition-hub-expand",
+          "action": "",
+          "label": "Показать все (8)"
+        },
+        {
+          "tag": "SELECT",
+          "id": "sba-add-type",
+          "action": "",
+          "label": "ВступлениеКуплетПредприпевПрипевПостприпевБриджРазгонДропБрейкдаунСоло"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "",
+          "label": "+ Добавить блок"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "",
+          "label": "+ Добавить блок в конец"
+        }
+      ],
+      "vueControls": 240
+    },
+    {
+      "layout": "desktop",
+      "route": "mixer",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sb-vue-mixer-root",
+        "sbVueMobile"
+      ],
+      "native": [],
+      "vueControls": 40
+    },
+    {
+      "layout": "desktop",
+      "route": "player",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sb-vue-player-ab",
+        "sb-vue-player-lab",
+        "sbVueMobile"
+      ],
+      "native": [
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "",
+          "label": "♫ Обычный плеер"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "",
+          "label": "⇄ Сравнение A/B НОВОЕ"
+        }
+      ],
+      "vueControls": 25
+    },
+    {
+      "layout": "desktop",
+      "route": "producer",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sbpc-list",
+        "sbVueMobile"
+      ],
+      "native": [
+        {
+          "tag": "INPUT",
+          "id": "sbpc-new-title",
+          "action": "",
+          "label": "Название новой песни (можно оставить пустым при выборе материала)"
+        },
+        {
+          "tag": "SELECT",
+          "id": "sbpc-new-source",
+          "action": "",
+          "label": "Новая песня без привязки"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "",
+          "label": "+ Создать рабочую карточку"
+        },
+        {
+          "tag": "INPUT",
+          "id": "sbpc-search",
+          "action": "",
+          "label": "Поиск по песням"
+        }
+      ],
+      "vueControls": 14
+    },
+    {
+      "layout": "desktop",
+      "route": "tracks",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sb-vue-track-list",
+        "sbVueMobile"
+      ],
+      "native": [
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "workspace-back",
+          "label": "← Личный кабинет"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "tp-new",
+          "label": "+ Новый паспорт"
+        }
+      ],
+      "vueControls": 22
+    },
+    {
+      "layout": "desktop",
+      "route": "artists",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sb-vue-dna-view",
+        "sbVueMobile"
+      ],
+      "native": [
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "workspace-back",
+          "label": "← Личный кабинет"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "dna-new",
+          "label": "+ Создать ДНК артиста"
+        }
+      ],
+      "vueControls": 14
+    },
+    {
+      "layout": "desktop",
+      "route": "songs",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sb-vue-song-cards",
+        "sbVueMobile"
+      ],
+      "native": [
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "back",
+          "label": "← В личный кабинет"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "artists-manage",
+          "label": "♬ Мои артисты (0)"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "new",
+          "label": "+ Добавить песню"
+        },
+        {
+          "tag": "INPUT",
+          "id": "sbsong-search",
+          "action": "",
+          "label": "Поиск песен"
+        }
+      ],
+      "vueControls": 14
+    },
+    {
+      "layout": "desktop",
+      "overlay": "notifications",
+      "found": true,
+      "ownedByVue": false
+    },
+    {
+      "layout": "desktop",
+      "overlay": "artist-encyclopedia",
+      "found": false,
+      "ownedByVue": false,
+      "nativeTemplateHasHub": true,
+      "domHasHub": false,
+      "nativeHubInsideAcademy": true
+    },
+    {
+      "layout": "desktop",
+      "overlay": "artist-profile-dialog",
+      "found": true,
+      "ownedByVue": false
+    },
+    {
+      "layout": "desktop",
+      "errors": []
+    },
+    {
+      "layout": "mobile",
+      "route": "home",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sb-vue-dashboard",
+        "sbVueMobile"
+      ],
+      "native": [],
+      "vueControls": 23
+    },
+    {
+      "layout": "mobile",
+      "route": "account",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sb-vue-account-home",
+        "sbVueMobile"
+      ],
+      "native": [],
+      "vueControls": 29
+    },
+    {
+      "layout": "mobile",
+      "route": "ideas",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sb-vue-ideas-page",
+        "sbVueMobile"
+      ],
+      "native": [],
+      "vueControls": 1178
+    },
+    {
+      "layout": "mobile",
+      "route": "projects",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sb-vue-project-creator",
+        "sb-vue-projects-list",
+        "sb-vue-project-detail",
+        "sbVueMobile"
+      ],
+      "native": [
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "workspace-back",
+          "label": "← Идеи песен"
+        }
+      ],
+      "vueControls": 17
+    },
+    {
+      "layout": "mobile",
+      "route": "events",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sb-vue-event-fields",
+        "sb-vue-event-reminders",
+        "sb-vue-event-actions",
+        "sb-vue-events-list",
+        "sbVueMobile"
+      ],
+      "native": [
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "workspace-back",
+          "label": "← Идеи песен"
+        }
+      ],
+      "vueControls": 27
+    },
+    {
+      "layout": "mobile",
+      "route": "myprompts",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sb-vue-prompt-form",
+        "sb-vue-prompts-list",
+        "sbVueMobile"
+      ],
+      "native": [
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "workspace-back",
+          "label": "← Идеи песен"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "",
+          "label": "🔎 Проверить этот промпт в аудиторе"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "save-manual-prompt",
+          "label": "Сохранить промпт"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "nav",
+          "label": "Открыть Suno Studio →"
+        }
+      ],
+      "vueControls": 17
+    },
+    {
+      "layout": "mobile",
+      "route": "saved",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sb-vue-library-collection",
+        "sbVueMobile"
+      ],
+      "native": [],
+      "vueControls": 21
+    },
+    {
+      "layout": "mobile",
+      "route": "myideas",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sb-vue-idea-fields",
+        "sb-vue-lyrics-source",
+        "sb-poetry-result",
+        "sb-vt-workbench",
+        "sb-vue-lyrics-tools",
+        "sb-vue-idea-collections",
+        "sbVueMobile"
+      ],
+      "native": [
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "workspace-back",
+          "label": "← Идеи песен"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "jump-poetry",
+          "label": "Перейти к редактору ↓"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "sb-poetry-analyze",
+          "label": "Разобрать текст песни"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "sb-poetry-auto-stress",
+          "label": "✨ Автоударения"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "sb-poetry-accent",
+          "label": "´ Отметить ударение"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "save-manual-idea",
+          "label": "Сохранить идею"
+        }
+      ],
+      "vueControls": 41
+    },
+    {
+      "layout": "mobile",
+      "route": "catalog",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sb-vue-academy-root",
+        "sbVueMobile"
+      ],
+      "native": [
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "",
+          "label": "🕸️Музыкальное древоИстоки, связи и влияние жанровОткрыть"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "hub-open",
+          "label": "🎙️Профили исполнителейИстория, звучание и важные произведенияОткрыть"
+        }
+      ],
+      "vueControls": 202
+    },
+    {
+      "layout": "mobile",
+      "route": "detail",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sb-vue-genre-detail",
+        "sbVueMobile"
+      ],
+      "native": [],
+      "vueControls": 23
+    },
+    {
+      "layout": "mobile",
+      "route": "studio",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sbVueStudio",
+        "",
+        "sba-snake-track",
+        "sba-transition-hub-list",
+        "sba-cards",
+        "sba-energy-chart",
+        "",
+        "sbpa-auditor",
+        "sbVueMobile"
+      ],
+      "native": [
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "nav",
+          "label": "Открыть миксер →"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "",
+          "label": "♬ Конструктор аранжировки Создать структуру песни ↓"
+        },
+        {
+          "tag": "SELECT",
+          "id": "song-form",
+          "action": "",
+          "label": "Короткая песняКуплет — припевГимн / стадионный припевИстория с поворот"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "song-generate",
+          "label": "Создать структуру"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "",
+          "label": "Применить шаблон"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "sba-transition-hub-expand",
+          "action": "",
+          "label": "Показать все (8)"
+        },
+        {
+          "tag": "SELECT",
+          "id": "sba-add-type",
+          "action": "",
+          "label": "ВступлениеКуплетПредприпевПрипевПостприпевБриджРазгонДропБрейкдаунСоло"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "",
+          "label": "+ Добавить блок"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "",
+          "label": "+ Добавить блок в конец"
+        }
+      ],
+      "vueControls": 240
+    },
+    {
+      "layout": "mobile",
+      "route": "mixer",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sb-vue-mixer-root",
+        "sbVueMobile"
+      ],
+      "native": [],
+      "vueControls": 40
+    },
+    {
+      "layout": "mobile",
+      "route": "player",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sb-vue-player-ab",
+        "sb-vue-player-lab",
+        "sbVueMobile"
+      ],
+      "native": [
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "",
+          "label": "♫ Обычный плеер"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "",
+          "label": "⇄ Сравнение A/B НОВОЕ"
+        }
+      ],
+      "vueControls": 25
+    },
+    {
+      "layout": "mobile",
+      "route": "producer",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sbpc-list",
+        "sbVueMobile"
+      ],
+      "native": [
+        {
+          "tag": "INPUT",
+          "id": "sbpc-new-title",
+          "action": "",
+          "label": "Название новой песни (можно оставить пустым при выборе материала)"
+        },
+        {
+          "tag": "SELECT",
+          "id": "sbpc-new-source",
+          "action": "",
+          "label": "Новая песня без привязки"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "",
+          "label": "+ Создать рабочую карточку"
+        },
+        {
+          "tag": "INPUT",
+          "id": "sbpc-search",
+          "action": "",
+          "label": "Поиск по песням"
+        }
+      ],
+      "vueControls": 14
+    },
+    {
+      "layout": "mobile",
+      "route": "tracks",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sb-vue-track-list",
+        "sbVueMobile"
+      ],
+      "native": [
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "workspace-back",
+          "label": "← Личный кабинет"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "tp-new",
+          "label": "+ Новый паспорт"
+        }
+      ],
+      "vueControls": 22
+    },
+    {
+      "layout": "mobile",
+      "route": "artists",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sb-vue-dna-view",
+        "sbVueMobile"
+      ],
+      "native": [
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "workspace-back",
+          "label": "← Личный кабинет"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "dna-new",
+          "label": "+ Создать ДНК артиста"
+        }
+      ],
+      "vueControls": 14
+    },
+    {
+      "layout": "mobile",
+      "route": "songs",
+      "vueHosts": [
+        "sbVueSidebar",
+        "sbVueTop",
+        "sbVueHistory",
+        "sb-vue-song-cards",
+        "sbVueMobile"
+      ],
+      "native": [
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "back",
+          "label": "← В личный кабинет"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "artists-manage",
+          "label": "♬ Мои артисты (0)"
+        },
+        {
+          "tag": "BUTTON",
+          "id": "",
+          "action": "new",
+          "label": "+ Добавить песню"
+        },
+        {
+          "tag": "INPUT",
+          "id": "sbsong-search",
+          "action": "",
+          "label": "Поиск песен"
+        }
+      ],
+      "vueControls": 14
+    },
+    {
+      "layout": "mobile",
+      "overlay": "notifications",
+      "found": true,
+      "ownedByVue": false
+    },
+    {
+      "layout": "mobile",
+      "overlay": "artist-encyclopedia",
+      "found": false,
+      "ownedByVue": false,
+      "nativeTemplateHasHub": true,
+      "domHasHub": false,
+      "nativeHubInsideAcademy": true
+    },
+    {
+      "layout": "mobile",
+      "overlay": "artist-profile-dialog",
+      "found": true,
+      "ownedByVue": false
+    },
+    {
+      "layout": "mobile",
+      "errors": []
+    },
+    {
+      "layout": "native-control",
+      "overlay": "artist-encyclopedia",
+      "found": true,
+      "profiles": 24
+    }
+  ]
+}
