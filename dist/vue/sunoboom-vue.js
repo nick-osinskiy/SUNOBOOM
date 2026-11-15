@@ -1,4 +1,4 @@
-// node_modules/.pnpm/@vue+shared@3.5.45/node_modules/@vue/shared/dist/shared.esm-bundler.js
+// node_modules/@vue/shared/dist/shared.esm-bundler.js
 // @__NO_SIDE_EFFECTS__
 function e(e) {
 	let t = /* @__PURE__ */ Object.create(null);
@@ -959,7 +959,7 @@ function hn(e, t = Infinity, n) {
 	}
 	return e;
 }
-// node_modules/.pnpm/@vue+runtime-core@3.5.45/node_modules/@vue/runtime-core/dist/runtime-core.esm-bundler.js
+// node_modules/@vue/runtime-core/dist/runtime-core.esm-bundler.js
 function gn(e, t, n, r) {
 	try {
 		return r ? e(...r) : e();
@@ -6694,7 +6694,7 @@ function hd({ createApp: e, host: t, pinia: n, router: r, resolveTarget: i, warn
 		unmountVueFeature: u
 	};
 }
-// node_modules/.pnpm/pinia@3.0.4_vue@3.5.45/node_modules/pinia/dist/pinia.mjs
+// node_modules/pinia/dist/pinia.mjs
 var gd = typeof window < "u", _d, vd = (e) => _d = e, yd = Symbol();
 function bd(e) {
 	return e && typeof e == "object" && Object.prototype.toString.call(e) === "[object Object]" && typeof e.toJSON != "function";
@@ -6981,7 +6981,7 @@ function Zd(e) {
 	}
 	return i;
 }
-// node_modules/.pnpm/vue-router@4.6.4_vue@3.5.45/node_modules/vue-router/dist/devtools-EWN81iOl.mjs
+// node_modules/vue-router/dist/devtools-C3Hva4Qk.mjs
 var Qd = typeof document < "u";
 function $d(e) {
 	return typeof e == "object" || "displayName" in e || "props" in e || "__vccOpts" in e;
@@ -7253,7 +7253,7 @@ function fp(e, t) {
 		i
 	];
 }
-// node_modules/.pnpm/vue-router@4.6.4_vue@3.5.45/node_modules/vue-router/dist/vue-router.mjs
+// node_modules/vue-router/dist/vue-router.mjs
 function pp(e = "") {
 	let t = [], n = [["", {}]], r = 0;
 	e = Bf(e);
@@ -7367,35 +7367,35 @@ var yp = "[^/]+?", bp = {
 	end: !0
 }, xp = /* @__PURE__ */ function(e) {
 	return e[e._multiplier = 10] = "_multiplier", e[e.Root = 90] = "Root", e[e.Segment = 40] = "Segment", e[e.SubSegment = 30] = "SubSegment", e[e.Static = 40] = "Static", e[e.Dynamic = 20] = "Dynamic", e[e.BonusCustomRegExp = 10] = "BonusCustomRegExp", e[e.BonusWildcard = -50] = "BonusWildcard", e[e.BonusRepeatable = -20] = "BonusRepeatable", e[e.BonusOptional = -8] = "BonusOptional", e[e.BonusStrict = .7000000000000001] = "BonusStrict", e[e.BonusCaseSensitive = .25] = "BonusCaseSensitive", e;
-}(xp || {}), Sp = /[.+*?^${}()[\]/\\]/g;
+}(xp || {}), Sp = /[.+*?^${}()[\]/\\|]/g;
 function Cp(e, t) {
-	let n = X({}, bp, t), r = [], i = n.start ? "^" : "", a = [];
+	let n = X({}, bp, t), r = [], i = n.start ? "^" : "", a = [], o = e.some((e) => e.some((e) => e.type === mp.Param && /\\[1-9k]/.test(e.regexp || "")));
 	for (let t of e) {
 		let e = t.length ? [] : [xp.Root];
 		n.strict && !t.length && (i += "/");
 		for (let r = 0; r < t.length; r++) {
-			let o = t[r], s = xp.Segment + (n.sensitive ? xp.BonusCaseSensitive : 0);
-			if (o.type === mp.Static) r || (i += "/"), i += o.value.replace(Sp, "\\$&"), s += xp.Static;
-			else if (o.type === mp.Param) {
-				let { value: e, repeatable: n, optional: c, regexp: l } = o;
+			let s = t[r], c = xp.Segment + (n.sensitive ? xp.BonusCaseSensitive : 0);
+			if (s.type === mp.Static) r || (i += "/"), i += s.value.replace(Sp, "\\$&"), c += xp.Static;
+			else if (s.type === mp.Param) {
+				let { value: e, repeatable: n, optional: l, regexp: u } = s;
 				a.push({
 					name: e,
 					repeatable: n,
-					optional: c
+					optional: l
 				});
-				let u = l || yp;
-				if (u !== yp) {
-					s += xp.BonusCustomRegExp;
+				let d = u || yp;
+				if (d !== yp) {
+					c += xp.BonusCustomRegExp;
 					try {
-						`${u}`;
+						`${d}`;
 					} catch (t) {
-						throw Error(`Invalid custom RegExp for param "${e}" (${u}): ` + t.message);
+						throw Error(`Invalid custom RegExp for param "${e}" (${d}): ` + t.message);
 					}
 				}
-				let d = n ? `((?:${u})(?:/(?:${u}))*)` : `(${u})`;
-				r || (d = c && t.length < 2 ? `(?:/${d})` : "/" + d), c && (d += "?"), i += d, s += xp.Dynamic, c && (s += xp.BonusOptional), n && (s += xp.BonusRepeatable), u === ".*" && (s += xp.BonusWildcard);
+				let f = n ? `((?:${d})(?:/(?:${d}))*)` : `(${d})`, p = t[r + 1], m = t[r + 2];
+				o || u || n || !m || m.type !== mp.Param || m.regexp || p.type !== mp.Static || (f = `([^/](?:(?!${p.value.replace(Sp, "\\$&")})[^/])*)`), r || (f = l && t.length < 2 ? `(?:/${f})` : "/" + f), l && (f += "?"), i += f, c += xp.Dynamic, l && (c += xp.BonusOptional), n && (c += xp.BonusRepeatable), d === ".*" && (c += xp.BonusWildcard);
 			}
-			e.push(s);
+			e.push(c);
 		}
 		r.push(e);
 	}
@@ -7404,9 +7404,9 @@ function Cp(e, t) {
 		r[e][r[e].length - 1] += xp.BonusStrict;
 	}
 	n.strict || (i += "/?"), n.end ? i += "$" : n.strict && !i.endsWith("/") && (i += "(?:/|$)");
-	let o = new RegExp(i, n.sensitive ? "" : "i");
-	function s(e) {
-		let t = e.match(o), n = {};
+	let s = new RegExp(i, n.sensitive ? "" : "i");
+	function c(e) {
+		let t = e.match(s), n = {};
 		if (!t) return null;
 		for (let e = 1; e < t.length; e++) {
 			let r = t[e] || "", i = a[e - 1];
@@ -7414,7 +7414,7 @@ function Cp(e, t) {
 		}
 		return n;
 	}
-	function c(t) {
+	function l(t) {
 		let n = "", r = !1;
 		for (let i of e) {
 			r && n.endsWith("/") || (n += "/"), r = !1;
@@ -7433,11 +7433,11 @@ function Cp(e, t) {
 		return n || "/";
 	}
 	return {
-		re: o,
+		re: s,
 		score: r,
 		keys: a,
-		parse: s,
-		stringify: c
+		parse: c,
+		stringify: l
 	};
 }
 function wp(e, t) {
@@ -9221,7 +9221,7 @@ var Vh = (e, t) => {
 			}, [U("span", pg, "v" + O(e[0]), 1), U("div", mg, [U("p", null, O(e[1]), 1), U("div", hg, [U("time", { datetime: e[2] }, O(F(Ih)(e[2])), 9, gg), r.value === "all" ? (V(), H("span", _g, O(e[3] === "large" ? "Крупное" : "Мелкое"), 1)) : G("", !0)])])]))), 128))])) : (V(), H("p", vg, "По запросу минорные версии не найдены."))], 512)
 		]));
 	}
-}, [["__scopeId", "data-v-98ee138d"]]);
+}, [["__scopeId", "data-v-ce1fc81b"]]);
 // src/vue/version-history/legacyVersionHistoryBridge.js
 function bg({ mountVueFeature: e }) {
 	let t = window.SUNOBOOM_VERSION_HISTORY;
@@ -12629,7 +12629,7 @@ var sE = {
 			}, [U("path", { d: "m9 18 6-6-6-6" })], -1)]], 8, mE)
 		]));
 	}
-}, [["__scopeId", "data-v-10135052"]]), gE = Object.freeze({
+}, [["__scopeId", "data-v-c738b8ec"]]), gE = Object.freeze({
 	"/account/myideas": "myideas",
 	"/account/myprompts": "myprompts",
 	"/account/events": "events"
@@ -13567,7 +13567,7 @@ var qD = {
 			n[15] ||= U("p", { class: "sb-gt-note" }, "Схема показывает основные исторические влияния и стилистические пересечения. Жанры могут развиваться параллельно; стрелки не означают единственное происхождение.", -1)
 		]));
 	}
-}, [["__scopeId", "data-v-b69f1c53"]]);
+}, [["__scopeId", "data-v-6e70f61e"]]);
 // src/vue/academy/legacyGenreTreeBridge.js
 function jO({ mountVueFeature: e }) {
 	let t = window.SUNOBOOM_LEGACY_GENRE_TREE, n = document.getElementById("app");
