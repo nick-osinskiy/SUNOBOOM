@@ -1,16 +1,4 @@
-// Synchronous descriptor collection reuses the existing bridge contracts without
-// installing their observers, subscriptions or separate Vue applications.
-let collector=null;
-export function withFeatureCollection(collect,run){
-  if(collector)throw Error('Nested feature collection');
-  collector=collect;
-  try{return run();}finally{collector=null;}
-}
-export function collectLegacyIsland(options){
-  if(!collector)return false;
-  collector(options);
-  return true;
-}
+// Ownership guard for live external/native UI boundaries.
 export function availableIsland(target){
   if(!target?.closest)return target;
   if(target.closest('[data-sb-shell-owned]'))return null;

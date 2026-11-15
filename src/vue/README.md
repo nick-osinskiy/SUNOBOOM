@@ -1,4 +1,5 @@
-> Текущее состояние v0.217: один Vue root/browser Router, прямые page models/component factories без native staging. Начальные draft/file/editor handoffs и lazy native error recovery — отдельные UI adapters. Архитектура и критерии приёмки: [STAGE4_CONTEXT.md](../../STAGE4_CONTEXT.md), [STAGE4_ACCEPTANCE.md](../../STAGE4_ACCEPTANCE.md). Старые разделы ниже описывают историю, а не текущий bootstrap.
+> Текущее состояние v0.218: единые Vue app/browser Router и прямые page factories; архивные feature bridges/collector удалены. Остались шесть действующих boundary/preferences adapters. `npm run audit:vue-imports` проверяет весь граф src/vue и запускается в CI. Архитектура: [STAGE4_CONTEXT.md](../../STAGE4_CONTEXT.md); итоговая очистка: [CLEANUP_ACCEPTANCE.md](../../CLEANUP_ACCEPTANCE.md). Версионные разделы ниже — история, не инструкции к текущему bootstrap.
+
 
 
 # SUNOBOOM — постепенный переход на Vue 3

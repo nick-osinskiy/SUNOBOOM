@@ -1,6 +1,6 @@
-import { collectLegacyIsland,availableIsland } from './featureCollection.js';
-// Descriptor collection during page preparation, explicit subscriptions for
-// live native boundaries. No DOM observer is installed by application startup.
+import {availableIsland} from './feature-ownership.js';
+// Explicit subscriptions for live native boundaries; no page collection.
+// No DOM observer is installed by application startup.
 // An optional external observer adapter remains injectable for isolated hosts.
 export function observeLegacyIsland({
   root, selectTarget, readSnapshot, mount, subscribe, readRevision,
@@ -9,8 +9,6 @@ export function observeLegacyIsland({
   if (!root || typeof selectTarget !== 'function' ||
       typeof readSnapshot !== 'function' || typeof mount !== 'function')
     return () => {};
-
-  if(collectLegacyIsland({root,selectTarget,readSnapshot,mount}))return ()=>{};
 
   let disposed = false;
   let current = null;

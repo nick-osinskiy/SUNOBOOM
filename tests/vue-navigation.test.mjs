@@ -1,6 +1,6 @@
 import '../page-models.js';
 import '../core/song-library.js';
-import { withFeatureCollection,availableIsland } from '../src/vue/legacy/featureCollection.js';
+import {availableIsland} from '../src/vue/legacy/feature-ownership.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -935,105 +935,6 @@ test('v0.184 lifecycle leaves HTML fallback untouched on absent snapshots or mou
 });
 
 
-test('v0.185 library, artist and idea bridges reuse the same isolated lifecycle', () => {
-  const configurations = [
-    ['../src/vue/account/legacyLibraryBridge.js', '#sb-vue-library-collection', 'LibraryCollection'],
-    ['../src/vue/account/legacyArtistManagerBridge.js', '#sb-vue-artist-manager', 'ArtistManager'],
-    ['../src/vue/account/legacyArtistDNABridge.js', '#sb-vue-dna-view', 'ArtistDNA'],
-    ['../src/vue/poetry/legacyIdeaCollectionsBridge.js', '#sb-vue-idea-collections', 'IdeaCollections']
-  ];
-  for (const [file, selector, component] of configurations) {
-    const code = readFileSync(new URL(file, import.meta.url), 'utf8');
-    assert.match(code, /observeLegacyIsland\(/, file);
-    assert.ok(code.includes("parent.querySelector('" + selector + "')"), file);
-    assert.ok(code.includes('readSnapshot: () => api.snapshot()'), file);
-    assert.ok(code.includes('mountVueFeature(node, ' + component + ', { model })'), file);
-    assert.doesNotMatch(code, /new MutationObserver|localStorage|indexedDB/i, file);
-  }
-});
-
-
-test('v0.186 track and Master display bridges keep their original snapshot contracts', () => {
-  for (const [file, selector, component, api] of [
-    ['../src/vue/account/legacyTrackPassportListBridge.js', '#sb-vue-track-list[data-sb-vue-track-list]', 'TrackPassportList', 'SUNOBOOM_LEGACY_TRACK_LIST'],
-    ['../src/vue/account/legacyTrackPassportDetailBridge.js', '#sb-vue-track-detail[data-sb-vue-track-detail]', 'TrackPassportDetail', 'SUNOBOOM_LEGACY_TRACK_DETAIL'],
-    ['../src/vue/producer/legacyProducerSongListBridge.js', '#sbpc-list[data-sb-vue-producer-list]', 'ProducerSongList', 'SUNOBOOM_LEGACY_PRODUCER_LIST'],
-    ['../src/vue/producer/legacyProducerSongDetailBridge.js', '#sb-vue-producer-detail[data-sb-vue-producer-host]', 'ProducerSongDetail', 'SUNOBOOM_LEGACY_PRODUCER_DETAIL']
-  ]) {
-    const source = readFileSync(new URL(file, import.meta.url), 'utf8');
-    assert.ok(source.includes('observeLegacyIsland({'), file);
-    assert.ok(source.includes('window.' + api), file);
-    assert.ok(source.includes("parent.querySelector('" + selector + "')"), file);
-    assert.ok(source.includes('readSnapshot: () => api.snapshot()'), file);
-    assert.ok(source.includes('mountVueFeature(node, ' + component + ', { model })'), file);
-    assert.doesNotMatch(source, /new MutationObserver|subtree:\s*true|localStorage|indexedDB/i, file);
-  }
-});
-
-
-test('v0.187 song library and track editor bridges retain API and Vue props', () => {
-  for (const [file, selector, component, api, props] of [
-    ['../src/vue/account/legacySongCardsBridge.js', '#sb-vue-song-cards', 'SongCards', 'SUNOBOOM_LEGACY_SONG_CARDS', '{ api }'],
-    ['../src/vue/account/legacySongDetailBridge.js', '#sb-vue-song-detail', 'SongDetail', 'SUNOBOOM_LEGACY_SONG_DETAIL', '{ api, model }'],
-    ['../src/vue/account/legacySongEditorBridge.js', '#sb-vue-song-editor', 'SongEditor', 'SUNOBOOM_LEGACY_SONG_EDITOR', '{ api, model }'],
-    ['../src/vue/account/legacyTrackPassportEditorBridge.js', '#sb-vue-track-editor[data-sb-vue-track-editor]', 'TrackPassportEditor', 'SUNOBOOM_LEGACY_TRACK_EDITOR', '{ model, api }']
-  ]) {
-    const source = readFileSync(new URL(file, import.meta.url), 'utf8');
-    assert.ok(source.includes('observeLegacyIsland({'), file);
-    assert.ok(source.includes('window.' + api), file);
-    assert.ok(source.includes("parent.querySelector('" + selector + "')"), file);
-    assert.ok(source.includes('readSnapshot: () => api.snapshot()'), file);
-    assert.ok(source.includes('mountVueFeature(node, ' + component + ', ' + props + ')'), file);
-    assert.doesNotMatch(source, /new MutationObserver|subtree:\s*true|localStorage|indexedDB/i, file);
-  }
-});
-
-
-test('v0.188 Player LAB, A/B, Mixer and Auditor preserve lifecycle and props', () => {
-  for (const [file, selector, component, api, props] of [
-    ['../src/vue/player/legacyPlayerLabBridge.js', '#sb-vue-player-lab', 'PlayerLab', 'SUNOBOOM_LEGACY_PLAYER_LAB', '{ api, initialModel: model }'],
-    ['../src/vue/player/legacyPlayerABBridge.js', '#sb-vue-player-ab', 'PlayerAB', 'SUNOBOOM_LEGACY_PLAYER_AB', '{ api, initialModel: model }'],
-    ['../src/vue/studio/legacyMixerBridge.js', '#sb-vue-mixer-root', 'GenreMixer', 'SUNOBOOM_LEGACY_MIXER', '{ api }'],
-    ['../src/vue/studio/legacyAuditorBridge.js', '#sbpa-auditor', 'PromptAuditor', 'SUNOBOOM_LEGACY_AUDITOR', '{ api }']
-  ]) {
-    const source = readFileSync(new URL(file, import.meta.url), 'utf8');
-    assert.ok(source.includes('observeLegacyIsland({'), file);
-    assert.ok(source.includes('window.' + api), file);
-    assert.ok(source.includes("parent.querySelector('" + selector + "')"), file);
-    assert.ok(source.includes('readSnapshot: () => api.snapshot()'), file);
-    assert.ok(source.includes('mountVueFeature(node, ' + component + ', ' + props + ')'), file);
-    assert.doesNotMatch(source, /new MutationObserver|subtree:\s*true|localStorage|indexedDB/i, file);
-  }
-});
-
-
-test('v0.189 Academy, genre detail and editors share lifecycle without changing legacy API', () => {
-  for (const [file, selector, component, api, props] of [
-    ['../src/vue/account/legacyPromptEditorBridge.js', '#sb-vue-prompt-form', 'PromptEditor', 'SUNOBOOM_LEGACY_PROMPT_EDITOR', '{ initial: model }'],
-    ['../src/vue/account/legacyArtistDNAEditorBridge.js', '#sb-vue-dna-editor', 'ArtistDNAEditor', 'SUNOBOOM_LEGACY_DNA_EDITOR', '{ model, api }'],
-    ['../src/vue/academy/legacyAcademyBridge.js', '#sb-vue-academy-root', 'AcademyCatalog', 'SUNOBOOM_LEGACY_ACADEMY', 'snapshot: model'],
-    ['../src/vue/academy/legacyGenreDetailBridge.js', '#sb-vue-genre-detail', 'GenreDetail', 'SUNOBOOM_LEGACY_GENRE', 'genre: model']
-  ]) {
-    const code = readFileSync(new URL(file, import.meta.url), 'utf8');
-    assert.ok(code.includes('observeLegacyIsland({'), file);
-    assert.ok(code.includes('window.' + api), file);
-    assert.ok(code.includes("parent.querySelector('" + selector + "')"), file);
-    assert.ok(code.includes('api.snapshot()'), file);
-    assert.ok(code.includes('mountVueFeature(node, ' + component + ','), file);
-    assert.ok(code.includes(props), file);
-    assert.doesNotMatch(code, /new MutationObserver|subtree:\s*true|localStorage|indexedDB/i, file);
-  }
-  const catalog = readFileSync(new URL('../src/vue/academy/legacyAcademyBridge.js', import.meta.url), 'utf8');
-  assert.ok(catalog.includes('!model?.families?.length'));
-  for (const action of ['api.search(q)', 'api.setExpanded(kind, id, value)', 'api.searchIcon'])
-    assert.ok(catalog.includes(action), action);
-  const genre = readFileSync(new URL('../src/vue/academy/legacyGenreDetailBridge.js', import.meta.url), 'utf8');
-  assert.ok(genre.includes('!model?.id'));
-  assert.ok(genre.includes('api.tabContent(id, tab)'));
-  assert.ok(genre.includes('artistProfiles: window.SUNOBOOM_ARTIST_PROFILES || null'));
-});
-
-
 test('v0.190 multi-island lifecycle shares one shallow observer, retries missing hosts and disposes once', () => {
   const a = { isConnected:true, id:'a0', originalHTML:'native a' };
   const b = { isConnected:true, id:'b0', originalHTML:'native b' };
@@ -1096,53 +997,6 @@ test('v0.190 multi-island lifecycle shares one shallow observer, retries missing
   assert.equal(events.length,after);
   assert.equal(typeof observeLegacyIslands({root:null,islands:[]}), 'function');
   assert.equal(typeof observeLegacyIslands({root,islands:[{key:'dup'},{key:'dup'}]}), 'function');
-});
-
-test('v0.190 Studio and three Idea Editor hosts preserve their unique native contracts', () => {
-  const studio=readFileSync(new URL('../src/vue/studio/legacyStudioBridge.js', import.meta.url),'utf8');
-  assert.match(studio,/observeLegacyIsland\(/);
-  assert.ok(studio.includes("parent.querySelector('.studio-grid')"));
-  assert.ok(studio.includes('mountVueFeature(node, StudioBuilder, { api })'));
-  assert.ok(studio.includes("node.dataset.sbVueStudio = 'true'"));
-  assert.ok(studio.includes('readSnapshot: () => api.snapshot()'));
-  assert.doesNotMatch(studio,/new MutationObserver|localStorage|indexedDB|subtree:\s*true/);
-  const ideas=readFileSync(new URL('../src/vue/poetry/legacyIdeaEditorBridge.js',import.meta.url),'utf8');
-  assert.ok(ideas.includes('observeLegacyIslands({'));
-  for (const [selector,component] of [
-    ['sb-vue-idea-fields','IdeaFields'],
-    ['sb-vue-lyrics-source','LyricsSource'],
-    ['sb-vue-lyrics-tools','LyricsTools']
-  ]) {
-    assert.ok(ideas.includes("['"+selector+"', "+component+']'));
-  }
-  assert.ok(ideas.includes("parent.querySelector('#' + id)"));
-  assert.ok(ideas.includes('readSnapshot: () => api.snapshot()'));
-  assert.ok(ideas.includes('mountVueFeature(node, component, { api, initial })'));
-  assert.doesNotMatch(ideas,/new MutationObserver|localStorage|indexedDB|subtree:\s*true/);
-});
-
-
-test('v0.191 arranger uses one shallow observer across six original hosts', () => {
-  const code = readFileSync(new URL('../src/vue/studio/legacyArrangerBridge.js', import.meta.url), 'utf8');
-  assert.ok(code.includes("import { observeLegacyIslands } from '../legacy/observeLegacyIslands.js';"));
-  assert.ok(code.includes('observeLegacyIslands({'));
-  assert.ok(code.replaceAll('\r\n', '\n').includes('root,\n    islands: targets.map('));
-  for (const [selector, kind, component] of [
-    ['#sba-cards','cards','ArrangementPanel'],
-    ['#sba-snake-track','snake','ArrangementPanel'],
-    ['#sba-transition-hub-list','transitions','ArrangementPanel'],
-    ['#sba-energy-chart','energy','ArrangementPanel'],
-    ['.sba-preset-picker','picker','ArrangementPicker'],
-    ['.sba-result','result','ArrangementResult']
-  ]) {
-    assert.ok(code.includes("['" + selector + "', '" + kind + "'"), selector);
-    if (component !== 'ArrangementPanel') assert.ok(code.includes(component), kind);
-  }
-  assert.ok(code.includes('key: kind'));
-  assert.ok(code.includes('selectTarget: parent => parent.querySelector(selector)'));
-  assert.ok(code.includes('readSnapshot: () => api.snapshot()'));
-  assert.ok(code.includes("component === ArrangementPanel || component === ArrangementComposer ? { api, kind, initial } : { api }"));
-  assert.doesNotMatch(code, /new MutationObserver|subtree:\s*true|localStorage|indexedDB|saveDraft|writeFile/i);
 });
 
 test('v0.191 six arranger islands remount independently and preserve fallback on missing snapshot', () => {
@@ -1425,12 +1279,9 @@ test('v0.196 project snapshot retains order, selection fallback and reads no pri
   assert.equal(win.SUNOBOOM_LEGACY_PROJECT_LIST.snapshot().selectedId,null);
 });
 
-test('v0.196 only the project collection is Vue-owned with existing delegated keyboard actions', () => {
-  const bridge=readFileSync(new URL('../src/vue/account/legacyProjectCollectionBridge.js',import.meta.url),'utf8');
+test('project collection keeps delegated keyboard actions and its direct factory', () => {
+
   const component=readFileSync(new URL('../src/vue/account/ProjectCollection.vue',import.meta.url),'utf8');
-  assert.ok(bridge.includes('observeLegacyIsland({'));
-  assert.ok(bridge.includes("parent.querySelector('#sb-vue-projects-list')"));
-  assert.ok(bridge.includes('mountVueFeature(node, ProjectCollection, { model })'));
   assert.ok(component.includes('data-action="select-project"'));
   assert.ok(component.includes('role="button" tabindex="0"'));
   assert.ok(component.includes('{{ project.title }}'));
@@ -1460,13 +1311,11 @@ test('v0.197 project creator snapshot preserves native draft values before Vue m
 
 test('v0.197 creator retains native field IDs and delegates creation without parallel storage', () => {
   const code=readFileSync(new URL('../src/vue/account/ProjectCreator.vue',import.meta.url),'utf8');
-  const bridge=readFileSync(new URL('../src/vue/account/legacyProjectCreatorBridge.js',import.meta.url),'utf8');
+
   assert.ok(code.includes('id="p-title" v-model="draft.title"'));
   assert.ok(code.includes('id="p-genre" v-model="draft.genre"'));
   assert.ok(code.includes('data-action="create-project"'));
   assert.doesNotMatch(code,/localStorage|indexedDB|@click|@submit|maxlength/);
-  assert.ok(bridge.includes('observeLegacyIsland({'));
-  assert.ok(bridge.includes('ProjectCreator, { initial: model }'));
 });
 
 
@@ -1489,13 +1338,11 @@ test('v0.198 project detail snapshot keeps selection, current notes and data iso
 
 test('v0.198 detail delegates original actions and keeps notes as a local draft', () => {
   const component=readFileSync(new URL('../src/vue/account/ProjectDetail.vue',import.meta.url),'utf8');
-  const bridge=readFileSync(new URL('../src/vue/account/legacyProjectDetailBridge.js',import.meta.url),'utf8');
+
   assert.ok(component.includes('id="project-notes" v-model="notes" rows="12"'));
   for(const action of ['save-project','use-genre','delete-project'])assert.ok(component.includes('data-action="'+action+'"'));
   assert.ok(component.includes('{{ initial.project.title }}'));
   assert.doesNotMatch(component,/localStorage|indexedDB|@click|@submit|confirm\(/);
-  assert.ok(bridge.includes('observeLegacyIsland({'));
-  assert.ok(bridge.includes('ProjectDetail, { initial: model }'));
 });
 
 
@@ -1523,12 +1370,10 @@ test('v0.200 event snapshot uses native sorting and date/reminder rules without 
 
 test('v0.200 event list owns only cards and keeps native delegated actions', () => {
   const component=readFileSync(new URL('../src/vue/account/EventCollection.vue',import.meta.url),'utf8');
-  const bridge=readFileSync(new URL('../src/vue/account/legacyEventCollectionBridge.js',import.meta.url),'utf8');
+
   for(const name of ['dash-event-row','dash-event-date','dash-event-main','sb-event-reminder-summary','dash-event-controls'])assert.ok(component.includes(name));
   for(const action of ['event-edit','event-delete'])assert.ok(component.includes('data-action="'+action+'"'));
   assert.doesNotMatch(component,/v-html|v-model|localStorage|indexedDB|@click|new Date/);
-  assert.ok(bridge.includes('observeLegacyIsland({'));
-  assert.ok(bridge.includes('EventCollection, { model }'));
 });
 
 
@@ -1553,11 +1398,10 @@ test('v0.201 event editor snapshot preserves native drafts and uses saved fields
 
 test('v0.201 editor hands only five fields to Vue, keeping native reminders and save/cancel', () => {
   const code=readFileSync(new URL('../src/vue/account/EventEditor.vue',import.meta.url),'utf8');
-  const bridge=readFileSync(new URL('../src/vue/account/legacyEventEditorBridge.js',import.meta.url),'utf8');
+
   for(const id of ['title','date','time','type','notes'])assert.ok(code.includes('id="event-'+id+'" v-model="draft.'+id+'"'));
   assert.ok(code.includes('maxlength="120"'));assert.ok(code.includes('maxlength="1200"'));
   assert.doesNotMatch(code,/localStorage|indexedDB|@click|@submit|reminder|data-action/);
-  assert.ok(bridge.includes('observeLegacyIsland({'));assert.ok(bridge.includes('EventEditor, { initial: model }'));
 });
 
 
@@ -1612,11 +1456,10 @@ test('v0.203 action snapshot exposes only valid editing mode and guards other ro
 
 test('v0.203 action bar keeps delegated actions without local mutations or duplicate listeners', () => {
   const component=readFileSync(new URL('../src/vue/account/EventActions.vue',import.meta.url),'utf8');
-  const bridge=readFileSync(new URL('../src/vue/account/legacyEventActionsBridge.js',import.meta.url),'utf8');
+
   for(const action of ['event-save','event-cancel'])assert.equal(component.split('data-action="'+action+'"').length-1,1);
   assert.ok(component.includes('v-if="model.editing"'));assert.ok(component.includes('type="button"'));
   assert.doesNotMatch(component,/v-html|@click|@submit|localStorage|indexedDB|addEventListener/);
-  assert.ok(bridge.includes('observeLegacyIsland({'));assert.ok(bridge.includes('EventActions, { model }'));
 });
 
 
@@ -1638,12 +1481,9 @@ test('v0.204 account summary retains native name/avatar and all collection total
   assert.deepEqual(api.snapshot().counts,{projects:0,favorites:0,saved:0});
 });
 
-test('v0.204 summary keeps both native containers and one shared observer without new storage', () => {
-  const bridge=readFileSync(new URL('../src/vue/account/legacyAccountSummaryBridge.js',import.meta.url),'utf8');
+test('account summary keeps profile/stat displays without new storage', () => {
+
   const component=readFileSync(new URL('../src/vue/account/AccountSummary.vue',import.meta.url),'utf8');
-  assert.ok(bridge.includes('observeLegacyIslands({'));
-  for(const id of ['sb-vue-account-profile','sb-vue-account-stats'])assert.ok(bridge.includes(id));
-  assert.ok(bridge.includes('AccountSummary, { model, kind }'));
   assert.ok(component.includes('{{ model.name }}'));
   assert.equal(component.split('class="stat"').length-1,3);
   assert.doesNotMatch(component,/v-html|localStorage|indexedDB|@click|v-model/);
@@ -1667,16 +1507,15 @@ test('account snapshot takes saved data without reading HTML and delegates UI sc
  const api=win.SUNOBOOM_LEGACY_ACCOUNT_HOME;assert.equal(api.snapshot(),null);view.nav='account';assert.equal(api.snapshot().profileName,'Saved');assert.equal(api.snapshot().tiles.length,11);api.syncStats('native host');assert.equal(scrolled,'native host');
 });
 
-test('v0.205 one account root owns the home while legacy summary compatibility skips its children', () => {
+test('one account component owns the profile, stats, tiles and backup controls', () => {
   const code=readFileSync(new URL('../src/vue/account/AccountHome.vue',import.meta.url),'utf8');
   const bootstrap=readFileSync(new URL('../src/vue/bootstrap.js',import.meta.url),'utf8');
-  const old=readFileSync(new URL('../src/vue/account/legacyAccountSummaryBridge.js',import.meta.url),'utf8');
+
   for(const action of ['save-profile','export','import'])assert.ok(code.includes('data-action="'+action+'"'));
   assert.ok(code.includes('id="import-file"'));assert.ok(code.includes('id="profile-name"'));
   assert.ok(code.includes('AccountSummary'));assert.doesNotMatch(code,/localStorage|indexedDB|@click|@submit/);
   assert.ok(readFileSync(new URL('../src/vue/pages/page-features.js',import.meta.url),'utf8').includes("'sb-vue-account-home':[AccountHome"));
   assert.ok(!bootstrap.includes("if (typeof startLegacyAccountSummary === 'function')"));
-  assert.ok(old.includes("target?.closest('#sb-vue-account-home') ? null : target"));
 });
 
 
@@ -1707,11 +1546,10 @@ test('v0.206 Ideas page snapshot retains source options, filters, saved IDs and 
 
 test('v0.206 Ideas screen retains all delegated generator/catalog actions without business duplication', () => {
   const component=readFileSync(new URL('../src/vue/ideas/IdeasPage.vue',import.meta.url),'utf8');
-  const bridge=readFileSync(new URL('../src/vue/ideas/legacyIdeasPageBridge.js',import.meta.url),'utf8');
+
   for(const action of ['generate-ideas','surprise-ideas','generated-use','generated-copy','generated-save','idea-filter','random-idea','idea-use','idea-save'])assert.ok(component.includes('data-action="'+action+'"'));
   assert.ok(component.includes('id="generated-results"'));assert.ok(component.includes('data-idea-generator="detail"'));
   assert.doesNotMatch(component,/Math.random|localStorage|indexedDB|@click|@submit|fetch\(/);
-  assert.ok(bridge.includes('observeLegacyIsland({'));assert.ok(bridge.includes('IdeasPage, { initial }'));
 });
 
 
@@ -1750,21 +1588,6 @@ test('v0.207 shared snapshot is isolated from the library and Vue keeps delegate
   assert.doesNotMatch(component,/v-html|localStorage|indexedDB|@click|autoplay/);
 });
 
-
-test('page feature collection reuses contracts without observers/subscriptions and always resets',()=>{
-  const root={},seen=[];
-  const options={root,selectTarget:()=>null,readSnapshot:()=>null,mount:()=>{throw Error('must not mount');},
-    subscribe:()=>{throw Error('must not subscribe');},createObserver:()=>{throw Error('must not observe');}};
-  withFeatureCollection(item=>seen.push(item),()=>{
-    observeLegacyIsland(options);
-    observeLegacyIslands({...options,islands:[{...options,key:'a'},{...options,key:'b'}]});
-  });
-  assert.equal(seen.length,3);assert.ok(seen.every(item=>item.root===root));
-  assert.throws(()=>withFeatureCollection(()=>{},()=>{throw Error('test');}),/test/);
-  let observed=false;
-  observeLegacyIsland({...options,subscribe:undefined,createObserver:()=>({observe(){observed=true;},disconnect(){}})} )();
-  assert.equal(observed,true,'collection cannot leak into later lifecycle');
-});
 
 test('page ownership suppresses nested apps, permits named lazy boundaries and protects raw fallback',()=>{
   const page={};
