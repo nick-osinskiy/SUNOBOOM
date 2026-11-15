@@ -1,6 +1,6 @@
 # Итоговая очистка — v0.218
 
-Статус: код очищен; окончательная приёмка CI/Pages/live ещё проверяется.
+Статус: **итоговая очистка принята и завершена 15 ноября 2026 г.**
 
 ## Аудит
 
@@ -20,6 +20,9 @@
 
 Восемь тестов структуры удалённого bridge/collector кода сняты с эксплуатации. Вместо них добавлены три проверки import graph, сохранности шести живых adapters и соответствия roots реальным Vite/bootstrap. Остальные проверки поведения компонентов, IDs/actions, snapshots, escaping, ownership, JSON/IDB/audio и полный desktop/mobile/native browser smoke сохранены.
 
-Локально: **134/134 Node tests**, import audit и production build — PASS. Полный desktop/mobile/native browser smoke — PASS. CI/Pages и live-проверка ещё ожидаются.
+Локально: **134/134 Node tests**, import audit и production build — PASS. Полный desktop/mobile/native browser smoke — PASS. CI/Pages и live-проверка подтверждены ниже.
 
 Этап 4 остаётся закрытым. Эта очистка не вводит новый этап миграции и не меняет функции приложения.
+
+
+Публикация итоговой очистки v0.218 подтверждена 15 ноября 2026 г.: source [deca0fc](https://github.com/nick-osinskiy/SUNOBOOM/commit/deca0fcc71603e9d444766481b0d09528ce59405), проверенная CI-сборка [1cc1b35](https://github.com/nick-osinskiy/SUNOBOOM/commit/1cc1b3541470b32a3dd0df7b32e0a9992af7fba8). Import audit (103 src/vue modules, 104 reachable, 0 missing/unused), **134/134 Node tests**, build и полный desktop/mobile/native smoke: [CI success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43737840780). [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43738283127). На [сайте v0.218](https://nick-osinskiy.github.io/SUNOBOOM/?v=218) пройдены direct-page/native recovery, draft/node/FileList handoffs без autosave, artistDnaId, browser routes/Back/Forward/reload, native canonical URLs и прежняя JSON/IDB/audio + Studio/preferences acceptance. JS/CSS опубликованной CI-сборки совпали с main по SHA-256 после нормализации переносов строк. Все Vue component sources и CSS CI-сборки идентичны v0.217; дизайн не менялся. **Итоговая очистка принята и завершена.** Этап 4 остаётся закрытым, рабочие функции/данные/native fallback сохранены.
