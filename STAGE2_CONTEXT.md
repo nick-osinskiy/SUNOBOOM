@@ -2,7 +2,7 @@
 
 Дата: 15 ноября 2026 г. База перед первым блоком: main `77c82d1fadaeaa6be3024a712e991d0d5de051d1`, v0.210. Этап 1 закрыт; [его приёмка](STAGE1_ACCEPTANCE.md) остаётся историческим свидетельством.
 
-**v0.214 содержит заключительный блок: модели экранов, остаток команд и общую приёмку. Финальный статус публикации фиксируется после CI/Pages; см. STAGE2_ACCEPTANCE.md.** Следующие работы перечислены ниже; это продолжение одного архитектурного этапа, а не новые этапы за отдельные кнопки.
+**v0.214: этап 2 принят и закрыт.** Общие владельцы данных/команды, семантические модели экранов и общая приёмка подтверждены. Протокол — STAGE2_ACCEPTANCE.md. Этап 3 в этом выпуске не начинался. Следующие работы перечислены ниже; это продолжение одного архитектурного этапа, а не новые этапы за отдельные кнопки.
 
 ## Что выделено
 
@@ -31,9 +31,9 @@
 | Workspace core и общие repositories | Один объект, payload-команды основных коллекций, совместимые JSON/IDB | Выполнено: canonical workspace и 30 payload-команд; оставшиеся UI direct writes устранены |
 | Собственные песни, версии, файлы и Мастер | Canonical state и payload/result для создания/редактирования/удаления/версий/связей; media lifecycle с явным cleanup | Выполнен в v0.212; canonical song library и workflow, payload/result, согласованные file/metadata writes и URL scopes |
 | Studio/аранжировщик, preferences и вычислительные services | Явные входы и команды; прежние algorithms/словарь/DSP остаются обычными JS services; один владелец состояния | Выполнен третий блок v0.213: canonical Studio/arranger/mixer/preferences + prompt audit services; browser media lifecycle остаётся UI adapter |
-| Data/page models и окончательная приёмка | Vue получает данные/семантические descriptors, не native DOM; устранены AccountHome DOM parsing и page layout adapter | Реализованы v0.214: явные структуры/данные, shared account definitions, UI handoff вне моделей; общая приёмка проверяется |
+| Data/page models и окончательная приёмка | Vue получает данные/семантические descriptors, не native DOM; устранены AccountHome DOM parsing и page layout adapter | PASS v0.214: явные структуры/данные, shared account definitions, UI handoff вне моделей; общая приёмка завершена |
 
-Все блоки реализованы. Для закрытия этапа требуется подтвердить общую приёмку и публикацию v0.214; результаты — STAGE2_ACCEPTANCE.md. До её подтверждения этап 3 не начинать.
+Все блоки реализованы и приняты на v0.214. Результаты — STAGE2_ACCEPTANCE.md. Далее можно отдельно начинать этап 3; в v0.214 он не выполнялся.
 
 ## Что сознательно не объявляется завершённым
 
@@ -87,4 +87,6 @@ Native HTML перестал быть источником данных плит
 
 Direct writes recent/performance prefs/artist favorites заменены командами с rollback; старые keys и IDs сохранены. Startup normalization перенесена в owner. Новые headless/browser tests и полная регрессия составляют общую приёмку, подробности STAGE2_ACCEPTANCE.md. Статус CI/Pages и live-проверки фиксируется после публикации.
 
-Локальная приёмка v0.214: **145/145 Node tests**, сборка, полный desktop/mobile/native smoke и отдельная stage-2 JSON/IDB/model acceptance — PASS. Итоговая публикация/CI проверяется после коммита.
+Локальная приёмка v0.214: **145/145 Node tests**, сборка, полный desktop/mobile/native smoke и отдельная stage-2 JSON/IDB/model acceptance — PASS. Публикация подтверждена ниже.
+
+Публикация v0.214 подтверждена: source [6d579fc](https://github.com/nick-osinskiy/SUNOBOOM/commit/6d579fc4626c0297254495e5e9334cdd5a863c9f), проверенный bundle [8f3de34](https://github.com/nick-osinskiy/SUNOBOOM/commit/8f3de34b43bc39d8a4759b9c70feba709cd6b937). **145/145 Node tests**, сборка и полный browser smoke: [CI success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43711298211). [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43711611272). Live HTTP 200/v0.214: повторно пройдены все 16 разделов, DOM-free models, old JSON/IDB bytes, IDs/links/backup и Studio quota/reload на desktop/mobile Vue и native mobile, без pageerror. **Этап 2 принят и закрыт. Этап 3 не начинался.**

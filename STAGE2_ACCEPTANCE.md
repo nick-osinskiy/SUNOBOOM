@@ -2,11 +2,11 @@
 
 Дата: 15 ноября 2026 г. База заключительного блока: main `5302e35d1bc1bafe5301776815004fd8fdcec8cc`, v0.213.
 
-**Код заключительного блока реализован; локальная приёмка пройдена. Финальное закрытие этапа требует CI, Pages и проверки опубликованной сборки.** Сведения о публикации добавляются после их завершения.
+**Этап 2 принят и закрыт на v0.214.** Локальная приёмка, CI, Pages и опубликованная сборка проверены. Данные/команды/модели отделены от native HTML в границах этапа; работа над этапом 3 не начиналась.
 
 ## Проверенные требования
 
-| Требование этапа 2 | Реализация и доказательство | Локально |
+| Требование этапа 2 | Реализация и доказательство | Результат |
 | --- | --- | --- |
 | Один владелец workspace | `application.state === data`; import меняет содержимое того же root. Backup сохраняет неизвестные поля и старые IDs | PASS |
 | Данные/команды без HTML | Workspace, Songs, Master, Studio, arrangement, mixer, preferences, prompt audit используют явные входы и результаты | PASS |
@@ -35,3 +35,7 @@
 **Этап 3** — единая оболочка и реальная маршрутизация, сохраняя функции и данные. **Этап 4** — удаление ставшего ненужным дублирования и legacy renderer. Эти работы в v0.214 не начинались.
 
 Не добавлялись backend, авторизация, облачная синхронизация или общая crash-atomic транзакция между localStorage и IndexedDB; обычные write/abort failures проверены в границах существующей архитектуры.
+
+## Публикация и финальная приёмка
+
+Публикация v0.214 подтверждена: source [6d579fc](https://github.com/nick-osinskiy/SUNOBOOM/commit/6d579fc4626c0297254495e5e9334cdd5a863c9f), проверенный bundle [8f3de34](https://github.com/nick-osinskiy/SUNOBOOM/commit/8f3de34b43bc39d8a4759b9c70feba709cd6b937). **145/145 Node tests**, сборка и полный browser smoke: [CI success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43711298211). [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43711611272). Live HTTP 200/v0.214: повторно пройдены все 16 разделов, DOM-free models, old JSON/IDB bytes, IDs/links/backup и Studio quota/reload на desktop/mobile Vue и native mobile, без pageerror. **Этап 2 принят и закрыт. Этап 3 не начинался.**

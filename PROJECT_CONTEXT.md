@@ -1,6 +1,6 @@
 # SUNOBOOM — PROJECT_CONTEXT.md
 
-> **v0.214, 15 ноября 2026 г. — заключительный блок этапа 2, приёмка и публикация проверяются.** Модели страниц и кабинета получают данные и явные описания структуры без чтения native HTML. Оставшиеся записи пользовательских данных переведены на общие команды. Подробности — раздел 64 и [STAGE2_ACCEPTANCE.md](./STAGE2_ACCEPTANCE.md). Этап 3 (единая оболочка и маршрутизация) в этом выпуске не начинался.
+> **v0.214, 15 ноября 2026 г. — этап 2 принят и закрыт.** Общие владельцы данных и команды, модели страниц без native HTML parsing и совместимость старых JSON/IDB/аудио подтверждены: 145 тестов, сборка, полный browser smoke, CI, Pages и live-проверка. Протокол — [STAGE2_ACCEPTANCE.md](./STAGE2_ACCEPTANCE.md), подробности — раздел 64. Следующий этап 3 — единая оболочка Vue и реальная маршрутизация; в v0.214 он не начинался.
 
 ## 1. Что это и где работает
 
@@ -1054,4 +1054,6 @@ JSON repository подключён к песням, Мастеру, settings, Pl
 
 Полная приёмка и пределы этапа описаны в STAGE2_ACCEPTANCE.md. Удаление legacy renderer/дубликатов, реальный Router и единая shell остаются этапами 3–4; они не включены в v0.214.
 
-Локальная приёмка v0.214: **145/145 Node tests**, сборка, полный desktop/mobile/native smoke и отдельная stage-2 JSON/IDB/model acceptance — PASS. Итоговая публикация/CI проверяется после коммита.
+Локальная приёмка v0.214: **145/145 Node tests**, сборка, полный desktop/mobile/native smoke и отдельная stage-2 JSON/IDB/model acceptance — PASS. Публикация подтверждена ниже.
+
+Публикация v0.214 подтверждена: source [6d579fc](https://github.com/nick-osinskiy/SUNOBOOM/commit/6d579fc4626c0297254495e5e9334cdd5a863c9f), проверенный bundle [8f3de34](https://github.com/nick-osinskiy/SUNOBOOM/commit/8f3de34b43bc39d8a4759b9c70feba709cd6b937). **145/145 Node tests**, сборка и полный browser smoke: [CI success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43711298211). [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43711611272). Live HTTP 200/v0.214: повторно пройдены все 16 разделов, DOM-free models, old JSON/IDB bytes, IDs/links/backup и Studio quota/reload на desktop/mobile Vue и native mobile, без pageerror. **Этап 2 принят и закрыт. Этап 3 не начинался.**
