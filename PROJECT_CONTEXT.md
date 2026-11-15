@@ -1036,4 +1036,6 @@ JSON repository подключён к песням, Мастеру, settings, Pl
 
 Следующий цельный блок этапа 2 — убрать оставшееся чтение native HTML из data/page models, проверить остаток прямых записей и провести общую приёмку. Root render/go, единая оболочка и маршрутизация остаются последующим этапом 3.
 
-Локальная проверка v0.213: **137/137 Node tests**, сборка и полный desktop/mobile/native browser smoke — PASS; новая suite Studio/core/quota/reload прошла во всех трёх режимах. Сведения о публикации добавляются после проверки GitHub Actions и Pages.
+Локальная проверка v0.213: **137/137 Node tests**, сборка и полный desktop/mobile/native browser smoke — PASS; новая suite Studio/core/quota/reload прошла во всех трёх режимах. Публикация подтверждена ниже.
+
+Публикация v0.213 подтверждена: source [f240950](https://github.com/nick-osinskiy/SUNOBOOM/commit/f2409500bf8d4c905c90b20ee49c112f23fd1195), проверенный bundle [57dde32](https://github.com/nick-osinskiy/SUNOBOOM/commit/57dde3289ca16209d877b5327953394f938372c7). **137/137 Node tests**, сборка и полный browser smoke: [CI success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43687856997). [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43688151840). На опубликованной сборке повторно пройдены Studio/arranger/mixer/preferences core commands, реальные quota/draft rollback и reload на desktop/mobile Vue и mobile native без pageerror. HTTP 200 и версия 0.213 подтверждены. Третий блок завершён; весь этап 2 остаётся открытым до data/page models и общей приёмки.
