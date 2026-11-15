@@ -1,3 +1,4 @@
+import {checkStage2Acceptance} from './vue-stage2-acceptance.mjs';
 import {checkStudioCore} from './vue-studio-core.mjs';
 import {checkSongCore} from './vue-song-core.mjs';
 import {checkDomainCore} from './vue-domain-core.mjs';
@@ -4562,6 +4563,7 @@ async function checkEditorFallback() {
 try {
   await ready();
   browser = await chromium.launch({ headless: true });
+  await checkStage2Acceptance(browser,BASE);
   await checkStudioCore(browser,BASE);
   await checkLayout(false);
   await checkLayout(true);

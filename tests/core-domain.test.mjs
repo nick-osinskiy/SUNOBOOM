@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import '../core/application-core.js';
 
 const factory=globalThis.SUNOBOOM_CORE_FACTORY;
-const defaults={profileName:'Музыкант',projects:[],manualIdeas:[],savedPrompts:[],favorites:[],savedIdeas:[],savedGeneratedIdeas:[]};
+const defaults={events:[],tracks:[],artistDNAs:[],notificationRead:{},profileName:'Музыкант',projects:[],manualIdeas:[],savedPrompts:[],favorites:[],savedIdeas:[],savedGeneratedIdeas:[]};
 function setup(saved){
  const values=new Map(saved?[['sunoboom-v1',JSON.stringify(saved)]]:[]);let writes=0,fail=false;
  const storage={getItem:key=>values.get(key)??null,setItem(key,value){if(fail)throw Error('quota');writes++;values.set(key,value);}};

@@ -1,3 +1,4 @@
+import '../page-models.js';
 import '../core/song-library.js';
 import { withFeatureCollection,availableIsland } from '../src/vue/legacy/featureCollection.js';
 import test from 'node:test';
@@ -1520,7 +1521,7 @@ test('v0.189 Academy, genre detail and editors share lifecycle without changing 
   }
   const catalog = readFileSync(new URL('../src/vue/academy/legacyAcademyBridge.js', import.meta.url), 'utf8');
   assert.ok(catalog.includes('!model?.families?.length'));
-  for (const action of ['api.search(q)', 'api.setExpanded(kind, id, value)', "node.querySelector('label.search-box > svg')"])
+  for (const action of ['api.search(q)', 'api.setExpanded(kind, id, value)', 'api.searchIcon'])
     assert.ok(catalog.includes(action), action);
   const genre = readFileSync(new URL('../src/vue/academy/legacyGenreDetailBridge.js', import.meta.url), 'utf8');
   assert.ok(genre.includes('!model?.id'));
@@ -2219,36 +2220,21 @@ test('v0.204 summary keeps both native containers and one shared observer withou
 });
 
 
-test('v0.205 final native tiles retain order, attributes, icon markup and trailing badges', async () => {
-  const { readAccountTiles }=await import('../src/vue/account/account-home-model.js');
-  const node=(tag,attributes={},text='',html='')=>({tagName:tag,attributes:Object.entries(attributes).map(([name,value])=>({name,value})),
-    textContent:text,innerHTML:html,classList:{contains:name=>(attributes.class||'').split(' ').includes(name)}});
-  const icon=node('svg',{viewBox:'0 0 24 24','stroke-width':'1.8','stroke-linecap':'round'},'', '<path d="test"/>');
-  const title=node('strong',{},'Мои песни');const description=node('span',{},'<img>Text');
-  const badge=node('b',{class:'tile-count'},'4');const arrow=node('span',{class:'account-tile-arrow'},'↗');
-  const tile={...node('button',{class:'account-tile sbsong-account-tile','data-sbsong-action':'open-library','aria-label':'Мои песни',onclick:'bad()'}),
-    children:[icon,title,description,badge,arrow],querySelector:()=>title};
-  const model=readAccountTiles({querySelectorAll:()=>[tile]});
-  assert.equal(model.length,1);assert.equal(model[0].attrs['data-sbsong-action'],'open-library');
-  assert.equal(model[0].attrs.onclick,undefined);assert.equal(model[0].parts[0].attrs['stroke-width'],'1.8');
-  assert.equal(model[0].parts[0].html,'<path d="test"/>');
-  assert.equal(model[0].parts[2].text,'<img>Text');assert.equal(model[0].parts[2].icon,false);
-  assert.equal(model[0].parts[3].text,'4');assert.equal(model[0].parts[3].icon,false);
-  assert.equal(readAccountTiles({querySelectorAll:()=>[]}),null);
-  assert.equal(readAccountTiles({querySelectorAll:()=>[{querySelector:()=>null}]}),null);
+test('semantic account tiles share native order, attributes, trusted icons and live counters without HTML reads',()=>{
+ const model=globalThis.SUNOBOOM_UI_MODELS.accountTiles({songs:4,projects:3,tracks:2,artists:1,ideas:8,prompts:6,productions:5});
+ assert.equal(model.length,11);assert.equal(model[0].parts.find(p=>p.tag==='strong').text,'Мастер');
+ const song=model.find(t=>t.attrs['data-sbsong-action']==='open-library');assert.equal(song.parts.find(p=>p.attrs.class==='tile-count').text,'4');
+ const project=model.find(t=>t.attrs['data-nav']==='projects');assert.equal(project.attrs['aria-label'],'Мои проекты, всего 3');assert.ok(project.parts.some(p=>p.icon&&p.html.includes('<path')));
+ const html=globalThis.SUNOBOOM_UI_MODELS.renderAccountTiles({projects:7});assert.ok(html.includes('Мои проекты, всего 7'));
+ model[0].parts[1].text='Changed';assert.equal(globalThis.SUNOBOOM_UI_MODELS.accountTiles()[0].parts[1].text,'Мастер');
 });
 
-test('v0.205 account home snapshot keeps live profile draft and delegates native scrolling', () => {
-  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
-  const start=html.indexOf('window.SUNOBOOM_LEGACY_ACCOUNT_HOME='),end=html.indexOf('function account()',start);
-  const view={nav:'home'},data={profileName:'Saved'},win={SUNOBOOM_LEGACY_ACCOUNT_SUMMARY:{snapshot:()=>({name:'Saved',counts:{projects:1}})}};
-  let value='  Native draft  ',host=true,scrolled;
-  new Function('window','view','data','document','I','sbSyncAccountStatsFade',html.slice(start,end))(win,view,data,
-    {getElementById:id=>id==='sb-vue-account-home'?(host?{}:null):(value===null?null:{value})},icon=>'<svg>'+icon+'</svg>',el=>{scrolled=el;});
-  const api=win.SUNOBOOM_LEGACY_ACCOUNT_HOME;assert.equal(api.snapshot(),null);
-  view.nav='account';assert.equal(api.snapshot().profileName,'  Native draft  ');
-  value='';assert.equal(api.snapshot().profileName,'');value=null;assert.equal(api.snapshot().profileName,'Saved');
-  host=false;assert.equal(api.snapshot(),null);api.syncStats('native host');assert.equal(scrolled,'native host');
+test('account snapshot takes saved data without reading HTML and delegates UI scrolling',()=>{
+ const html=readFileSync(new URL('../index.html',import.meta.url),'utf8'),start=html.indexOf('window.SUNOBOOM_LEGACY_ACCOUNT_HOME='),end=html.indexOf('function account()',start);
+ const view={nav:'home'},data={profileName:'Saved',projects:[],tracks:[],artistDNAs:[],savedPrompts:[]},win={SUNOBOOM_LEGACY_ACCOUNT_SUMMARY:{snapshot:()=>({name:'Saved'})}};let scrolled;
+ const forbidden=new Proxy({},{get(){throw Error('model read DOM');}});
+ new Function('window','view','data','document','I','sbSyncAccountStatsFade','SUNOBOOM_CORE','SUNOBOOM_UI_MODELS',html.slice(start,end))(win,view,data,forbidden,icon=>'<svg>'+icon+'</svg>',el=>{scrolled=el;},{},globalThis.SUNOBOOM_UI_MODELS);
+ const api=win.SUNOBOOM_LEGACY_ACCOUNT_HOME;assert.equal(api.snapshot(),null);view.nav='account';assert.equal(api.snapshot().profileName,'Saved');assert.equal(api.snapshot().tiles.length,11);api.syncStats('native host');assert.equal(scrolled,'native host');
 });
 
 test('v0.205 one account root owns the home while legacy summary compatibility skips its children', () => {

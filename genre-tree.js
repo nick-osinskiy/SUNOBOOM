@@ -391,6 +391,7 @@
   // Vue receives the live catalog and curated historical graph without copying
   // or replacing source genre data. Legacy handlers remain a complete fallback.
   window.SUNOBOOM_LEGACY_GENRE_TREE=Object.freeze({
+    isOpen:()=>state.open,
     snapshot(){
       return {
         tree:state.tree,selected:state.selected,query:state.query,zoom:state.zoom,

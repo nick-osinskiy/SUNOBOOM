@@ -1,6 +1,6 @@
 # SUNOBOOM — PROJECT_CONTEXT.md
 
-> **v0.213, 15 ноября 2026 г. — третий блок этапа 2. Этап 2 ещё открыт.** Studio, композиция аранжировщика, миксер и настройки получили единых владельцев состояния и команды без чтения HTML. Правила генерации промптов, музыкальных подсказок и аудита вынесены в core services. Прежние данные, ключи, алгоритмы и дизайн сохранены. Подробности — раздел 63 и [STAGE2_CONTEXT.md](./STAGE2_CONTEXT.md). Далее: оставшиеся data/page models, аудит прямых записей и общая приёмка этапа 2; этап 3 пока не начинать.
+> **v0.214, 15 ноября 2026 г. — заключительный блок этапа 2, приёмка и публикация проверяются.** Модели страниц и кабинета получают данные и явные описания структуры без чтения native HTML. Оставшиеся записи пользовательских данных переведены на общие команды. Подробности — раздел 64 и [STAGE2_ACCEPTANCE.md](./STAGE2_ACCEPTANCE.md). Этап 3 (единая оболочка и маршрутизация) в этом выпуске не начинался.
 
 ## 1. Что это и где работает
 
@@ -1039,3 +1039,19 @@ JSON repository подключён к песням, Мастеру, settings, Pl
 Локальная проверка v0.213: **137/137 Node tests**, сборка и полный desktop/mobile/native browser smoke — PASS; новая suite Studio/core/quota/reload прошла во всех трёх режимах. Публикация подтверждена ниже.
 
 Публикация v0.213 подтверждена: source [f240950](https://github.com/nick-osinskiy/SUNOBOOM/commit/f2409500bf8d4c905c90b20ee49c112f23fd1195), проверенный bundle [57dde32](https://github.com/nick-osinskiy/SUNOBOOM/commit/57dde3289ca16209d877b5327953394f938372c7). **137/137 Node tests**, сборка и полный browser smoke: [CI success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43687856997). [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43688151840). На опубликованной сборке повторно пройдены Studio/arranger/mixer/preferences core commands, реальные quota/draft rollback и reload на desktop/mobile Vue и mobile native без pageerror. HTTP 200 и версия 0.213 подтверждены. Третий блок завершён; весь этап 2 остаётся открытым до data/page models и общей приёмки.
+
+
+## 64. v0.214 — семантические модели экранов и приёмка этапа 2
+
+База: main 5302e35d1bc1bafe5301776815004fd8fdcec8cc, опубликованная v0.213.
+
+- `page-models.js` — единый каталог 11 плиток кабинета: порядок, подписи, действия, SVG/значки, badges и счётчики. Native account renderer и Vue используют один каталог; прежние строковые вставки плиток в пяти модулях удалены. AccountHome получает tiles из data snapshot, DOM parsing account-grid удалён. Введённое имя при отложенном Vue захватывается отдельным UI draft adapter.
+- `page-state.js` — прямые данные/флаги для страниц из workspace/core и transient UI state; никаких querySelector/textContent/innerHTML. Включены карточки/редакторы, settings, песни/менеджер артистов, счётчики, открытое древо, режим плеера и напоминания. Header breadcrumb и действия Idea collections также формируются из данных и capabilities, а не из текста native кнопок. Academy searchIcon передаётся явно.
+- `src/vue/pages/page-templates.json` и `page-layout-model.js` — явные семантические структуры 27 состояний, плюс data bindings. Page composition связывает известные slots с существующими компонентами и больше не обходит native DOM для определения layout. Неизвестная модель/отсутствующий обязательный slot сохраняет native fallback.
+- `native-boundary-handoff.js` отдельно владеет живыми узлами двух именованных editor/lazy boundaries (ударения и древо). WeakMap связывает UI resources с моделью; в page data нет DOM nodes. Сохранение file inputs, textarea, курсора и восстановление после failed mount остаются UI lifecycle adapters.
+- Остаток direct writes устранён: genre.recent и performance.preferences в workspace core (30 workspace-команд), artist.favorite.toggle в preferences core с прежним отдельным JSON key и стабильным Set. Startup defaults events/tracks/DNA/read markers принадлежат workspace owner. Production UI не пишет в localStorage/repositories и не присваивает пользовательские коллекции напрямую; persist alias оставлен только для совместимости.
+- Проверки: 8 новых Node tests (всего 145), 27 моделей без document, bindings/изоляция/escaping, UI node handoff, quota rollback новых команд, old JSON/backup/unknown fields, architecture guard. Новая browser acceptance с запрещённым чтением DOM у моделей, fixture старых IDs/связей/versions и точным сравнением исходных IDB audio bytes после JSON backup round-trip.
+
+Полная приёмка и пределы этапа описаны в STAGE2_ACCEPTANCE.md. Удаление legacy renderer/дубликатов, реальный Router и единая shell остаются этапами 3–4; они не включены в v0.214.
+
+Локальная приёмка v0.214: **145/145 Node tests**, сборка, полный desktop/mobile/native smoke и отдельная stage-2 JSON/IDB/model acceptance — PASS. Итоговая публикация/CI проверяется после коммита.

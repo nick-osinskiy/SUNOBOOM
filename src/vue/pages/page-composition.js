@@ -1,3 +1,6 @@
+import {pageLayout} from './page-layout-model.js';
+import {rememberNativeBoundaries,restoreNativeBoundaries} from './native-boundary-handoff.js';
+export {restoreNativeBoundaries};
 import { withFeatureCollection } from '../legacy/featureCollection.js';
 
 export function captureFields(root){
@@ -20,19 +23,6 @@ export function restoreFields(root,fields){
     if(typeof field.checked==='boolean')field.node.checked=field.checked;
     if(typeof field.start==='number')try{field.node.setSelectionRange(field.start,field.end,field.direction);}catch{}
   }
-}
-
-const nativeBoundaries=new Set(['sb-poetry-auto-stress','sb-gt-inner']);
-const attributes=node=>Object.fromEntries([...node.attributes].filter(a=>!/^on/i.test(a.name)).map(a=>[a.name,a.value]));
-const boolAttrs=['hidden','open','disabled','checked','multiple','readonly','selected','required','autofocus'];
-function elementProps(node){
-  const props=attributes(node);
-  for(const key of boolAttrs)if(node.hasAttribute(key))props[key]=true;
-  if(node.matches('input,select,textarea')){
-    if(node.type==='file')delete props.value;else props.value=node.value;
-    if(node.matches('input[type=checkbox],input[type=radio]'))props.checked=node.checked;
-  }
-  return props;
 }
 
 export function composePage(page,activations,sharedUi){
@@ -74,24 +64,16 @@ export function composePage(page,activations,sharedUi){
       for(const [name,value] of attrs)node.setAttribute(name,value);
     }
   }
-  const used=[];
-  function encode(node){
-    if(node.nodeType===3)return {text:node.nodeValue};
-    if(node.nodeType!==1||node.localName==='script')return null;
-    const feature=features.get(node),props=elementProps(node);
-    if(nativeBoundaries.has(node.id))return {tag:node.localName,props:{...props,'data-sb-native-boundary':node.id},nativeNodes:[...node.childNodes]};
-    if(feature){used.push(node.id||node.getAttribute('data-sb-workspace')||node.className);return {tag:node.localName,props:{...props,...feature.wrapperProps,'data-v-app':'','data-sb-composed-feature':''},feature};}
-
-    return {tag:node.localName,props,children:[...node.childNodes].map(encode).filter(Boolean)};
+  const snapshot=window.SUNOBOOM_PAGE_STATE?.snapshot();
+  if(!snapshot)return null;
+  const declared=pageLayout(snapshot),byKey=new Map();
+  for(const [node,feature]of features)byKey.set(node.id||node.getAttribute('data-sb-workspace')||(node.hasAttribute('data-sb-arranger-controls')?'arranger-controls:'+node.getAttribute('data-sb-arranger-controls'):node.className),feature);
+  const used=[],boundaries=new Map();
+  function connect(node){
+    if(node.slot){const feature=byKey.get(node.slot);if(!feature)throw Error('Missing page feature: '+node.slot);used.push(node.slot);return {tag:node.tag,props:{...node.props,...feature.wrapperProps,'data-v-app':'','data-sb-composed-feature':''},feature};}
+    if(node.native){const boundary=page.querySelector('#'+node.props.id);if(!boundary)throw Error('Missing native editor boundary: '+node.props.id);boundaries.set(node.props.id,[...boundary.childNodes]);return {tag:node.tag,props:node.props,nativeBoundary:node.props.id};}
+    if(node.children)return {...node,children:node.children.map(connect)};
+    return node;
   }
-  const layout=[...page.childNodes].map(encode).filter(Boolean);
-  if(!used.length)return null;
-  return {layout,features:used};
-}
-
-export function restoreNativeBoundaries(root,layout){
-  for(const node of layout){
-    if(node.nativeNodes){const target=root.querySelector('#'+node.props.id);if(target)target.replaceChildren(...node.nativeNodes);}
-    if(node.children)restoreNativeBoundaries(root,node.children);
-  }
+  const model={layout:declared.map(connect),features:used};rememberNativeBoundaries(model,boundaries);return model;
 }

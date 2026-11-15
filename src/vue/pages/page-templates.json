@@ -1,0 +1,2965 @@
+{
+  "home": [
+    {
+      "tag": "div",
+      "props": {
+        "id": "sb-vue-dashboard"
+      },
+      "slot": "sb-vue-dashboard"
+    }
+  ],
+  "account": [
+    {
+      "tag": "div",
+      "props": {
+        "id": "sb-vue-account-home"
+      },
+      "slot": "sb-vue-account-home"
+    }
+  ],
+  "ideas": [
+    {
+      "tag": "div",
+      "props": {
+        "id": "sb-vue-ideas-page"
+      },
+      "slot": "sb-vue-ideas-page"
+    }
+  ],
+  "saved": [
+    {
+      "tag": "div",
+      "props": {
+        "id": "sb-vue-library-collection"
+      },
+      "slot": "sb-vue-library-collection"
+    }
+  ],
+  "projects": [
+    {
+      "tag": "div",
+      "props": {
+        "class": "account-back",
+        "data-sb-workspace": "back"
+      },
+      "slot": "back"
+    },
+    {
+      "tag": "header",
+      "props": {
+        "class": "heading"
+      },
+      "children": [
+        {
+          "tag": "h1",
+          "props": {},
+          "children": [
+            {
+              "text": "Мои проекты"
+            }
+          ]
+        },
+        {
+          "tag": "p",
+          "props": {},
+          "children": [
+            {
+              "text": "Храни замыслы исполнителей, EP и будущих песен. Эта версия работает локально: участники пока не видят проекты друг друга."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "props": {
+        "class": "projects-layout"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "props": {
+            "class": "panel"
+          },
+          "children": [
+            {
+              "tag": "div",
+              "props": {
+                "id": "sb-vue-project-creator"
+              },
+              "slot": "sb-vue-project-creator"
+            },
+            {
+              "tag": "div",
+              "props": {
+                "id": "sb-vue-projects-list"
+              },
+              "slot": "sb-vue-projects-list"
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "props": {
+            "class": "panel",
+            "id": "sb-vue-project-detail"
+          },
+          "slot": "sb-vue-project-detail"
+        }
+      ]
+    }
+  ],
+  "events": [
+    {
+      "tag": "div",
+      "props": {
+        "class": "account-back",
+        "data-sb-workspace": "back"
+      },
+      "slot": "back"
+    },
+    {
+      "tag": "header",
+      "props": {
+        "class": "heading"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "props": {
+            "class": "eyebrow"
+          },
+          "children": [
+            {
+              "text": "ТВОИ ПЛАНЫ"
+            }
+          ]
+        },
+        {
+          "tag": "h1",
+          "props": {},
+          "children": [
+            {
+              "text": "🗓️ Мои события"
+            }
+          ]
+        },
+        {
+          "tag": "p",
+          "props": {},
+          "children": [
+            {
+              "text": "Релизы, студийные записи, встречи и другие важные даты. События сохраняются в этом браузере, без синхронизации с календарём телефона."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "text": "\n"
+    },
+    {
+      "tag": "div",
+      "props": {
+        "class": "panel dash-event-editor",
+        "id": "event-editor"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "props": {
+            "id": "sb-vue-event-fields"
+          },
+          "slot": "sb-vue-event-fields"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "id": "sb-vue-event-reminders"
+          },
+          "slot": "sb-vue-event-reminders"
+        },
+        {
+          "text": "\n"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "class": "detail-actions",
+            "id": "sb-vue-event-actions"
+          },
+          "slot": "sb-vue-event-actions"
+        }
+      ]
+    },
+    {
+      "text": "\n"
+    },
+    {
+      "tag": "div",
+      "props": {
+        "id": "sb-vue-events-list"
+      },
+      "slot": "sb-vue-events-list"
+    }
+  ],
+  "myprompts": [
+    {
+      "tag": "div",
+      "props": {
+        "class": "account-back",
+        "data-sb-workspace": "back"
+      },
+      "slot": "back"
+    },
+    {
+      "text": "\n"
+    },
+    {
+      "tag": "header",
+      "props": {
+        "class": "heading"
+      },
+      "children": [
+        {
+          "tag": "h1",
+          "props": {},
+          "children": [
+            {
+              "text": "🎛️ Мои промпты"
+            }
+          ]
+        },
+        {
+          "tag": "p",
+          "props": {},
+          "children": [
+            {
+              "text": "Сохраняй описания звучания для Suno — вручную или из конструктора Suno Studio."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "text": "\n"
+    },
+    {
+      "tag": "div",
+      "props": {
+        "class": "panel account-editor",
+        "id": "prompt-editor"
+      },
+      "children": [
+        {
+          "text": "\n"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "id": "sb-vue-prompt-form"
+          },
+          "slot": "sb-vue-prompt-form"
+        },
+        {
+          "text": "\n"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "class": "sbpa-editor-entry",
+            "data-sb-workspace": "prompt-auditor"
+          },
+          "slot": "prompt-auditor"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "class": "detail-actions",
+            "data-sb-workspace": "prompt-actions"
+          },
+          "slot": "prompt-actions"
+        },
+        {
+          "text": "\n"
+        }
+      ]
+    },
+    {
+      "text": "\n"
+    },
+    {
+      "tag": "div",
+      "props": {
+        "id": "sb-vue-prompts-list"
+      },
+      "slot": "sb-vue-prompts-list"
+    }
+  ],
+  "myideas": [
+    {
+      "tag": "div",
+      "props": {
+        "class": "account-back",
+        "data-sb-workspace": "back"
+      },
+      "slot": "back"
+    },
+    {
+      "text": "\n"
+    },
+    {
+      "tag": "header",
+      "props": {
+        "class": "heading"
+      },
+      "children": [
+        {
+          "tag": "h1",
+          "props": {},
+          "children": [
+            {
+              "text": "💡 Мои идеи"
+            }
+          ]
+        },
+        {
+          "tag": "p",
+          "props": {},
+          "children": [
+            {
+              "text": "Сохраняй собственные сюжеты и возвращайся к идеям из каталога и Idea Lab."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "text": "\n"
+    },
+    {
+      "tag": "div",
+      "props": {
+        "class": "sb-poetry-quickbar",
+        "data-sb-workspace": "quick-poetry"
+      },
+      "slot": "quick-poetry"
+    },
+    {
+      "text": "\n"
+    },
+    {
+      "tag": "div",
+      "props": {
+        "class": "panel account-editor",
+        "id": "idea-editor"
+      },
+      "children": [
+        {
+          "text": "\n"
+        },
+        {
+          "tag": "h3",
+          "props": {},
+          "children": [
+            {
+              "value": "ideaEditorTitle"
+            }
+          ]
+        },
+        {
+          "text": "\n"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "id": "sb-vue-idea-fields"
+          },
+          "slot": "sb-vue-idea-fields"
+        },
+        {
+          "text": "\n"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "class": "lyrics-workbench",
+            "id": "sb-poetry-workbench"
+          },
+          "children": [
+            {
+              "text": "\n"
+            },
+            {
+              "tag": "div",
+              "props": {
+                "class": "section-title"
+              },
+              "children": [
+                {
+                  "tag": "h2",
+                  "props": {},
+                  "children": [
+                    {
+                      "text": "✍️ Текст песни"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "text": "\n"
+            },
+            {
+              "tag": "p",
+              "props": {
+                "class": "workbench-note"
+              },
+              "children": [
+                {
+                  "text": "Вставь готовые слова. Если есть разметка «Куплет 1:», «Припев:» или [Verse], оставь её — мы используем эти пометки. Исходный текст не изменится."
+                }
+              ]
+            },
+            {
+              "text": "\n"
+            },
+            {
+              "tag": "div",
+              "props": {
+                "class": "field",
+                "id": "sb-vue-lyrics-source"
+              },
+              "slot": "sb-vue-lyrics-source"
+            },
+            {
+              "text": "\n"
+            },
+            {
+              "tag": "section",
+              "props": {
+                "class": "sb-poetry-panel",
+                "aria-label": "Редактор песенной поэзии"
+              },
+              "children": [
+                {
+                  "text": "\n"
+                },
+                {
+                  "tag": "div",
+                  "props": {
+                    "class": "sb-poetry-head"
+                  },
+                  "children": [
+                    {
+                      "tag": "span",
+                      "props": {
+                        "class": "sb-poetry-icon",
+                        "aria-hidden": "true"
+                      },
+                      "children": [
+                        {
+                          "text": "♫"
+                        }
+                      ]
+                    },
+                    {
+                      "tag": "div",
+                      "props": {},
+                      "children": [
+                        {
+                          "tag": "h3",
+                          "props": {},
+                          "children": [
+                            {
+                              "text": "🔎 Редактор песенной поэзии"
+                            }
+                          ]
+                        },
+                        {
+                          "tag": "p",
+                          "props": {},
+                          "children": [
+                            {
+                              "text": "Анализ ритмики, примерных рифм, повторов и удобства строк для пения. Оригинальный текст остаётся твоим."
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "text": "\n"
+                },
+                {
+                  "tag": "div",
+                  "props": {
+                    "class": "sb-poetry-tools",
+                    "data-sb-workspace": "poetry-tools"
+                  },
+                  "slot": "poetry-tools"
+                },
+                {
+                  "text": "\n"
+                },
+                {
+                  "tag": "p",
+                  "props": {
+                    "class": "sb-poetry-small"
+                  },
+                  "children": [
+                    {
+                      "text": "Автоударения используют словарь из более 2 млн словоформ и отдельный словарь неоднозначных слов. Красным подсвечиваются слова, для которых нужно выбрать ударение. Текст остаётся в браузере."
+                    }
+                  ]
+                },
+                {
+                  "text": "\n"
+                },
+                {
+                  "tag": "div",
+                  "props": {
+                    "id": "sb-poetry-auto-stress",
+                    "class": "sb-poetry-auto-stress",
+                    "aria-live": "polite",
+                    "data-sb-native-boundary": "sb-poetry-auto-stress"
+                  },
+                  "native": true
+                },
+                {
+                  "text": "\n"
+                },
+                {
+                  "tag": "div",
+                  "props": {
+                    "id": "sb-poetry-result",
+                    "class": "sb-poetry-result",
+                    "role": "region",
+                    "aria-live": "polite"
+                  },
+                  "slot": "sb-poetry-result"
+                },
+                {
+                  "text": "\n"
+                },
+                {
+                  "tag": "section",
+                  "props": {
+                    "class": "sb-vt-panel",
+                    "id": "sb-vt-workbench",
+                    "aria-label": "Генератор тегов исполнения"
+                  },
+                  "slot": "sb-vt-workbench"
+                },
+                {
+                  "text": "\n"
+                }
+              ]
+            },
+            {
+              "text": "\n"
+            },
+            {
+              "tag": "div",
+              "props": {
+                "class": "section-title"
+              },
+              "children": [
+                {
+                  "tag": "h2",
+                  "props": {},
+                  "children": [
+                    {
+                      "text": "✨ Теги и усиление"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "text": "\n"
+            },
+            {
+              "tag": "div",
+              "props": {
+                "id": "sb-vue-lyrics-tools"
+              },
+              "slot": "sb-vue-lyrics-tools"
+            },
+            {
+              "text": "\n"
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "props": {
+            "class": "detail-actions",
+            "data-sb-workspace": "idea-actions"
+          },
+          "slot": "idea-actions"
+        },
+        {
+          "text": "\n"
+        }
+      ]
+    },
+    {
+      "text": "\n"
+    },
+    {
+      "tag": "div",
+      "props": {
+        "id": "sb-vue-idea-collections"
+      },
+      "slot": "sb-vue-idea-collections"
+    }
+  ],
+  "catalog": [
+    {
+      "tag": "header",
+      "props": {
+        "class": "genre-family-intro"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "props": {
+            "class": "eyebrow"
+          },
+          "children": [
+            {
+              "text": "SUNOBOOM · БИБЛИОТЕКА ЗНАНИЙ"
+            }
+          ]
+        },
+        {
+          "tag": "h1",
+          "props": {},
+          "children": [
+            {
+              "text": "Академия"
+            }
+          ]
+        },
+        {
+          "tag": "p",
+          "props": {},
+          "children": [
+            {
+              "text": "Музыкальная база знаний SUNOBOOM. Сейчас здесь собраны жанры и поджанры; позже появятся учебники и другие образовательные разделы."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "props": {
+        "class": "encyclopedia-sections",
+        "aria-label": "Разделы Академии"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "props": {
+            "class": "encyclopedia-section encyclopedia-section-active"
+          },
+          "children": [
+            {
+              "tag": "span",
+              "props": {
+                "class": "encyclopedia-section-icon",
+                "aria-hidden": "true"
+              },
+              "children": [
+                {
+                  "text": "🎼"
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "props": {},
+              "children": [
+                {
+                  "tag": "strong",
+                  "props": {},
+                  "children": [
+                    {
+                      "text": "Музыкальные жанры"
+                    }
+                  ]
+                },
+                {
+                  "tag": "small",
+                  "props": {},
+                  "children": [
+                    {
+                      "value": "catalogCount"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "span",
+              "props": {
+                "class": "encyclopedia-section-status"
+              },
+              "children": [
+                {
+                  "text": "Открыто"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "span",
+          "props": {
+            "data-sb-workspace": "tree-launch",
+            "style": "display:contents"
+          },
+          "slot": "tree-launch"
+        },
+        {
+          "tag": "span",
+          "props": {
+            "data-sb-workspace": "artist-launch",
+            "style": "display:contents"
+          },
+          "slot": "artist-launch"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "class": "encyclopedia-section encyclopedia-section-future"
+          },
+          "children": [
+            {
+              "tag": "span",
+              "props": {
+                "class": "encyclopedia-section-icon",
+                "aria-hidden": "true"
+              },
+              "children": [
+                {
+                  "text": "📚"
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "props": {},
+              "children": [
+                {
+                  "tag": "strong",
+                  "props": {},
+                  "children": [
+                    {
+                      "text": "Учебники"
+                    }
+                  ]
+                },
+                {
+                  "tag": "small",
+                  "props": {},
+                  "children": [
+                    {
+                      "text": "В дальнейшем добавим обучающие материалы"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "span",
+              "props": {
+                "class": "encyclopedia-section-status"
+              },
+              "children": [
+                {
+                  "text": "Позже"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "details",
+      "props": {
+        "id": "sb-genre-tree",
+        "class": "sb-gt-section"
+      },
+      "children": [
+        {
+          "tag": "summary",
+          "props": {},
+          "children": [
+            {
+              "tag": "span",
+              "props": {
+                "class": "sb-gt-summary-icon"
+              },
+              "children": [
+                {
+                  "text": "🕸️"
+                }
+              ]
+            },
+            {
+              "tag": "span",
+              "props": {},
+              "children": [
+                {
+                  "tag": "strong",
+                  "props": {},
+                  "children": [
+                    {
+                      "text": "Музыкальное древо жанров"
+                    }
+                  ]
+                },
+                {
+                  "tag": "small",
+                  "props": {},
+                  "children": [
+                    {
+                      "text": "Интерактивная карта происхождения и смешения музыки"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "span",
+              "props": {
+                "class": "sb-gt-summary-hint"
+              },
+              "children": [
+                {
+                  "text": "Исследовать связи"
+                }
+              ]
+            },
+            {
+              "tag": "span",
+              "props": {
+                "class": "sb-gt-chevron"
+              },
+              "children": [
+                {
+                  "text": "⌄"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "props": {
+            "id": "sb-gt-inner",
+            "class": "sb-gt-inner",
+            "data-sb-native-boundary": "sb-gt-inner"
+          },
+          "native": true
+        }
+      ],
+      "bind": "treeOpen"
+    },
+    {
+      "tag": "section",
+      "props": {
+        "id": "sb-vue-academy-root"
+      },
+      "slot": "sb-vue-academy-root"
+    }
+  ],
+  "studio": [
+    {
+      "tag": "header",
+      "props": {
+        "class": "heading"
+      },
+      "children": [
+        {
+          "tag": "h1",
+          "props": {},
+          "children": [
+            {
+              "text": "Suno Studio "
+            },
+            {
+              "tag": "span",
+              "props": {
+                "style": "color:#fd83c3"
+              },
+              "children": [
+                {
+                  "text": "✦"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "p",
+          "props": {},
+          "children": [
+            {
+              "text": "Управляй звуком и получай английский промпт для генерации. Каждый параметр меняет текст в реальном времени."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "props": {
+        "class": "gm-studio-banner",
+        "data-sb-workspace": "mixer-banner"
+      },
+      "slot": "mixer-banner",
+      "bind": "mixerBanner"
+    },
+    {
+      "tag": "span",
+      "props": {
+        "data-sb-workspace": "arranger-jump",
+        "style": "display:contents"
+      },
+      "slot": "arranger-jump"
+    },
+    {
+      "tag": "div",
+      "props": {
+        "class": "studio-grid",
+        "data-sb-vue-studio": "true"
+      },
+      "slot": "studio-grid"
+    },
+    {
+      "tag": "section",
+      "props": {
+        "class": "panel",
+        "style": "margin-top:24px",
+        "id": "song-blueprint",
+        "data-sb-workspace": "blueprint"
+      },
+      "slot": "song-blueprint"
+    },
+    {
+      "tag": "section",
+      "props": {
+        "id": "sba-arranger",
+        "class": "sba-shell",
+        "aria-labelledby": "sba-heading"
+      },
+      "children": [
+        {
+          "tag": "header",
+          "props": {
+            "class": "sba-hero"
+          },
+          "children": [
+            {
+              "tag": "div",
+              "props": {
+                "class": "sba-hero-copy"
+              },
+              "children": [
+                {
+                  "tag": "span",
+                  "props": {
+                    "class": "sba-eyebrow"
+                  },
+                  "children": [
+                    {
+                      "text": "SUNO STUDIO · КОНСТРУКТОР"
+                    }
+                  ]
+                },
+                {
+                  "tag": "h2",
+                  "props": {
+                    "id": "sba-heading"
+                  },
+                  "children": [
+                    {
+                      "text": "Визуальная аранжировка "
+                    },
+                    {
+                      "tag": "span",
+                      "props": {},
+                      "children": [
+                        {
+                          "text": "✦"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "p",
+                  "props": {},
+                  "children": [
+                    {
+                      "text": "Собери структуру трека, настрой энергию каждого фрагмента и подготовь теги исполнения для Suno. Стандартные инструменты Studio останутся без изменений."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "span",
+              "props": {
+                "class": "sba-hero-label"
+              },
+              "children": [
+                {
+                  "text": "ARRANGEMENT LAB · v0.75"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "props": {
+            "class": "sba-toolbar"
+          },
+          "children": [
+            {
+              "tag": "div",
+              "props": {
+                "class": "sba-preset-picker"
+              },
+              "slot": "sba-preset-picker"
+            },
+            {
+              "tag": "span",
+              "props": {
+                "data-sb-arranger-controls": "apply",
+                "style": "display:contents"
+              },
+              "slot": "arranger-controls:apply"
+            },
+            {
+              "tag": "span",
+              "props": {
+                "class": "sba-draft-saved",
+                "id": "sba-saved"
+              },
+              "children": [
+                {
+                  "text": "Черновик сохраняется в браузере"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "props": {
+            "id": "sba-preset-confirm",
+            "data-sb-arranger-controls": "preset-confirm",
+            "aria-live": "polite"
+          },
+          "slot": "sba-preset-confirm"
+        },
+        {
+          "tag": "section",
+          "props": {
+            "class": "sba-snake-overview",
+            "aria-label": "Краткая схема последовательности блоков"
+          },
+          "children": [
+            {
+              "tag": "div",
+              "props": {
+                "class": "sba-snake-top"
+              },
+              "children": [
+                {
+                  "tag": "div",
+                  "props": {},
+                  "children": [
+                    {
+                      "tag": "span",
+                      "props": {
+                        "class": "sba-snake-eyebrow"
+                      },
+                      "children": [
+                        {
+                          "text": "СХЕМА ПЕСНИ"
+                        }
+                      ]
+                    },
+                    {
+                      "tag": "h3",
+                      "props": {},
+                      "children": [
+                        {
+                          "text": "Змейка аранжировки "
+                        },
+                        {
+                          "tag": "span",
+                          "props": {
+                            "aria-hidden": "true"
+                          },
+                          "children": [
+                            {
+                              "text": "〰"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "props": {
+                    "class": "sba-snake-tools",
+                    "data-sb-arranger-controls": "snake-tools"
+                  },
+                  "slot": "arranger-controls:snake-tools"
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "props": {
+                "id": "sba-snake-track",
+                "class": "sba-snake-track",
+                "aria-live": "polite"
+              },
+              "slot": "sba-snake-track"
+            },
+            {
+              "tag": "p",
+              "props": {
+                "class": "sba-snake-footnote"
+              },
+              "children": [
+                {
+                  "text": "Перетаскивай блоки в змейке мышью или пальцем. Порядок и черновик обновятся автоматически."
+                }
+              ]
+            },
+            {
+              "tag": "span",
+              "props": {
+                "id": "sba-snake-status",
+                "class": "sba-sr-only",
+                "role": "status",
+                "aria-live": "polite"
+              },
+              "children": []
+            }
+          ]
+        },
+        {
+          "tag": "section",
+          "props": {
+            "class": "sba-transition-hub",
+            "aria-labelledby": "sba-transition-hub-title"
+          },
+          "children": [
+            {
+              "tag": "div",
+              "props": {
+                "class": "sba-transition-hub-heading"
+              },
+              "children": [
+                {
+                  "tag": "div",
+                  "props": {
+                    "class": "sba-transition-hub-heading-copy"
+                  },
+                  "children": [
+                    {
+                      "tag": "span",
+                      "props": {
+                        "class": "sba-transition-hub-kicker"
+                      },
+                      "children": [
+                        {
+                          "text": "НОВОЕ · v0.75"
+                        }
+                      ]
+                    },
+                    {
+                      "tag": "h3",
+                      "props": {
+                        "id": "sba-transition-hub-title"
+                      },
+                      "children": [
+                        {
+                          "text": "✦ Конструктор музыкальных переходов"
+                        }
+                      ]
+                    },
+                    {
+                      "tag": "p",
+                      "props": {},
+                      "children": [
+                        {
+                          "text": "Соедини соседние блоки сбивкой, нарастанием, паузой, плавным переходом, затуханием или акцентом. Выбирай здесь — эффект появится в тегах Suno."
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "props": {
+                    "id": "sba-transition-hub-meta",
+                    "class": "sba-transition-hub-meta"
+                  },
+                  "children": [
+                    {
+                      "value": "transitionCount"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "props": {
+                "id": "sba-transition-hub-list",
+                "class": "sba-transition-hub-list"
+              },
+              "slot": "sba-transition-hub-list"
+            },
+            {
+              "tag": "span",
+              "props": {
+                "data-sb-arranger-controls": "expand",
+                "style": "display:contents"
+              },
+              "slot": "arranger-controls:expand"
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "props": {
+            "class": "sba-body"
+          },
+          "children": [
+            {
+              "tag": "div",
+              "props": {
+                "class": "sba-editor"
+              },
+              "children": [
+                {
+                  "tag": "div",
+                  "props": {
+                    "class": "sba-panel-title"
+                  },
+                  "children": [
+                    {
+                      "tag": "div",
+                      "props": {},
+                      "children": [
+                        {
+                          "tag": "h3",
+                          "props": {},
+                          "children": [
+                            {
+                              "text": "Структура песни"
+                            }
+                          ]
+                        },
+                        {
+                          "tag": "p",
+                          "props": {},
+                          "children": [
+                            {
+                              "text": "Перетаскивай блоки на компьютере или используй ↑ ↓ на телефоне."
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "tag": "span",
+                      "props": {
+                        "id": "sba-section-count",
+                        "class": "sba-count"
+                      },
+                      "children": [
+                        {
+                          "value": "arrangementCount"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "div",
+                  "props": {
+                    "class": "sba-add",
+                    "id": "sba-add-editor",
+                    "data-sb-arranger-controls": "composer"
+                  },
+                  "slot": "sba-add-editor"
+                },
+                {
+                  "tag": "div",
+                  "props": {
+                    "id": "sba-cards",
+                    "class": "sba-block-list"
+                  },
+                  "slot": "sba-cards"
+                },
+                {
+                  "tag": "span",
+                  "props": {
+                    "data-sb-arranger-controls": "end-add",
+                    "style": "display:contents"
+                  },
+                  "slot": "arranger-controls:end-add"
+                },
+                {
+                  "tag": "div",
+                  "props": {
+                    "class": "sba-chart-panel"
+                  },
+                  "children": [
+                    {
+                      "tag": "div",
+                      "props": {
+                        "class": "sba-panel-title"
+                      },
+                      "children": [
+                        {
+                          "tag": "div",
+                          "props": {},
+                          "children": [
+                            {
+                              "tag": "h3",
+                              "props": {},
+                              "children": [
+                                {
+                                  "text": "Кривая энергии"
+                                }
+                              ]
+                            },
+                            {
+                              "tag": "p",
+                              "props": {},
+                              "children": [
+                                {
+                                  "text": "Схематичная динамика от тихого вступления до кульминации."
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "tag": "div",
+                      "props": {
+                        "id": "sba-energy-chart",
+                        "class": "sba-chart",
+                        "role": "img",
+                        "aria-label": "Intro: 2 из 5; Verse 1: 2 из 5; Pre-Chorus: 3 из 5; Chorus: 5 из 5; Verse 2: 3 из 5; Chorus: 5 из 5; Bridge: 2 из 5; Final Chorus: 5 из 5; Outro: 1 из 5"
+                      },
+                      "slot": "sba-energy-chart",
+                      "bind": "energyChart"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "aside",
+              "props": {
+                "class": "sba-result"
+              },
+              "slot": "sba-result"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "section",
+      "props": {
+        "class": "sbpa-auditor",
+        "id": "sbpa-auditor",
+        "aria-label": "Аудитор промптов"
+      },
+      "slot": "sbpa-auditor"
+    }
+  ],
+  "player": [
+    {
+      "tag": "section",
+      "props": {
+        "class": "sbp-wrap",
+        "id": "sbp-page"
+      },
+      "children": [
+        {
+          "tag": "header",
+          "props": {
+            "class": "sbp-hero"
+          },
+          "children": [
+            {
+              "tag": "div",
+              "props": {},
+              "children": [
+                {
+                  "tag": "span",
+                  "props": {
+                    "class": "sbp-eyebrow"
+                  },
+                  "children": [
+                    {
+                      "text": "SUNOBOOM · ЭКСПЕРИМЕНТАЛЬНАЯ ЗОНА"
+                    }
+                  ]
+                },
+                {
+                  "tag": "h1",
+                  "props": {},
+                  "children": [
+                    {
+                      "text": "Аудиоплеер "
+                    },
+                    {
+                      "tag": "em",
+                      "props": {},
+                      "children": [
+                        {
+                          "text": "LAB"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "tag": "p",
+                  "props": {},
+                  "children": [
+                    {
+                      "text": "Тестируем музыкальный плеер перед интеграцией с проектами и паспортами треков. Здесь можно слушать свои аудиофайлы прямо на устройстве."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "span",
+              "props": {
+                "class": "sbp-test-badge"
+              },
+              "children": [
+                {
+                  "text": "🧪 ТЕСТОВАЯ ВЕРСИЯ"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "props": {
+            "class": "sbab-modes",
+            "data-sb-workspace": "player-modes",
+            "role": "group",
+            "aria-label": "Режим плеера"
+          },
+          "slot": "player-modes"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "id": "sb-vue-player-ab",
+            "hidden": true
+          },
+          "slot": "sb-vue-player-ab",
+          "bind": "playerAB"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "id": "sb-vue-player-lab"
+          },
+          "slot": "sb-vue-player-lab",
+          "bind": "playerLab"
+        },
+        {
+          "tag": "section",
+          "props": {
+            "class": "sbp-bottom"
+          },
+          "children": [
+            {
+              "tag": "div",
+              "props": {},
+              "children": [
+                {
+                  "tag": "strong",
+                  "props": {},
+                  "children": [
+                    {
+                      "text": "🔒 Приватность"
+                    }
+                  ]
+                },
+                {
+                  "tag": "p",
+                  "props": {},
+                  "children": [
+                    {
+                      "text": "Локальные аудиофайлы воспроизводятся из памяти браузера и не загружаются на сервер SUNOBOOM."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "props": {},
+              "children": [
+                {
+                  "tag": "strong",
+                  "props": {},
+                  "children": [
+                    {
+                      "text": "💾 Сохранение"
+                    }
+                  ]
+                },
+                {
+                  "tag": "p",
+                  "props": {},
+                  "children": [
+                    {
+                      "text": "После обновления вкладки файлы нужно добавить заново. Сохраняются только настройки громкости, скорости и повтора."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "props": {},
+              "children": [
+                {
+                  "tag": "strong",
+                  "props": {},
+                  "children": [
+                    {
+                      "text": "🔧 Тестовый режим"
+                    }
+                  ]
+                },
+                {
+                  "tag": "p",
+                  "props": {},
+                  "children": [
+                    {
+                      "text": "Плеер пока не привязан к «Паспорту трека», «Моим проектам» и другим инструментам сайта."
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "producer": [
+    {
+      "tag": "div",
+      "props": {
+        "class": "sbpc-page"
+      },
+      "children": [
+        {
+          "tag": "header",
+          "props": {
+            "class": "sbpc-hero"
+          },
+          "children": [
+            {
+              "tag": "span",
+              "props": {
+                "class": "sbpc-kicker"
+              },
+              "children": [
+                {
+                  "text": "SUNOBOOM · РАБОЧЕЕ ПРОСТРАНСТВО"
+                }
+              ]
+            },
+            {
+              "tag": "h1",
+              "props": {},
+              "children": [
+                {
+                  "text": "Мастер "
+                },
+                {
+                  "tag": "span",
+                  "props": {},
+                  "children": [
+                    {
+                      "text": "✦"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "p",
+              "props": {},
+              "children": [
+                {
+                  "text": "От идеи до релиза — единая рабочая карточка песни. Материалы связаны с существующими инструментами SUNOBOOM."
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "props": {
+                "class": "sbpc-hero-stats"
+              },
+              "children": [
+                {
+                  "tag": "span",
+                  "props": {},
+                  "children": [
+                    {
+                      "tag": "strong",
+                      "props": {},
+                      "children": [
+                        {
+                          "value": "productionCount"
+                        }
+                      ]
+                    },
+                    {
+                      "text": " песен в работе"
+                    }
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "props": {},
+                  "children": [
+                    {
+                      "tag": "strong",
+                      "props": {},
+                      "children": [
+                        {
+                          "value": "productionDone"
+                        }
+                      ]
+                    },
+                    {
+                      "text": " полностью пройдено"
+                    }
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "props": {},
+                  "children": [
+                    {
+                      "text": "Хранение: этот браузер"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "section",
+          "props": {
+            "class": "sbpc-create",
+            "data-sb-workspace": "producer-create"
+          },
+          "slot": "producer-create"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "class": "sbpc-layout"
+          },
+          "children": [
+            {
+              "tag": "aside",
+              "props": {
+                "class": "sbpc-sidebar"
+              },
+              "children": [
+                {
+                  "tag": "div",
+                  "props": {
+                    "class": "sbpc-side-heading",
+                    "data-sb-workspace": "producer-search"
+                  },
+                  "slot": "producer-search"
+                },
+                {
+                  "tag": "div",
+                  "props": {
+                    "id": "sbpc-list",
+                    "class": "sbpc-song-list",
+                    "data-sb-vue-producer-list": ""
+                  },
+                  "slot": "sbpc-list"
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "props": {
+                "class": "sbpc-empty-state"
+              },
+              "children": [
+                {
+                  "tag": "strong",
+                  "props": {},
+                  "children": [
+                    {
+                      "text": "Пока нет песен в работе"
+                    }
+                  ]
+                },
+                {
+                  "tag": "p",
+                  "props": {},
+                  "children": [
+                    {
+                      "text": "Мастер объединяет уже созданные идеи, текст, аранжировку, генерации, прослушивание и релизы."
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "p",
+          "props": {
+            "class": "sbpc-privacy"
+          },
+          "children": [
+            {
+              "text": "🔒 Локальная работа: синхронизации между устройствами нет. Аудиофайлы остаются в «Мои песни»; сам раздел «Мастер» хранит только ссылки, этапы, заметки, историю и снимок аранжировки."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "tracks": [
+    {
+      "tag": "div",
+      "props": {
+        "class": "account-back",
+        "data-sb-workspace": "back"
+      },
+      "slot": "back"
+    },
+    {
+      "tag": "header",
+      "props": {
+        "class": "heading"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "props": {
+            "class": "eyebrow"
+          },
+          "children": [
+            {
+              "text": "ОТ ПЕРВОЙ ИДЕИ ДО РЕЛИЗА"
+            }
+          ]
+        },
+        {
+          "tag": "h1",
+          "props": {},
+          "children": [
+            {
+              "text": "🎼 Паспорт трека"
+            }
+          ]
+        },
+        {
+          "tag": "p",
+          "props": {},
+          "children": [
+            {
+              "text": "Исполнитель, текст, аранжировка, промпты, версии, обложка, издательство и дата релиза — в одной карточке."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "props": {
+        "class": "sb-track-metrics"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "props": {},
+          "children": [
+            {
+              "tag": "b",
+              "props": {},
+              "children": [
+                {
+                  "value": "trackCount"
+                }
+              ]
+            },
+            {
+              "tag": "span",
+              "props": {},
+              "children": [
+                {
+                  "text": "Всего треков"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "props": {},
+          "children": [
+            {
+              "tag": "b",
+              "props": {},
+              "children": [
+                {
+                  "value": "trackPublisher"
+                }
+              ]
+            },
+            {
+              "tag": "span",
+              "props": {},
+              "children": [
+                {
+                  "text": "У издательства"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "props": {},
+          "children": [
+            {
+              "tag": "b",
+              "props": {},
+              "children": [
+                {
+                  "value": "trackReleased"
+                }
+              ]
+            },
+            {
+              "tag": "span",
+              "props": {},
+              "children": [
+                {
+                  "text": "Вышли"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "props": {
+        "class": "sb-track-toolbar",
+        "data-sb-workspace": "track-toolbar"
+      },
+      "slot": "track-toolbar"
+    },
+    {
+      "tag": "div",
+      "props": {
+        "id": "sb-vue-track-list",
+        "data-sb-vue-track-list": ""
+      },
+      "slot": "sb-vue-track-list"
+    }
+  ],
+  "artists": [
+    {
+      "tag": "div",
+      "props": {
+        "class": "account-back",
+        "data-sb-workspace": "back"
+      },
+      "slot": "back"
+    },
+    {
+      "tag": "header",
+      "props": {
+        "class": "heading"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "props": {
+            "class": "eyebrow"
+          },
+          "children": [
+            {
+              "text": "ПОСТОЯННОЕ ЗВУЧАНИЕ И ОБРАЗ"
+            }
+          ]
+        },
+        {
+          "tag": "h1",
+          "props": {},
+          "children": [
+            {
+              "text": "🧬 ДНК артиста"
+            }
+          ]
+        },
+        {
+          "tag": "p",
+          "props": {},
+          "children": [
+            {
+              "text": "Храни характер вокала, музыкальный стиль, инструменты, запреты и визуальную идентичность каждого исполнителя."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "props": {
+        "class": "sb-dna-summary"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "props": {},
+          "children": [
+            {
+              "tag": "b",
+              "props": {},
+              "children": [
+                {
+                  "value": "dnaCount"
+                }
+              ]
+            },
+            {
+              "tag": "span",
+              "props": {},
+              "children": [
+                {
+                  "text": "Профилей артистов"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "props": {},
+          "children": [
+            {
+              "tag": "b",
+              "props": {},
+              "children": [
+                {
+                  "value": "dnaTracks"
+                }
+              ]
+            },
+            {
+              "tag": "span",
+              "props": {},
+              "children": [
+                {
+                  "text": "Связанных треков"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "props": {
+        "class": "sb-dna-toolbar",
+        "data-sb-workspace": "dna-toolbar"
+      },
+      "slot": "dna-toolbar"
+    },
+    {
+      "tag": "div",
+      "props": {
+        "id": "sb-vue-dna-view"
+      },
+      "slot": "sb-vue-dna-view"
+    }
+  ],
+  "songs": [
+    {
+      "tag": "section",
+      "props": {
+        "class": "sbsong-page",
+        "id": "sbsong-page"
+      },
+      "children": [
+        {
+          "tag": "header",
+          "props": {
+            "class": "sbsong-hero",
+            "data-sb-workspace": "songs-header"
+          },
+          "slot": "songs-header"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "class": "sbsong-privacy"
+          },
+          "children": [
+            {
+              "text": "🔒 Это локальная библиотека в браузере, а не защищённое облачное хранилище. Карточки не синхронизируются между устройствами. Ссылку на песню можно отправить отдельно — она откроет только выбранные для публикации сведения."
+            }
+          ]
+        },
+        {
+          "tag": "p",
+          "props": {
+            "class": "sbsong-notice",
+            "id": "sbsong-notice",
+            "role": "status",
+            "aria-live": "polite",
+            "hidden": true
+          },
+          "children": [],
+          "bind": "songNotice"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "class": "sbsong-collection-head",
+            "data-sb-workspace": "songs-search"
+          },
+          "slot": "songs-search"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "id": "sb-vue-song-cards"
+          },
+          "slot": "sb-vue-song-cards"
+        }
+      ]
+    }
+  ],
+  "mixer": [
+    {
+      "tag": "div",
+      "props": {
+        "class": "gm-page",
+        "id": "sb-vue-mixer-root"
+      },
+      "slot": "sb-vue-mixer-root"
+    }
+  ],
+  "account-settings": [
+    {
+      "tag": "div",
+      "props": {
+        "id": "sb-vue-account-settings"
+      },
+      "slot": "sb-vue-account-settings"
+    }
+  ],
+  "detail": [
+    {
+      "tag": "div",
+      "props": {
+        "id": "sb-vue-genre-detail"
+      },
+      "slot": "sb-vue-genre-detail"
+    }
+  ],
+  "tracks-editor": [
+    {
+      "tag": "div",
+      "props": {
+        "class": "account-back",
+        "data-sb-workspace": "back"
+      },
+      "slot": "back"
+    },
+    {
+      "tag": "header",
+      "props": {
+        "class": "heading"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "props": {
+            "class": "eyebrow"
+          },
+          "children": [
+            {
+              "text": "ОТ ПЕРВОЙ ИДЕИ ДО РЕЛИЗА"
+            }
+          ]
+        },
+        {
+          "tag": "h1",
+          "props": {},
+          "children": [
+            {
+              "text": "🎼 Паспорт трека"
+            }
+          ]
+        },
+        {
+          "tag": "p",
+          "props": {},
+          "children": [
+            {
+              "text": "Исполнитель, текст, аранжировка, промпты, версии, обложка, издательство и дата релиза — в одной карточке."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "props": {
+        "class": "sb-track-metrics"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "props": {},
+          "children": [
+            {
+              "tag": "b",
+              "props": {},
+              "children": [
+                {
+                  "value": "trackCount"
+                }
+              ]
+            },
+            {
+              "tag": "span",
+              "props": {},
+              "children": [
+                {
+                  "text": "Всего треков"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "props": {},
+          "children": [
+            {
+              "tag": "b",
+              "props": {},
+              "children": [
+                {
+                  "value": "trackPublisher"
+                }
+              ]
+            },
+            {
+              "tag": "span",
+              "props": {},
+              "children": [
+                {
+                  "text": "У издательства"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "props": {},
+          "children": [
+            {
+              "tag": "b",
+              "props": {},
+              "children": [
+                {
+                  "value": "trackReleased"
+                }
+              ]
+            },
+            {
+              "tag": "span",
+              "props": {},
+              "children": [
+                {
+                  "text": "Вышли"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "props": {
+        "class": "sb-track-toolbar",
+        "data-sb-workspace": "track-toolbar"
+      },
+      "slot": "track-toolbar"
+    },
+    {
+      "tag": "div",
+      "props": {
+        "id": "sb-vue-track-editor",
+        "data-sb-vue-track-editor": ""
+      },
+      "slot": "sb-vue-track-editor"
+    }
+  ],
+  "tracks-detail": [
+    {
+      "tag": "div",
+      "props": {
+        "class": "account-back",
+        "data-sb-workspace": "back"
+      },
+      "slot": "back"
+    },
+    {
+      "tag": "header",
+      "props": {
+        "class": "heading"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "props": {
+            "class": "eyebrow"
+          },
+          "children": [
+            {
+              "text": "ОТ ПЕРВОЙ ИДЕИ ДО РЕЛИЗА"
+            }
+          ]
+        },
+        {
+          "tag": "h1",
+          "props": {},
+          "children": [
+            {
+              "text": "🎼 Паспорт трека"
+            }
+          ]
+        },
+        {
+          "tag": "p",
+          "props": {},
+          "children": [
+            {
+              "text": "Исполнитель, текст, аранжировка, промпты, версии, обложка, издательство и дата релиза — в одной карточке."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "props": {
+        "class": "sb-track-metrics"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "props": {},
+          "children": [
+            {
+              "tag": "b",
+              "props": {},
+              "children": [
+                {
+                  "value": "trackCount"
+                }
+              ]
+            },
+            {
+              "tag": "span",
+              "props": {},
+              "children": [
+                {
+                  "text": "Всего треков"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "props": {},
+          "children": [
+            {
+              "tag": "b",
+              "props": {},
+              "children": [
+                {
+                  "value": "trackPublisher"
+                }
+              ]
+            },
+            {
+              "tag": "span",
+              "props": {},
+              "children": [
+                {
+                  "text": "У издательства"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "props": {},
+          "children": [
+            {
+              "tag": "b",
+              "props": {},
+              "children": [
+                {
+                  "value": "trackReleased"
+                }
+              ]
+            },
+            {
+              "tag": "span",
+              "props": {},
+              "children": [
+                {
+                  "text": "Вышли"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "props": {
+        "class": "sb-track-toolbar",
+        "data-sb-workspace": "track-toolbar"
+      },
+      "slot": "track-toolbar"
+    },
+    {
+      "tag": "div",
+      "props": {
+        "id": "sb-vue-track-detail",
+        "data-sb-vue-track-detail": ""
+      },
+      "slot": "sb-vue-track-detail"
+    }
+  ],
+  "artists-editor": [
+    {
+      "tag": "div",
+      "props": {
+        "class": "account-back",
+        "data-sb-workspace": "back"
+      },
+      "slot": "back"
+    },
+    {
+      "tag": "header",
+      "props": {
+        "class": "heading"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "props": {
+            "class": "eyebrow"
+          },
+          "children": [
+            {
+              "text": "ПОСТОЯННОЕ ЗВУЧАНИЕ И ОБРАЗ"
+            }
+          ]
+        },
+        {
+          "tag": "h1",
+          "props": {},
+          "children": [
+            {
+              "text": "🧬 ДНК артиста"
+            }
+          ]
+        },
+        {
+          "tag": "p",
+          "props": {},
+          "children": [
+            {
+              "text": "Храни характер вокала, музыкальный стиль, инструменты, запреты и визуальную идентичность каждого исполнителя."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "props": {
+        "class": "sb-dna-summary"
+      },
+      "children": [
+        {
+          "tag": "div",
+          "props": {},
+          "children": [
+            {
+              "tag": "b",
+              "props": {},
+              "children": [
+                {
+                  "value": "dnaCount"
+                }
+              ]
+            },
+            {
+              "tag": "span",
+              "props": {},
+              "children": [
+                {
+                  "text": "Профилей артистов"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "div",
+          "props": {},
+          "children": [
+            {
+              "tag": "b",
+              "props": {},
+              "children": [
+                {
+                  "value": "dnaTracks"
+                }
+              ]
+            },
+            {
+              "tag": "span",
+              "props": {},
+              "children": [
+                {
+                  "text": "Связанных треков"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tag": "div",
+      "props": {
+        "class": "sb-dna-toolbar",
+        "data-sb-workspace": "dna-toolbar"
+      },
+      "slot": "dna-toolbar"
+    },
+    {
+      "tag": "div",
+      "props": {
+        "id": "sb-vue-dna-editor"
+      },
+      "slot": "sb-vue-dna-editor"
+    }
+  ],
+  "producer-detail": [
+    {
+      "tag": "div",
+      "props": {
+        "class": "sbpc-page"
+      },
+      "children": [
+        {
+          "tag": "header",
+          "props": {
+            "class": "sbpc-hero"
+          },
+          "children": [
+            {
+              "tag": "span",
+              "props": {
+                "class": "sbpc-kicker"
+              },
+              "children": [
+                {
+                  "text": "SUNOBOOM · РАБОЧЕЕ ПРОСТРАНСТВО"
+                }
+              ]
+            },
+            {
+              "tag": "h1",
+              "props": {},
+              "children": [
+                {
+                  "text": "Мастер "
+                },
+                {
+                  "tag": "span",
+                  "props": {},
+                  "children": [
+                    {
+                      "text": "✦"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "tag": "p",
+              "props": {},
+              "children": [
+                {
+                  "text": "От идеи до релиза — единая рабочая карточка песни. Материалы связаны с существующими инструментами SUNOBOOM."
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "props": {
+                "class": "sbpc-hero-stats"
+              },
+              "children": [
+                {
+                  "tag": "span",
+                  "props": {},
+                  "children": [
+                    {
+                      "tag": "strong",
+                      "props": {},
+                      "children": [
+                        {
+                          "value": "productionCount"
+                        }
+                      ]
+                    },
+                    {
+                      "text": " песен в работе"
+                    }
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "props": {},
+                  "children": [
+                    {
+                      "tag": "strong",
+                      "props": {},
+                      "children": [
+                        {
+                          "value": "productionDone"
+                        }
+                      ]
+                    },
+                    {
+                      "text": " полностью пройдено"
+                    }
+                  ]
+                },
+                {
+                  "tag": "span",
+                  "props": {},
+                  "children": [
+                    {
+                      "text": "Хранение: этот браузер"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "tag": "section",
+          "props": {
+            "class": "sbpc-create",
+            "data-sb-workspace": "producer-create"
+          },
+          "slot": "producer-create"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "class": "sbpc-layout"
+          },
+          "children": [
+            {
+              "tag": "aside",
+              "props": {
+                "class": "sbpc-sidebar"
+              },
+              "children": [
+                {
+                  "tag": "div",
+                  "props": {
+                    "class": "sbpc-side-heading",
+                    "data-sb-workspace": "producer-search"
+                  },
+                  "slot": "producer-search"
+                },
+                {
+                  "tag": "div",
+                  "props": {
+                    "id": "sbpc-list",
+                    "class": "sbpc-song-list",
+                    "data-sb-vue-producer-list": ""
+                  },
+                  "slot": "sbpc-list"
+                }
+              ]
+            },
+            {
+              "tag": "div",
+              "props": {
+                "id": "sb-vue-producer-detail",
+                "data-sb-vue-producer-host": ""
+              },
+              "slot": "sb-vue-producer-detail"
+            }
+          ]
+        },
+        {
+          "tag": "p",
+          "props": {
+            "class": "sbpc-privacy"
+          },
+          "children": [
+            {
+              "text": "🔒 Локальная работа: синхронизации между устройствами нет. Аудиофайлы остаются в «Мои песни»; сам раздел «Мастер» хранит только ссылки, этапы, заметки, историю и снимок аранжировки."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "songs-detail": [
+    {
+      "tag": "section",
+      "props": {
+        "class": "sbsong-page",
+        "id": "sbsong-page"
+      },
+      "children": [
+        {
+          "tag": "header",
+          "props": {
+            "class": "sbsong-hero",
+            "data-sb-workspace": "songs-header"
+          },
+          "slot": "songs-header"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "class": "sbsong-privacy"
+          },
+          "children": [
+            {
+              "text": "🔒 Это локальная библиотека в браузере, а не защищённое облачное хранилище. Карточки не синхронизируются между устройствами. Ссылку на песню можно отправить отдельно — она откроет только выбранные для публикации сведения."
+            }
+          ]
+        },
+        {
+          "tag": "p",
+          "props": {
+            "class": "sbsong-notice",
+            "id": "sbsong-notice",
+            "role": "status",
+            "aria-live": "polite",
+            "hidden": true
+          },
+          "children": [],
+          "bind": "songNotice"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "id": "sb-vue-song-detail"
+          },
+          "slot": "sb-vue-song-detail"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "class": "sbsong-collection-head",
+            "data-sb-workspace": "songs-search"
+          },
+          "slot": "songs-search"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "id": "sb-vue-song-cards"
+          },
+          "slot": "sb-vue-song-cards"
+        }
+      ]
+    }
+  ],
+  "songs-manager-detail": [
+    {
+      "tag": "section",
+      "props": {
+        "class": "sbsong-page",
+        "id": "sbsong-page"
+      },
+      "children": [
+        {
+          "tag": "header",
+          "props": {
+            "class": "sbsong-hero",
+            "data-sb-workspace": "songs-header"
+          },
+          "slot": "songs-header"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "class": "sbsong-privacy"
+          },
+          "children": [
+            {
+              "text": "🔒 Это локальная библиотека в браузере, а не защищённое облачное хранилище. Карточки не синхронизируются между устройствами. Ссылку на песню можно отправить отдельно — она откроет только выбранные для публикации сведения."
+            }
+          ]
+        },
+        {
+          "tag": "p",
+          "props": {
+            "class": "sbsong-notice",
+            "id": "sbsong-notice",
+            "role": "status",
+            "aria-live": "polite",
+            "hidden": true
+          },
+          "children": [],
+          "bind": "songNotice"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "id": "sb-vue-artist-manager"
+          },
+          "slot": "sb-vue-artist-manager"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "id": "sb-vue-song-detail"
+          },
+          "slot": "sb-vue-song-detail"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "class": "sbsong-collection-head",
+            "data-sb-workspace": "songs-search"
+          },
+          "slot": "songs-search"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "id": "sb-vue-song-cards"
+          },
+          "slot": "sb-vue-song-cards"
+        }
+      ]
+    }
+  ],
+  "songs-editor": [
+    {
+      "tag": "section",
+      "props": {
+        "class": "sbsong-page",
+        "id": "sbsong-page"
+      },
+      "children": [
+        {
+          "tag": "header",
+          "props": {
+            "class": "sbsong-hero",
+            "data-sb-workspace": "songs-header"
+          },
+          "slot": "songs-header"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "class": "sbsong-privacy"
+          },
+          "children": [
+            {
+              "text": "🔒 Это локальная библиотека в браузере, а не защищённое облачное хранилище. Карточки не синхронизируются между устройствами. Ссылку на песню можно отправить отдельно — она откроет только выбранные для публикации сведения."
+            }
+          ]
+        },
+        {
+          "tag": "p",
+          "props": {
+            "class": "sbsong-notice",
+            "id": "sbsong-notice",
+            "role": "status",
+            "aria-live": "polite",
+            "hidden": true
+          },
+          "children": [],
+          "bind": "songNotice"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "id": "sb-vue-song-editor"
+          },
+          "slot": "sb-vue-song-editor"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "class": "sbsong-collection-head",
+            "data-sb-workspace": "songs-search"
+          },
+          "slot": "songs-search"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "id": "sb-vue-song-cards"
+          },
+          "slot": "sb-vue-song-cards"
+        }
+      ]
+    }
+  ],
+  "songs-manager": [
+    {
+      "tag": "section",
+      "props": {
+        "class": "sbsong-page",
+        "id": "sbsong-page"
+      },
+      "children": [
+        {
+          "tag": "header",
+          "props": {
+            "class": "sbsong-hero",
+            "data-sb-workspace": "songs-header"
+          },
+          "slot": "songs-header"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "class": "sbsong-privacy"
+          },
+          "children": [
+            {
+              "text": "🔒 Это локальная библиотека в браузере, а не защищённое облачное хранилище. Карточки не синхронизируются между устройствами. Ссылку на песню можно отправить отдельно — она откроет только выбранные для публикации сведения."
+            }
+          ]
+        },
+        {
+          "tag": "p",
+          "props": {
+            "class": "sbsong-notice",
+            "id": "sbsong-notice",
+            "role": "status",
+            "aria-live": "polite",
+            "hidden": true
+          },
+          "children": [],
+          "bind": "songNotice"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "id": "sb-vue-artist-manager"
+          },
+          "slot": "sb-vue-artist-manager"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "class": "sbsong-collection-head",
+            "data-sb-workspace": "songs-search"
+          },
+          "slot": "songs-search"
+        },
+        {
+          "tag": "div",
+          "props": {
+            "id": "sb-vue-song-cards"
+          },
+          "slot": "sb-vue-song-cards"
+        }
+      ]
+    }
+  ],
+  "sharedSong": [
+    {
+      "tag": "section",
+      "props": {
+        "class": "sbsong-page sbsong-shared",
+        "id": "sbsong-shared"
+      },
+      "slot": "sbsong-shared"
+    }
+  ]
+}

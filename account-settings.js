@@ -31,17 +31,8 @@
   if(node){node.hidden=false;node.textContent=message;}
   else if(typeof toast==="function")toast(message);
  }
- const tile='<button type="button" class="account-tile sbs-tile" data-sbs-action="open" aria-label="Открыть настройки SUNOBOOM">'+
-  '<span class="sbs-tile-icon" aria-hidden="true"><svg viewBox="0 0 24 24" width="27" height="27" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 2h3l.5 2.2 1.6.7 2-1.1 2.1 2.1-1 2 .7 1.7 2.1.4v3l-2.1.5-.7 1.6 1 2-2.1 2.1-2-1-.1.1-1.5.6-.5 2.1h-3l-.5-2.1-1.6-.7-2 1-2.1-2.1 1.1-2-.7-1.6-2.2-.5v-3l2.2-.4.7-1.7-1.1-2 2.1-2.1 2 1.1 1.6-.7z"/><circle cx="12" cy="11.5" r="3"/></svg></span>'+
-  '<strong>Настройки</strong><span>Внешний вид, удобство и стартовая страница</span><span class="account-tile-arrow" aria-hidden="true">↗</span></button>';
  const originalAccount=account;
- account=function(){
-  if(state.open)return settingsPage();
-  const html=originalAccount.apply(this,arguments);
-  const needle='</div>\n<div class="two-col account-settings">';
-  if(!html.includes(needle))return html;
-  return html.replace(needle,tile+'</div>\n<div class="two-col account-settings">');
- };
+ account=function(){return state.open?settingsPage():originalAccount.apply(this,arguments);};
  function toggleItem(id,title,desc,checked){
   return '<label class="sbs-option" for="sbs-'+id+'"><span class="sbs-option-text"><strong>'+title+'</strong><small>'+desc+'</small></span>'+
    '<span class="sbs-switch"><input id="sbs-'+id+'" type="checkbox" data-sbs-setting="'+id+'" role="switch" '+(checked?'checked ':'')+'aria-label="'+title+'"><span class="sbs-switch-track" aria-hidden="true"></span></span></label>';
@@ -86,6 +77,7 @@
  }
  // Read-only handoff: all preference mutations still pass through the original handlers.
  window.SUNOBOOM_LEGACY_SETTINGS={
+  isOpen:()=>state.open,
   snapshot(){return {settings:{...settings},resolvedTheme:document.documentElement.dataset.sbTheme||"dark",themes:[...THEMES].map(([id,title])=>({id,title})),pages:[...VALID_PAGES].map(([id,title])=>({id,title})),name:String(data.profileName||'Музыкант'),resetPending:state.resetPending,message:state.message};}
  };
  const originalGo=go;

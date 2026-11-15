@@ -307,16 +307,6 @@
    const pos=navs.findIndex(x=>x[0]==="account");
    navs.splice(pos<0?navs.length:pos,0,["producer","Мастер","studio"]);
  }
- const previousAccount=account;
- account=function(){
-   const html=previousAccount.apply(this,arguments),anchor='<div class="account-grid">';
-   if(!html.includes(anchor))return html;
-   const tile='<button type="button" class="account-tile sbpc-account-tile" data-action="nav" data-nav="producer">'+
-      '<span class="sbpc-account-icon">◉</span><strong>Мастер</strong>'+
-      '<span>Все песни: от идеи до релиза</span><b class="tile-count">'+items().length+'</b>'+
-      '<span class="account-tile-arrow" aria-hidden="true">↗</span></button>';
-   return html.replace(anchor,anchor+tile);
- };
  // Link entry points to current Passport and manual idea cards.
  if(typeof sbTrackDetail==="function"){
    const oldPassport=sbTrackDetail;

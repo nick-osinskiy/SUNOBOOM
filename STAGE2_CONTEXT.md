@@ -2,7 +2,7 @@
 
 Дата: 15 ноября 2026 г. База перед первым блоком: main `77c82d1fadaeaa6be3024a712e991d0d5de051d1`, v0.210. Этап 1 закрыт; [его приёмка](STAGE1_ACCEPTANCE.md) остаётся историческим свидетельством.
 
-**v0.213 завершает третий цельный блок этапа 2: Studio, аранжировщик, миксер и настройки. Сам этап 2 ещё не закрыт.** Следующие работы перечислены ниже; это продолжение одного архитектурного этапа, а не новые этапы за отдельные кнопки.
+**v0.214 содержит заключительный блок: модели экранов, остаток команд и общую приёмку. Финальный статус публикации фиксируется после CI/Pages; см. STAGE2_ACCEPTANCE.md.** Следующие работы перечислены ниже; это продолжение одного архитектурного этапа, а не новые этапы за отдельные кнопки.
 
 ## Что выделено
 
@@ -26,19 +26,19 @@
 
 ## Конечный остаток этапа 2
 
-| Блок | Требуемый результат | Статус после v0.213 |
+| Блок | Требуемый результат | Статус v0.214 |
 | --- | --- | --- |
-| Workspace core и общие repositories | Один объект, payload-команды основных коллекций, совместимые JSON/IDB | Выполнен первый блок; часть старых extensions ещё пишет в workspace напрямую |
+| Workspace core и общие repositories | Один объект, payload-команды основных коллекций, совместимые JSON/IDB | Выполнено: canonical workspace и 30 payload-команд; оставшиеся UI direct writes устранены |
 | Собственные песни, версии, файлы и Мастер | Canonical state и payload/result для создания/редактирования/удаления/версий/связей; media lifecycle с явным cleanup | Выполнен в v0.212; canonical song library и workflow, payload/result, согласованные file/metadata writes и URL scopes |
 | Studio/аранжировщик, preferences и вычислительные services | Явные входы и команды; прежние algorithms/словарь/DSP остаются обычными JS services; один владелец состояния | Выполнен третий блок v0.213: canonical Studio/arranger/mixer/preferences + prompt audit services; browser media lifecycle остаётся UI adapter |
-| Data/page models и окончательная приёмка | Vue получает данные/семантические descriptors, не native DOM; устранены AccountHome DOM parsing и page layout adapter | Предстоит. DOM draft adapters временно допустимы только снаружи core |
+| Data/page models и окончательная приёмка | Vue получает данные/семантические descriptors, не native DOM; устранены AccountHome DOM parsing и page layout adapter | Реализованы v0.214: явные структуры/данные, shared account definitions, UI handoff вне моделей; общая приёмка проверяется |
 
-Далее следует завершить эти блоки, проверить round-trip старых JSON/IDB fixtures и отсутствие двойных записей/владельцев/потери файлов. Только после этого принимать **весь** этап 2 и предлагать этап 3.
+Все блоки реализованы. Для закрытия этапа требуется подтвердить общую приёмку и публикацию v0.214; результаты — STAGE2_ACCEPTANCE.md. До её подтверждения этап 3 не начинать.
 
 ## Что сознательно не объявляется завершённым
 
 - Songs/Master отделены в v0.212, Studio/arranger/mixer/preferences и правила аудита — в v0.213. Формы, transient drafts и медиаплееры остаются UI adapters.
-- Старый HTML ещё создаёт layout; PageView и часть snapshots читают native DOM. Это известный остаток этапа 2.
+- Старый HTML остаётся fallback/container renderer. PageView получает явные definitions/data; native layout parsing и чтение плиток устранены в v0.214. DOM drafts и живые UI resources находятся в отдельных adapters.
 - Root render/go, Router memory mirror, несколько shell/dialog roots и MutationObserver bridges сохраняются. Единая оболочка/реальная маршрутизация — этап 3, удаление дублирования — этап 4.
 - Pinia содержит UI projections, не копию записей и не новый источник истины. Новый backend/auth/cloud sync не создавались.
 
@@ -77,3 +77,14 @@ UI отвечает за document, поля/фокус, pointer/drag, clipboard,
 Локальная проверка v0.213: **137/137 Node tests**, сборка и полный desktop/mobile/native browser smoke — PASS; новая suite Studio/core/quota/reload прошла во всех трёх режимах. Публикация подтверждена ниже.
 
 Публикация v0.213 подтверждена: source [f240950](https://github.com/nick-osinskiy/SUNOBOOM/commit/f2409500bf8d4c905c90b20ee49c112f23fd1195), проверенный bundle [57dde32](https://github.com/nick-osinskiy/SUNOBOOM/commit/57dde3289ca16209d877b5327953394f938372c7). **137/137 Node tests**, сборка и полный browser smoke: [CI success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43687856997). [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43688151840). На опубликованной сборке повторно пройдены Studio/arranger/mixer/preferences core commands, реальные quota/draft rollback и reload на desktop/mobile Vue и mobile native без pageerror. HTTP 200 и версия 0.213 подтверждены. Третий блок завершён; весь этап 2 остаётся открытым до data/page models и общей приёмки.
+
+
+## Заключительный блок — v0.214
+
+Native HTML перестал быть источником данных плиток/структуры страниц. Shared semantic account definitions используются двумя renderers; PageView получает явные layouts/slots и bindings из plain page state. Исправлены также скрытые HTML reads header breadcrumb, Academy icon и Idea collection extension labels. Dynamic tree/notifications/player/editor modes объявлены явно.
+
+Живые editor nodes находятся в отдельном WeakMap UI handoff, не в page data. DOM reads допускаются только в UI adapters для lifecycle, фокуса/selection, несохранённых полей и browser media effects. Это не второй owner пользовательских записей и не DOM parsing для data/layout models. Старый renderer остаётся fallback и источником native контейнеров до этапов 3–4.
+
+Direct writes recent/performance prefs/artist favorites заменены командами с rollback; старые keys и IDs сохранены. Startup normalization перенесена в owner. Новые headless/browser tests и полная регрессия составляют общую приёмку, подробности STAGE2_ACCEPTANCE.md. Статус CI/Pages и live-проверки фиксируется после публикации.
+
+Локальная приёмка v0.214: **145/145 Node tests**, сборка, полный desktop/mobile/native smoke и отдельная stage-2 JSON/IDB/model acceptance — PASS. Итоговая публикация/CI проверяется после коммита.

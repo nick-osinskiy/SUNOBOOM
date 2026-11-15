@@ -2,7 +2,6 @@
  'use strict';
  /* SUNOBOOM 0.51 — performance tags inside the existing Poetry Editor.
     The original lyrics are never overwritten; generated tags require explicit approval. */
- const prefDefaults={mode:'smart',intensity:3,density:'balanced',melisma:true,falsetto:true,harmonies:true,noWhisper:true,noRasp:true,source:'auto',artistId:''};
  const modeOptions=[['smart','Интеллектуальный · Gemini'],['rules','Автоматический · без API'],['manual','Ручной · по секциям']];
  const densityOptions=[['minimal','Минимально'],['balanced','Сбалансированно'],['detailed','Подробно']];
  const sourceOptions=[['auto','Авто: готовая Lyrics, если есть'],['original','Оригинальный текст'],['tagged','Готовая версия Lyrics']];
@@ -21,7 +20,7 @@
   ['Full-Voice Emotional Climax','Кульминация полным голосом']
  ];
  const E=s=>escapeHTML(s);
- const prefs=()=>({...prefDefaults,...(data.performanceTagSettings&&typeof data.performanceTagSettings==='object'?data.performanceTagSettings:{})});
+ const prefs=()=>application.performancePreferences();
  let draft=null, requestSerial=0, busy=false;
  let notice={text:'',kind:'info'};
  let previewState='Текст в оригинальном редакторе не изменён.';
@@ -33,11 +32,7 @@
  const clamp=(v,min,max)=>Math.max(min,Math.min(max,Math.round(Number(v)||min)));
  const linesOf=s=>String(s||'').replace(/\r\n?/g,'\n').split('\n');
  const roleTitle=(s)=>String(s||'').replace(/\s+/g,' ').trim();
- function savePrefs(changes){
-  const next={...prefs(),...changes};
-  next.intensity=clamp(next.intensity,1,5);
-  data.performanceTagSettings=next;persist();emit();return next;
- }
+ function savePrefs(changes){const result=application.execute('performance.preferences',changes);if(!result.ok&&typeof toast==='function')toast(result.error);emit();return prefs();}
  function artistList(){return Array.isArray(data.artistDNAs)?data.artistDNAs:[]}
  function selectedArtist(p){return artistList().find(a=>a.id===p.artistId)||null}
  function endpoint(){

@@ -364,3 +364,10 @@ Studio/аранжировщик/миксер/preferences получили canoni
 Локальная проверка v0.213: **137/137 Node tests**, сборка и полный desktop/mobile/native browser smoke — PASS; новая suite Studio/core/quota/reload прошла во всех трёх режимах. Публикация подтверждена ниже.
 
 Публикация v0.213 подтверждена: source [f240950](https://github.com/nick-osinskiy/SUNOBOOM/commit/f2409500bf8d4c905c90b20ee49c112f23fd1195), проверенный bundle [57dde32](https://github.com/nick-osinskiy/SUNOBOOM/commit/57dde3289ca16209d877b5327953394f938372c7). **137/137 Node tests**, сборка и полный browser smoke: [CI success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43687856997). [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43688151840). На опубликованной сборке повторно пройдены Studio/arranger/mixer/preferences core commands, реальные quota/draft rollback и reload на desktop/mobile Vue и mobile native без pageerror. HTTP 200 и версия 0.213 подтверждены. Третий блок завершён; весь этап 2 остаётся открытым до data/page models и общей приёмки.
+
+
+## 2026-11-15 — v0.214, заключительный блок этапа 2
+
+Удалено чтение native HTML из моделей кабинета/страниц/header/Idea collection actions. Общий каталог плиток используется native и Vue; 27 семантических page states собираются из явных definitions/data, editor DOM nodes вынесены в UI handoff. Остаток user-data writes переведён в core-команды. Общая приёмка old JSON/IDB/аудиобайтов и 145 Node tests описана в STAGE2_ACCEPTANCE.md; публикация проверяется. Этап 3 не начинался.
+
+Локальная приёмка v0.214: **145/145 Node tests**, сборка, полный desktop/mobile/native smoke и отдельная stage-2 JSON/IDB/model acceptance — PASS. Итоговая публикация/CI проверяется после коммита.

@@ -57,8 +57,8 @@
   const publish=()=>{for(const listener of [...listeners])listener();};
   const state={hubOpen:false,locale:"all",query:"",savedOnly:false,page:0,active:null,lastFocus:null};
   let index=null;
-  let favorites;try{favorites=new Set(SUNOBOOM_CORE.repositories.json.read(FAV_KEY,[]).filter(x=>typeof x==="string"));}catch(_){favorites=new Set();}
-  const saveFavorites=()=>{try{SUNOBOOM_CORE.repositories.json.write(FAV_KEY,[...favorites]);}catch(_){}};
+  const preferences=SUNOBOOM_CORE.createPreferences(),favorites=preferences.artistFavorites;
+  const toggleFavorite=key=>{const result=preferences.execute('artist.favorite.toggle',{key});if(!result.ok&&typeof toast==='function')toast(result.error);return result.ok;};
   const artistKey=s=>norm(s);
   const firstUseful=(xs)=>xs.find(s=>s&&!/^(Один из музыкальных ориентиров жанра|Важный представитель)/i.test(s))||xs.find(Boolean)||"";
   function indexArtists(){
@@ -227,8 +227,8 @@
     if(act==="close"){closeProfile();return;}
     if(act==="favorite"){
       const key=artistKey(btn.dataset.name);if(!key)return;
-      if(favorites.has(key))favorites.delete(key);else favorites.add(key);
-      saveFavorites();refreshFavoriteButtons();publish();return;
+      if(!toggleFavorite(key))return;
+      refreshFavoriteButtons();publish();return;
     }
     if(act==="more"){state.page++;hubResults();return;}
     if(act==="genre"){
@@ -309,8 +309,8 @@
     more(){state.page++;publish();},
     toggleFavorite(name){
       const key=artistKey(name);if(!key)return;
-      if(favorites.has(key))favorites.delete(key);else favorites.add(key);
-      saveFavorites();refreshFavoriteButtons();publish();
+      if(!toggleFavorite(key))return;
+      refreshFavoriteButtons();publish();
     },
     openProfile,closeProfile,profileSnapshot,
     openGenre(id){if(genreFor(id)){closeProfile();openGenre(id,"artists");}},

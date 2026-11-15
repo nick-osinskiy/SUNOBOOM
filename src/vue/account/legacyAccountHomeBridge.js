@@ -1,5 +1,4 @@
 import AccountHome from './AccountHome.vue';
-import { readAccountTiles } from './account-home-model.js';
 import { observeLegacyIsland } from '../legacy/observeLegacyIsland.js';
 
 export function activateLegacyAccountHome({ mountVueFeature }) {
@@ -11,8 +10,9 @@ export function activateLegacyAccountHome({ mountVueFeature }) {
     selectTarget: parent => parent.querySelector('#sb-vue-account-home'),
     readSnapshot: node => {
       const initial = api.snapshot();
-      const tiles = readAccountTiles(node);
-      return initial && tiles ? { ...initial, tiles } : null;
+      // Draft capture is a UI handoff; the account model itself never reads HTML.
+      const profileName=node.querySelector('#profile-name')?.value;
+      return initial?.tiles ? {...initial,profileName:profileName??initial.profileName}:null;
     },
     mount: (node, initial) => mountVueFeature(node, AccountHome, { initial, api })
   });

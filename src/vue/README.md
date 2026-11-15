@@ -640,3 +640,14 @@ NativeBoundary is restricted to sb-gt-inner and sb-poetry-auto-stress. It moves 
 ### v0.211 — stage 2 workspace core (in progress)
 
 core/application-core.js is a shared classic engine loaded before the native entry. It owns the stable workspace root and 26 payload commands; both UIs use the same implementation. JSON and IDB repositories retain existing keys/schemas. Vue has no copy of domain records in Pinia. DOM reads and UI effects are currently compatibility adapters outside those commands. Private Songs/Master/arranger/settings commands and DOM-derived page models still require the next blocks of stage 2. See STAGE2_CONTEXT.md; do not treat this as full stage-2 acceptance.
+
+
+## v0.214 — модели страниц без native HTML parsing
+
+Текущий контракт заменяет описанное выше поведение v0.205/v0.210: account tiles и page layout больше не извлекаются из DOM.
+
+- page-models.js содержит общие семантические definitions плиток и native serializer; AccountHome snapshot передаёт те же definitions со счётчиками. Draft profile-name снимается только UI handoff при задержанном монтировании.
+- page-state.js отдаёт read-only контекст из core/workspace/transient flags. page-templates.json описывает 27 состояний; page-layout-model.js связывает значения. Header breadcrumb, Academy icon и Idea extension actions также не читают HTML.
+- page-composition.js связывает declared slots с готовыми компонентами, без DOM encoder. native-boundary-handoff.js хранит editor/lazy nodes в WeakMap отдельно от page data и восстанавливает их после mount failure. Lifecycle selectors, captureFields и focus/selection остаются UI adapters.
+- Неизвестная модель или missing required slot сохраняют native fallback. Reminder banner, tree open и player/editor visibility — явные bindings.
+- core-page-models.test.mjs и vue-stage2-acceptance.mjs дополняют полный smoke; протокол приёмки в STAGE2_ACCEPTANCE.md. Реальная маршрутизация и shell — следующий этап.

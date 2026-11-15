@@ -15,7 +15,7 @@ export function activateLegacyPages({mountVueFeature,activations,sharedUi}){
     mount:(node,{model,fields})=>{
       if(!model){node.setAttribute('data-sb-page-fallback','');return null;}
       const stop=mountVueFeature(node,PageView,{model});
-      if(!stop){node.setAttribute('data-sb-page-fallback','');restoreNativeBoundaries(node,model.layout);restoreFields(node,fields);}
+      if(!stop){node.setAttribute('data-sb-page-fallback','');restoreNativeBoundaries(node,model);restoreFields(node,fields);}
       else node.removeAttribute('data-sb-page-fallback');
       return stop;
     }

@@ -555,16 +555,6 @@
  state.notice='Карточка создана из Паспорта трека. Аудиоверсии можно добавлять прямо в карточке.';
  view.nav='songs';render();window.scrollTo({top:0,behavior:'instant'});
  }
- const previousAccount=account;
- account=function(){
-   const html=previousAccount.apply(this,arguments);
-   const anchor='<div class="account-grid">';
-   if(!html.includes(anchor))return html;
-   const tile='<button type="button" class="account-tile sbsong-account-tile" data-sbsong-action="open-library" aria-label="Мои песни">'+
-     '<span class="sbsong-account-icon">♪</span><strong>Мои песни</strong><span>Карточки, обложки, аудио и ссылки</span>'+
-     '<b class="tile-count">'+library.records.length+'</b><span class="account-tile-arrow">↗</span></button>';
-   return html.replace(anchor,anchor+tile);
- };
  const oldRender=render;
  render=function(){
    releaseAudio();
@@ -847,7 +837,7 @@
     render();window.scrollTo({top:0,behavior:"instant"});return true;
   }
   window.SUNOBOOM_MY_SONGS=Object.freeze({version:"0.90",count:()=>library.records.length,
-    getCards:library.getCards,
+    getCards:library.getCards,layoutState:()=>({form:state.showForm,manager:!state.showForm&&state.showArtistManager,detail:!state.showForm&&!!get(state.selectedId),notice:state.notice}),
     openCard,openLibrary,decodeCard});
  if(!routeShare())render();
  window.SUNOBOOM_WORKSPACE_UI?.register('songs-header',()=>({kind:'songs-header',count:library.records.length,versions:library.records.reduce((n,s)=>n+songVersions(s).length,0),artists:customArtists().length}));

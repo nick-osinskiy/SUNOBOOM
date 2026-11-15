@@ -65,6 +65,10 @@
  function createWorkspace({repository,defaults,getGenre,now=()=>Date.now(),random=()=>Math.random(),date=()=>new Date().toLocaleDateString('ru-RU')}){
   let saved;try{saved=repository.read(KEYS.workspace,{});}catch{saved={};}
   const state={...clone(defaults),...saved};
+  for(const key of ['events','tracks','artistDNAs'])if(!Array.isArray(state[key]))state[key]=[];
+  if(!state.notificationRead||typeof state.notificationRead!=='object'||Array.isArray(state.notificationRead))state.notificationRead={};
+  const performanceDefaults={mode:'smart',intensity:3,density:'balanced',melisma:true,falsetto:true,harmonies:true,noWhisper:true,noRasp:true,source:'auto',artistId:''};
+  const performancePreferences=()=>({...performanceDefaults,...(state.performanceTagSettings&&typeof state.performanceTagSettings==='object'?state.performanceTagSettings:{})});
   const items=key=>Array.isArray(state[key])?state[key]:[];
   const find=(key,id)=>items(key).find(item=>item?.id===id);
   const fresh=(prefix,n=5)=>prefix+now()+'-'+random().toString(36).slice(2,2+n);
@@ -81,6 +85,8 @@
    return candidates.sort((a,b)=>a.date.localeCompare(b.date)||(a.time||'').localeCompare(b.time||'')||b.reminderDaysBefore-a.reminderDaysBefore);
   }
   const commands={
+   'genre.recent'(p){state.recent=[p.id,...(state.recent||[]).filter(id=>id!==p.id)].slice(0,8);return ok(p.id);},
+   'performance.preferences'(p){const next={...performancePreferences(),...clone(p)};next.intensity=Math.max(1,Math.min(5,Math.round(Number(next.intensity)||1)));state.performanceTagSettings=next;return ok(next);},
    'songArtist.save'(p){
     const clean=value=>str(value).replace(/[\u0000-\u001f]/g,' ').trim().slice(0,120),key=value=>clean(value).normalize('NFKC').toLocaleLowerCase('ru');
     const name=clean(p.name);if(!name)return fail('Введи имя артиста или название проекта.');
@@ -176,7 +182,7 @@
    try{const imported=clone(value);restore({...clone(defaults),...imported,savedGeneratedIdeas:Array.isArray(imported.savedGeneratedIdeas)?imported.savedGeneratedIdeas:[]});repository.write(KEYS.workspace,state);return ok(state);}
    catch(error){restore(before);return fail('Не удалось импортировать файл');}
   }
-  return Object.freeze({state,execute,reminders,importBackup,exportBackup:()=>({exportedAt:new Date(now()).toISOString(),app:'SUNOBOOM',data:clone(state)}),persist:()=>repository.write(KEYS.workspace,state),helpers:Object.freeze({selectedDays,dayDiff,date7,https})});
+  return Object.freeze({state,execute,performancePreferences,reminders,importBackup,exportBackup:()=>({exportedAt:new Date(now()).toISOString(),app:'SUNOBOOM',data:clone(state)}),persist:()=>repository.write(KEYS.workspace,state),helpers:Object.freeze({selectedDays,dayDiff,date7,https})});
  }
  function createKernel({storage,indexedDB,...deps}={}){
   const json=createJsonRepository(storage),media=createMediaRepository(indexedDB);let workspace,songs,productions,studio,arrangement,preferences,mixer,auditor;
