@@ -336,3 +336,8 @@ npm run test:vue-browser
 ### Приёмка этапа 1 завершена
 
 v0.210: source a4a04e9, bundle 51d6a0d. 97/97 Node tests, полный browser smoke, [CI](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43625601565) и [Pages](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43625951503) успешны; опубликованный сайт дополнительно проверен desktop/mobile без ошибок JavaScript. Этап 1 закрыт, акт STAGE1_ACCEPTANCE.md. Далее предложить кнопкой **этап 2 — прикладное ядро без global DOM**, сохраняя repositories/старые данные/одного владельца состояния. Этапы 2–4 остаются; не заявлять, что всё приложение стало самостоятельным Vue SPA.
+
+
+## 2026-11-15 — v0.211, начало этапа 2
+
+На базе 77c82d1 выделено общее core/application-core.js: canonical workspace object, 26 payload-команд основных коллекций, совместимые JSON/IDB repositories и backup. Data/keys/IDs/связи/аудиобайты не мигрируются; Vue/native adapters вызывают те же команды. Ошибка storage откатывает данные и сохраняет draft. Этап 2 продолжается: private Songs/Master/arranger/settings state и ряд DOM-derived models ещё не вынесены. См. раздел 61 PROJECT_CONTEXT.md и STAGE2_CONTEXT.md; следующим предложить продолжение этапа 2 (My Songs/версии/файлы/Мастер), не этап 3.

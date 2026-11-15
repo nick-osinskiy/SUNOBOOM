@@ -1,3 +1,4 @@
+import {checkDomainCore} from './vue-domain-core.mjs';
 import {checkPageComposition,checkPageRecovery,checkPageEditorHandoff} from './vue-pages.mjs';
 import { checkWorkspace, checkWorkspaceStartup } from './vue-workspace.mjs';
 import { checkArtistProfiles, checkArtistProfilesStartup } from './vue-artist-profiles.mjs';
@@ -319,7 +320,7 @@ async function checkAccountHome205(page,vue) {
     await page.evaluate(()=>{go('account');go('projects');go('account');});await ready();
     if(await home.count()!==1||await home.locator('#profile-name,#import-file').count()!==2)throw Error('v0.205 rapid routes duplicated account controls');
   }finally{
-    await page.evaluate(()=>{data=window.__accountHome205.data;view.selectedProject=window.__accountHome205.selected;delete window.__accountHome205;persist();go('home');});
+    await page.evaluate(()=>{application.importBackup({app:'SUNOBOOM',data:window.__accountHome205.data});view.selectedProject=window.__accountHome205.selected;delete window.__accountHome205;persist();go('home');});
   }
 }
 
@@ -415,7 +416,7 @@ async function checkIdeasPage206(page,vue) {
     const stable=await page.evaluate(async()=>{const input=document.getElementById('gen-detail');const marker=document.createElement('i');document.getElementById('app').append(marker);queueMicrotask(()=>marker.remove());await new Promise(r=>setTimeout(r,50));return input===document.getElementById('gen-detail')&&input.value==='Черновик после обновлений';});
     if(!stable||await root.count()!==1)throw Error('v0.206 shallow mutation/rapid routes duplicated screen or erased draft');
   }finally{
-    await page.evaluate(()=>{const old=window.__ideas206;data=old.data;Object.assign(ideaGen,old.params);generatedIdeas=old.results;generatedSeq=old.seq;generatedCycle=old.cycle;view.ideaFamily=old.family;builder=old.builder;copyText=old.copy;delete window.__ideas206;persist();go('home');});
+    await page.evaluate(()=>{const old=window.__ideas206;application.importBackup({app:'SUNOBOOM',data:old.data});Object.assign(ideaGen,old.params);generatedIdeas=old.results;generatedSeq=old.seq;generatedCycle=old.cycle;view.ideaFamily=old.family;builder=old.builder;copyText=old.copy;delete window.__ideas206;persist();go('home');});
   }
 }
 
@@ -2976,6 +2977,8 @@ async function checkLayout(mobile) {
     }
     await page.locator('#dna-tempo-min').fill('90');
     await page.locator('#dna-tempo-max').fill('120');
+    // Settle the native smooth scroll started by focusing the distant BPM fields.
+    await page.evaluate(()=>window.scrollTo({top:window.scrollY,behavior:'instant'}));
     await page.locator('[data-action="dna-save"]').click();
     await page.locator('#sb-vue-dna-view[data-v-app]').waitFor({ state: 'attached', timeout: 10000 });
     if (!(await dnaView.textContent()).includes('gentle warm baritone v116') ||
@@ -4104,6 +4107,7 @@ async function checkLayout(mobile) {
     await checkArtistProfiles(page,true);
     await checkWorkspace(page,true);
     await checkPageComposition(page);
+    await checkDomainCore(page,true);
     console.log((mobile ? 'Mobile' : 'Desktop') + ' Vue navigation smoke PASS');
   } finally {
     await context.close();
@@ -4546,6 +4550,7 @@ async function checkEditorFallback() {
     await checkSharedSong207(page,false);
     await checkArtistProfiles(page,false);
     await checkWorkspace(page,false);
+    await checkDomainCore(page,false);
     console.log('Original song editor, library, My Songs, artist manager, DNA, settings, player, Master and passports without Vue PASS');
   } finally { await context.close(); }
 }

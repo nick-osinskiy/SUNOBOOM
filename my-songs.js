@@ -2,7 +2,7 @@
 (function installSunoboomSongs(){
  "use strict";
  if(typeof account!=="function"||typeof render!=="function"||typeof chrome!=="function"||typeof go!=="function")return;
- const KEY="sunoboom-my-songs-v1", DB_NAME="sunoboom-song-media-v1", SHARE_PREFIX="#sb-song=";
+ const KEY=SUNOBOOM_CORE.keys.songs, SHARE_PREFIX="#sb-song=";
  const esc=s=>escapeHTML(String(s??""));
  const clean=(s,max=120)=>String(s??"").replace(/[\u0000-\u001f]/g," ").trim().slice(0,max);
  const safeURL=value=>{try{const u=new URL(String(value||"").trim());return u.protocol==="https:"?u.href:"";}catch(e){return "";}};
@@ -37,48 +37,22 @@
   const versionName=(file,index)=>clean((file?.name||"").replace(/\.[^.]+$/,""),90)||"Версия "+index;
   function resetTakeView(){state.playVersionId=null;state.compareOpen=false;state.compareAId=null;state.compareBId=null;}
 
- try{const saved=JSON.parse(localStorage.getItem(KEY)||"[]");if(Array.isArray(saved))songs=saved.filter(x=>x&&typeof x==="object"&&typeof x.id==="string").slice(0,500).map(x=>({
+ try{const saved=SUNOBOOM_CORE.repositories.json.read(KEY,[]);if(Array.isArray(saved))songs=saved.filter(x=>x&&typeof x==="object"&&typeof x.id==="string").slice(0,500).map(x=>({
    id:clean(x.id,90),passportId:clean(x.passportId,100),title:clean(x.title,120),artist:clean(x.artist,120),genre:clean(x.genre,80),
    album:clean(x.album,120),description:clean(x.description,700),createdAt:Number(x.createdAt)||Date.now(),
    updatedAt:Number(x.updatedAt)||Date.now(),audioUrl:safeURL(x.audioUrl),listenUrl:safeURL(x.listenUrl),coverUrl:safeURL(x.coverUrl),
    hasAudio:x.hasAudio===true,hasCover:x.hasCover===true,versions:sanitizeVersions(x.versions),activeVersionId:clean(x.activeVersionId,60)
  }));}catch(e){}
- const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(songs));return true;}catch(e){return false;}};
+ const save=()=>{try{SUNOBOOM_CORE.repositories.json.write(KEY,songs);return true;}catch(e){return false;}};
  const get=id=>songs.find(x=>x.id===id)||null;
  const notify=message=>{state.notice=message;const el=document.getElementById("sbsong-notice");if(el){el.textContent=message;el.hidden=false;}else if(typeof toast==="function")toast(message);};
  const mimeAudio=file=>file&&((file.type||"").startsWith("audio/")||/\.(mp3|wav|wave|m4a|aac|ogg|opus|flac)$/i.test(file.name||""));
  const mimeImage=file=>file&&(file.type==="image/jpeg"||file.type==="image/png"||file.type==="image/webp"||file.type==="image/gif"||/\.(jpg|jpeg|png|webp|gif)$/i.test(file.name||""));
- let dbPromise;
- function database(){
-   if(dbPromise)return dbPromise;
-   dbPromise=new Promise((resolve,reject)=>{
-     if(!("indexedDB" in window)){reject(new Error("Хранилище файлов недоступно."));return;}
-     const req=indexedDB.open(DB_NAME,1);
-     req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains("files"))req.result.createObjectStore("files");};
-     req.onsuccess=()=>resolve(req.result);
-     req.onerror=()=>reject(req.error||new Error("IndexedDB error"));
-     req.onblocked=()=>reject(new Error("База файлов заблокирована другой вкладкой."));
-   }).catch(err=>{dbPromise=null;throw err;});
-   return dbPromise;
- }
- async function fileOperation(mode,key,value){
-   const db=await database();
-   return new Promise((resolve,reject)=>{
-     let tx;
-     try{tx=db.transaction("files",mode==="get"?"readonly":"readwrite");}catch(e){reject(e);return;}
-     const store=tx.objectStore("files");
-     const req=mode==="get"?store.get(key):mode==="delete"?store.delete(key):store.put(value,key);
-     let result;
-     req.onsuccess=()=>{result=req.result;};
-     req.onerror=()=>reject(req.error||new Error("Ошибка хранения файла"));
-     tx.oncomplete=()=>resolve(result);
-     tx.onabort=()=>reject(tx.error||new Error("Запись прервана"));
-     tx.onerror=()=>reject(tx.error||new Error("Ошибка транзакции"));
-   });
- }
- const getFile=key=>fileOperation("get",key);
- const putFile=(key,blob)=>fileOperation("put",key,blob);
- const delFile=key=>fileOperation("delete",key);
+ // Same database/store/key layout, shared with headless domain commands.
+ const media=SUNOBOOM_CORE.repositories.media;
+ const getFile=key=>media.get(key);
+ const putFile=(key,blob)=>media.put(key,blob);
+ const delFile=key=>media.delete(key);
  function clearThumb(id){const url=thumbs.get(id);if(url)URL.revokeObjectURL(url);thumbs.delete(id);}
  function releaseAudio(){for(const url of activeAudioURLs)URL.revokeObjectURL(url);activeAudioURLs.clear();}
 

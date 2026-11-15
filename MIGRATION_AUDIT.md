@@ -4,6 +4,8 @@
 
 ## Текущее исполнение плана
 
+**v0.211: этап 2 начат.** Первый блок — workspace core, 26 payload-команд основных коллекций, общие совместимые JSON/IDB repositories. [Статус и конечный остаток этапа 2](./STAGE2_CONTEXT.md). Этап 2 ещё не принят: private commands/state песен/версий/файлов/Мастера/Studio/preferences и DOM-derived models требуют продолжения. Этапы 3–4 не начинались. Запись ниже «этапы 2–4 не выполнены» относится к моменту закрытия этапа 1.
+
 **Этап 1 закрыт на v0.210**: 97 tests + full browser smoke + [CI success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43625601565) + [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43625951503), опубликованный сайт desktop/mobile проверен. [Акт приёмки](./STAGE1_ACCEPTANCE.md). Следующим остаётся этап 2; этапы 2–4 не выполнены. Более ранние записи ниже — история работ и критериев, а не актуальные блокеры этапа 1.
 
 v0.210: заключительная композиция page views и приёмка **этапа 1** — [STAGE1_ACCEPTANCE.md](./STAGE1_ACCEPTANCE.md). Один actual Vue app на обычный body экрана, готовые child components, две явные native/lazy boundaries и целиком native page fallback при ошибке. Layout descriptors пока читаются из native HTML, команды/данные/root render/router mirror не перенесены: это **учтённые задачи этапов 2–4**. Исторические записи v0.208/209 ниже не являются актуальным списком незавершённых UI-панелей. Итог этапа 1 подтверждать успешными тестами/CI выпуска, не одним DOM inventory.

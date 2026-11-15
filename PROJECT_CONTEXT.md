@@ -1,6 +1,6 @@
 # SUNOBOOM — PROJECT_CONTEXT.md
 
-> **v0.210 — этап 1 закрыт, 14 ноября 2026 г.** Готовые компоненты собраны в цельные page views; сохранены функции/данные/дизайн и полный fallback. 97/97 Node tests, полный browser smoke, CI и Pages прошли, опубликованный сайт проверен desktop/mobile. Приёмка — [STAGE1_ACCEPTANCE.md](./STAGE1_ACCEPTANCE.md), детали — раздел 60. Следующий крупный этап 2: команды/repositories/один владелец состояния без global DOM, включая устранение DOM-derived layout adapter. Root render/Router mirror/AppShell — этап 3, cleanup — этап 4. Не объявлять завершённой всю миграцию и не начинать этап 2 автоматически.
+> **v0.211, 15 ноября 2026 г. — этап 2 начат, не закрыт.** Первый цельный блок: общий JSON/IndexedDB repository, единый canonical workspace root, 26 payload-команд основных коллекций + backup/reminder selector. Native UI и Vue делегируют одним командам; второй store пользовательских записей не создан. Подробности — раздел 61 и [STAGE2_CONTEXT.md](./STAGE2_CONTEXT.md). Следующий блок того же этапа: команды/состояние Моих песен, версий, файлов и Мастера; затем Studio/preferences/services и устранение DOM-derived models/layout. Этап 3 не начинать до приёмки всего этапа 2. Этап 1 закрыт на v0.210.
 
 ## 1. Что это и где работает
 
@@ -982,3 +982,18 @@ SUNOBOOM_ARTIST_PROFILES остаётся одним владельцем инд
 
 
 Итог приёмки v0.210: **этап 1 закрыт**. Source a4a04e92cd66c8a7c6aca8545362e09a9c069486; browser-tested bundle 51d6a0dae76441dc131cef079a4d1387709fa1b8. [CI success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43625601565) и [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43625951503). Опубликованная версия проверена новым browser context на desktop/mobile: один actual page app на обычный маршрут и workspace/notifications/reload без pageerror. Следующий этап — 2, по отдельному запуску пользователя.
+
+
+## 61. v0.211 — этап 2, первый блок: workspace core и repositories
+
+База main 77c82d1fadaeaa6be3024a712e991d0d5de051d1. Новый core/application-core.js — classic shared engine, загружается до основного index script и работает без document/window UI. Factory принимает storage/indexedDB/clock/random/date/getGenre зависимостями. Один workspace.state владеет объектом sunoboom-v1; legacy const data — ссылка на тот же объект, import заменяет его содержимое, а не владельца. Pinia остаётся UI projection. Изоляция алгоритмов/всех доменов пока не завершена.
+
+Вынесены 26 команд: profile, project create/save/remove, manual ideas, saved prompts/generated prompt, events, notification read/readAll, passports/version metadata/release event, DNA/link cleanup, favorites, generated ideas, saved structures. Команда принимает payload, возвращает ok/value/error; без HTML/render/navigation/confirm/toast. Подтверждение и извлечение значений формы остаются в UI adapter. Сохранение выполняется один раз; quota/error откатывает state и оставляет UI draft. Core reminder selector сохраняет ключи/сортировку/сроки и старые defaults.
+
+Backup использует прежние app/exportedAt/data и mandatory arrays, сохраняет неизвестные поля и IDs, импорт не меняет canonical root reference. JSON backup всё ещё не содержит бинарные IDB files. Copy/import payloads отделены от переданных объектов; на failure сохраняются исходные записи. Прежние ключи централизованы в CORE.keys; не менять схемы автоматически.
+
+JSON repository подключён к песням, Мастеру, settings, Player LAB prefs, arranger и профилям Академии, но их private state/команды ещё legacy. Media repository заменил только прежние database/get/put/delete в My Songs: та же DB sunoboom-song-media-v1, version 1, store files, те же непрозрачные ключи. Не менялись normalization/song versions/ограничения WAV/Blob lifetimes — это следующий блок. Первое head theme read остаётся read-only startup hint до загрузки engine.
+
+Проверки: tests/core-domain.test.mjs — команды без document, legacy fixtures/unknown fields/IDs/limits/calendar, quota rollback и links, backup/one owner, corrupt reads и unavailable IDB retry. tests/vue-domain-core.mjs — та же команда напрямую при запрещённом getElementById и из формы, draft на quota fail, чтение старого IDB ключа/байтов в Vue/native. Общий browser smoke остаётся обязательным. CI дополнен test:domain и trigger paths core/**, root JS/index и core tests. Test restores используют importBackup вместо запрещённого data reassignment. DNA click test останавливает native smooth scroll перед реальным кликом, без force.
+
+**Этап 2 не закрыт.** Остаток — STAGE2_CONTEXT.md. Не объявлять, что все команды/данные уже независимы от DOM, не переходить к этапу 3. Следующий цельный блок: My Songs/versions/media lifecycle + Master commands в существующее ядро, без второго data store и без смены ключей файлов.

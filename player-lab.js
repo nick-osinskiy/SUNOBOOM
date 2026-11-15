@@ -3,19 +3,19 @@
   "use strict";
   if(typeof navs==="undefined"||typeof chrome!=="function"||typeof render!=="function")return;
   if(!navs.some(n=>n[0]==="player"))navs.splice(4,0,["player","Плеер","music"]);
-  const KEY="sunoboom-player-lab-v060-prefs";
+  const KEY=SUNOBOOM_CORE.keys.player;
   const IS_IOS=typeof navigator!=="undefined"&&(/iPad|iPhone|iPod/.test(navigator.userAgent||"")||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1));
   const E=x=>escapeHTML(String(x??""));
   const icon=(name)=>I(name);
   let settings={volume:0.85,rate:1,repeat:"off",shuffle:false};
   try{
-    const saved=JSON.parse(localStorage.getItem(KEY)||"{}");
+    const saved=SUNOBOOM_CORE.repositories.json.read(KEY,{});
     if(Number.isFinite(saved.volume))settings.volume=Math.min(1,Math.max(0,saved.volume));
     if([0.75,1,1.25,1.5,2].includes(saved.rate))settings.rate=saved.rate;
     if(["off","all","one"].includes(saved.repeat))settings.repeat=saved.repeat;
     settings.shuffle=saved.shuffle===true;
   }catch(e){}
-  const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(settings));}catch(e){}};
+  const save=()=>{try{SUNOBOOM_CORE.repositories.json.write(KEY,settings);}catch(e){}};
   const tracks=[];
   let cursor=-1, counter=0, dragCounter=0, hasPlayIntent=false, inPlayer=false, lastNotice="";
   const audio=new Audio();

@@ -4,7 +4,7 @@
   if(typeof GENRES==="undefined"||typeof catalog!=="function"||typeof escapeHTML!=="function")return;
   const esc=s=>escapeHTML(String(s??""));
   const norm=s=>String(s||"").normalize("NFKC").toLocaleLowerCase("ru").replace(/\s+/g," ").trim();
-  const FAV_KEY="sunoboom-artist-profile-favorites-v1";
+  const FAV_KEY=SUNOBOOM_CORE.keys.favorites;
   const EDITORIAL={
     "the skatalites":{bio:"Ямайский инструментальный коллектив, сыгравший ключевую роль в формировании раннего ска. В центре его звучания — духовые мелодии, джазовая импровизация и упругий танцевальный ритм.",influences:["Ямайский ритм-энд-блюз","джаз","менто"],sound:"Инструментальные темы для духовой секции, подвижный бас и акценты на слабую долю.",tracks:["Guns of Navarone"]},
     "the specials":{bio:"Британская группа, ставшая одним из символов движения 2 Tone. Соединила ямайскую ритмику с нервом панк-рока и социально наблюдательными текстами.",influences:["Ямайское ска","панк-рок","регги"],sound:"Резкий гитарный оффбит, орган, духовые и выразительный ансамблевый вокал.",tracks:["A Message to You Rudy","Ghost Town"]},
@@ -57,8 +57,8 @@
   const publish=()=>{for(const listener of [...listeners])listener();};
   const state={hubOpen:false,locale:"all",query:"",savedOnly:false,page:0,active:null,lastFocus:null};
   let index=null;
-  let favorites;try{favorites=new Set(JSON.parse(localStorage.getItem(FAV_KEY)||"[]").filter(x=>typeof x==="string"));}catch(_){favorites=new Set();}
-  const saveFavorites=()=>{try{localStorage.setItem(FAV_KEY,JSON.stringify([...favorites]));}catch(_){}};
+  let favorites;try{favorites=new Set(SUNOBOOM_CORE.repositories.json.read(FAV_KEY,[]).filter(x=>typeof x==="string"));}catch(_){favorites=new Set();}
+  const saveFavorites=()=>{try{SUNOBOOM_CORE.repositories.json.write(FAV_KEY,[...favorites]);}catch(_){}};
   const artistKey=s=>norm(s);
   const firstUseful=(xs)=>xs.find(s=>s&&!/^(Один из музыкальных ориентиров жанра|Важный представитель)/i.test(s))||xs.find(Boolean)||"";
   function indexArtists(){

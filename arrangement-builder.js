@@ -4,7 +4,7 @@
 (function installArrangementBuilder(){
   "use strict";
   if(typeof studio!=="function"||typeof builder==="undefined"||typeof promptValue!=="function"||typeof updateOutput!=="function")return;
-  const KEY="sunoboom-arrangement-v066";
+  const KEY=SUNOBOOM_CORE.keys.arrangement;
   const MAX_BLOCKS=64;
   const SECTION={
     intro:{ru:"Вступление",en:"Intro",icon:"◌"},
@@ -161,14 +161,14 @@
   const soundPicker={blockId:null,mode:"sounds",soundQuery:"",genreQuery:"",typingId:null,typingQuery:""};
   function load(){
     try{
-      const raw=JSON.parse(localStorage.getItem(KEY)||"{}");
+      const raw=SUNOBOOM_CORE.repositories.json.read(KEY,{});
       if(!raw||!Array.isArray(raw.blocks)||raw.blocks.length>MAX_BLOCKS)return;
       state.blocks=raw.blocks.map(b=>makeBlock(b.type,b.energy,b.bars,b.vocal,b.instruments,b.customName,b.instrumentsGenreId,b.transitionOut));
       if(choiceMeta(raw.activePreset))state.activePreset=raw.activePreset;
       state.selectedPreset=state.activePreset;
     }catch(e){}
   }
-  function save(){try{localStorage.setItem(KEY,JSON.stringify({version:1,blocks:state.blocks,activePreset:state.activePreset}));return true}catch(e){return false}}
+  function save(){try{SUNOBOOM_CORE.repositories.json.write(KEY,{version:1,blocks:state.blocks,activePreset:state.activePreset});return true}catch(e){return false}}
   function nameFor(b,index){
     if(b.type==="custom")return safeTitle(b.customName)||"Custom Section";
     const en=SECTION[b.type].en;

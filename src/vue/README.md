@@ -635,3 +635,8 @@ PageView composes the existing components, using bridge definitions as synchrono
 The final native layout is converted to static VNode descriptors while feature hosts become real child components. This transitional DOM-derived model is explicit stage-2 debt. It is not RouterView, a global AppShell or domain state migration. The native templates remain the full fallback. Navigation/header/history and independent dialogs stay outside the page root.
 
 NativeBoundary is restricted to sb-gt-inner and sb-poetry-auto-stress. It moves the original child nodes once, retaining textarea value/selection, mirrors and native listeners; lazy bridge apps inside those boundaries are allowed. If page collection or mounting fails, the entire page becomes native and child retries are suppressed until a later render. Original form nodes/FileLists/editor boundary nodes are restored on mount failure. See STAGE1_ACCEPTANCE.md for acceptance and the remaining architecture work.
+
+
+### v0.211 — stage 2 workspace core (in progress)
+
+core/application-core.js is a shared classic engine loaded before the native entry. It owns the stable workspace root and 26 payload commands; both UIs use the same implementation. JSON and IDB repositories retain existing keys/schemas. Vue has no copy of domain records in Pinia. DOM reads and UI effects are currently compatibility adapters outside those commands. Private Songs/Master/arranger/settings commands and DOM-derived page models still require the next blocks of stage 2. See STAGE2_CONTEXT.md; do not treat this as full stage-2 acceptance.

@@ -41,7 +41,7 @@
  function write(next){
    const previous=data.productions;
    data.productions=next;
-   try{localStorage.setItem("sunoboom-v1",JSON.stringify(data));return true;}
+   try{SUNOBOOM_CORE.repositories.json.write(SUNOBOOM_CORE.keys.workspace,data);return true;}
    catch(error){data.productions=previous;notice("Не удалось сохранить. Проверь свободное место в браузере.");return false;}
  }
  const event=(message,kind="note")=>({at:Date.now(),kind,text:trim(message,350)});

@@ -2,7 +2,7 @@
 (function installAccountSettings(){
  "use strict";
  if(typeof account!=="function"||typeof render!=="function"||typeof go!=="function"||typeof chrome!=="function")return;
- const KEY="sunoboom-ui-settings-v1";
+ const KEY=SUNOBOOM_CORE.keys.settings;
  const DEFAULTS=Object.freeze({compact:false,largeText:false,reduceMotion:false,startPage:"home",theme:"dark"});
  const THEMES=new Map([
   ["dark","Тёмная"],["light","Светлая"],["system","Как на устройстве"],
@@ -24,7 +24,7 @@
  const validBool=x=>typeof x==="boolean";
  function load(){
   try{
-   const saved=JSON.parse(localStorage.getItem(KEY)||"{}");
+   const saved=SUNOBOOM_CORE.repositories.json.read(KEY,{});
    if(!saved||typeof saved!=="object"||Array.isArray(saved))return;
    for(const k of ["compact","largeText","reduceMotion"])if(validBool(saved[k]))settings[k]=saved[k];
    if(VALID_PAGES.has(saved.startPage))settings.startPage=saved.startPage;
@@ -50,7 +50,7 @@
   window.dispatchEvent(new Event("sunoboom:appearance-change"));
  }
  function persistSettings(){
-  try{localStorage.setItem(KEY,JSON.stringify(settings));return true}
+  try{SUNOBOOM_CORE.repositories.json.write(KEY,settings);return true}
   catch(e){return false}
  }
  function notify(message){
