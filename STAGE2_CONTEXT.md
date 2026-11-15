@@ -53,6 +53,8 @@ Media commitBatch выполняет binary changes одной IDB transaction �
 
 URL scopes принимают create/revoke зависимостями: audio cleanup при render/navigation, preview при cancel/save, cover при изменении/pagehide, download через 60 секунд/pagehide. IDB и JSON schema не обновлялись. Cover scan и metadata parse продолжают использовать существующий audio-cover-reader.
 
-Проверки: tests/core-songs.test.mjs — 12 headless scenarios совместимости, ошибок, очереди, лимитов, связей, истории, снимков и URL ownership. tests/vue-song-core.mjs — реальные браузерные IDB abort/rollback и сохранённый draft с Vue/native; включён в общий smoke.
+Проверки: tests/core-songs.test.mjs — 13 headless scenarios совместимости, ошибок, очереди, лимитов, связей, истории, снимков и URL ownership. tests/vue-song-core.mjs — реальные браузерные IDB abort/rollback и сохранённый draft с Vue/native; включён в общий smoke.
 
-Локальная проверка v0.212: **121/121 Node tests**, сборка, полный desktop/mobile/native browser smoke — PASS. Дополнительная проверка песен/Мастера с реальным IDB, сохранённым draft и URL cleanup — PASS на desktop/mobile Vue и mobile native. Публикация проверяется после коммита.
+Локальная проверка v0.212: **122/122 Node tests**, сборка, полный desktop/mobile/native browser smoke — PASS. Дополнительная проверка песен/Мастера с реальным IDB, сохранённым draft и URL cleanup — PASS на desktop/mobile Vue и mobile native. Публикация проверяется после коммита.
+
+Дополнительно v0.212: pending audio read после render/pagehide отбрасывается по generation counter; регрессионная проверка не допускает создания URL после cleanup.

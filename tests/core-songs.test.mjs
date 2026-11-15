@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import '../core/application-core.js';
 import '../core/song-library.js';
 import '../core/production-workflow.js';
@@ -104,6 +105,21 @@ test('object URL scopes revoke only owned URLs once and can be reused after clea
  const scope=songs.createUrlScope({createURL:()=> 'blob:'+(++i),revokeURL:url=>revoked.push(url)});
  const first=scope.create(audio());scope.create(audio());scope.release('foreign');scope.release(first);scope.release(first);scope.releaseAll();scope.releaseAll();
  assert.deepEqual(revoked,['blob:1','blob:2']);assert.equal(scope.size,0);scope.create(audio());assert.equal(scope.size,1);scope.releaseAll();
+});
+
+test('a pending audio read cannot create a new player URL after lifecycle cleanup',async()=>{
+ const source=readFileSync(new URL('../my-songs.js',import.meta.url),'utf8');
+ const start=source.indexOf(' async function setAudioSource('),end=source.indexOf('  async function hydrateSongCovers(',start);
+ assert.ok(start>0&&end>start);
+ let resolve;const pending=new Promise(r=>{resolve=r;});let created=0;
+ const player={},song={id:'old'},state={selectedId:'old'},view={nav:'songs'};
+ const run=new Function('document','library','audioURLs','state','view','notify',`
+  let audioEpoch=0;
+  ${source.slice(start,end)}
+  return {load:()=>setAudioSource('player',${JSON.stringify(song)},{id:'original'},false),cleanup:()=>{audioEpoch++;}};
+ `)({getElementById:()=>player},{readAudio:()=>pending},{create:()=>{created++;return 'blob:late';}},state,view,()=>{});
+ const loading=run.load();run.cleanup();resolve(audio());await loading;
+ assert.equal(created,0);assert.equal(player.src,undefined);
 });
 
 test('Master seeds linked materials and opens the existing work without duplicates',async()=>{

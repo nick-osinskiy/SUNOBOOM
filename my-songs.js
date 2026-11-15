@@ -10,14 +10,14 @@
  const urlScope=()=>library.createUrlScope({createURL:blob=>URL.createObjectURL(blob),revokeURL:url=>URL.revokeObjectURL(url)});
  const coverURLs=urlScope(),audioURLs=urlScope(),previewURLs=urlScope(),downloadURLs=urlScope();
  const state={editId:null,selectedId:null,showForm:false,search:"",notice:"",confirmDelete:null,shared:null,loading:false,coverScanToken:0,coverScanFile:null,coverScanPromise:null,autoCoverBlob:null,coverPreviewURL:"",showArtistManager:false,artistManagerFilter:"",artistPickerOpen:false,artistShowAll:false,genrePickerOpen:false,genreShowAll:false,genreFamily:"Все",playVersionId:null,compareOpen:false,compareAId:null,compareBId:null};
- const thumbs=new Map();let coverEpoch=0;
+ const thumbs=new Map();let coverEpoch=0,audioEpoch=0;
   const audioSize=bytes=>bytes?(bytes/1048576).toFixed(1)+" МБ":"Размер не указан";
   function resetTakeView(){state.playVersionId=null;state.compareOpen=false;state.compareAId=null;state.compareBId=null;}
 
  const notify=message=>{state.notice=message;const el=document.getElementById("sbsong-notice");if(el){el.textContent=message;el.hidden=false;}else if(typeof toast==="function")toast(message);};
  async function songCommand(name,payload){const result=await library.execute(name,payload);if(!result.ok)notify(result.code==='storage'?'Не удалось сохранить: '+result.error:result.error);return result;}
  function clearThumb(id){coverEpoch++;const url=thumbs.get(id);if(url)coverURLs.release(url);thumbs.delete(id);}
- function releaseAudio(){audioURLs.releaseAll();}
+ function releaseAudio(){audioEpoch++;audioURLs.releaseAll();}
 
  function resetCoverPreview(){
    state.coverScanToken++;
@@ -495,13 +495,13 @@
     '<p class="sbsong-public-notice">Ссылка открывает выбранные автором сведения. Карточка не требует входа, поэтому её сможет посмотреть любой получатель ссылки.</p></section>';
  }
  async function setAudioSource(elementId,song,version,fallbackExternal){
-    const player=document.getElementById(elementId);
+    const player=document.getElementById(elementId),epoch=audioEpoch;
     if(!player)return;
     if(version){
       try{
         const blob=await library.readAudio(song.id,version.id);
         if(!blob)throw new Error("missing audio");
-        if(view.nav!=="songs"||state.selectedId!==song.id||document.getElementById(elementId)!==player)return;
+        if(epoch!==audioEpoch||view.nav!=="songs"||state.selectedId!==song.id||document.getElementById(elementId)!==player)return;
         const url=audioURLs.create(blob);
         player.src=url;
         return;

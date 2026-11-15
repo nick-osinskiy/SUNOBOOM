@@ -350,4 +350,6 @@ v0.210: source a4a04e9, bundle 51d6a0d. 97/97 Node tests, полный browser s
 
 Песни/аудиоверсии/файлы и Мастер вынесены в core/song-library.js и core/production-workflow.js. Прежние ключи и IDs, ограничения файлов, связи и дизайн сохранены. File/metadata writes согласованы с откатом обычных ошибок; URL lifecycle имеет cleanup. Пользовательские записи не продублированы в Pinia. Подробнее: PROJECT_CONTEXT.md §62 и STAGE2_CONTEXT.md. Далее Studio/аранжировщик/preferences/services, затем data/page models; весь этап 2 ещё не принят.
 
-Локальная проверка v0.212: **121/121 Node tests**, сборка, полный desktop/mobile/native browser smoke — PASS. Дополнительная проверка песен/Мастера с реальным IDB, сохранённым draft и URL cleanup — PASS на desktop/mobile Vue и mobile native. Публикация проверяется после коммита.
+Локальная проверка v0.212: **122/122 Node tests**, сборка, полный desktop/mobile/native browser smoke — PASS. Дополнительная проверка песен/Мастера с реальным IDB, сохранённым draft и URL cleanup — PASS на desktop/mobile Vue и mobile native. Публикация проверяется после коммита.
+
+Дополнительно v0.212: pending audio read после render/pagehide отбрасывается по generation counter; регрессионная проверка не допускает создания URL после cleanup.
