@@ -1,4 +1,5 @@
 <script setup>
+import {NativeFileInput} from '../pages/file-input-handoff.js';
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 
 const props = defineProps({
@@ -159,11 +160,11 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', closeOnPointer
       <div class="sbsong-form-columns">
         <label class="sbsong-field">
           <span>{{ model.hasAudio ? 'Добавить новую аудиоверсию' : 'Загрузить аудиофайл (MP3, M4A, WAV и другие)' }}</span>
-          <input name="audio" type="file" accept="audio/*,.mp3,.wav,.wave,.m4a,.aac,.flac,.ogg,.opus">
+          <NativeFileInput name="audio" type="file" accept="audio/*,.mp3,.wav,.wave,.m4a,.aac,.flac,.ogg,.opus" />
         </label>
         <label class="sbsong-field">
           <span>Обложка вручную (необязательно)</span>
-          <input name="cover" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
+          <NativeFileInput name="cover" type="file" accept="image/png,image/jpeg,image/webp,image/gif" />
         </label>
       </div>
       <div class="sbsong-cover-auto" aria-live="polite">

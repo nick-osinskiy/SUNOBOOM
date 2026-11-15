@@ -26,7 +26,7 @@
  let previewState='Текст в оригинальном редакторе не изменён.';
  const emit=()=>window.dispatchEvent(new Event('sunoboom:tags-updated'));
  const lyricId='custom-idea-lyrics', taggedId='custom-idea-tagged';
- const el=id=>document.getElementById(id);
+ const el=id=>window.SUNOBOOM_VIEW_INPUTS?.active?window.SUNOBOOM_VIEW_INPUTS.field(id):document.getElementById(id);
  const get=id=>el(id)?.value||'';
  const setText=(id,text)=>{const node=el(id);if(node)node.textContent=text;};
  const clamp=(v,min,max)=>Math.max(min,Math.min(max,Math.round(Number(v)||min)));

@@ -242,6 +242,7 @@
       if(inPlayer){audio.pause();hasPlayIntent=false;inPlayer=false;}
     }
   }
+  window.addEventListener('sunoboom:before-page',()=>{if(view.nav==='player')inPlayer=true;else if(inPlayer){audio.pause();hasPlayIntent=false;inPlayer=false;}});
   const previousRender=render;
   render=function(){
     if(view.nav==="player"){restorePage();return;}

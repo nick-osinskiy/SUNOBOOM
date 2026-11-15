@@ -9,6 +9,7 @@ import GenrePrompts from './GenrePrompts.vue';
 const props = defineProps({
   genre: { type: Object, required: true },
   tabContent: { type: Function, required: true },
+  selectTab: { type: Function, default: null },
   artistCatalog: { type: Object, default: null },
   artistProfiles: { type: Object, default: null }
 });
@@ -22,11 +23,13 @@ const tabs = [
 const ui = useLegacyUiStore();
 const activeTab = ref(props.genre.tab);
 watch(activeTab, tab => ui.publishAcademyFocus(props.genre.id, tab), { immediate:true });
-const contentHtml = ref(props.tabContent(props.genre.id, activeTab.value) || '');
+const legacyContent = tab => !props.selectTab || (tab==='artists'&&!props.artistCatalog) ? props.tabContent(props.genre.id,tab) : '';
+const contentHtml = ref(legacyContent(activeTab.value) || '');
 
 async function chooseTab(tab) {
   if (activeTab.value === tab || !tabs.some(item => item.id === tab)) return;
-  const content = props.tabContent(props.genre.id, tab);
+  if(props.selectTab&&!props.selectTab(props.genre.id,tab))return;
+  const content = legacyContent(tab);
   if (typeof content !== 'string') return;
   activeTab.value = tab;
   contentHtml.value = content;

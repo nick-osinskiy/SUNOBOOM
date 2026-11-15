@@ -389,3 +389,11 @@ Studio/аранжировщик/миксер/preferences получили canoni
 
 
 Публикация блока v0.216 подтверждена 15 ноября 2026 г.: source [e601671](https://github.com/nick-osinskiy/SUNOBOOM/commit/e60167154ac6987972252ebe28b16780b09f7690), проверенный bundle [d280a60](https://github.com/nick-osinskiy/SUNOBOOM/commit/d280a604aac2af71d59c4b7fe3f3d5f109c098ea). **134/134 Node tests**, build и полный desktop/mobile/native smoke: [CI success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43727772105). [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43728208836). На [сайте v0.216](https://nick-osinskiy.github.io/SUNOBOOM/?v=216) повторно пройдены real routing/Back/Forward/reload, единственный root, отсутствие DOM observers/повторного native chrome, legacy links, native canonical URLs и delayed drafts; old JSON/IDB bytes/IDs/links/backup, Studio/arranger/mixer/preferences quota/reload и workspace/notifications. Опубликованные JS/CSS CI-сборки совпали с main по SHA-256 после нормализации переносов строк. Внешний вид проверен на телефоне и компьютере. **Блок навигации и оболочек принят. Этап 4 остаётся открытым:** native подготовка содержимого страниц ещё не заменена прямой сборкой props/layout из state и transient drafts.
+
+
+## 2026-11-15 — v0.217, прямые модели страниц
+
+Вместо native staging/DOM collection используются authored layouts + явный component/props registry и scoped plain inputs. Native render chain вызывается только для lazy error recovery, не для здоровых Vue-страниц. Данные/схемы/IDs/audio keys не меняются. UI handoff сохраняет начальные черновики/false/empty/caret/focus, живой stress preview и выбранные FileList на исходном input без автосохранения. Media before-page lifecycle выделен из native render wrappers. Выбор вкладки жанра не генерирует неиспользуемый HTML. Исправлен пропущенный Vue-паспорту выбор/переход ДНК и переход к Мастеру, чтобы edit/save не сбрасывал artistDnaId. 139 Node tests — PASS, финальная приёмка этапа 4 и публикация ещё ожидаются. Документы: STAGE4_CONTEXT.md, STAGE4_ACCEPTANCE.md.
+
+
+Локальная приёмка v0.217: **139/139 Node tests**, production build и полный desktop/mobile/native browser smoke, включая direct-render/draft/file/link acceptance — PASS. CI/Pages/live ещё ожидаются.

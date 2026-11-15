@@ -17,6 +17,7 @@ watch(() => props.model, snapshot => ui.publishPassportDetailSummary(snapshot), 
       <button type="button" class="btn ghost small" data-action="tp-list">← К списку</button>
       <button type="button" class="btn primary small" data-action="tp-edit" :data-id="model.id">Изменить</button>
       <button type="button" class="btn ghost small" data-action="tp-event" :data-id="model.id">В календарь релизов</button>
+      <button type="button" class="btn ghost small" data-action="pc-from-passport" :data-id="model.id">🎛 Мастер</button>
       <button type="button" class="btn danger small" data-action="tp-delete" :data-id="model.id">Удалить</button>
     </div>
 
@@ -46,6 +47,7 @@ watch(() => props.model, snapshot => ui.publishPassportDetailSummary(snapshot), 
         rel="noopener noreferrer" target="_blank">Обложка ↗</a>
     </div>
 
+    <div v-if="model.dna" class="sb-dna-track-reference"><span>🧬 ДНК артиста</span><button type="button" class="btn ghost small" data-action="dna-open-from-track" :data-id="model.dna.id">{{ model.dna.name }} →</button></div>
     <h3 class="sb-track-section">Связанные материалы</h3>
     <div class="sb-track-linkgrid">
       <button v-if="model.links[0].exists" type="button" class="sb-track-linked"

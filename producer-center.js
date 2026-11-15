@@ -324,6 +324,7 @@
        (_all,button,id)=>button+'<button class="btn ghost small" data-action="pc-from-idea" data-id="'+e(id)+'">Открыть в «Мастере»</button>');
    };
  }
+ window.addEventListener('sunoboom:before-page',()=>{if(view.nav!=='producer')return;const selected=find(state.selectedId)||items().slice().sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0))[0];state.selectedId=selected?.id||null;});
  const oldRender=render;
  render=function(){
    if(view.nav==="producer"){sbRenderHTML(chrome(page()));return;}
@@ -386,7 +387,7 @@
     !document.querySelector('.mobile-nav [data-nav="producer"]') ||
     !document.querySelector('.side [data-nav="producer"]'))render();
  window.SUNOBOOM_WORKSPACE_UI?.register('producer-create',()=>({kind:'producer-create',
-   title:document.getElementById('sbpc-new-title')?.value||'',source:document.getElementById('sbpc-new-source')?.value||'',
+   title:(window.SUNOBOOM_VIEW_INPUTS?.active?window.SUNOBOOM_VIEW_INPUTS.field('sbpc-new-title'):document.getElementById('sbpc-new-title'))?.value||'',source:(window.SUNOBOOM_VIEW_INPUTS?.active?window.SUNOBOOM_VIEW_INPUTS.field('sbpc-new-source'):document.getElementById('sbpc-new-source'))?.value||'',
    groups:[["passport","Паспорта треков"],["song","Мои песни"],["idea","Мои идеи"],["generated","Идеи из Idea Lab"],["project","Мои проекты"]].map(([type,title])=>({type,title,items:listFor(type).map(x=>({id:x.id,name:resourceName(x,type)}))})).filter(g=>g.items.length)}));
- window.SUNOBOOM_WORKSPACE_UI?.register('producer-search',()=>({kind:'producer-search',count:items().length,query:document.getElementById('sbpc-search')?.value??state.query}));
+ window.SUNOBOOM_WORKSPACE_UI?.register('producer-search',()=>({kind:'producer-search',count:items().length,query:(window.SUNOBOOM_VIEW_INPUTS?.active?window.SUNOBOOM_VIEW_INPUTS.field('sbpc-search'):document.getElementById('sbpc-search'))?.value??state.query}));
 })();

@@ -81,7 +81,7 @@ test('production UI no longer writes user records or derives page and tile layou
  for(const path of ['index.html','performance-tags.js','genre-mixer.js','artist-profiles.js','account-settings.js','my-songs.js','producer-center.js','arrangement-builder.js']){
   assert.doesNotMatch(read(path),/data\.[A-Za-z]+\s*=(?!=)|data\.[A-Za-z]+\.(?:push|splice|unshift)\(/,path);
  }
- assert.doesNotMatch(read('src/vue/pages/page-composition.js'),/nodeType|elementProps|map\(encode\)/);
+ assert.doesNotMatch(read('src/vue/pages/page-model.js'),/document|querySelector|innerHTML|childNodes|nodeType/);
  assert.doesNotMatch(read('src/vue/account/account-home-model.js'),/querySelector|innerHTML|textContent/);
  assert.doesNotMatch(read('src/vue/pages/page-layout-model.js'),/document|querySelector|innerHTML|childNodes/);
 });

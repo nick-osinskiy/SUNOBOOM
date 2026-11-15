@@ -1,4 +1,6 @@
-# Этап 4 — сокращение legacy, v0.216
+# Этап 4 — сокращение legacy, v0.217
+
+Текущий блок v0.217 удаляет native page preparation из штатного Vue render. Реализация завершена, общая приёмка/публикация ещё проверяются. Ниже сохранена история v0.216; актуальная реализация и критерии — в конце документа и STAGE4_ACCEPTANCE.md.
 
 ## Выполненный блок: навигация, оболочки и запуск
 
@@ -14,7 +16,7 @@
 
 Локальная приёмка: **134/134 Node tests**, production build и полный desktop/mobile/native browser smoke — PASS. Подтверждены оба макета, центральный portal lifecycle, idempotent startup/draft, диалоги, stress preview, живые file/textarea boundaries, все 16 страниц, команды/quota и точная совместимость прежних JSON/IDB/audio. CI/Pages/live подтверждены ниже.
 
-## Конечный остаток этапа 4
+## Остаток после v0.216 (история)
 
 **Этап 4 целиком ещё не закрыт.** Согласованный блок навигации/оболочек выполнен; полная миграция не объявляется завершённой.
 
@@ -24,3 +26,17 @@ Native генераторы **содержимого** страниц пока �
 
 
 Публикация блока v0.216 подтверждена 15 ноября 2026 г.: source [e601671](https://github.com/nick-osinskiy/SUNOBOOM/commit/e60167154ac6987972252ebe28b16780b09f7690), проверенный bundle [d280a60](https://github.com/nick-osinskiy/SUNOBOOM/commit/d280a604aac2af71d59c4b7fe3f3d5f109c098ea). **134/134 Node tests**, build и полный desktop/mobile/native smoke: [CI success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43727772105). [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43728208836). На [сайте v0.216](https://nick-osinskiy.github.io/SUNOBOOM/?v=216) повторно пройдены real routing/Back/Forward/reload, единственный root, отсутствие DOM observers/повторного native chrome, legacy links, native canonical URLs и delayed drafts; old JSON/IDB bytes/IDs/links/backup, Studio/arranger/mixer/preferences quota/reload и workspace/notifications. Опубликованные JS/CSS CI-сборки совпали с main по SHA-256 после нормализации переносов строк. Внешний вид проверен на телефоне и компьютере. **Блок навигации и оболочек принят. Этап 4 остаётся открытым:** native подготовка содержимого страниц ещё не заменена прямой сборкой props/layout из state и transient drafts.
+
+
+## v0.217 — выполнен остаток native page preparation
+
+Явный реестр `page-features.js` и чистый `page-model.js` заменили DOM collection/staging. Все 27 layout variants получают props из API snapshots/state и plain input scopes. `page-composition.js` удалён. Штатный render не вызывает прежнюю render chain и chrome; callback chain хранится для lazy native recovery. Начальная native страница до загрузки bundle служит независимым fallback и источником однократного UI handoff.
+
+Scope `view-inputs.js` не подменяет document и восстанавливается после ошибки/nesting. Снимки форм используют явные records; UI adapter отдельно сохраняет raw drafts, empty/false, caret/focus и живые границы. `NativeFileInput` сохраняет исходный выбранный DOM input и FileList. Для ДНК/Мастера/настроек/песен начальные props содержат неотправленные значения; handoff не вызывает input/change и не пишет records. Media cleanup и начальная выборка Мастера выполняются явным before-page lifecycle. Native алгоритмы/DOM аудио, stress dictionary и ограниченные lazy/editor границы сохранены.
+
+GenreDetail использует selectTab без неиспользуемой генерации HTML для четырёх основных Vue-вкладок. Восстановлены native parity поля/перехода ДНК в паспорте и перехода к Мастеру; browser acceptance подтверждает неизменность artistDnaId после edit/save.
+
+Проверки: 139 Node tests, 27 direct variants без document; все 16 экранов с запрещённым native chrome и запрещённым чтением native form fields при сборке; lazy fallback после injected snapshot error с тем же полем/черновиком; delayed selected file identity/FileList; delayed ДНК/Мастер/настройки без автосохранения; общий desktop/mobile/native smoke и прежняя JSON/IDB/audio acceptance. Итог CI/Pages/live добавляется после завершения. Критерии закрытия — STAGE4_ACCEPTANCE.md.
+
+
+Локальная приёмка v0.217: **139/139 Node tests**, production build и полный desktop/mobile/native browser smoke, включая direct-render/draft/file/link acceptance — PASS. CI/Pages/live ещё ожидаются.

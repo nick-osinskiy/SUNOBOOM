@@ -1,4 +1,5 @@
 <script setup>
+import {NativeFileInput} from '../pages/file-input-handoff.js';
 defineProps({
   songId: { type: String, required: true },
   versions: { type: Array, required: true },
@@ -34,10 +35,10 @@ defineProps({
       <details class="sbsong-version-notes">
         <summary>Название и заметки</summary>
         <label>Название версии
-          <input type="text" maxlength="90" :data-sbsong-version-title="version.id" :value="version.label">
+          <input type="text" maxlength="90" :data-sbsong-version-title="version.id" :value="version.draftLabel ?? version.label">
         </label>
         <label>Чем отличается этот дубль
-          <textarea maxlength="800" rows="2" :data-sbsong-version-note="version.id" :value="version.notes"
+          <textarea maxlength="800" rows="2" :data-sbsong-version-note="version.id" :value="version.draftNotes ?? version.notes"
             placeholder="Например: более плотный припев, удачный вокал..."></textarea>
         </label>
         <button type="button" data-sbsong-action="version-save" :data-version-id="version.id">Сохранить заметки</button>
@@ -70,7 +71,7 @@ defineProps({
     <div class="sbsong-version-add">
       <h4>+ Добавить новую версию</h4>
       <label>Аудиофайл (MP3, M4A, WAV и другие)
-        <input id="sbsong-version-file" type="file" accept="audio/*,.mp3,.m4a,.wav,.wave,.flac,.ogg,.opus,.aac">
+        <NativeFileInput id="sbsong-version-file" type="file" accept="audio/*,.mp3,.m4a,.wav,.wave,.flac,.ogg,.opus,.aac" />
       </label>
       <label>Название дубля
         <input id="sbsong-new-version-title" maxlength="90" type="text" placeholder="Например: Версия с новым припевом">

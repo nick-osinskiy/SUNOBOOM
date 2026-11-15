@@ -1436,7 +1436,7 @@ test('v0.196 only the project collection is Vue-owned with existing delegated ke
   assert.ok(component.includes('{{ project.title }}'));
   assert.doesNotMatch(component,/localStorage|indexedDB|v-model|@click|@keydown/);
   const bootstrap=readFileSync(new URL('../src/vue/bootstrap.js',import.meta.url),'utf8');
-  assert.ok(readFileSync(new URL('../src/vue/entry.js',import.meta.url),'utf8').includes('activateLegacyProjectCollection'));
+  assert.ok(readFileSync(new URL('../src/vue/pages/page-features.js',import.meta.url),'utf8').includes("'sb-vue-projects-list':[ProjectCollection"));
 });
 
 
@@ -1674,7 +1674,7 @@ test('v0.205 one account root owns the home while legacy summary compatibility s
   for(const action of ['save-profile','export','import'])assert.ok(code.includes('data-action="'+action+'"'));
   assert.ok(code.includes('id="import-file"'));assert.ok(code.includes('id="profile-name"'));
   assert.ok(code.includes('AccountSummary'));assert.doesNotMatch(code,/localStorage|indexedDB|@click|@submit/);
-  assert.ok(readFileSync(new URL('../src/vue/entry.js',import.meta.url),'utf8').includes('activateLegacyAccountHome'));
+  assert.ok(readFileSync(new URL('../src/vue/pages/page-features.js',import.meta.url),'utf8').includes("'sb-vue-account-home':[AccountHome"));
   assert.ok(!bootstrap.includes("if (typeof startLegacyAccountSummary === 'function')"));
   assert.ok(old.includes("target?.closest('#sb-vue-account-home') ? null : target"));
 });

@@ -1,4 +1,5 @@
 <script setup>
+import {NativeFileInput} from '../pages/file-input-handoff.js';
 import { onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import { useLegacyUiStore } from '../state/legacy-ui-store.js';
 const props = defineProps({ api: { type: Object, required: true }, initialModel: { type: Object, required: true } });
@@ -43,8 +44,8 @@ onBeforeUnmount(() => window.removeEventListener('sunoboom:player-ab-update', sy
             <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
             {{ model.files[side].ready ? 'Заменить файл' : 'Выбрать файл' }}
           </label>
-          <input type="file" :id="'sbab-file-' + side"
-            accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.flac,.opus" :data-sbab-file="side">
+          <NativeFileInput type="file" :id="'sbab-file-' + side"
+            accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.flac,.opus" :data-sbab-file="side" />
           <button type="button" data-sbab-action="remove" :data-side="side"
             class="sbab-remove" :disabled="!model.files[side].ready">Удалить</button>
           <span class="sbab-length" :id="'sbab-length-' + side">{{ model.files[side].duration }}</span>

@@ -274,6 +274,7 @@
     const ok=document.execCommand?.("copy");el.remove();message(ok?"Результаты сравнения скопированы.":"Копирование недоступно — попробуй ещё раз из обычного браузера.");
    }
  }
+ window.addEventListener('sunoboom:before-page',()=>{if(view.nav!=='player')pauseAB();wasInPlayer=view.nav==='player';});
  const previousRender=render;
  render=function(){
    if(view.nav!=="player")pauseAB();

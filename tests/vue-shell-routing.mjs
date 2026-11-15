@@ -25,7 +25,8 @@ export async function checkShellRouting(browser,base){
     assert.match(page.url(),new RegExp('#/'+nav+'$'));
     assert.equal(await page.evaluate(()=>window.__shell215===document.querySelector('[data-sb-vue-shell]')&&window.__app215===document.getElementById('app').__vue_app__&&window.__side215===document.querySelector('.side')&&[...document.querySelectorAll('*')].filter(n=>n.__vue_app__).length===1),true);
    }
-   assert.equal(await page.evaluate(()=>window.__pages216>0),true,'page preparation omits duplicate native chrome');
+   assert.equal(await page.evaluate(()=>window.__pages216),0,'normal rendering does not generate native HTML');
+   assert.equal(await page.evaluate(()=>SUNOBOOM_SHELL.snapshot().nativeFallbacks),0);
    await page.goBack();await page.waitForFunction(()=>view.nav==='ideas');await page.goForward();await page.waitForFunction(()=>view.nav==='account');
    await page.locator(`${menu} button[data-nav="catalog"]`).click();await page.waitForURL('**#/catalog');
    await page.evaluate(()=>openGenre('reggae-ska'));await page.waitForURL('**/overview');

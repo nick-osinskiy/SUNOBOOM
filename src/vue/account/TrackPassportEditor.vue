@@ -68,6 +68,10 @@ const textAreas = [
         </select>
       </div>
       <div class="field">
+        <label for="tp-dna">ДНК артиста</label>
+        <select id="tp-dna" v-model="fields.dna"><option value="">Не привязывать</option><option v-for="item in model.dnas" :key="item.value" :value="item.value">{{ item.label }}</option></select>
+      </div>
+      <div class="field">
         <label for="tp-idea">Идея и текст песни</label>
         <select id="tp-idea" v-model="fields.idea">
           <option value="">Без связи</option>

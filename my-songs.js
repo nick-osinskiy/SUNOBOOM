@@ -392,12 +392,13 @@
    snapshot(){
      if(view.nav!=="songs"||!state.showForm)return null;
      const song=get(state.editId);
+     const value=(name,fallback)=>window.SUNOBOOM_VIEW_INPUTS?.active?(window.SUNOBOOM_VIEW_INPUTS.named(name)[0]?.value??fallback):fallback;
      return {
-       editId:state.editId||null, title:song?.title||"",
-       artist:song?.artist||data.profileName||"",genre:song?.genre||"",
-       album:song?.album||"",description:song?.description||"",
-       audioUrl:song?.audioUrl||"",listenUrl:song?.listenUrl||"",
-       coverUrl:song?.coverUrl||"",hasAudio:!!song?.hasAudio,
+       editId:state.editId||null, title:value("title",song?.title||""),
+       artist:value("artist",song?.artist||data.profileName||""),genre:value("genre",song?.genre||""),
+       album:value("album",song?.album||""),description:value("description",song?.description||""),
+       audioUrl:value("audioUrl",song?.audioUrl||""),listenUrl:value("listenUrl",song?.listenUrl||""),
+       coverUrl:value("coverUrl",song?.coverUrl||""),hasAudio:!!song?.hasAudio,
        hasCover:!!(song?.hasCover||song?.coverUrl)
      };
    },
@@ -555,6 +556,7 @@
  state.notice='Карточка создана из Паспорта трека. Аудиоверсии можно добавлять прямо в карточке.';
  view.nav='songs';render();window.scrollTo({top:0,behavior:'instant'});
  }
+ window.addEventListener("sunoboom:before-page",releaseAudio);
  const oldRender=render;
  render=function(){
    releaseAudio();
@@ -843,5 +845,5 @@
     openCard,openLibrary,decodeCard});
  if(!routeShare())render();
  window.SUNOBOOM_WORKSPACE_UI?.register('songs-header',()=>({kind:'songs-header',count:library.records.length,versions:library.records.reduce((n,s)=>n+songVersions(s).length,0),artists:customArtists().length}));
- window.SUNOBOOM_WORKSPACE_UI?.register('songs-search',()=>({kind:'songs-search',query:document.getElementById('sbsong-search')?.value??state.search}));
+ window.SUNOBOOM_WORKSPACE_UI?.register('songs-search',()=>({kind:'songs-search',query:(window.SUNOBOOM_VIEW_INPUTS?.active?window.SUNOBOOM_VIEW_INPUTS.field('sbsong-search'):document.getElementById('sbsong-search'))?.value??state.search}));
 })();

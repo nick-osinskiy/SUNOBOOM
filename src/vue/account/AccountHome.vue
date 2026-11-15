@@ -1,4 +1,5 @@
 <script setup>
+import {NativeFileInput} from '../pages/file-input-handoff.js';
 import { onMounted, reactive, ref } from 'vue';
 import AccountSummary from './AccountSummary.vue';
 const props = defineProps({ initial: { type: Object, required: true }, api: { type: Object, required: true } });
@@ -29,7 +30,7 @@ onMounted(syncStats);
       <div class="detail-actions">
         <button type="button" class="btn ghost" data-action="export"><span style="display:contents" aria-hidden="true" v-html="initial.icons.download"></span> Экспорт данных</button>
         <button type="button" class="btn ghost" data-action="import"><span style="display:contents" aria-hidden="true" v-html="initial.icons.plus"></span> Импорт данных</button>
-        <input id="import-file" type="file" accept=".json,application/json" style="display:none">
+        <NativeFileInput id="import-file" type="file" accept=".json,application/json" style="display:none" />
       </div>
     </div>
   </div>

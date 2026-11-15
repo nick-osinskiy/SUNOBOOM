@@ -1,4 +1,5 @@
-> Текущее состояние v0.216: единый browser Router и один Vue root; memory mirror, независимые island roots и повторный native chrome удалены. Текущая архитектура/остаток: [STAGE4_CONTEXT.md](../../STAGE4_CONTEXT.md). Разделы v0.94–0.215 ниже — история, а не инструкции к новому bootstrap.
+> Текущее состояние v0.217: один Vue root/browser Router, прямые page models/component factories без native staging. Начальные draft/file/editor handoffs и lazy native error recovery — отдельные UI adapters. Архитектура и критерии приёмки: [STAGE4_CONTEXT.md](../../STAGE4_CONTEXT.md), [STAGE4_ACCEPTANCE.md](../../STAGE4_ACCEPTANCE.md). Старые разделы ниже описывают историю, а не текущий bootstrap.
+
 
 # SUNOBOOM — постепенный переход на Vue 3
 

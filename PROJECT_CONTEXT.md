@@ -1,6 +1,6 @@
 # SUNOBOOM — PROJECT_CONTEXT.md
 
-> **v0.216 — этап 4, блок навигации и оболочек.** Удалены второй memory Router, независимый multi-app startup и старые shell bridges. Меню, шапка, история и уведомления — непосредственные компоненты одной оболочки; production не устанавливает DOM observers и не генерирует повторную native оболочку. Этапы 2–3 закрыты. **Этап 4 открыт:** native подготовка содержимого страниц остаётся; следующий блок — прямые props/layout из state и transient drafts. См. [STAGE4_CONTEXT.md](./STAGE4_CONTEXT.md), раздел 66. Блок принят: 134 теста, build, полный smoke, CI, Pages и live — PASS.
+> **v0.217 — заключительный блок этапа 4: прямые модели Vue-страниц.** Штатный рендер больше не вызывает native page generators, не создаёт staging HTML и не подменяет методы document для подготовки моделей. Layout/props строятся напрямую из state и plain UI inputs; живые редакторы/выбранные файлы — отдельные UI handoffs, native fallback генерируется по требованию при ошибке. Этапы 2–3 закрыты; этап 4 ожидает общей приёмки v0.217. См. [STAGE4_CONTEXT.md](./STAGE4_CONTEXT.md), [STAGE4_ACCEPTANCE.md](./STAGE4_ACCEPTANCE.md), раздел 67.
 
 ## 1. Что это и где работает
 
@@ -1083,3 +1083,16 @@ Shell напрямую включает NavigationMenu, TopHeader, VueHistoryCon
 
 
 Публикация блока v0.216 подтверждена 15 ноября 2026 г.: source [e601671](https://github.com/nick-osinskiy/SUNOBOOM/commit/e60167154ac6987972252ebe28b16780b09f7690), проверенный bundle [d280a60](https://github.com/nick-osinskiy/SUNOBOOM/commit/d280a604aac2af71d59c4b7fe3f3d5f109c098ea). **134/134 Node tests**, build и полный desktop/mobile/native smoke: [CI success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43727772105). [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43728208836). На [сайте v0.216](https://nick-osinskiy.github.io/SUNOBOOM/?v=216) повторно пройдены real routing/Back/Forward/reload, единственный root, отсутствие DOM observers/повторного native chrome, legacy links, native canonical URLs и delayed drafts; old JSON/IDB bytes/IDs/links/backup, Studio/arranger/mixer/preferences quota/reload и workspace/notifications. Опубликованные JS/CSS CI-сборки совпали с main по SHA-256 после нормализации переносов строк. Внешний вид проверен на телефоне и компьютере. **Блок навигации и оболочек принят. Этап 4 остаётся открытым:** native подготовка содержимого страниц ещё не заменена прямой сборкой props/layout из state и transient drafts.
+
+## 67. v0.217 — прямое построение страниц и заключительная приёмка этапа 4
+
+`pages/page-features.js` — явный реестр компонентов и props factories; `page-model.js` соединяет их с 27 authored layout variants без DOM/HTML. Старый `page-composition.js` удалён; entry больше не запускает и не собирает page bridges. Штатный render строит модель прямо из текущего canonical/UI state. Native renderer сохраняется как lazy recovery callback; скрытый fallback container создаётся только после ошибки, его счётчик виден в shell snapshot. На здоровых экранах он равен нулю. Подмена методов document ограничена native recovery, а не подготовкой Vue.
+
+`view-inputs.js` даёт синхронный scope plain input records, включая пустые строки/false. UI handoff отдельно снимает начальные черновики, caret/focus и живые editor nodes; модели не содержат DOM. `NativeFileInput` возвращает тот же выбранный input/FileList и его listeners при передаче в Vue и повторном рендере того же экрана. ДНК/Мастер/настройки/песни получают начальные черновики явно без input/change events и автосохранения. Контекстные ID не смешиваются при переходе между записями.
+
+До сборки модели явные before-page события выполняют media cleanup/паузу, выбор текущей карточки Мастера и сброс transient preset menu. Полные native render wrappers не вызываются. Вкладки жанра выбираются отдельной командой selectTab: не создаётся неиспользуемый native tab HTML. При проверке связей восстановлены выбор ДНК в Vue-паспорте, переход к ДНК и кнопка Мастера: правка паспорта сохраняет исходный artistDnaId.
+
+139 Node tests — PASS; общий browser smoke/CI/Pages/live подтверждаются перед закрытием этапа. Новая acceptance запрещает native chrome и чтение native fields во время штатной сборки всех 16 экранов, проверяет lazy fallback/identity/draft, FileList, реактивные черновики и отсутствие автосохранения. Native fallback и именованные media/editor adapters остаются намеренно; это не проект «без native JS». Условия приёмки — STAGE4_ACCEPTANCE.md.
+
+
+Локальная приёмка v0.217: **139/139 Node tests**, production build и полный desktop/mobile/native browser smoke, включая direct-render/draft/file/link acceptance — PASS. CI/Pages/live ещё ожидаются.

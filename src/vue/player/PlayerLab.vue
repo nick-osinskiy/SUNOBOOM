@@ -1,4 +1,5 @@
 <script setup>
+import {NativeFileInput} from '../pages/file-input-handoff.js';
 import { onMounted, onBeforeUnmount, ref, watch } from 'vue';
 import { useLegacyUiStore } from '../state/legacy-ui-store.js';
 
@@ -119,7 +120,7 @@ const rates = ['0.75', '1', '1.25', '1.5', '2'];
         <strong>Загрузи свои треки</strong>
         <p>MP3, WAV, M4A, AAC, OGG, FLAC — если формат поддерживается браузером. Файлы никуда не отправляются.</p>
         <label class="sbp-upload-label" for="sbp-file">Выбрать аудиофайлы</label>
-        <input id="sbp-file" type="file" accept="audio/*,.mp3,.m4a,.aac,.wav,.ogg,.flac,.opus" multiple>
+        <NativeFileInput id="sbp-file" type="file" accept="audio/*,.mp3,.m4a,.aac,.wav,.ogg,.flac,.opus" multiple />
       </div>
       <div class="sbp-demo-box">
         <div>

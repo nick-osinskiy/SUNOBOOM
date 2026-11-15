@@ -508,6 +508,7 @@
     state.presetMenuOpen=false;
     drawBlocks();drawPresetPrompt();drawTransfer();
   }
+  window.addEventListener("sunoboom:before-page",()=>{if(view.nav==="studio")state.presetMenuOpen=false;});
   const oldRender=render;
   render=function(){
     const result=oldRender.apply(this,arguments);
@@ -909,7 +910,7 @@
       return {
         controls:{total:state.blocks.length,previewCount:SNAKE_PREVIEW_COUNT,transitions:Math.max(0,state.blocks.length-1),
           snakeMeta:state.blocks.length+" блоков · ≈ "+lengthString(),pending:state.presetPending?(choiceMeta(state.presetPending)?.ru||""):"",
-          type:document.getElementById('sba-add-type')?.value||Object.keys(SECTION)[0],title:document.getElementById('sba-new-block-title')?.value||'',
+          type:(window.SUNOBOOM_VIEW_INPUTS?.active?window.SUNOBOOM_VIEW_INPUTS.field('sba-add-type'):document.getElementById('sba-add-type'))?.value||Object.keys(SECTION)[0],title:(window.SUNOBOOM_VIEW_INPUTS?.active?window.SUNOBOOM_VIEW_INPUTS.field('sba-new-block-title'):document.getElementById('sba-new-block-title'))?.value||'',
           inserting:state.insertAfter!==null,placement:state.insertAfter===null?"Добавится в конец композиции":"После блока "+(findIndex(state.insertAfter)+1)+" — "+(SECTION[state.blocks[findIndex(state.insertAfter)]?.type]?.ru||'')},
         blocks,sections:mapped(SECTION),voices:mapped(VOICES),
         picker:arrangerPickerSnapshot(),
