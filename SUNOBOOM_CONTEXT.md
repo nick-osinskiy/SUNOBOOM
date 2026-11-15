@@ -355,3 +355,10 @@ v0.210: source a4a04e9, bundle 51d6a0d. 97/97 Node tests, полный browser s
 Дополнительно v0.212: pending audio read после render/pagehide отбрасывается по generation counter; регрессионная проверка не допускает создания URL после cleanup.
 
 Публикация v0.212 подтверждена: source [22c48dd](https://github.com/nick-osinskiy/SUNOBOOM/commit/22c48dd42e14d44c958c5de6b7e41bf2c44371bc), bundle [431c396](https://github.com/nick-osinskiy/SUNOBOOM/commit/431c39635ba6e1568ba2cbd6dc88118d2f52eb95), final code [0514c13](https://github.com/nick-osinskiy/SUNOBOOM/commit/0514c139a0796bb49316f3156f22752a0a474cd2). **122/122 Node tests**, сборка и полный smoke: [CI success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43686030305). [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43686030280). Live desktop/mobile Vue и mobile native: song/Master commands, реальные file/metadata rollback, draft retention и URL cleanup — PASS без pageerror. Это второй блок, не завершение всего этапа 2.
+
+
+## 2026-11-15 — v0.213, третий блок этапа 2
+
+Studio/аранжировщик/миксер/preferences получили canonical state и payload-команды. Правила компиляции, музыкальных подсказок и аудита вынесены в core factories. Старые JSON keys/schema и алгоритмы сохранены, quota failures откатывают запись, UI retains drafts. 15 новых headless tests сравнивают в том числе исходные rules v0.212; desktop/mobile/native browser suite проверяет headless commands, quota и reload. Подробности PROJECT_CONTEXT.md §63 и STAGE2_CONTEXT.md. Этап 2 ещё открыт: осталось завершить data/page models, аудит direct writes и общую приёмку.
+
+Локальная проверка v0.213: **137/137 Node tests**, сборка и полный desktop/mobile/native browser smoke — PASS; новая suite Studio/core/quota/reload прошла во всех трёх режимах. Сведения о публикации добавляются после проверки GitHub Actions и Pages.

@@ -1,3 +1,4 @@
+import {checkStudioCore} from './vue-studio-core.mjs';
 import {checkSongCore} from './vue-song-core.mjs';
 import {checkDomainCore} from './vue-domain-core.mjs';
 import {checkPageComposition,checkPageRecovery,checkPageEditorHandoff} from './vue-pages.mjs';
@@ -417,7 +418,7 @@ async function checkIdeasPage206(page,vue) {
     const stable=await page.evaluate(async()=>{const input=document.getElementById('gen-detail');const marker=document.createElement('i');document.getElementById('app').append(marker);queueMicrotask(()=>marker.remove());await new Promise(r=>setTimeout(r,50));return input===document.getElementById('gen-detail')&&input.value==='Черновик после обновлений';});
     if(!stable||await root.count()!==1)throw Error('v0.206 shallow mutation/rapid routes duplicated screen or erased draft');
   }finally{
-    await page.evaluate(()=>{const old=window.__ideas206;application.importBackup({app:'SUNOBOOM',data:old.data});Object.assign(ideaGen,old.params);generatedIdeas=old.results;generatedSeq=old.seq;generatedCycle=old.cycle;view.ideaFamily=old.family;builder=old.builder;copyText=old.copy;delete window.__ideas206;persist();go('home');});
+    await page.evaluate(()=>{const old=window.__ideas206;application.importBackup({app:'SUNOBOOM',data:old.data});Object.assign(ideaGen,old.params);generatedIdeas=old.results;generatedSeq=old.seq;generatedCycle=old.cycle;view.ideaFamily=old.family;studioCore.execute('patch',old.builder);copyText=old.copy;delete window.__ideas206;persist();go('home');});
   }
 }
 
@@ -4561,6 +4562,7 @@ async function checkEditorFallback() {
 try {
   await ready();
   browser = await chromium.launch({ headless: true });
+  await checkStudioCore(browser,BASE);
   await checkLayout(false);
   await checkLayout(true);
   await checkProjectCreatorDelay197();

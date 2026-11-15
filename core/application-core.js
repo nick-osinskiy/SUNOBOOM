@@ -179,11 +179,17 @@
   return Object.freeze({state,execute,reminders,importBackup,exportBackup:()=>({exportedAt:new Date(now()).toISOString(),app:'SUNOBOOM',data:clone(state)}),persist:()=>repository.write(KEYS.workspace,state),helpers:Object.freeze({selectedDays,dayDiff,date7,https})});
  }
  function createKernel({storage,indexedDB,...deps}={}){
-  const json=createJsonRepository(storage),media=createMediaRepository(indexedDB);let workspace,songs,productions;
+  const json=createJsonRepository(storage),media=createMediaRepository(indexedDB);let workspace,songs,productions,studio,arrangement,preferences,mixer,auditor;
   return Object.freeze({keys:KEYS,repositories:Object.freeze({json,media}),
    createWorkspace(options){return workspace||(workspace=createWorkspace({repository:json,...deps,...options}));},
    createSongs(options={}){return songs||(songs=root.SUNOBOOM_SONGS_FACTORY.create({json,media,workspace,...deps,...options}));},
    createProductions(options={}){return productions||(productions=root.SUNOBOOM_PRODUCTIONS_FACTORY.create({workspace,getSongs:()=>songs?.getCards()||[],...deps,...options}));},
+   createStudio(options={}){return studio||(studio=root.SUNOBOOM_STUDIO_FACTORY.create({...deps,...options}));},
+   createArrangement(options={}){return arrangement||(arrangement=root.SUNOBOOM_ARRANGEMENT_FACTORY.create({json,studio,...deps,...options}));},
+   createPreferences(options={}){return preferences||(preferences=root.SUNOBOOM_PREFERENCES_FACTORY.create({json,...deps,...options}));},
+   createMixer(options={}){return mixer||(mixer=root.SUNOBOOM_MIXER_FACTORY.create({workspace,studio,...deps,...options}));},
+   createAuditor(options={}){return auditor||(auditor=root.SUNOBOOM_AUDITOR_FACTORY.create({...deps,...options}));},
+   get auditor(){return auditor;},get mixer(){return mixer;},get studio(){return studio;},get arrangement(){return arrangement;},get preferences(){return preferences;},
    get workspace(){return workspace;},get songs(){return songs;},get productions(){return productions;}
   });
  }

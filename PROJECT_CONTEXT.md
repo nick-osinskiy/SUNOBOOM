@@ -1,6 +1,6 @@
 # SUNOBOOM — PROJECT_CONTEXT.md
 
-> **v0.212, 15 ноября 2026 г. — второй блок этапа 2. Этап 2 ещё открыт.** Команды и canonical state «Моих песен», аудиоверсий, файлов и «Мастера» вынесены из экранов в общее ядро. Native UI и Vue используют одни команды; IDs, JSON/IDB keys и дизайн сохранены. Подробности — раздел 62 и [STAGE2_CONTEXT.md](./STAGE2_CONTEXT.md). Далее: Studio/аранжировщик, preferences/services, затем устранение DOM-derived models/layout и приёмка всего этапа 2. Этап 3 пока не начинать.
+> **v0.213, 15 ноября 2026 г. — третий блок этапа 2. Этап 2 ещё открыт.** Studio, композиция аранжировщика, миксер и настройки получили единых владельцев состояния и команды без чтения HTML. Правила генерации промптов, музыкальных подсказок и аудита вынесены в core services. Прежние данные, ключи, алгоритмы и дизайн сохранены. Подробности — раздел 63 и [STAGE2_CONTEXT.md](./STAGE2_CONTEXT.md). Далее: оставшиеся data/page models, аудит прямых записей и общая приёмка этапа 2; этап 3 пока не начинать.
 
 ## 1. Что это и где работает
 
@@ -1020,3 +1020,20 @@ JSON repository подключён к песням, Мастеру, settings, Pl
 Дополнительно v0.212: pending audio read после render/pagehide отбрасывается по generation counter; регрессионная проверка не допускает создания URL после cleanup.
 
 Публикация v0.212 подтверждена: source [22c48dd](https://github.com/nick-osinskiy/SUNOBOOM/commit/22c48dd42e14d44c958c5de6b7e41bf2c44371bc), bundle [431c396](https://github.com/nick-osinskiy/SUNOBOOM/commit/431c39635ba6e1568ba2cbd6dc88118d2f52eb95), final code [0514c13](https://github.com/nick-osinskiy/SUNOBOOM/commit/0514c139a0796bb49316f3156f22752a0a474cd2). **122/122 Node tests**, сборка и полный smoke: [CI success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43686030305). [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43686030280). Live desktop/mobile Vue и mobile native: song/Master commands, реальные file/metadata rollback, draft retention и URL cleanup — PASS без pageerror. Это второй блок, не завершение всего этапа 2.
+
+
+## 63. v0.213 — Studio, аранжировщик, миксер и настройки
+
+База: main 6396480f10f13ab8dfc01a113ddf3a4a36fd71ab, реально опубликованная v0.212.
+
+- `core/studio-core.js`: единственный ephemeral builder; `builder` в index — const alias. Поля, перенос жанров/идей, случайная идея, ДНК и общий patch принимают payload. Прежний compiler Style сохраняет поведение лимита 1000; preview компилирует отдельный candidate без временного изменения рабочего extra. Studio по-прежнему не сохраняется в новом localStorage key.
+- `core/arrangement-core.js`: canonical blocks/activePreset, загрузка прежнего `sunoboom-arrangement-v066`, version 1. Команды add/field/remove/duplicate/move/preset/import/transition/sound валидируют данные, записывают и откатывают при ошибке. Экспорт для Мастера не включает transient IDs; восстановление/лимит 64/переходы/правила звуков сохранены. Transfer prepare/apply проверяет устаревший extra и заменяет только ранее вставленный фрагмент.
+- `core/mixer-core.js`: прежний алгоритм долей/темпа/промпта и один working draft. Команды получают явные данные; сохранённые формулы, draft и source prompt metadata пишутся в тот же workspace. Ошибка persistence откатывает действие; staged input остаётся рабочим черновиком. Перенос в Studio выполняется одним patch.
+- `core/preferences-core.js`: appearance/player prefs, прежние JSON keys, defaults, палитры, нормализация и ограничения. Успешная запись публикует новые значения в стабильном объекте; quota failure сохраняет прежние настройки. UI применяет тему и Audio volume/rate только после результата, reset не затрагивает песни/профиль. Имя использует существующую workspace profile.save.
+- `core/prompt-auditor-core.js`: исходные inspect/propose/report с явными text/genre/builder inputs. Только UI выбирает источник, показывает предложение и копирует подтверждённый текст.
+- DOM, Audio/Web Audio API, выбор файлов/плееры, фокус, окна, drag/pointer и открытые панели остаются browser adapters. Unsaved поля аранжировщика — отдельные transient UI drafts, не второй store записей: при quota Vue сохраняет введённое название, canonical/stored blocks не меняются.
+- 15 новых headless tests; fixture hashes получены из неизменённых правил v0.212 для семи шаблонов и 12 сочетаний жанр/секция/энергия/вокал. Проверяются точные Lyrics/Style/duration, payload-команды, old JSON, quota rollback, transfer/stale preview, preferences, mixer и auditor. Browser suite проверяет команды при запрещённом getElementById, draft retention, settings failure и reload на desktop/mobile Vue и mobile native.
+
+Следующий цельный блок этапа 2 — убрать оставшееся чтение native HTML из data/page models, проверить остаток прямых записей и провести общую приёмку. Root render/go, единая оболочка и маршрутизация остаются последующим этапом 3.
+
+Локальная проверка v0.213: **137/137 Node tests**, сборка и полный desktop/mobile/native browser smoke — PASS; новая suite Studio/core/quota/reload прошла во всех трёх режимах. Сведения о публикации добавляются после проверки GitHub Actions и Pages.

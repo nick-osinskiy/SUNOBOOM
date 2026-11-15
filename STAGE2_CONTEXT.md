@@ -2,7 +2,7 @@
 
 Дата: 15 ноября 2026 г. База перед первым блоком: main `77c82d1fadaeaa6be3024a712e991d0d5de051d1`, v0.210. Этап 1 закрыт; [его приёмка](STAGE1_ACCEPTANCE.md) остаётся историческим свидетельством.
 
-**v0.212 завершает второй цельный блок этапа 2: песни, версии, файлы и Мастер. Сам этап 2 ещё не закрыт.** Следующие работы перечислены ниже; это продолжение одного архитектурного этапа, а не новые этапы за отдельные кнопки.
+**v0.213 завершает третий цельный блок этапа 2: Studio, аранжировщик, миксер и настройки. Сам этап 2 ещё не закрыт.** Следующие работы перечислены ниже; это продолжение одного архитектурного этапа, а не новые этапы за отдельные кнопки.
 
 ## Что выделено
 
@@ -26,18 +26,18 @@
 
 ## Конечный остаток этапа 2
 
-| Блок | Требуемый результат | Статус после v0.212 |
+| Блок | Требуемый результат | Статус после v0.213 |
 | --- | --- | --- |
 | Workspace core и общие repositories | Один объект, payload-команды основных коллекций, совместимые JSON/IDB | Выполнен первый блок; часть старых extensions ещё пишет в workspace напрямую |
 | Собственные песни, версии, файлы и Мастер | Canonical state и payload/result для создания/редактирования/удаления/версий/связей; media lifecycle с явным cleanup | Выполнен в v0.212; canonical song library и workflow, payload/result, согласованные file/metadata writes и URL scopes |
-| Studio/аранжировщик, preferences и вычислительные services | Явные входы и команды; прежние algorithms/словарь/DSP остаются обычными JS services; один владелец состояния | Предстоит; JSON repository сам по себе не переносит бизнес-логику |
+| Studio/аранжировщик, preferences и вычислительные services | Явные входы и команды; прежние algorithms/словарь/DSP остаются обычными JS services; один владелец состояния | Выполнен третий блок v0.213: canonical Studio/arranger/mixer/preferences + prompt audit services; browser media lifecycle остаётся UI adapter |
 | Data/page models и окончательная приёмка | Vue получает данные/семантические descriptors, не native DOM; устранены AccountHome DOM parsing и page layout adapter | Предстоит. DOM draft adapters временно допустимы только снаружи core |
 
 Далее следует завершить эти блоки, проверить round-trip старых JSON/IDB fixtures и отсутствие двойных записей/владельцев/потери файлов. Только после этого принимать **весь** этап 2 и предлагать этап 3.
 
 ## Что сознательно не объявляется завершённым
 
-- Arranger/settings state и их UI-dependent commands пока не вынесены полностью. Songs/Master отделены в v0.212; формы и медиаплееры остаются UI adapters.
+- Songs/Master отделены в v0.212, Studio/arranger/mixer/preferences и правила аудита — в v0.213. Формы, transient drafts и медиаплееры остаются UI adapters.
 - Старый HTML ещё создаёт layout; PageView и часть snapshots читают native DOM. Это известный остаток этапа 2.
 - Root render/go, Router memory mirror, несколько shell/dialog roots и MutationObserver bridges сохраняются. Единая оболочка/реальная маршрутизация — этап 3, удаление дублирования — этап 4.
 - Pinia содержит UI projections, не копию записей и не новый источник истины. Новый backend/auth/cloud sync не создавались.
@@ -60,3 +60,18 @@ URL scopes принимают create/revoke зависимостями: audio cl
 Дополнительно v0.212: pending audio read после render/pagehide отбрасывается по generation counter; регрессионная проверка не допускает создания URL после cleanup.
 
 Публикация v0.212 подтверждена: source [22c48dd](https://github.com/nick-osinskiy/SUNOBOOM/commit/22c48dd42e14d44c958c5de6b7e41bf2c44371bc), bundle [431c396](https://github.com/nick-osinskiy/SUNOBOOM/commit/431c39635ba6e1568ba2cbd6dc88118d2f52eb95), final code [0514c13](https://github.com/nick-osinskiy/SUNOBOOM/commit/0514c139a0796bb49316f3156f22752a0a474cd2). **122/122 Node tests**, сборка и полный smoke: [CI success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43686030305). [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43686030280). Live desktop/mobile Vue и mobile native: song/Master commands, реальные file/metadata rollback, draft retention и URL cleanup — PASS без pageerror. Это второй блок, не завершение всего этапа 2.
+
+
+## Третий блок — v0.213
+
+Пять новых classic factories: studio-core, arrangement-core, mixer-core, preferences-core, prompt-auditor-core. Kernel создаёт по одному экземпляру каждого, до первого запроса из соответствующего UI. Нативный интерфейс и Vue используют одинаковые adapters и payload/result команды. Никакого второго Pinia-store записей и новых ключей сохранения.
+
+Studio builder остаётся ephemeral с прежними defaults; index builder — const alias. Отделены field/patch/genre/manual/generated/catalog/random/DNA commands, исходный compiler и mixer compiler. Arrangement state — blocks/activePreset плюс transient transfer/applied. Старые presets, Academy source, SMART sound/transition rules и Lyrics/Style/duration computations перенесены без изменения. Arrangement commands записывают прежнюю схему после проверки, при ошибке возвращают failure и восстанавливают состояние. Формы хранят несохранённые поля отдельно, поэтому Vue refresh не уничтожает draft после quota.
+
+Mixer working draft/weights/tempo/formulas/saved prompts теперь в одном core owner; workspace root прежний. Сохранённые коллекции и рабочее состояние откатываются вместе при ошибках; отсутствие свойства в старом workspace также сохраняется. Preferences appearance/player разделяют один service с прежними keys, defaults и нормализацией. Объекты settings стабильны; UI применяет эффекты после успешного execute. Reset сохраняет пользовательские материалы. Auditor inspect/propose/report теперь принимает явные text/genre/builder inputs.
+
+UI отвечает за document, поля/фокус, pointer/drag, clipboard, темы ОС и Audio/Web Audio effects; прежние аудиоалгоритмы и playback не переписывались. Headless fixture tests сравнивают byte hashes исходных v0.212 музыкальных правил; browser suite проверяет реальные JSON/quota/draft/reload в трёх режимах. Подробная карта — PROJECT_CONTEXT.md §63.
+
+Остаток этапа 2: data/page models (включая AccountHome DOM parsing и page layout adapter), аудит оставшихся direct workspace writes и итоговая приёмка old JSON/IDB round-trip. Только после неё предлагать этап 3.
+
+Локальная проверка v0.213: **137/137 Node tests**, сборка и полный desktop/mobile/native browser smoke — PASS; новая suite Studio/core/quota/reload прошла во всех трёх режимах. Сведения о публикации добавляются после проверки GitHub Actions и Pages.

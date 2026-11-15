@@ -2,35 +2,11 @@
 (function installAccountSettings(){
  "use strict";
  if(typeof account!=="function"||typeof render!=="function"||typeof go!=="function"||typeof chrome!=="function")return;
- const KEY=SUNOBOOM_CORE.keys.settings;
- const DEFAULTS=Object.freeze({compact:false,largeText:false,reduceMotion:false,startPage:"home",theme:"dark"});
- const THEMES=new Map([
-  ["dark","Тёмная"],["light","Светлая"],["system","Как на устройстве"],
-  ["ocean","Океан · сине-бирюзовая"],["forest","Лес · изумрудная"],
-  ["sunset","Закат · коралловая"],["amethyst","Аметист · фиолетовая"],
-  ["pink","Розовая · ягодная"],["pink-pastel","Розовая · нежная"]
- ]);
- const VALID_PAGES=new Map([
-  ["home","Главная"],
-  ["catalog","Академия"],
-  ["ideas","Идеи песен"],
-  ["studio","Suno Studio"],
-  ["player","Плеер"],
-  ["account","Личный кабинет"]
- ]);
+ const preferences=SUNOBOOM_CORE.createPreferences();
+ const {DEFAULTS,THEMES,VALID_PAGES}=preferences;
  const esc=x=>escapeHTML(String(x??""));
- const settings={...DEFAULTS};
+ const settings=preferences.appearance;
  const state={open:false,resetPending:false,message:""};
- const validBool=x=>typeof x==="boolean";
- function load(){
-  try{
-   const saved=SUNOBOOM_CORE.repositories.json.read(KEY,{});
-   if(!saved||typeof saved!=="object"||Array.isArray(saved))return;
-   for(const k of ["compact","largeText","reduceMotion"])if(validBool(saved[k]))settings[k]=saved[k];
-   if(VALID_PAGES.has(saved.startPage))settings.startPage=saved.startPage;
-   if(THEMES.has(saved.theme))settings.theme=saved.theme;
-  }catch(e){}
- }
  function apply(){
   const html=document.documentElement;
   if(!html)return;
@@ -38,7 +14,7 @@
   html.classList.toggle("sb-ui-larger",settings.largeText);
   html.classList.toggle("sb-ui-reduce-motion",settings.reduceMotion);
   const prefersLight=!!window.matchMedia?.("(prefers-color-scheme: light)")?.matches;
-  const resolved=settings.theme==="system"?(prefersLight?"light":"dark"):settings.theme;
+  const resolved=preferences.resolveTheme(prefersLight);
   html.dataset.sbTheme=resolved;
   html.classList.toggle("sb-theme-light",resolved==="light"||resolved==="pink-pastel");
   document.querySelector('meta[name="theme-color"]')?.setAttribute("content",({
@@ -48,10 +24,6 @@
   // One-way UI notification; Pinia observes the already-applied legacy choice.
   // No extra persistence, no duplicate media-query listener and no user records.
   window.dispatchEvent(new Event("sunoboom:appearance-change"));
- }
- function persistSettings(){
-  try{SUNOBOOM_CORE.repositories.json.write(KEY,settings);return true}
-  catch(e){return false}
  }
  function notify(message){
   state.message=String(message);
@@ -134,8 +106,7 @@
   requestAnimationFrame(()=>document.querySelector(".account-settings")?.scrollIntoView({block:"start",behavior:"smooth"}));
  }
  function reset(){
-  Object.assign(settings,DEFAULTS);
-  persistSettings();apply();
+  const result=preferences.execute('appearance.reset');if(!result.ok){notify(result.error);return;}apply();
   state.resetPending=false;
   notify("Восстановлены стандартные настройки интерфейса. Проекты и песни сохранены.");
   render();
@@ -157,8 +128,7 @@
   if(action==="save-name"){
    const newName=document.getElementById("sbs-name")?.value.trim();
    if(!newName){notify("Укажи имя для отображения.");return}
-   data.profileName=newName.slice(0,60);
-   persist();
+   const result=application.execute('profile.save',{name:newName});if(!result.ok){notify(result.error);return;}
    notify("Имя профиля сохранено.");
    render();
    return;
@@ -172,18 +142,12 @@
   if(!el?.dataset?.sbsSetting)return;
   const setting=el.dataset.sbsSetting;
   if(!Object.prototype.hasOwnProperty.call(DEFAULTS,setting))return;
-  if(setting==="theme"){
-    if(!THEMES.has(el.value))return;
-    settings.theme=el.value;
-  }else if(setting==="startPage"){
-    if(!VALID_PAGES.has(el.value))return;
-    settings.startPage=el.value;
-  }else settings[setting]=!!el.checked;
-  apply();
-  const okay=persistSettings();
-  notify(okay?"Настройка сохранена.": "Не удалось сохранить настройку в этом браузере.");
+  const value=['theme','startPage'].includes(setting)?el.value:!!el.checked;
+  const result=preferences.execute('appearance.set',{key:setting,value});
+  if(!result.ok){if(el.type==='checkbox')el.checked=settings[setting];else el.value=settings[setting];notify(result.error);return;}
+  apply();notify('Настройка сохранена.');
  });
- load();apply();
+ apply();
  // System mode responds to OS appearance changes without rewriting the saved choice.
  const systemTheme=window.matchMedia?.("(prefers-color-scheme: light)");
  if(systemTheme?.addEventListener)systemTheme.addEventListener("change",()=>{if(settings.theme==="system")apply();});

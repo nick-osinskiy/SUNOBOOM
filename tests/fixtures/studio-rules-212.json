@@ -1,0 +1,88 @@
+{
+  "catalog": [
+    {
+      "id": "alternative-rock",
+      "name": "Альтернативный рок",
+      "family": "Рок",
+      "style": "electric guitar, tight drums, no crowd noise",
+      "instruments": "guitar, bass, drums",
+      "bpm": [
+        90,
+        150
+      ]
+    },
+    {
+      "id": "afropop",
+      "name": "Афропоп",
+      "family": "Африканская музыка",
+      "style": "bright percussion, melodic bass, clean studio",
+      "instruments": "percussion, bass",
+      "bpm": [
+        95,
+        125
+      ]
+    },
+    {
+      "id": "jazz",
+      "name": "Джаз",
+      "family": "Джаз",
+      "style": "piano, walking bass, brush drums",
+      "instruments": "piano, saxophone",
+      "bpm": [
+        80,
+        160
+      ]
+    }
+  ],
+  "arrangements": {
+    "pop": {
+      "lyrics": "10d677c2c2fe52a7fa843aaf7561c59bb9927f466dfffc44f1cf7f9fd8b68a17",
+      "style": "147fe541b7c5c1ca8564f8374c8b214f9d356604933a3ae695d96617d07ec1fa",
+      "duration": "3:37"
+    },
+    "rock": {
+      "lyrics": "86af25d31a4067bcdf99bed898b99fa7f587c013f81ce0d43d2f0056a9f33520",
+      "style": "635c1d3559eeb731de26ff016a8998cb4f807d90a85f8b6a3b1072df0b5c8253",
+      "duration": "3:37"
+    },
+    "ska": {
+      "lyrics": "7ea74169ec4f5830ed8235e15c5392c4ddc27d921607dac4754844c9a6c6bff2",
+      "style": "cea6d1ec241d7bab0a74120f524ad7b7478a071f2d22d6b7d1aa9f0a92ab102a",
+      "duration": "3:20"
+    },
+    "electronic": {
+      "lyrics": "a1de5f15f6aa65fa3508f4e92cccc2711a3475d6a79882a9d7579b6d68e1ed2a",
+      "style": "cf6404f2ca3fd1f5b815668e3bc8d703453f6e459286a2927c488f807f07f590",
+      "duration": "3:04"
+    },
+    "epic": {
+      "lyrics": "d1d51b0711c19fed0de24f8a1a8cdd7362192c8c52d72ccbc7f64d27a866fa81",
+      "style": "4bd742d1af211a902bef0cea018b2468a5da3eb335914af412bee63cd43529f0",
+      "duration": "3:20"
+    },
+    "blank": {
+      "lyrics": "c0a66d51be31c9b63796e4fe88d8b119de97b219200ceb17037c6e1ac761f530",
+      "style": "33926051ce399d0672fbdb3dc07d27687b4cd8244bd1e9e8bc66287e432bf7ab",
+      "duration": "1:23"
+    },
+    "genre:jazz": {
+      "lyrics": "d69d9e8f81c2c438e82ce08f25f00ead73ece10a0e5c50d188e5d380f625e469",
+      "style": "6b1dbdb9974885749e1cf4462f20273e4b144b877918a6909c94de5d8bee8007",
+      "duration": "3:37"
+    }
+  },
+  "smart": {
+    "alternative-rock:verse": "fd7613c9988dc4ddef45c95dd704c6bbb7fd239356137e825dd4edb9c26a475b",
+    "alternative-rock:chorus": "ee2c0ac6917be462fcd65458e2b7a4845c2365e7d49ec8bb69d37d9ed29fe690",
+    "alternative-rock:bridge": "13fc8d0e7c126357fada4275e52f1f657c318283342253e915f106046c6cb9de",
+    "alternative-rock:custom": "4551e32f3f0be69900266d74009d7455147127c2804c6966a2c24eaf11879635",
+    "afropop:verse": "9988bc3d3cac03208777c11e5c69c2754449498524aaaef3337233ffab9024ff",
+    "afropop:chorus": "3af7b5daf6b223700825a87e27b9d7ab72c0a97b7dcef5f112425a16f4dcb816",
+    "afropop:bridge": "a903d85ec77417d8b5686bcf972ff9bf389dad255816a0ac97726ab706d3b38f",
+    "afropop:custom": "d2214381c75fa49619d665b21cdca37e9c66d7ea6baa245d743773b952a6ee57",
+    "jazz:verse": "99b3364da81eafc03cd7d49201858455329e1b4b838e230001f2a4a80453e694",
+    "jazz:chorus": "23e3d1b49afdda806180b085635f853f08b84b5ec952b71be420b57d0eaeff6c",
+    "jazz:bridge": "0facd1f3377958690b22ada30153172987441343d33eafd60bcac149333d4b7c",
+    "jazz:custom": "8ec9110aecaadd4a76e1ea24794a2ba912423aa3cdb85504becebe383423a146"
+  }
+}

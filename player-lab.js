@@ -3,19 +3,11 @@
   "use strict";
   if(typeof navs==="undefined"||typeof chrome!=="function"||typeof render!=="function")return;
   if(!navs.some(n=>n[0]==="player"))navs.splice(4,0,["player","Плеер","music"]);
-  const KEY=SUNOBOOM_CORE.keys.player;
   const IS_IOS=typeof navigator!=="undefined"&&(/iPad|iPhone|iPod/.test(navigator.userAgent||"")||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1));
   const E=x=>escapeHTML(String(x??""));
   const icon=(name)=>I(name);
-  let settings={volume:0.85,rate:1,repeat:"off",shuffle:false};
-  try{
-    const saved=SUNOBOOM_CORE.repositories.json.read(KEY,{});
-    if(Number.isFinite(saved.volume))settings.volume=Math.min(1,Math.max(0,saved.volume));
-    if([0.75,1,1.25,1.5,2].includes(saved.rate))settings.rate=saved.rate;
-    if(["off","all","one"].includes(saved.repeat))settings.repeat=saved.repeat;
-    settings.shuffle=saved.shuffle===true;
-  }catch(e){}
-  const save=()=>{try{SUNOBOOM_CORE.repositories.json.write(KEY,settings);}catch(e){}};
+  const preferences=SUNOBOOM_CORE.createPreferences(),settings=preferences.player;
+  function preference(key,value){const result=preferences.execute('player.set',{key,value});if(!result.ok)notice(result.error);return result.ok;}
   const tracks=[];
   let cursor=-1, counter=0, dragCounter=0, hasPlayIntent=false, inPlayer=false, lastNotice="";
   const audio=new Audio();
@@ -283,19 +275,19 @@
     else if(act==="remove"){const index=Number(b.dataset.index);if(Number.isInteger(index))remove(index);}
     else if(act==="clear")clear();
     else if(act==="demo")demo();
-    else if(act==="shuffle"){settings.shuffle=!settings.shuffle;save();sync();}
-    else if(act==="repeat"){settings.repeat=({off:"all",all:"one",one:"off"})[settings.repeat];save();sync();}
+    else if(act==="shuffle"){preference('shuffle',!settings.shuffle);sync();}
+    else if(act==="repeat"){preference('repeat',({off:'all',all:'one',one:'off'})[settings.repeat]);sync();}
   });
   document.addEventListener("change",event=>{
     if(view.nav!=="player")return;
     const el=event.target;
     if(el.id==="sbp-file"){addFiles(el.files||[]);el.value="";}
-    if(el.id==="sbp-rate"){const rate=Number(el.value);if([0.75,1,1.25,1.5,2].includes(rate)){settings.rate=rate;audio.playbackRate=rate;save();sync();}}
+    if(el.id==="sbp-rate"){const rate=Number(el.value);if([0.75,1,1.25,1.5,2].includes(rate)){preference('rate',rate);audio.playbackRate=settings.rate;sync();}}
   });
   document.addEventListener("input",event=>{
     if(view.nav!=="player")return;
     const el=event.target;
-    if(el.id==="sbp-volume"){settings.volume=Math.max(0,Math.min(1,Number(el.value)/100));audio.volume=settings.volume;save();sync();}
+    if(el.id==="sbp-volume"){preference('volume',Math.max(0,Math.min(1,Number(el.value)/100)));audio.volume=settings.volume;sync();}
     if(el.id==="sbp-seek"&&Number.isFinite(audio.duration)&&audio.duration>0){audio.currentTime=Math.min(audio.duration,Math.max(0,Number(el.value)/1000*audio.duration));sync();}
   });
   document.addEventListener("dragover",event=>{

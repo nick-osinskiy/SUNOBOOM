@@ -10,6 +10,7 @@ on:
       - '*.js'
       - 'index.html'
       - 'tests/core-*'
+      - 'tests/fixtures/**'
       - 'tests/vue-*'
       - 'package.json'
       - 'vite.config.js'
