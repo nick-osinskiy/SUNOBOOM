@@ -5,92 +5,14 @@
  "use strict";
  if(typeof data!=="object"||typeof account!=="function"||typeof render!=="function"||typeof chrome!=="function"||typeof go!=="function")return;
 
- const STEPS=[
-   ["idea","Идея","Замысел, сюжет и направление"],
-   ["lyrics","Текст","Слова, рифмы, теги исполнения"],
-   ["arrangement","Аранжировка","Структура, инструменты, динамика"],
-   ["generation","Генерация","Промпт и генерации в Suno"],
-   ["listening","Прослушивание","Аудиоверсии, отбор, A/B"],
-   ["release","Релиз","Метаданные, издательство, дата"]
- ];
- const STATUSES=[["todo","Не начато"],["working","В работе"],["done","Готово"]];
- const LINKS=[["projectId","Мой проект","project"],["ideaId","Идея и текст","idea"],
-   ["generatedIdeaId","Идея из Idea Lab","generated"],["promptId","Промпт Suno","prompt"],
-   ["passportId","Паспорт трека","passport"],["songId","Карточка «Мои песни»","song"]];
+ const workflow=SUNOBOOM_CORE.createProductions();
+ const {STEPS,STATUSES,LINKS,currentStatus,completed,nextStep,resource,resourceName,listFor,items,find}=workflow;
  const state={selectedId:null,query:"",notice:""};
  const e=x=>escapeHTML(String(x??""));
  const trim=(x,n=140)=>String(x??"").replace(/[\u0000-\u001f]/g," ").trim().slice(0,n);
- const items=()=>Array.isArray(data.productions)?data.productions.filter(x=>x&&typeof x==="object"&&typeof x.id==="string"):[];
- const find=id=>items().find(x=>x.id===id)||null;
- const dates=v=>{const d=new Date(v);return Number.isFinite(d.getTime())?d.toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}):"Дата неизвестна";};
- const songCards=()=>window.SUNOBOOM_MY_SONGS?.getCards?.()||[];
- const resource=(type,id)=>{
-   if(!id)return null;
-   if(type==="song")return songCards().find(x=>x.id===id)||null;
-   const source={project:data.projects,idea:data.manualIdeas,generated:data.savedGeneratedIdeas,
-     prompt:data.savedPrompts,passport:data.tracks}[type];
-   return Array.isArray(source)?source.find(x=>String(x?.id)===String(id))||null:null;
- };
- const resourceName=(x,type)=>trim(x?.title||x?.name||(type==="prompt"?x?.genre:"")||"Без названия",120);
- const listFor=type=>{
-   if(type==="song")return songCards();
-   return {project:data.projects,idea:data.manualIdeas,generated:data.savedGeneratedIdeas,
-      prompt:data.savedPrompts,passport:data.tracks}[type]||[];
- };
+ const dates=v=>{const d=new Date(v);return Number.isFinite(d.getTime())?d.toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}):'Дата неизвестна';};
+ function command(name,payload){const result=workflow.execute(name,payload);if(!result.ok)notice(result.error);return result;}
  function notice(message){state.notice=message;if(typeof toast==="function")toast(message);}
- function write(next){
-   const previous=data.productions;
-   data.productions=next;
-   try{SUNOBOOM_CORE.repositories.json.write(SUNOBOOM_CORE.keys.workspace,data);return true;}
-   catch(error){data.productions=previous;notice("Не удалось сохранить. Проверь свободное место в браузере.");return false;}
- }
- const event=(message,kind="note")=>({at:Date.now(),kind,text:trim(message,350)});
- function update(id,patch,description,kind="change"){
-   const before=find(id);if(!before)return false;
-   const next={...before,...patch,updatedAt:Date.now(),
-      history:description?[event(description,kind),...(Array.isArray(before.history)?before.history:[])].slice(0,80):before.history||[]};
-   if(!write(items().map(x=>x.id===id?next:x)))return false;
-   state.selectedId=id;return true;
- }
- function initSteps(){return Object.fromEntries(STEPS.map(x=>[x[0],"todo"]));}
- function currentStatus(record,step){const value=record?.steps?.[step];return STATUSES.some(x=>x[0]===value)?value:"todo";}
- const completed=record=>STEPS.filter(s=>currentStatus(record,s[0])==="done").length;
- const nextStep=record=>STEPS.find(s=>currentStatus(record,s[0])!=="done")||null;
- const stageLabel=key=>STEPS.find(x=>x[0]===key)?.[1]||key;
- const statusLabel=key=>STATUSES.find(x=>x[0]===key)?.[1]||"Не начато";
- function seedRecord(type,id){
-   const src=resource(type,id);
-   if(!src)return {};
-   const rec={};
-   if(type==="project")rec.projectId=id;
-   if(type==="idea")rec.ideaId=id;
-   if(type==="generated")rec.generatedIdeaId=id;
-   if(type==="prompt")rec.promptId=id;
-   if(type==="passport"){
-     Object.assign(rec,{passportId:id,projectId:src.projectId||"",ideaId:src.ideaId||"",promptId:src.promptId||""});
-     const song=songCards().find(x=>x.passportId===id);
-     if(song)rec.songId=song.id;
-   }
-   if(type==="song"){
-     rec.songId=id;
-     if(src.passportId){
-       rec.passportId=src.passportId;
-       const passport=resource("passport",src.passportId);
-       if(passport){rec.projectId=passport.projectId||"";rec.ideaId=passport.ideaId||"";rec.promptId=passport.promptId||"";}
-     }
-   }
-   if(type==="idea"){
-     const related=(Array.isArray(data.tracks)?data.tracks:[]).filter(t=>t.ideaId===id);
-     if(related.length===1)Object.assign(rec,seedRecord("passport",related[0].id));
-   }
-   return rec;
- }
- function conflict(links,exceptId){
-   for(const key of ["songId","passportId"]){
-     if(links[key]&&items().some(x=>x.id!==exceptId&&x[key]===links[key]))return key==="songId"?"Эта карточка песни уже привязана к другой работе.":"Этот паспорт уже связан с другой работой.";
-   }
-   return "";
- }
  function open(id){
    if(!find(id))return;
    const previousId=state.selectedId,wasProducer=view.nav==="producer";
@@ -100,30 +22,10 @@
    window.scrollTo({top:0,behavior:"instant"});
  }
  function create(type,id,titleOverride){
-   const src=type&&id?resource(type,id):null;
-   if(type&&id&&!src){notice("Исходный материал не найден.");return;}
-   const key={song:"songId",passport:"passportId",idea:"ideaId",generated:"generatedIdeaId",project:"projectId",prompt:"promptId"}[type];
-   if(key&&id){
-     const existing=items().find(w=>w[key]===id);
-     if(existing){open(existing.id);notice("Эта работа уже есть в «Мастере».");return;}
-   }
-   const links=seedRecord(type,id);
-   const alreadyLinked=items().find(w=>["songId","passportId"].some(k=>links[k]&&w[k]===links[k]));
-   if(alreadyLinked){open(alreadyLinked.id);notice("Открыта существующая рабочая карточка этой песни.");return;}
-   const dup=conflict(links,null);
-   if(dup){notice(dup);return;}
-   const title=trim(titleOverride||resourceName(src,type)||"",120);
-   if(!title||(!src&&title==="Без названия")){notice("Укажи название будущей песни.");return;}
-   const now=Date.now();
-   const rec={id:"production-"+now.toString(36)+"-"+Math.random().toString(36).slice(2,8),
-     title,artist:trim(src?.artist||"",120),projectId:"",ideaId:"",generatedIdeaId:"",promptId:"",
-     passportId:"",songId:"",...links,steps:initSteps(),notes:"",arrangementDraft:null,
-     history:[event("Начата работа над песней «"+title+"»","create")],createdAt:now,updatedAt:now};
-   if(!write([rec,...items()]))return;
-   state.selectedId=rec.id;state.query="";state.notice="Новая рабочая карточка создана.";
-   go("producer");
-   window.SUNOBOOM_VUE_ROUTE?.recordProduction?.(rec.id,"push");
-   window.scrollTo({top:0,behavior:"instant"});
+ const result=command('create',{type,id,title:titleOverride});if(!result.ok)return;
+ if(result.existing){open(result.value.id);notice(result.message);return;}
+ state.selectedId=result.value.id;state.query='';state.notice='Новая рабочая карточка создана.';
+ go('producer');window.SUNOBOOM_VUE_ROUTE?.recordProduction?.(result.value.id,'push');window.scrollTo({top:0,behavior:'instant'});
  }
  function options(type,value){
    const list=listFor(type),selected=String(value||"");
@@ -357,22 +259,12 @@
    }
  }
  function saveLinks(){
-   const w=find(state.selectedId);if(!w)return;
-   const links={};
-   for(const [field] of LINKS)links[field]=document.getElementById("sbpc-"+field)?.value||"";
-   const duplicate=conflict(links,w.id);if(duplicate){notice(duplicate);return;}
-   const changes=LINKS.filter(([field])=>(w[field]||"")!==links[field]).map(([,title])=>title);
-   if(!changes.length){notice("Связи не изменились.");return;}
-   if(update(w.id,links,"Обновлены связи: "+changes.join(", "),"links")){state.notice="Связи сохранены.";render();}
+ const links=Object.fromEntries(LINKS.map(([key])=>[key,document.getElementById('sbpc-'+key)?.value||'']));
+ if(command('links',{id:state.selectedId,...links}).ok){state.notice='Связи сохранены.';render();}
  }
  function saveDetails(){
-   const w=find(state.selectedId);if(!w)return;
-   const title=trim(document.getElementById("sbpc-title")?.value,120);
-   if(!title){notice("Укажи название песни.");return;}
-   const artist=trim(document.getElementById("sbpc-artist")?.value,120);
-   const notes=trim(document.getElementById("sbpc-notes")?.value,3500);
-   if(title===w.title&&artist===(w.artist||"")&&notes===(w.notes||"")){notice("Изменений нет.");return;}
-   if(update(w.id,{title,artist,notes},"Изменены название, исполнитель или продюсерские заметки","details")){state.notice="Карточка сохранена.";render();}
+ const payload=Object.fromEntries(['title','artist','notes'].map(key=>[key,document.getElementById('sbpc-'+key)?.value||'']));
+ if(command('details',{id:state.selectedId,...payload}).ok){state.notice='Карточка сохранена.';render();}
  }
  function saveSnapshot(){
    const w=find(state.selectedId),tool=window.SUNOBOOM_ARRANGER;
@@ -380,8 +272,8 @@
    const raw=tool.exportDraft();
    if(!raw?.blocks?.length){notice("Сначала собери аранжировку в Suno Studio.");return;}
    if(w.arrangementDraft?.blocks?.length&&!confirm("Заменить сохранённый снимок аранжировки этой песни текущим черновиком Studio?"))return;
-   const draft={...raw,savedAt:Date.now(),duration:tool.getDurationEstimate?.()||""};
-   if(update(w.id,{arrangementDraft:draft},"Сохранён снимок аранжировки: "+draft.blocks.length+" блоков","arrangement")){
+   const draft=raw;
+   if(command('arrangement.capture',{id:w.id,draft,duration:tool.getDurationEstimate?.()||''}).ok){
      state.notice="Аранжировка сохранена для этой песни.";render();
    }
  }
@@ -389,8 +281,8 @@
    const w=find(state.selectedId),tool=window.SUNOBOOM_ARRANGER;
    if(!w?.arrangementDraft?.blocks?.length||typeof tool?.importDraft!=="function")return;
    if(!confirm("Загрузить сохранённую аранжировку «"+w.title+"» в Suno Studio? Текущий общий черновик Studio будет заменён. Другие рабочие карточки не изменятся."))return;
-   if(!tool.importDraft(w.arrangementDraft)){notice("Не удалось восстановить аранжировку в Studio.");return;}
-   update(w.id,{},"Аранжировка восстановлена в рабочем конструкторе Studio","arrangement");
+   if(!tool.importDraft(structuredClone(w.arrangementDraft))){notice("Не удалось восстановить аранжировку в Studio.");return;}
+   if(!command('arrangement.restored',{id:w.id}).ok)return;
    go("studio");notice("Аранжировка этой песни загружена в Studio.");
  }
  function createFromForm(){
@@ -403,7 +295,7 @@
  function deleteCurrent(){
    const w=find(state.selectedId);if(!w)return;
    if(!confirm("Удалить рабочую карточку «"+w.title+"»? Идеи, паспорта, аудио и промпты сохранятся в своих разделах."))return;
-   if(write(items().filter(x=>x.id!==w.id))){state.selectedId=null;state.notice="Рабочая карточка удалена. Исходные материалы сохранены.";render();}
+   if(command('remove',{id:w.id}).ok){state.selectedId=null;state.notice="Рабочая карточка удалена. Исходные материалы сохранены.";render();}
  }
  window.SUNOBOOM_LEGACY_PRODUCER_HISTORY=Object.freeze({
   snapshot:()=>view.nav==='producer'&&find(state.selectedId)?{id:state.selectedId}:null,
@@ -470,7 +362,7 @@
    if(action==="add-note"){
      const w=find(state.selectedId),text=trim(document.getElementById("sbpc-history-note")?.value,350);
      if(!w||!text){notice("Напиши, что изменилось в работе.");return;}
-     if(update(w.id,{},"Заметка: "+text,"note")){state.notice="Запись добавлена в историю.";render();}
+     if(command('note',{id:w.id,text}).ok){state.notice="Запись добавлена в историю.";render();}
    }
  });
  document.addEventListener("change",ev=>{
@@ -478,8 +370,7 @@
    const key=ev.target.dataset.pcStage,status=ev.target.value,w=find(state.selectedId);
    if(!w||!STEPS.some(s=>s[0]===key)||!STATUSES.some(s=>s[0]===status))return;
    if(currentStatus(w,key)===status)return;
-   const stages={...w.steps,[key]:status};
-   if(update(w.id,{steps:stages},"Этап «"+stageLabel(key)+"»: "+statusLabel(status),"stage")){
+   if(command('stage',{id:w.id,step:key,status}).ok){
      state.notice="Этап обновлён.";render();
    }
  });

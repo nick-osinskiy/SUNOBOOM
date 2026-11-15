@@ -1,6 +1,6 @@
 # SUNOBOOM — PROJECT_CONTEXT.md
 
-> **v0.211, 15 ноября 2026 г. — этап 2 начат, не закрыт.** Первый цельный блок: общий JSON/IndexedDB repository, единый canonical workspace root, 26 payload-команд основных коллекций + backup/reminder selector. Native UI и Vue делегируют одним командам; второй store пользовательских записей не создан. Подробности — раздел 61 и [STAGE2_CONTEXT.md](./STAGE2_CONTEXT.md). Следующий блок того же этапа: команды/состояние Моих песен, версий, файлов и Мастера; затем Studio/preferences/services и устранение DOM-derived models/layout. Этап 3 не начинать до приёмки всего этапа 2. Этап 1 закрыт на v0.210.
+> **v0.212, 15 ноября 2026 г. — второй блок этапа 2. Этап 2 ещё открыт.** Команды и canonical state «Моих песен», аудиоверсий, файлов и «Мастера» вынесены из экранов в общее ядро. Native UI и Vue используют одни команды; IDs, JSON/IDB keys и дизайн сохранены. Подробности — раздел 62 и [STAGE2_CONTEXT.md](./STAGE2_CONTEXT.md). Далее: Studio/аранжировщик, preferences/services, затем устранение DOM-derived models/layout и приёмка всего этапа 2. Этап 3 пока не начинать.
 
 ## 1. Что это и где работает
 
@@ -1000,3 +1000,19 @@ JSON repository подключён к песням, Мастеру, settings, Pl
 
 
 Итог первого блока v0.211: 109/109 Node tests (12 domain + 97 route/model), сборка и полный browser smoke успешны. [CI](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43683861118) и [Pages](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43684144308) success; source 0a0823d, bundle 65b213d. Опубликованный сайт дополнительно проверен desktop/mobile и без Vue. Этап 2 открыт; далее песни/аудиоверсии/файлы/Мастер, затем оставшиеся services/models и итоговая приёмка.
+
+
+## 62. v0.212 — песни, аудиоверсии, файлы и Мастер
+
+- База: main 975245af05d59fc2a6508f9f124c002883b5e8cf, реально опубликованная v0.211.
+- `core/song-library.js` владеет записями прежнего ключа `sunoboom-my-songs-v1`: save, passport.import, remove, version.add/save/main/remove. Команды получают payload и возвращают результат; нет document, render или навигации. Асинхронные изменения идут последовательно, в том числе при одинаковых часах/случайном числе.
+- `core/production-workflow.js` работает с тем же `application.state.productions`: create/details/links/stage/note/arrangement.capture/restored/remove, прежние связи, история до 80 событий, отдельный снимок аранжировки. Импорт backup не создаёт второго владельца.
+- Реестр личных артистов использует workspace-команды songArtist.save/remove. Выбор/поиск/плееры/поля формы и подтверждения остаются UI adapters.
+- Media repository добавляет commitBatch: запись/удаление файлов в одной IDB transaction; ошибка JSON внутри неё прерывает запись файлов. Если поздний IDB abort случился после JSON, выполняется компенсация metadata. Между localStorage и IndexedDB нет общей crash-atomic транзакции; закрытие процесса в этом промежутке и изменения из других вкладок не объявляются решёнными.
+- Сохранены DB v1/store files, оригинальный ключ songId:audio, ключи версий и обложек, WAV до 500 МБ, остальные аудио до 150 МБ, обложки до 10 МБ, до 100 версий. Нет массовой перезаписи файлов при старте.
+- Управляемые URL scopes освобождают ссылки плееров, превью и обложек; ссылка скачивания освобождается через минуту либо при pagehide. Повторный запрос обложки не создаёт второй URL, запоздалый ответ после cleanup отбрасывается.
+- Проверки: 12 новых Node domain tests и браузерная suite `tests/vue-song-core.mjs` (Vue/native, запрет чтения HTML командами, реальные IDB/quota rollback, отсутствие лишних файлов, сохранение draft после ошибки). Общая регрессия и сведения о публикации фиксируются после проверки.
+
+Следующий цельный блок того же этапа 2: состояние и команды Studio/аранжировщика, preferences и вычислительные services. Затем data/page models и окончательная приёмка этапа.
+
+Локальная проверка v0.212: **121/121 Node tests**, сборка, полный desktop/mobile/native browser smoke — PASS. Дополнительная проверка песен/Мастера с реальным IDB, сохранённым draft и URL cleanup — PASS на desktop/mobile Vue и mobile native. Публикация проверяется после коммита.

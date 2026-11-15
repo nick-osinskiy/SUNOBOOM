@@ -47,7 +47,20 @@
     tx.oncomplete=()=>resolve(result);tx.onabort=()=>reject(tx.error||Error('Запись прервана'));tx.onerror=()=>reject(tx.error||Error('Ошибка транзакции'));
    });
   }
-  return Object.freeze({get:key=>operation('get',key),put:(key,value)=>operation('put',key,value),delete:key=>operation('delete',key)});
+  async function commitBatch({puts=[],deletes=[]},commit){
+   const db=await database();
+   return new Promise((resolve,reject)=>{
+    let tx,failure;
+    try{tx=db.transaction('files','readwrite');}catch(error){reject(error);return;}
+    const store=tx.objectStore('files');let pending=puts.length+deletes.length;
+    const finish=()=>{try{commit();}catch(error){failure=error;tx.abort();}};
+    const watch=req=>{req.onsuccess=()=>{if(--pending===0)finish();};req.onerror=()=>{failure=req.error;};};
+    try{for(const [key,value] of puts)watch(store.put(value,key));for(const key of deletes)watch(store.delete(key));if(!pending)finish();}
+    catch(error){failure=error;tx.abort();}
+    tx.oncomplete=()=>resolve();tx.onabort=()=>reject(failure||tx.error||Error('Запись прервана'));tx.onerror=()=>{failure||=tx.error;};
+   });
+  }
+  return Object.freeze({get:key=>operation('get',key),put:(key,value)=>operation('put',key,value),delete:key=>operation('delete',key),commitBatch});
  }
  function createWorkspace({repository,defaults,getGenre,now=()=>Date.now(),random=()=>Math.random(),date=()=>new Date().toLocaleDateString('ru-RU')}){
   let saved;try{saved=repository.read(KEYS.workspace,{});}catch{saved={};}
@@ -68,6 +81,17 @@
    return candidates.sort((a,b)=>a.date.localeCompare(b.date)||(a.time||'').localeCompare(b.time||'')||b.reminderDaysBefore-a.reminderDaysBefore);
   }
   const commands={
+   'songArtist.save'(p){
+    const clean=value=>str(value).replace(/[\u0000-\u001f]/g,' ').trim().slice(0,120),key=value=>clean(value).normalize('NFKC').toLocaleLowerCase('ru');
+    const name=clean(p.name);if(!name)return fail('Введи имя артиста или название проекта.');
+    const artists=items('songArtists').filter(a=>a&&typeof a.name==='string'&&a.name.trim());
+    if(artists.some(a=>key(a.name)===key(name)))return fail('Этот артист уже сохранён в твоём списке.');
+    if(items('artistDNAs').some(a=>key(a?.name)===key(name)))return fail('Этот артист уже есть в «ДНК артиста» и доступен для выбора.');
+    const base='sba-'+now().toString(36)+'-'+random().toString(36).slice(2,8);let id=base,n=0;while(artists.some(a=>a.id===id))id=base+'-'+(++n);
+    const item={id,name,createdAt:now()};
+    state.songArtists=[...artists,item].slice(-500);return ok(item);
+   },
+   'songArtist.remove'(p){state.songArtists=items('songArtists').filter(a=>a?.id!==p.id);return ok(p.id);},
    'profile.save'(p){const name=text(p.name,60);if(!name)return fail('Введи имя для профиля');state.profileName=name;return ok(name);},
    'project.create'(p){const title=text(p.title,80);if(!title)return fail('Введи название проекта');let stamp=now();while(find('projects','p'+stamp))stamp++;const item={id:'p'+stamp,title,genre:p.genre,date:date(),notes:''};(state.projects||(state.projects=[])).unshift(item);return ok(item);},
    'project.save'(p){const item=find('projects',p.id);if(item)item.notes=str(p.notes);return ok(item||null);},
@@ -155,10 +179,12 @@
   return Object.freeze({state,execute,reminders,importBackup,exportBackup:()=>({exportedAt:new Date(now()).toISOString(),app:'SUNOBOOM',data:clone(state)}),persist:()=>repository.write(KEYS.workspace,state),helpers:Object.freeze({selectedDays,dayDiff,date7,https})});
  }
  function createKernel({storage,indexedDB,...deps}={}){
-  const json=createJsonRepository(storage),media=createMediaRepository(indexedDB);let workspace;
+  const json=createJsonRepository(storage),media=createMediaRepository(indexedDB);let workspace,songs,productions;
   return Object.freeze({keys:KEYS,repositories:Object.freeze({json,media}),
    createWorkspace(options){return workspace||(workspace=createWorkspace({repository:json,...deps,...options}));},
-   get workspace(){return workspace;}
+   createSongs(options={}){return songs||(songs=root.SUNOBOOM_SONGS_FACTORY.create({json,media,workspace,...deps,...options}));},
+   createProductions(options={}){return productions||(productions=root.SUNOBOOM_PRODUCTIONS_FACTORY.create({workspace,getSongs:()=>songs?.getCards()||[],...deps,...options}));},
+   get workspace(){return workspace;},get songs(){return songs;},get productions(){return productions;}
   });
  }
  root.SUNOBOOM_CORE_FACTORY=Object.freeze({createKernel,createWorkspace,createJsonRepository,createMediaRepository,keys:KEYS});

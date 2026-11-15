@@ -1,3 +1,4 @@
+import '../core/song-library.js';
 import { withFeatureCollection,availableIsland } from '../src/vue/legacy/featureCollection.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -2300,9 +2301,9 @@ test('v0.206 Ideas screen retains all delegated generator/catalog actions withou
 
 test('v0.207 shared-card decoder retains Unicode, limits, HTTPS-only URLs and ignores private metadata', () => {
   const source=readFileSync(new URL('../my-songs.js',import.meta.url),'utf8');
-  const cleanStart=source.indexOf(' const clean='),cleanEnd=source.indexOf(' const state=',cleanStart);
+  const {clean,safeURL}=globalThis.SUNOBOOM_SONGS_FACTORY.create({json:{read:()=>[]},media:{}});
   const start=source.indexOf(' function decodeCard('),end=source.indexOf(' function encodeCard(',start);
-  const decode=new Function(source.slice(cleanStart,cleanEnd)+source.slice(start,end)+';return decodeCard;')();
+  const decode=new Function('clean','safeURL',source.slice(start,end)+';return decodeCard;')(clean,safeURL);
   const encode=x=>Buffer.from(JSON.stringify(x),'utf8').toString('base64url');
   const model=decode(encode({v:1,title:'Ән <img> 🎵',artist:'Исполнитель',genre:'Rock',album:'EP',description:'Описание',
     coverUrl:'https://media207.test/cover.svg',audioUrl:'https://media207.test/song.wav',listenUrl:'https://media207.test/listen',

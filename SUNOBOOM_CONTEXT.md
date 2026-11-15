@@ -344,3 +344,10 @@ v0.210: source a4a04e9, bundle 51d6a0d. 97/97 Node tests, полный browser s
 
 
 Публикация v0.211 подтверждена: source 0a0823d, bundle 65b213d, [CI success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43683861118), [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43684144308); 109 Node tests и полный browser smoke прошли. Live desktop/mobile/native core suite — PASS. Завершён первый блок, не весь этап 2.
+
+
+## 2026-11-15 — v0.212, второй блок этапа 2
+
+Песни/аудиоверсии/файлы и Мастер вынесены в core/song-library.js и core/production-workflow.js. Прежние ключи и IDs, ограничения файлов, связи и дизайн сохранены. File/metadata writes согласованы с откатом обычных ошибок; URL lifecycle имеет cleanup. Пользовательские записи не продублированы в Pinia. Подробнее: PROJECT_CONTEXT.md §62 и STAGE2_CONTEXT.md. Далее Studio/аранжировщик/preferences/services, затем data/page models; весь этап 2 ещё не принят.
+
+Локальная проверка v0.212: **121/121 Node tests**, сборка, полный desktop/mobile/native browser smoke — PASS. Дополнительная проверка песен/Мастера с реальным IDB, сохранённым draft и URL cleanup — PASS на desktop/mobile Vue и mobile native. Публикация проверяется после коммита.

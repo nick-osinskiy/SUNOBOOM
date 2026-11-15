@@ -2,7 +2,7 @@
 
 Дата: 15 ноября 2026 г. База перед первым блоком: main `77c82d1fadaeaa6be3024a712e991d0d5de051d1`, v0.210. Этап 1 закрыт; [его приёмка](STAGE1_ACCEPTANCE.md) остаётся историческим свидетельством.
 
-**v0.211 завершает первый цельный блок этапа 2. Сам этап 2 ещё не закрыт.** Следующие работы перечислены ниже; это продолжение одного архитектурного этапа, а не новые этапы за отдельные кнопки.
+**v0.212 завершает второй цельный блок этапа 2: песни, версии, файлы и Мастер. Сам этап 2 ещё не закрыт.** Следующие работы перечислены ниже; это продолжение одного архитектурного этапа, а не новые этапы за отдельные кнопки.
 
 ## Что выделено
 
@@ -26,10 +26,10 @@
 
 ## Конечный остаток этапа 2
 
-| Блок | Требуемый результат | Статус после v0.211 |
+| Блок | Требуемый результат | Статус после v0.212 |
 | --- | --- | --- |
 | Workspace core и общие repositories | Один объект, payload-команды основных коллекций, совместимые JSON/IDB | Выполнен первый блок; часть старых extensions ещё пишет в workspace напрямую |
-| Собственные песни, версии, файлы и Мастер | Canonical state и payload/result для создания/редактирования/удаления/версий/связей; media lifecycle с явным cleanup | Следующий цельный блок. Репозитории уже общие, private state/handlers ещё native |
+| Собственные песни, версии, файлы и Мастер | Canonical state и payload/result для создания/редактирования/удаления/версий/связей; media lifecycle с явным cleanup | Выполнен в v0.212; canonical song library и workflow, payload/result, согласованные file/metadata writes и URL scopes |
 | Studio/аранжировщик, preferences и вычислительные services | Явные входы и команды; прежние algorithms/словарь/DSP остаются обычными JS services; один владелец состояния | Предстоит; JSON repository сам по себе не переносит бизнес-логику |
 | Data/page models и окончательная приёмка | Vue получает данные/семантические descriptors, не native DOM; устранены AccountHome DOM parsing и page layout adapter | Предстоит. DOM draft adapters временно допустимы только снаружи core |
 
@@ -37,7 +37,22 @@
 
 ## Что сознательно не объявляется завершённым
 
-- Private Songs/Master/arranger/settings state и их UI-dependent commands пока не вынесены полностью.
+- Arranger/settings state и их UI-dependent commands пока не вынесены полностью. Songs/Master отделены в v0.212; формы и медиаплееры остаются UI adapters.
 - Старый HTML ещё создаёт layout; PageView и часть snapshots читают native DOM. Это известный остаток этапа 2.
 - Root render/go, Router memory mirror, несколько shell/dialog roots и MutationObserver bridges сохраняются. Единая оболочка/реальная маршрутизация — этап 3, удаление дублирования — этап 4.
 - Pinia содержит UI projections, не копию записей и не новый источник истины. Новый backend/auth/cloud sync не создавались.
+
+
+## Второй блок — v0.212
+
+Новые classic factories `core/song-library.js` и `core/production-workflow.js` подключаются перед основным index script и создаются один раз kernel-методами createSongs/createProductions. Songs — canonical private records прежнего JSON key, Master — production records в том же workspace object. UI не пишет эти коллекции/файлы напрямую. Поля HTML превращаются в payload на границе интерфейса; навигация, confirm, аудиоэлементы, открытые панели и позиция прослушивания остаются UI. Никакого второго Pinia-store записей.
+
+Song commands: save, passport.import, remove, version.add/save/main/remove. Workflow commands: create/details/links/stage/note/arrangement.capture/restored/remove. Реестр артистов: songArtist.save/remove (28 workspace-команд вместо 26). ID collisions при фиксированных now/random не заменяют соседние записи. Прежние IDs и opaque keys сохраняются; повторный импорт паспорта оставляет аудиоверсии, активную версию и локальную обложку. Снимки аранжировки отделяются от входного payload; восстановление получает копию снимка.
+
+Media commitBatch выполняет binary changes одной IDB transaction и записывает JSON в success-handler последнего запроса. JSON failure abort-ит файлы; поздний transaction abort компенсирует JSON. Публикация canonical song records происходит после tx complete. Это обработка обычных ошибок, не общая crash-atomic гарантия localStorage+IndexedDB. При сбое компенсации возвращается recoveryError; межвкладочные гонки не решены этим блоком.
+
+URL scopes принимают create/revoke зависимостями: audio cleanup при render/navigation, preview при cancel/save, cover при изменении/pagehide, download через 60 секунд/pagehide. IDB и JSON schema не обновлялись. Cover scan и metadata parse продолжают использовать существующий audio-cover-reader.
+
+Проверки: tests/core-songs.test.mjs — 12 headless scenarios совместимости, ошибок, очереди, лимитов, связей, истории, снимков и URL ownership. tests/vue-song-core.mjs — реальные браузерные IDB abort/rollback и сохранённый draft с Vue/native; включён в общий smoke.
+
+Локальная проверка v0.212: **121/121 Node tests**, сборка, полный desktop/mobile/native browser smoke — PASS. Дополнительная проверка песен/Мастера с реальным IDB, сохранённым draft и URL cleanup — PASS на desktop/mobile Vue и mobile native. Публикация проверяется после коммита.

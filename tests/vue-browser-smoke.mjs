@@ -1,3 +1,4 @@
+import {checkSongCore} from './vue-song-core.mjs';
 import {checkDomainCore} from './vue-domain-core.mjs';
 import {checkPageComposition,checkPageRecovery,checkPageEditorHandoff} from './vue-pages.mjs';
 import { checkWorkspace, checkWorkspaceStartup } from './vue-workspace.mjs';
@@ -4108,6 +4109,7 @@ async function checkLayout(mobile) {
     await checkWorkspace(page,true);
     await checkPageComposition(page);
     await checkDomainCore(page,true);
+    await checkSongCore(page,true);
     console.log((mobile ? 'Mobile' : 'Desktop') + ' Vue navigation smoke PASS');
   } finally {
     await context.close();
@@ -4551,6 +4553,7 @@ async function checkEditorFallback() {
     await checkArtistProfiles(page,false);
     await checkWorkspace(page,false);
     await checkDomainCore(page,false);
+    await checkSongCore(page,false);
     console.log('Original song editor, library, My Songs, artist manager, DNA, settings, player, Master and passports without Vue PASS');
   } finally { await context.close(); }
 }
