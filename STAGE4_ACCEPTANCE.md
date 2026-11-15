@@ -1,6 +1,6 @@
 # Приёмка этапа 4 — v0.217
 
-Статус: реализация завершена; окончательное закрытие после CI/Pages/live. История первого блока — STAGE4_CONTEXT.md.
+Статус: **этап 4 принят и закрыт 15 ноября 2026 г.** История первого блока — STAGE4_CONTEXT.md.
 
 | Требование | Реализация и проверка |
 | --- | --- |
@@ -13,9 +13,12 @@
 | Media lifecycle не зависит от HTML render | before-page hooks: song URL release, Player LAB/A-B pause/state, выбор Мастера, transient arranger reset. Остальные algorithms/DSP/dictionary/IDB остаются services |
 | Дизайн и управление сохранены | прежние Vue components, authored layouts/CSS, IDs/data-actions, keyboard/touch и desktop/mobile smoke |
 
-Автоматизация: **139 Node tests**, `tests/vue-direct-pages.mjs`, полный `tests/vue-browser-smoke.mjs` и CI. Итог публикации фиксируется ниже после фактического успеха.
+Автоматизация: **139 Node tests**, `tests/vue-direct-pages.mjs`, полный `tests/vue-browser-smoke.mjs` и CI. Подтверждение публикации приведено ниже.
 
 Этап 4 закрывает **зависимость штатного Vue render от native page preparation**, а не удаление всех native JS. До загрузки bundle показывается независимый native интерфейс; он также нужен для восстановления после ошибки. Ограниченные media/editor/lazy boundaries, доверенные иконки/фрагменты существующих widgets, словарь, исходные алгоритмы и совместимые API names намеренно остаются. Архивные feature bridges не входят в штатную сборку страниц. Backend/auth/cloud sync не относятся к этому переносу.
 
 
-Локальная приёмка v0.217: **139/139 Node tests**, production build и полный desktop/mobile/native browser smoke, включая direct-render/draft/file/link acceptance — PASS. CI/Pages/live ещё ожидаются.
+Локальная приёмка v0.217: **139/139 Node tests**, production build и полный desktop/mobile/native browser smoke, включая direct-render/draft/file/link acceptance — PASS. CI/Pages/live подтверждены ниже.
+
+
+Итоговая публикация v0.217 подтверждена 15 ноября 2026 г.: source [a4dd097](https://github.com/nick-osinskiy/SUNOBOOM/commit/a4dd0979a27aa9f3f88763934c4306c1969c8930), проверенная CI-сборка [2fb8467](https://github.com/nick-osinskiy/SUNOBOOM/commit/2fb8467dd2fd2464f8902a4077e899bd4c1b7591). **139/139 Node tests**, build и полный desktop/mobile/native browser smoke: [CI success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43736021505). [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43736492462). На [опубликованном сайте](https://nick-osinskiy.github.io/SUNOBOOM/?v=217) пройдены 16 direct Vue pages с запретом native HTML/чтения native fields, lazy fallback с сохранением node/draft, выбранный исходный file input/FileList, delayed DNA/Master/settings без autosave, сохранение artistDnaId, browser routes/Back/Forward/reload и native canonical URLs desktop/mobile. Повторены старые JSON/IDB bytes/IDs/links/backup и Studio/arranger/mixer/preferences quota/reload. JS/CSS опубликованной CI-сборки совпали с main по SHA-256 после нормализации переносов строк; внешний вид проверен на desktop/mobile. **Этап 4 принят и закрыт в согласованном объёме.** Native fallback и именованные media/editor adapters остаются намеренно. Возможная следующая отдельная работа — итоговый аудит импортов и удаление неиспользуемых архивных bridge-модулей; это не новая миграция страниц.

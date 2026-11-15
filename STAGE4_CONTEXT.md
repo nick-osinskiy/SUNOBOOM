@@ -1,6 +1,6 @@
 # Этап 4 — сокращение legacy, v0.217
 
-Текущий блок v0.217 удаляет native page preparation из штатного Vue render. Реализация завершена, общая приёмка/публикация ещё проверяются. Ниже сохранена история v0.216; актуальная реализация и критерии — в конце документа и STAGE4_ACCEPTANCE.md.
+Текущий блок v0.217 удаляет native page preparation из штатного Vue render. Этап 4 принят и закрыт после общей приёмки, CI/Pages и проверки опубликованного сайта. Ниже сохранена история v0.216; актуальная реализация и критерии — в конце документа и STAGE4_ACCEPTANCE.md.
 
 ## Выполненный блок: навигация, оболочки и запуск
 
@@ -36,7 +36,10 @@ Scope `view-inputs.js` не подменяет document и восстанавл�
 
 GenreDetail использует selectTab без неиспользуемой генерации HTML для четырёх основных Vue-вкладок. Восстановлены native parity поля/перехода ДНК в паспорте и перехода к Мастеру; browser acceptance подтверждает неизменность artistDnaId после edit/save.
 
-Проверки: 139 Node tests, 27 direct variants без document; все 16 экранов с запрещённым native chrome и запрещённым чтением native form fields при сборке; lazy fallback после injected snapshot error с тем же полем/черновиком; delayed selected file identity/FileList; delayed ДНК/Мастер/настройки без автосохранения; общий desktop/mobile/native smoke и прежняя JSON/IDB/audio acceptance. Итог CI/Pages/live добавляется после завершения. Критерии закрытия — STAGE4_ACCEPTANCE.md.
+Проверки: 139 Node tests, 27 direct variants без document; все 16 экранов с запрещённым native chrome и запрещённым чтением native form fields при сборке; lazy fallback после injected snapshot error с тем же полем/черновиком; delayed selected file identity/FileList; delayed ДНК/Мастер/настройки без автосохранения; общий desktop/mobile/native smoke и прежняя JSON/IDB/audio acceptance. Итог CI/Pages/live подтверждён ниже. Критерии закрытия — STAGE4_ACCEPTANCE.md.
 
 
-Локальная приёмка v0.217: **139/139 Node tests**, production build и полный desktop/mobile/native browser smoke, включая direct-render/draft/file/link acceptance — PASS. CI/Pages/live ещё ожидаются.
+Локальная приёмка v0.217: **139/139 Node tests**, production build и полный desktop/mobile/native browser smoke, включая direct-render/draft/file/link acceptance — PASS. CI/Pages/live подтверждены ниже.
+
+
+Итоговая публикация v0.217 подтверждена 15 ноября 2026 г.: source [a4dd097](https://github.com/nick-osinskiy/SUNOBOOM/commit/a4dd0979a27aa9f3f88763934c4306c1969c8930), проверенная CI-сборка [2fb8467](https://github.com/nick-osinskiy/SUNOBOOM/commit/2fb8467dd2fd2464f8902a4077e899bd4c1b7591). **139/139 Node tests**, build и полный desktop/mobile/native browser smoke: [CI success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43736021505). [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43736492462). На [опубликованном сайте](https://nick-osinskiy.github.io/SUNOBOOM/?v=217) пройдены 16 direct Vue pages с запретом native HTML/чтения native fields, lazy fallback с сохранением node/draft, выбранный исходный file input/FileList, delayed DNA/Master/settings без autosave, сохранение artistDnaId, browser routes/Back/Forward/reload и native canonical URLs desktop/mobile. Повторены старые JSON/IDB bytes/IDs/links/backup и Studio/arranger/mixer/preferences quota/reload. JS/CSS опубликованной CI-сборки совпали с main по SHA-256 после нормализации переносов строк; внешний вид проверен на desktop/mobile. **Этап 4 принят и закрыт в согласованном объёме.** Native fallback и именованные media/editor adapters остаются намеренно. Возможная следующая отдельная работа — итоговый аудит импортов и удаление неиспользуемых архивных bridge-модулей; это не новая миграция страниц.
