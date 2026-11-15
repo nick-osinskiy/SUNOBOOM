@@ -1,0 +1,81 @@
+import assert from 'node:assert/strict';
+
+export async function checkShellRouting(browser,base){
+ for(const mobile of [false,true]){
+  const context=await browser.newContext({viewport:mobile?{width:375,height:812}:{width:1440,height:900},isMobile:mobile,hasTouch:mobile}),page=await context.newPage(),errors=[];
+  page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='warning'&&/Shell error|Page preparation failed/.test(m.text()))errors.push(m.text());});
+  try{
+   await page.goto(base,{waitUntil:'networkidle'});await page.waitForFunction(()=>window.SUNOBOOM_SHELL?.active);
+   await page.evaluate(()=>{window.__shell215=document.querySelector('[data-sb-vue-shell]');window.__app215=document.getElementById('app').__vue_app__;window.__side215=document.querySelector('.side');});
+   await page.evaluate(()=>Promise.all(['studio','songs','home'].map(id=>SUNOBOOM_SHELL.navigate(id))));
+   await page.waitForFunction(()=>view.nav==='home'&&SUNOBOOM_SHELL.snapshot().route==='/home');
+   const menu=mobile?'.mobile-nav':'.side';
+   for(const nav of ['studio','catalog','ideas','account']){
+    await page.locator(`${menu} button[data-nav="${nav}"]`).click();
+    await page.waitForFunction(nav=>view.nav===nav&&window.SUNOBOOM_SHELL.snapshot().route==='/'+nav,nav);
+    assert.match(page.url(),new RegExp('#/'+nav+'$'));
+    assert.equal(await page.evaluate(()=>window.__shell215===document.querySelector('[data-sb-vue-shell]')&&window.__app215===document.getElementById('app').__vue_app__&&window.__side215===document.querySelector('.side')&&[...document.querySelectorAll('*')].filter(n=>n.__vue_app__).length===1),true);
+   }
+   await page.goBack();await page.waitForFunction(()=>view.nav==='ideas');await page.goForward();await page.waitForFunction(()=>view.nav==='account');
+   await page.locator(`${menu} button[data-nav="catalog"]`).click();await page.waitForURL('**#/catalog');
+   await page.evaluate(()=>openGenre('reggae-ska'));await page.waitForURL('**/overview');
+   await page.locator('.genre-side-item[data-tab="artists"]').click();await page.waitForURL('**/artists');
+   await page.locator('[data-sb-history-back]').click();await page.waitForURL('**#/catalog');await page.waitForFunction(()=>view.nav==='catalog');
+   await page.locator('[data-sb-history-forward]').click();await page.waitForURL('**/artists');await page.waitForFunction(()=>view.tab==='artists');
+
+   const project=await page.evaluate(()=>{const r=application.execute('project.create',{title:'Route 215',genre:'alternative-rock'});view.selectedProject=r.value.id;go('projects');return r.value.id;});
+   await page.waitForURL('**#/account/projects/'+project);await page.reload({waitUntil:'networkidle'});
+   await page.waitForFunction(id=>view.nav==='projects'&&view.selectedProject===id,project);
+   assert.equal(await page.locator('#project-notes').count(),1);
+   const song=await page.evaluate(async()=>{
+    const saved=await SUNOBOOM_CORE.songs.execute('save',{title:'Route song 215'});
+    if(!saved.ok)throw Error(saved.error);
+    SUNOBOOM_MY_SONGS.openCard(saved.value.id);return saved.value.id;
+   });
+   await page.waitForURL('**#/songs/'+song);await page.reload({waitUntil:'networkidle'});
+   await page.locator('#sb-vue-song-detail').waitFor();
+   assert.match(await page.locator('#sb-vue-song-detail').textContent(),/Route song 215/);
+   await page.goto(base+'#/songs/'+song+'/edit',{waitUntil:'networkidle'});
+   assert.equal(await page.locator('#sbsong-save-form [name="title"]').inputValue(),'Route song 215');
+   await page.goto(base+'#/songs/missing-record',{waitUntil:'networkidle'});
+   await page.waitForURL('**#/songs');
+   assert.equal(await page.evaluate(()=>SUNOBOOM_CORE.songs.records.length),1);
+   await page.goto(base+'#genre-reggae-ska',{waitUntil:'networkidle'});await page.waitForFunction(()=>window.SUNOBOOM_SHELL?.active&&view.nav==='detail'&&view.selected==='reggae-ska');assert.match(page.url(),/#\/catalog\/reggae-ska\/overview$/);
+   await page.goto(base+'#/account/settings',{waitUntil:'networkidle'});await page.locator('#sbs-theme').waitFor();await page.reload({waitUntil:'networkidle'});await page.locator('#sbs-theme').waitFor();
+   await page.goto(base+'#/songs/new',{waitUntil:'networkidle'});await page.locator('#sbsong-save-form').waitFor();
+   const card=Buffer.from(JSON.stringify({v:1,title:'Legacy shared route 215'}),'utf8').toString('base64url');
+   await page.evaluate(card=>{location.hash='#sb-song='+card;},card);
+   await page.waitForFunction(()=>document.querySelector('#sbsong-shared h1')?.textContent==='Legacy shared route 215');
+   assert.match(page.url(),/#\/shared\?card=/);
+   await page.goto(base+'#sb-song=broken',{waitUntil:'networkidle'});await page.locator('#sbsong-shared').waitFor();assert.match(await page.locator('#app').textContent(),/Ссылка повреждена/);
+   assert.deepEqual(errors,[]);console.log(`One persistent Vue app, browser routes/Back/Forward/reload, nested IDs and legacy links ${mobile?'mobile':'desktop'} PASS`);
+  }finally{await context.close();}
+ }
+ const native=await browser.newContext({viewport:{width:375,height:812}});
+ await native.route('**/dist/vue/*.js*',route=>route.abort());
+ const page=await native.newPage();
+ try{
+  await page.goto(base+'#/songs/new',{waitUntil:'networkidle'});
+  await page.locator('#sbsong-save-form').waitFor();
+  assert.equal(await page.evaluate(()=>!!window.SUNOBOOM_SHELL?.active),false);
+  await page.goto(base+'#/account/settings',{waitUntil:'networkidle'});
+  await page.locator('#sbs-theme').waitFor();
+  await page.goto(base+'#/catalog/reggae-ska/artists',{waitUntil:'networkidle'});
+  await page.waitForFunction(()=>view.nav==='detail'&&view.selected==='reggae-ska'&&view.tab==='artists');
+  console.log('Canonical routes remain usable with Vue bundle unavailable PASS');
+ }finally{await native.close();}
+ const delayed=await browser.newContext();let release;
+ const gate=new Promise(resolve=>release=resolve);
+ await delayed.route('**/dist/vue/*.js*',async route=>{await gate;await route.continue();});
+ const draft=await delayed.newPage();
+ try{
+  await draft.goto(base+'#/account/settings',{waitUntil:'domcontentloaded'});
+  await draft.locator('#sbs-theme').waitFor();
+  await draft.evaluate(()=>go('projects'));
+  await draft.locator('#p-title').fill('Draft during URL startup');
+  release();await draft.waitForFunction(()=>window.SUNOBOOM_SHELL?.active);
+  await draft.waitForURL('**#/account/projects');
+  assert.equal(await draft.locator('#p-title').inputValue(),'Draft during URL startup');
+  console.log('Delayed shell activation preserves navigation and draft after deep-link startup PASS');
+ }finally{release();await delayed.close();}
+}

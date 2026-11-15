@@ -77,7 +77,7 @@
  }
  // Read-only handoff: all preference mutations still pass through the original handlers.
  window.SUNOBOOM_LEGACY_SETTINGS={
-  isOpen:()=>state.open,
+  isOpen:()=>state.open,open:display,
   snapshot(){return {settings:{...settings},resolvedTheme:document.documentElement.dataset.sbTheme||"dark",themes:[...THEMES].map(([id,title])=>({id,title})),pages:[...VALID_PAGES].map(([id,title])=>({id,title})),name:String(data.profileName||'Музыкант'),resetPending:state.resetPending,message:state.message};}
  };
  const originalGo=go;

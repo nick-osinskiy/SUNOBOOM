@@ -1,3 +1,4 @@
+import {activateApplicationShell} from './shell/application-shell.js';
 import { activateLegacyPages } from './pages/legacyPageBridge.js';
 import { activateLegacyWorkspace } from './workspace/legacyWorkspaceBridge.js';
 import { activateLegacyArtistProfiles } from './academy/legacyArtistProfilesBridge.js';
@@ -64,9 +65,13 @@ function resolveTarget(target) {
   return typeof target === 'string' ? document.querySelector(target) : target;
 }
 
-export const { mountVueFeature, unmountVueFeature } = createFeatureMounter({
+let featureMounter = createFeatureMounter({
   createApp, host: VueFeatureHost, pinia, router: legacyMirrorRouter, resolveTarget
 });
+
+export function mountVueFeature(...args){return featureMounter.mountVueFeature(...args);}
+export function unmountVueFeature(...args){return featureMounter.unmountVueFeature(...args);}
+export async function startApplicationShell(){const shell=await activateApplicationShell({pinia,sharedUi,activations:pageActivations});if(shell)featureMounter={mountVueFeature:shell.mountFeature,unmountVueFeature:shell.unmountFeature};return shell;}
 
 /** Mirror settings.js appearance into Pinia before any Vue island mounts. */
 export function startLegacyAppearance() {
@@ -295,5 +300,7 @@ export function startLegacyArtistProfiles() {
 export function startLegacyWorkspace() { return activateLegacyWorkspace({mountVueFeature}); }
 
 export function startLegacyPages(){
-  return activateLegacyPages({mountVueFeature,sharedUi,activations:[activateLegacyWorkspace,activateLegacySharedSong,activateLegacyIdeasPage,activateLegacyAccountHome,activateLegacyEventActions,activateLegacyEventReminders,activateLegacyEventEditor,activateLegacyEventCollection,activateLegacyProjectDetail,activateLegacyProjectCreator,activateLegacyProjectCollection,activateLegacyIdeaCollections,activateLegacyHomeDashboard,activateLegacyPromptCollection,activateLegacyPromptEditor,activateLegacyLibrary,activateLegacySongCards,activateLegacySongDetail,activateLegacySongEditor,activateLegacyArtistManager,activateLegacyArtistDNA,activateLegacyArtistDNAEditor,activateLegacyAccountSettings,activateLegacyPlayerLab,activateLegacyPlayerAB,activateLegacyProducerSongList,activateLegacyProducerSongDetail,activateLegacyTrackPassportList,activateLegacyTrackPassportDetail,activateLegacyTrackPassportEditor,activateLegacyIdeaEditor,activateLegacyAcademy,activateLegacyGenreTree,activateLegacyGenreDetail,activateLegacyStudio,activateLegacyMixer,activateLegacyAuditor,activateLegacyArranger,activateLegacyPoetry,activateLegacyTags]});
+  return activateLegacyPages({mountVueFeature,sharedUi,activations:pageActivations});
 }
+
+const pageActivations=[activateLegacyWorkspace,activateLegacySharedSong,activateLegacyIdeasPage,activateLegacyAccountHome,activateLegacyEventActions,activateLegacyEventReminders,activateLegacyEventEditor,activateLegacyEventCollection,activateLegacyProjectDetail,activateLegacyProjectCreator,activateLegacyProjectCollection,activateLegacyIdeaCollections,activateLegacyHomeDashboard,activateLegacyPromptCollection,activateLegacyPromptEditor,activateLegacyLibrary,activateLegacySongCards,activateLegacySongDetail,activateLegacySongEditor,activateLegacyArtistManager,activateLegacyArtistDNA,activateLegacyArtistDNAEditor,activateLegacyAccountSettings,activateLegacyPlayerLab,activateLegacyPlayerAB,activateLegacyProducerSongList,activateLegacyProducerSongDetail,activateLegacyTrackPassportList,activateLegacyTrackPassportDetail,activateLegacyTrackPassportEditor,activateLegacyIdeaEditor,activateLegacyAcademy,activateLegacyGenreTree,activateLegacyGenreDetail,activateLegacyStudio,activateLegacyMixer,activateLegacyAuditor,activateLegacyArranger,activateLegacyPoetry,activateLegacyTags];

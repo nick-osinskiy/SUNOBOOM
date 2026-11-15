@@ -3,9 +3,10 @@ import { useRoute, useRouter } from 'vue-router';
 import { computed } from 'vue';
 import { useLegacyUiStore } from '../state/legacy-ui-store.js';
 import { activeRouteFromMemoryPath, routeToMemoryPath } from './legacy-router-mirror.js';
+import {parseRoute} from '../shell/route-codec.js';
 
-// Vue Router is consumed directly here. Legacy state wins until the async
-// memory mirror catches up, preserving instant highlights after go().
+// Browser Router owns active navigation in the persistent application.
+// The old mirror remains available only when shell activation fails.
 const route = useRoute();
 const router = useRouter();
 const ui = useLegacyUiStore();
@@ -16,11 +17,16 @@ const props = defineProps({
 });
 const sharedMenuItems = computed(() => ui.navigationItems.length ? ui.navigationItems : props.items);
 function navigate(id) {
-  // Pass the injected memory router to the one compatibility adapter; do not
-  // call router.push() because the legacy shell still controls the page.
+  // The shared dispatcher selects browser routing or the native fallback.
   props.onNavigate(id, router);
 }
 const isActive = id => {
+  if(window.SUNOBOOM_SHELL?.active){
+    const nav=parseRoute(route.fullPath).nav;
+    const active=nav==='detail'?'catalog':nav==='sharedSong'?'songs':
+      ['projects','saved','myideas','myprompts','events','tracks','artists'].includes(nav)?'account':nav;
+    return active===id;
+  }
   const legacy = ui.route;
   const active = route.path === routeToMemoryPath(legacy.route)
     ? activeRouteFromMemoryPath(route.path)

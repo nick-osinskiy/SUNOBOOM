@@ -31,7 +31,8 @@ export async function checkStudioCore(browser,base){
     assert.equal(await input.inputValue(),'Несохранённый блок 213');
     assert.deepEqual(await page.evaluate(()=>SUNOBOOM_CORE.arrangement.exportDraft()),baseline.draft);
     assert.equal(await page.evaluate(()=>localStorage.getItem(SUNOBOOM_CORE.keys.arrangement)),baseline.json);
-    await page.evaluate(()=>{go('account');document.querySelector('[data-sbs-action="open"]')?.click();});
+    await page.evaluate(()=>go('account'));
+    await page.locator('[data-sbs-action="open"]').click();
     await page.locator('#sbs-theme').selectOption('pink');
     assert.equal(await page.locator('#sbs-theme').inputValue(),'forest');
     assert.equal(await page.evaluate(()=>SUNOBOOM_CORE.preferences.appearance.theme),'forest');

@@ -45,10 +45,12 @@ export function observeLegacyIslands({
   // Optional native lifecycle events for islands created/closed below #app.
   // Keep the observer shallow: Vue's own DOM updates are not navigation.
   const unsubscribe = typeof subscribe === 'function' ? subscribe(sync) : null;
+  if(typeof window!=='undefined')window.addEventListener('sunoboom:shell-rendered',sync);
   sync();
   return () => {
     if (disposed) return;
     disposed = true;
+    if(typeof window!=='undefined')window.removeEventListener('sunoboom:shell-rendered',sync);
     observer.disconnect();
     if (typeof unsubscribe === 'function') unsubscribe();
     for (const { unmount } of active.values()) unmount();

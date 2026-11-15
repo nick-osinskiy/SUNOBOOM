@@ -4,10 +4,10 @@ export async function checkPageComposition(page){
   const routes=['home','account','ideas','saved','projects','events','myprompts','myideas','catalog','studio','player','producer','tracks','artists','songs','mixer'];
   for(const route of routes){
     await page.evaluate(route=>go(route),route);
-    await page.waitForFunction(()=>document.querySelector('[data-sb-vue-page]')?.__vue_app__);
+    await page.waitForFunction(()=>(window.SUNOBOOM_SHELL?.active&&!document.querySelector('[data-sb-vue-page]')?.hasAttribute('data-sb-page-fallback')||document.querySelector('[data-sb-vue-page]')?.__vue_app__));
     const state=await page.evaluate(()=>{
       const root=document.querySelector('[data-sb-vue-page]');
-      return {apps:[root,...root.querySelectorAll('*')].filter(n=>n.__vue_app__&&!n.closest('[data-sb-native-boundary]')).length,
+      return {apps:window.SUNOBOOM_SHELL?.active?[...document.querySelectorAll('*')].filter(n=>n.__vue_app__).length:[root,...root.querySelectorAll('*')].filter(n=>n.__vue_app__&&!n.closest('[data-sb-native-boundary]')).length,
         features:root.querySelectorAll('[data-sb-composed-feature]').length,
         nested:root.querySelectorAll('[data-sb-composed-feature]').length>0&&[...root.querySelectorAll('[data-sb-composed-feature]')].some(n=>!!n.__vue_app__),
         fallback:root.hasAttribute('data-sb-page-fallback')};
@@ -18,12 +18,12 @@ export async function checkPageComposition(page){
     assert.equal(state.fallback,false,`normal composition on ${route}`);
   }
   await page.evaluate(()=>go('projects'));
-  await page.waitForFunction(()=>document.querySelector('[data-sb-vue-page]')?.__vue_app__);
+  await page.waitForFunction(()=>(window.SUNOBOOM_SHELL?.active&&!document.querySelector('[data-sb-vue-page]')?.hasAttribute('data-sb-page-fallback')||document.querySelector('[data-sb-vue-page]')?.__vue_app__));
   await page.locator('#p-title').fill('Несохранённый ввод 210');
   const same=await page.evaluate(()=>{
-    const root=document.querySelector('[data-sb-vue-page]'),app=root.__vue_app__,field=document.getElementById('p-title');
+    const root=document.querySelector('[data-sb-vue-page]'),app=document.getElementById('app').__vue_app__||root.__vue_app__,field=document.getElementById('p-title');
     const marker=document.createElement('i');root.append(marker);marker.remove();
-    return new Promise(resolve=>requestAnimationFrame(()=>resolve(app===root.__vue_app__&&field===document.getElementById('p-title')&&field.value==='Несохранённый ввод 210')));
+    return new Promise(resolve=>requestAnimationFrame(()=>resolve(app===(document.getElementById('app').__vue_app__||root.__vue_app__)&&field===document.getElementById('p-title')&&field.value==='Несохранённый ввод 210')));
   });
   assert.equal(same,true,'descendant changes keep the page, field and draft');
   await page.evaluate(()=>go('home'));
@@ -69,7 +69,7 @@ export async function checkPageRecovery(browser,base){
       await page.locator('[data-action="create-project"]').click();
       await page.waitForFunction(()=>data.projects.some(p=>p.title==='Восстановленный проект 210'));
       await page.evaluate(()=>{window.SUNOBOOM_LEGACY_PROJECT_CREATOR=window.__pageRecoveryOriginal;go('home');go('projects');});
-      await page.waitForFunction(()=>document.querySelector('[data-sb-vue-page]')?.__vue_app__);
+      await page.waitForFunction(()=>(window.SUNOBOOM_SHELL?.active&&!document.querySelector('[data-sb-vue-page]')?.hasAttribute('data-sb-page-fallback')||document.querySelector('[data-sb-vue-page]')?.__vue_app__));
       assert.deepEqual(errors,[]);
     }finally{release();await context.close();}
   }
@@ -93,7 +93,7 @@ export async function checkPageEditorHandoff(browser,base){
       window.__preview210=document.getElementById('sb-poetry-stress-preview');
       window.__preview210.setSelectionRange(3,8);
     });
-    release();await page.waitForFunction(()=>document.querySelector('[data-sb-vue-page]')?.__vue_app__);
+    release();await page.waitForFunction(()=>(window.SUNOBOOM_SHELL?.active&&!document.querySelector('[data-sb-vue-page]')?.hasAttribute('data-sb-page-fallback')||document.querySelector('[data-sb-vue-page]')?.__vue_app__));
     const editor=await page.evaluate(()=>{
       const node=document.getElementById('sb-poetry-stress-preview');
       return {same:node===window.__preview210,value:node.value,start:node.selectionStart,end:node.selectionEnd};

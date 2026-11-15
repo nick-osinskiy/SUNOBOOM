@@ -182,7 +182,7 @@
   const sbTreePreviousRender=render;
   render=function(){
     const output=sbTreePreviousRender.apply(this,arguments);
-    if(view.nav==="catalog"&&state.open)renderTree();
+    if(view.nav==="catalog"&&state.open)sbAfterRender(renderTree);
     return output;
   };
 

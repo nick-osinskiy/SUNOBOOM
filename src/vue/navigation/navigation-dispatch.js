@@ -15,6 +15,7 @@ function dispatchVueRoute(id, { router, legacyApi, syncRoute = syncLegacyRoute }
   const navigate = isMenu ? legacyApi.navigate : legacyApi.navigateWorkspace;
   if (!allowed || typeof navigate !== 'function') return false;
 
+  if(globalThis.window?.SUNOBOOM_SHELL?.active){syncRoute(id,{historyMode:'push',source});void window.SUNOBOOM_SHELL.navigate(id);return true;}
   let accepted = false;
   try {
     const destination = routeToMemoryPath(id);

@@ -7,7 +7,7 @@
     "build:vue": "vite build",
     "test:vue-nav": "node --test tests/vue-navigation.test.mjs",
     "test:vue-browser": "node tests/vue-browser-smoke.mjs",
-    "test:domain": "node --test tests/core-domain.test.mjs tests/core-songs.test.mjs tests/core-studio.test.mjs tests/core-page-models.test.mjs"
+    "test:domain": "node --test tests/core-domain.test.mjs tests/core-songs.test.mjs tests/core-studio.test.mjs tests/core-page-models.test.mjs tests/core-routing.test.mjs"
   },
   "engines": {
     "node": ">=22.12.0"

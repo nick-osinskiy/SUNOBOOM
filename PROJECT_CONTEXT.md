@@ -1,6 +1,6 @@
 # SUNOBOOM — PROJECT_CONTEXT.md
 
-> **v0.214, 15 ноября 2026 г. — этап 2 принят и закрыт.** Общие владельцы данных и команды, модели страниц без native HTML parsing и совместимость старых JSON/IDB/аудио подтверждены: 145 тестов, сборка, полный browser smoke, CI, Pages и live-проверка. Протокол — [STAGE2_ACCEPTANCE.md](./STAGE2_ACCEPTANCE.md), подробности — раздел 64. Следующий этап 3 — единая оболочка Vue и реальная маршрутизация; в v0.214 он не начинался.
+> **v0.215 — этап 3: единая оболочка Vue и реальная маршрутизация.** Постоянный root, RouterView и browser hash history; прежние ссылки, функции и данные сохранены. Детали и пределы — [STAGE3_CONTEXT.md](./STAGE3_CONTEXT.md), раздел 65. Этап 2 закрыт на v0.214; исторические разделы ниже описывают прежнюю архитектуру. Публикация v0.215 ожидает приёмки.
 
 ## 1. Что это и где работает
 
@@ -24,6 +24,8 @@
 5. После значимого этапа актуализировать этот файл и подробный контекст, не выдавая старую дату документа за актуальный статус кода.
 
 ## 3. Реальная архитектура на v0.119
+
+**Исторический снимок. Для v0.215 действуют раздел 65 и STAGE3_CONTEXT.md: один Vue root уже владеет #app, а Vue Router управляет адресом. Старое ограничение на корневой mount ниже заменено новой оболочкой.**
 
 Это **гибридный сайт**, а не полностью перенесённое Vue SPA.
 
@@ -1057,3 +1059,13 @@ JSON repository подключён к песням, Мастеру, settings, Pl
 Локальная приёмка v0.214: **145/145 Node tests**, сборка, полный desktop/mobile/native smoke и отдельная stage-2 JSON/IDB/model acceptance — PASS. Публикация подтверждена ниже.
 
 Публикация v0.214 подтверждена: source [6d579fc](https://github.com/nick-osinskiy/SUNOBOOM/commit/6d579fc4626c0297254495e5e9334cdd5a863c9f), проверенный bundle [8f3de34](https://github.com/nick-osinskiy/SUNOBOOM/commit/8f3de34b43bc39d8a4759b9c70feba709cd6b937). **145/145 Node tests**, сборка и полный browser smoke: [CI success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43711298211). [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43711611272). Live HTTP 200/v0.214: повторно пройдены все 16 разделов, DOM-free models, old JSON/IDB bytes, IDs/links/backup и Studio quota/reload на desktop/mobile Vue и native mobile, без pageerror. **Этап 2 принят и закрыт. Этап 3 не начинался.**
+
+## 65. v0.215 — единая оболочка и browser routing
+
+Один Vue root владеет #app, постоянными desktop/mobile menu, header, history controls и RouterView. Диалоги и lazy widgets — Teleport в том же дереве. Vue Router с hash history работает на GitHub Pages без server rewrite; адреса разделов, вложенные ID/редакторы, reload и настоящие Back/Forward восстанавливают UI. Общий чистый codec поддерживает старые view/genre/shared-card links и native fallback.
+
+Native render/go остаются временными adapters: генерируют страницу в отдельном staging container, затем явная модель собирается из существующих компонентов. Видимую оболочку native render не заменяет. Ошибки модели/компонента восстанавливают native controls и выбранные файлы. При ошибке загрузки bundle работает старый интерфейс. Canonical core owners, JSON/IDB keys и аудиоданные не меняются.
+
+Локальная приёмка: **151/151 Node tests**, сборка и полный desktop/mobile/native browser smoke — PASS. Публикация и live-проверка ещё ожидаются.
+
+См. STAGE3_CONTEXT.md. После приёмки следующий этап 4 — убрать оставшиеся дубликаты native page renderers и memory/observer bridges, сохраняя media/editor boundaries и функциональный fallback. Он не выполняется в v0.215.

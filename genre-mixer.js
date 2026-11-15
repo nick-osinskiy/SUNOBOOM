@@ -123,7 +123,7 @@
   icons.mixer='<path d="M4 7h16M4 17h16M10 4v6M15 14v6"/><circle cx="10" cy="7" r="2" fill="#151827"/><circle cx="15" cy="17" r="2" fill="#151827"/>';
   if(!navs.some(n=>n[0]==='mixer'))navs.splice(navs.findIndex(n=>n[0]==='studio'),0,['mixer','Жанровый миксер','mixer']);
   const oldRender=render;
-  render=function(){if(view.nav==='mixer'){document.getElementById('app').innerHTML=chrome(page());return}return oldRender()};
+  render=function(){if(view.nav==='mixer'){sbRenderHTML(chrome(page()));return}return oldRender()};
   const oldStudio=studio;
   studio=function(){
     const info=Array.isArray(builder.mixerBlend)&&builder.mixerBlend.length>=2

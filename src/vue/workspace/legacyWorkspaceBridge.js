@@ -9,6 +9,8 @@ export function activateLegacyWorkspace({mountVueFeature}) {
   if(!api||!root)return ()=>{};
   return observeLegacyIslands({root,islands:names.map(name=>({
     key:name,selectTarget:root=>root.querySelector(`[data-sb-workspace="${name}"]`),
+    // The shell keeps the notification host alive while read markers change.
+    readRevision:name==='notice-panel'?()=>JSON.stringify(api.snapshot(name)):undefined,
     readSnapshot:()=>api.snapshot(name),
     mount:(node,initial)=>{
       const stop=mountVueFeature(node,name.startsWith('notice-')?Notifications:name==='blueprint'?SongBlueprint:WorkspaceControls,{api,name,initial});

@@ -1,3 +1,4 @@
+import {checkShellRouting} from './vue-shell-routing.mjs';
 import {checkStage2Acceptance} from './vue-stage2-acceptance.mjs';
 import {checkStudioCore} from './vue-studio-core.mjs';
 import {checkSongCore} from './vue-song-core.mjs';
@@ -503,7 +504,7 @@ async function checkSharedSongStartup207() {
       const raw=valid?Buffer.from(JSON.stringify({v:1,title:'Прямая ссылка 207',artist:'Автор'}),'utf8').toString('base64url'):'!broken-startup!';
       await page.goto(BASE+'#sb-song='+raw,{waitUntil:'domcontentloaded'});
       await page.waitForFunction(({vue,valid})=>{const root=document.getElementById('sbsong-shared');return root&&root.hasAttribute('data-v-app')===vue&&root.querySelector('h1')?.textContent===(valid?'Прямая ссылка 207':'Карточка недоступна');},{vue,valid});
-      await page.locator('[data-sbsong-action="shared-home"]').click();await page.waitForFunction(()=>view.nav==='home'&&!location.hash);
+      await page.locator('[data-sbsong-action="shared-home"]').click();await page.waitForFunction(()=>view.nav==='home'&&(!location.hash||window.SUNOBOOM_SHELL?.active));
     }finally{await context.close();}
   }
   console.log('Direct shared-song links valid/damaged/native startup PASS');
@@ -699,7 +700,7 @@ async function checkLayout(mobile) {
     if (await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.sharedState().active) !== 'account') {
       throw new Error('Pinia did not react to a nested Vue Router workspace transition');
     }
-    if (after164.active !== 'myideas' || page.url() !== baseUrl164 ||
+    if (after164.active !== 'myideas' || (!await page.evaluate(()=>!!window.SUNOBOOM_SHELL?.active)&&page.url() !== baseUrl164) ||
         after164.storage !== before164.storage ||
         after164.route.menuPushes !== before164.route.menuPushes ||
         after164.route.shortcutPushes !== before164.route.shortcutPushes + 1) {
@@ -718,7 +719,7 @@ async function checkLayout(mobile) {
       throw new Error('Vue workspace Forward could not restore saved route');
     }
     if (!await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.back()) ||
-        await page.evaluate(() => view.nav) !== 'home' || page.url() !== baseUrl164) {
+        await page.evaluate(() => view.nav) !== 'home' || (!await page.evaluate(()=>!!window.SUNOBOOM_SHELL?.active)&&page.url() !== baseUrl164)) {
       throw new Error('Vue back/forward changed the browser URL or original page');
     }
     await dashboard162.waitFor({ state: 'attached', timeout: 10000 });
@@ -965,16 +966,22 @@ async function checkLayout(mobile) {
       .evaluateAll(nodes => nodes.every(n => n.tagName === 'BUTTON' && !n.hasAttribute('href')));
     if (!linkCheck133) throw new Error('Vue adapter replaced existing mobile buttons with browser links');
     if (await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.routerSnapshot().active) !== 'home' ||
-        page.url() !== BASE) {
+        (!await page.evaluate(()=>!!window.SUNOBOOM_SHELL?.active)&&page.url() !== BASE)) {
       throw new Error('Vue Router memory mirror changed initial browser URL or route');
     }
     // v0.135: memory history starts without a previous entry.
-    const emptyHistory135 = await page.evaluate(async () => ({
-      canBack: window.SUNOBOOM_VUE_ROUTE.routerSnapshot().canGoBack,
-      restored: await window.SUNOBOOM_VUE_ROUTE.back()
-    }));
-    if (emptyHistory135.canBack || emptyHistory135.restored) {
-      throw new Error('Vue Router history restored a route before one was recorded');
+    if (!await page.evaluate(()=>!!window.SUNOBOOM_SHELL?.active)) {
+      const emptyHistory135 = await page.evaluate(async () => ({
+        canBack: window.SUNOBOOM_VUE_ROUTE.routerSnapshot().canGoBack,
+        restored: await window.SUNOBOOM_VUE_ROUTE.back()
+      }));
+      if (emptyHistory135.canBack || emptyHistory135.restored)
+        throw new Error('Memory history restored a route before one was recorded');
+    } else {
+      // Earlier scenarios already visited pages; compare with real browser entries.
+      if (!await page.evaluate(()=>SUNOBOOM_SHELL.canGo('back') ===
+          (typeof history.state?.back==='string' && history.state.back.startsWith('/'))))
+        throw new Error('Shell history disagrees with browser history');
     }
     const initialRoute130 = await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE?.snapshot());
     if (!initialRoute130 || initialRoute130.route !== 'home' || initialRoute130.active !== 'home' ||
@@ -1107,7 +1114,7 @@ async function checkLayout(mobile) {
     await page.waitForFunction(() => ['[data-sb-vue-sidebar]', '[data-sb-vue-mobile]']
       .every(selector => document.querySelector(selector + ' button[data-nav="producer"]')
         ?.getAttribute('data-vue-router-path') === '/producer'));
-    if (page.url() !== BASE) {
+    if ((!await page.evaluate(()=>!!window.SUNOBOOM_SHELL?.active)&&page.url() !== BASE)) {
       throw new Error('Vue Router memory mirror modified browser history on Master navigation');
     }
     if (await page.locator('[data-sb-vue-sidebar] button[data-nav="producer"][aria-current="page"]').count() !== 1 ||
@@ -1158,7 +1165,7 @@ async function checkLayout(mobile) {
     }));
     if (forward135.legacyRoute !== 'studio' ||
         forward135.after.canGoForward || forward135.after.menuPushes !== beforeMenuPush134 + 2 ||
-        page.url() !== BASE) {
+        (!await page.evaluate(()=>!!window.SUNOBOOM_SHELL?.active)&&page.url() !== BASE)) {
       throw new Error('Vue Forward button changed URL or failed: ' + JSON.stringify(forward135));
     }
     await page.locator(nav + ' button[data-nav="studio"].active').waitFor({ timeout: 10000 });
@@ -1409,7 +1416,7 @@ async function checkLayout(mobile) {
     }
     await page.waitForFunction(() => ['[data-sb-vue-sidebar]', '[data-sb-vue-mobile]']
       .every(selector => document.querySelector(selector + ' button[data-nav="catalog"]')
-        ?.getAttribute('data-vue-router-path') === '/catalog/detail'));
+        ?.getAttribute('data-vue-router-path') === (window.SUNOBOOM_SHELL?.active ? '/catalog/reggae-ska/overview' : '/catalog/detail')));
     if (genreRoute130?.route !== 'detail' || genreRoute130.active !== 'catalog' ||
         await page.locator('[data-sb-vue-sidebar] button[data-nav="catalog"][aria-current="page"]').count() !== 1 ||
         await page.locator('[data-sb-vue-mobile] button[data-nav="catalog"][aria-current="page"]').count() !== 1) {
@@ -1508,7 +1515,7 @@ async function checkLayout(mobile) {
     if (restoredGenre137.id !== 'reggae-ska' || restoredGenre137.tab !== 'artists' ||
         restoredGenre137.route !== 'detail' || restoredGenre137.mirror.path !== '/catalog/detail' ||
         restoredGenre137.mirror.context?.id !== 'reggae-ska' ||
-        restoredGenre137.mirror.context?.tab !== 'artists' || page.url() !== BASE) {
+        restoredGenre137.mirror.context?.tab !== 'artists' || (!await page.evaluate(()=>!!window.SUNOBOOM_SHELL?.active)&&page.url() !== BASE)) {
       throw new Error('History did not restore the selected genre and Artists tab: ' +
         JSON.stringify(restoredGenre137));
     }
@@ -3578,7 +3585,7 @@ async function checkLayout(mobile) {
     await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.routerSnapshot()?.path === '/account/tracks');
     await page.waitForFunction(() => ['[data-sb-vue-sidebar]', '[data-sb-vue-mobile]']
       .every(selector => document.querySelector(selector + ' button[data-nav="account"]')
-        ?.getAttribute('data-vue-router-path') === '/account/tracks'));
+        ?.getAttribute('data-vue-router-path') === (window.SUNOBOOM_SHELL?.active ? SUNOBOOM_SHELL.snapshot().route.split('?')[0] : '/account/tracks')));
     if (await page.locator('[data-sb-vue-sidebar] button[data-nav="account"][aria-current="page"]').count() !== 1 ||
         await page.locator('[data-sb-vue-mobile] button[data-nav="account"][aria-current="page"]').count() !== 1) {
       throw new Error('Nested track page failed to activate Account in both Vue menus');
@@ -3788,7 +3795,7 @@ async function checkLayout(mobile) {
       view.sbTrackSelected === id &&
       window.SUNOBOOM_VUE_ROUTE?.routerSnapshot()?.context?.id === id, track126.id);
     await trackDetail128.waitFor({ state: 'attached', timeout: 10000 });
-    if (page.url() !== BASE) throw new Error('Passport memory history modified the browser URL');
+    if ((!await page.evaluate(()=>!!window.SUNOBOOM_SHELL?.active)&&page.url() !== BASE)) throw new Error('Passport memory history modified the browser URL');
     if (await trackDetail128.locator('.sb-track-version').count() !== 1 ||
         await page.locator('#sb-vue-track-list').count() !== 0) {
       throw new Error('Vue passport detail/versions did not open from Vue list');
@@ -4563,6 +4570,7 @@ async function checkEditorFallback() {
 try {
   await ready();
   browser = await chromium.launch({ headless: true });
+  await checkShellRouting(browser,BASE);
   await checkStage2Acceptance(browser,BASE);
   await checkStudioCore(browser,BASE);
   await checkLayout(false);

@@ -278,7 +278,7 @@
  render=function(){
    if(view.nav!=="player")pauseAB();
    const result=previousRender.apply(this,arguments);
-   if(view.nav==="player"){wasInPlayer=true;mount();}
+   if(view.nav==="player"){wasInPlayer=true;sbAfterRender(mount);}
    else wasInPlayer=false;
    return result;
  };

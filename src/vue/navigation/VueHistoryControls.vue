@@ -16,7 +16,7 @@ const busy = ref(false);
 const available = computed(() => {
   // Both route and legacy revisions are reactive; the memory ledger is read
   // only after the route has settled. No timers or polling.
-  void route.path;
+  void route.path;void route.fullPath;
   void ui.route.revision;
   // The memory route changes before its async ledger is committed. Recompute
   // disabled states when that ledger settles, even if the path stays unchanged.

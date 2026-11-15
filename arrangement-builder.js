@@ -511,7 +511,7 @@
   const oldRender=render;
   render=function(){
     const result=oldRender.apply(this,arguments);
-    if(view.nav==="studio")enter();
+    if(view.nav==="studio")sbAfterRender(enter);
     return result;
   };
   document.addEventListener("click",event=>{

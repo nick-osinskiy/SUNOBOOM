@@ -12,6 +12,7 @@ export function activateLegacyTopHeader({ mountVueFeature }) {
     root,
     selectTarget: parent => parent.querySelector('.top[data-sb-vue-top]'),
     readSnapshot: () => normalizeTopHeader(api.snapshot()),
+    readRevision:()=>JSON.stringify(api.snapshot()),
     mount: (node, model) => mountVueFeature(node, TopHeader, { model })
   });
 }

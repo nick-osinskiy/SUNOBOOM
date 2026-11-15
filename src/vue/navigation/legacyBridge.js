@@ -62,13 +62,14 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature, s
       poetryAmbiguitySummary: { ...sharedUi.poetryAmbiguitySummary },
       performanceTagsSummary: { ...sharedUi.performanceTagsSummary }
     }),
-    back: () => restoreLegacyMenuHistory('back', { legacyApi: api }),
-    forward: () => restoreLegacyMenuHistory('forward', { legacyApi: api }),
+    back: () => window.SUNOBOOM_SHELL?.active?window.SUNOBOOM_SHELL.back():restoreLegacyMenuHistory('back', { legacyApi: api }),
+    forward: () => window.SUNOBOOM_SHELL?.active?window.SUNOBOOM_SHELL.forward():restoreLegacyMenuHistory('forward', { legacyApi: api }),
     // The legacy page validates id + tab before an opt-in context push.
     recordGenre: (id, tab, historyMode = 'push') => {
       const actual = api.snapshot();
       if (actual.active !== 'detail' || actual.detail?.id !== id ||
           actual.detail?.tab !== tab || !api.canRestoreGenre?.(id, tab)) return false;
+      window.SUNOBOOM_SHELL?.recordCurrent(historyMode);
       syncLegacyRoute('detail', {
         historyMode, context: { kind: 'genre', id, tab }
       });
@@ -77,6 +78,7 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature, s
     recordProduction: (id, historyMode = 'push') => {
       const actual=api.snapshot();
       if(actual.active!=='producer'||actual.production?.id!==id||!api.canRestoreProduction?.(id))return false;
+      window.SUNOBOOM_SHELL?.recordCurrent(historyMode);
       syncLegacyRoute('producer',{historyMode,context:{kind:'production',id}});return true;
     },
     recordTrackList: () => {
@@ -91,6 +93,7 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature, s
       const actual = api.snapshot();
       if (actual.active !== 'tracks' || actual.track?.id !== id ||
           actual.trackEditing || !api.canRestoreTrack?.(id)) return false;
+      window.SUNOBOOM_SHELL?.recordCurrent(historyMode);
       syncLegacyRoute('tracks', {
         historyMode, context: { kind: 'track', id }
       });
@@ -125,8 +128,8 @@ export function activateLegacyNavigation({ mountVueFeature, unmountVueFeature, s
           selectTarget: root => root.querySelector('[data-sb-vue-history]'),
           readSnapshot: () => api,
           mount: target => mountVueFeature(target, VueHistoryControls, {
-            canRestore: direction => canRestoreLegacyMenuHistory(direction, { legacyApi: api }),
-            onRestore: direction => restoreLegacyMenuHistory(direction, { legacyApi: api })
+            canRestore: direction => window.SUNOBOOM_SHELL?.active?window.SUNOBOOM_SHELL.canGo(direction):canRestoreLegacyMenuHistory(direction, { legacyApi: api }),
+            onRestore: direction => window.SUNOBOOM_SHELL?.active?window.SUNOBOOM_SHELL[direction]():restoreLegacyMenuHistory(direction, { legacyApi: api })
           }, { vueRouter: true })
         },
         ...SELECTORS.map(({ key, selector, mobile }) => ({

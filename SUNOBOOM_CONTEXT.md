@@ -373,3 +373,8 @@ Studio/аранжировщик/миксер/preferences получили canoni
 Локальная приёмка v0.214: **145/145 Node tests**, сборка, полный desktop/mobile/native smoke и отдельная stage-2 JSON/IDB/model acceptance — PASS. Публикация подтверждена ниже.
 
 Публикация v0.214 подтверждена: source [6d579fc](https://github.com/nick-osinskiy/SUNOBOOM/commit/6d579fc4626c0297254495e5e9334cdd5a863c9f), проверенный bundle [8f3de34](https://github.com/nick-osinskiy/SUNOBOOM/commit/8f3de34b43bc39d8a4759b9c70feba709cd6b937). **145/145 Node tests**, сборка и полный browser smoke: [CI success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43711298211). [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43711611272). Live HTTP 200/v0.214: повторно пройдены все 16 разделов, DOM-free models, old JSON/IDB bytes, IDs/links/backup и Studio quota/reload на desktop/mobile Vue и native mobile, без pageerror. **Этап 2 принят и закрыт. Этап 3 не начинался.**
+
+
+## 2026-11-15 — v0.215, этап 3
+
+Постоянная Vue shell с RouterView и единым createApp; меню, header, toolbar и Teleport-панели принадлежат одному дереву. Vue Router управляет реальными hash URL, browser history и reload. Старые view/genre/public-song ссылки нормализуются общим codec. Native renderer временно подготавливает модели в staging container; root DOM не пересоздаёт. Core owners и форматы storage сохранены. Документ: STAGE3_CONTEXT.md. Проверки публикации добавляются после приёмки.

@@ -3,7 +3,7 @@ import { collectLegacyIsland,availableIsland } from './featureCollection.js';
 // Observe only direct child replacement on the supplied root. Observing subtree
 // would make Vue's own render trigger unnecessary remounts and input loss.
 export function observeLegacyIsland({
-  root, selectTarget, readSnapshot, mount, subscribe,
+  root, selectTarget, readSnapshot, mount, subscribe, readRevision,
   createObserver = callback => new MutationObserver(callback)
 }) {
   if (!root || typeof selectTarget !== 'function' ||
@@ -24,7 +24,8 @@ export function observeLegacyIsland({
   function sync() {
     if (disposed) return;
     const target = availableIsland(selectTarget(root));
-    if (current?.target === target && target?.isConnected) return;
+    const revision=typeof readRevision==='function'?readRevision(target):undefined;
+    if (current?.target === target && target?.isConnected&&current.revision===revision) return;
     unmountCurrent();
     // A detached old host must never be mounted again. Its original HTML
     // remains the fallback when a snapshot is unavailable or mounting fails.
@@ -32,18 +33,20 @@ export function observeLegacyIsland({
     const snapshot = readSnapshot(target);
     if (!snapshot) return;
     const unmount = mount(target, snapshot);
-    if (typeof unmount === 'function') current = { target, unmount };
+    if (typeof unmount === 'function') current = { target, unmount, revision };
   }
 
   const observer = createObserver(sync);
   observer.observe(root, { childList: true });
   // Optional external events (e.g. <details> toggle) do not alter #app children.
   const unsubscribe = typeof subscribe === 'function' ? subscribe(sync) : null;
+  if(typeof window!=='undefined')window.addEventListener('sunoboom:shell-rendered',sync);
   sync();
 
   return () => {
     if (disposed) return;
     disposed = true;
+    if(typeof window!=='undefined')window.removeEventListener('sunoboom:shell-rendered',sync);
     observer.disconnect();
     if (typeof unsubscribe === 'function') unsubscribe();
     unmountCurrent();

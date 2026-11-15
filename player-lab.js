@@ -234,10 +234,10 @@
     if(view.nav==="player"){
       inPlayer=true;
       const app=document.getElementById("app");
-      if(app)app.innerHTML=chrome(page());
-      update();
+      if(app)sbRenderHTML(chrome(page()));
+      sbAfterRender(()=>{update();
       const input=document.getElementById("sbp-file");
-      if(input)input.value="";
+      if(input)input.value="";});
     }else{
       if(inPlayer){audio.pause();hasPlayIntent=false;inPlayer=false;}
     }

@@ -326,7 +326,7 @@
  }
  const oldRender=render;
  render=function(){
-   if(view.nav==="producer"){document.getElementById("app").innerHTML=chrome(page());return;}
+   if(view.nav==="producer"){sbRenderHTML(chrome(page()));return;}
    return oldRender.apply(this,arguments);
  };
  // Passport/Idea buttons use the established data-action dispatcher.
