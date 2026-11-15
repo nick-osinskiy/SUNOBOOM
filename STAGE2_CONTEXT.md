@@ -22,7 +22,7 @@
 - Прежние 97 Node tests и полный browser smoke продолжают проверять desktop/mobile, реальные forms/actions, audio/versions/A-B, fallback, page composition, manual stress и overlays.
 - CI запускает `test:domain`, затем route-model tests/build/browser suite; core и root JS/index включены в paths.
 
-Результаты публикации подтверждать по итоговому SHA и GitHub Actions; локальный успех не подменяет проверку опубликованного сайта.
+Первый блок v0.211 подтверждён: **109/109 Node tests**, сборка и полный browser smoke прошли; [CI success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43683861118), [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43684144308). Source [0a0823d](https://github.com/nick-osinskiy/SUNOBOOM/commit/0a0823d6198a8dbb93dbf26dd22dbd337242103d), проверенный bundle [65b213d](https://github.com/nick-osinskiy/SUNOBOOM/commit/65b213dd57c83e63bdfeb5ec0b46ed35a1430945). На опубликованном сайте дополнительно пройдены core commands/quota/draft/старые IDB keys desktop/mobile и mobile native без pageerror. **Это не приёмка всего этапа 2.**
 
 ## Конечный остаток этапа 2
 

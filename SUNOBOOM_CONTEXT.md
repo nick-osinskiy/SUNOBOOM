@@ -341,3 +341,6 @@ v0.210: source a4a04e9, bundle 51d6a0d. 97/97 Node tests, полный browser s
 ## 2026-11-15 — v0.211, начало этапа 2
 
 На базе 77c82d1 выделено общее core/application-core.js: canonical workspace object, 26 payload-команд основных коллекций, совместимые JSON/IDB repositories и backup. Data/keys/IDs/связи/аудиобайты не мигрируются; Vue/native adapters вызывают те же команды. Ошибка storage откатывает данные и сохраняет draft. Этап 2 продолжается: private Songs/Master/arranger/settings state и ряд DOM-derived models ещё не вынесены. См. раздел 61 PROJECT_CONTEXT.md и STAGE2_CONTEXT.md; следующим предложить продолжение этапа 2 (My Songs/версии/файлы/Мастер), не этап 3.
+
+
+Публикация v0.211 подтверждена: source 0a0823d, bundle 65b213d, [CI success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43683861118), [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43684144308); 109 Node tests и полный browser smoke прошли. Live desktop/mobile/native core suite — PASS. Завершён первый блок, не весь этап 2.
