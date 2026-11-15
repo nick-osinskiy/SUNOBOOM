@@ -1,6 +1,6 @@
 # SUNOBOOM — PROJECT_CONTEXT.md
 
-> **v0.215 — этап 3: единая оболочка Vue и реальная маршрутизация.** Постоянный root, RouterView и browser hash history; прежние ссылки, функции и данные сохранены. Детали и пределы — [STAGE3_CONTEXT.md](./STAGE3_CONTEXT.md), раздел 65. Этап 2 закрыт на v0.214; исторические разделы ниже описывают прежнюю архитектуру. Публикация v0.215 ожидает приёмки.
+> **v0.215 — этап 3: единая оболочка Vue и реальная маршрутизация.** Постоянный root, RouterView и browser hash history; прежние ссылки, функции и данные сохранены. Детали и пределы — [STAGE3_CONTEXT.md](./STAGE3_CONTEXT.md), раздел 65. Этап 2 закрыт на v0.214; исторические разделы ниже описывают прежнюю архитектуру. Этап 3 принят и закрыт: 151 тест, сборка, полный smoke, CI, Pages и live-проверка — PASS.
 
 ## 1. Что это и где работает
 
@@ -1066,6 +1066,9 @@ JSON repository подключён к песням, Мастеру, settings, Pl
 
 Native render/go остаются временными adapters: генерируют страницу в отдельном staging container, затем явная модель собирается из существующих компонентов. Видимую оболочку native render не заменяет. Ошибки модели/компонента восстанавливают native controls и выбранные файлы. При ошибке загрузки bundle работает старый интерфейс. Canonical core owners, JSON/IDB keys и аудиоданные не меняются.
 
-Локальная приёмка: **151/151 Node tests**, сборка и полный desktop/mobile/native browser smoke — PASS. Публикация и live-проверка ещё ожидаются.
+Локальная приёмка: **151/151 Node tests**, сборка и полный desktop/mobile/native browser smoke — PASS. Публикация и live-проверка подтверждены ниже.
 
 См. STAGE3_CONTEXT.md. После приёмки следующий этап 4 — убрать оставшиеся дубликаты native page renderers и memory/observer bridges, сохраняя media/editor boundaries и функциональный fallback. Он не выполняется в v0.215.
+
+
+Публикация v0.215 подтверждена 15 ноября 2026 г.: source [846505a](https://github.com/nick-osinskiy/SUNOBOOM/commit/846505af0c0a53e0b43c5ed1c9498570cb81dbd9), проверенный bundle [8db8125](https://github.com/nick-osinskiy/SUNOBOOM/commit/8db8125e9276bb5bf78fd1902654a9f58319d3e3). **151/151 Node tests**, build и полный desktop/mobile/native browser smoke: [CI success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43717870267). [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43718309930). На [опубликованном сайте](https://nick-osinskiy.github.io/SUNOBOOM/?v=215) пройдены shell/router acceptance desktop/mobile, native canonical routes и delayed deep-link/draft, старые JSON/IDB bytes/IDs/links/backup, Studio/arranger/mixer/preferences quota/reload Vue desktop/mobile и native mobile. JS/CSS опубликованной CI-сборки совпали с main по SHA-256 после нормализации переносов строк. Внешний вид проверен на desktop/mobile. **Этап 3 принят и закрыт.** Этап 4 — удаление оставшегося дублирования native renderers и навигационных/lifecycle adapters — не начинался.
