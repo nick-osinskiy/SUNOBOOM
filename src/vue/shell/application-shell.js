@@ -1,4 +1,8 @@
-import {traverseLegacyMemoryHistory} from '../navigation/legacy-router-mirror.js';
+import {installNavigationService} from '../navigation/navigation-service.js';
+import {syncLegacyRoute} from '../navigation/route-state.js';
+import {navigationSnapshot} from '../navigation/nav-model.js';
+import {normalizeTopHeader} from '../navigation/top-header-model.js';
+import {navigateFromVueMenu} from '../navigation/navigation-dispatch.js';
 import {createApp,h,nextTick,shallowReactive,shallowRef} from 'vue';
 import {createRouter,createWebHashHistory} from 'vue-router';
 import ApplicationShell from './ApplicationShell.vue';
@@ -13,8 +17,15 @@ export async function activateApplicationShell({pinia,sharedUi,activations}){
  if(!root||!adapter)return null;
  const initialNodes=[...root.childNodes];
  const router=createRouter({history:createWebHashHistory(location.pathname+location.search),routes:[{path:'/:pathMatch(.*)*',component:PageScreen}],scrollBehavior:(_to,_from,saved)=>saved||{left:0,top:0}});
- const state=shallowReactive({page:null,frame:adapter.frame(),revision:0,pageError:false});
- const portals=shallowRef([]),mounted=new WeakMap(),stages=new Map();let serial=0,app,active=false,applying=0,pendingPath=null,scheduled=false,disposed=false,frame=null,restoreRenderer;
+ function readFrame(){
+  const raw=window.SUNOBOOM_LEGACY_NAV.snapshot();
+  syncLegacyRoute(raw.active);
+  const navigation=navigationSnapshot(raw);sharedUi.publishNavigation(navigation);
+  return {...adapter.frame(),navigation,header:normalizeTopHeader(window.SUNOBOOM_LEGACY_HEADER.snapshot()),
+   notices:window.SUNOBOOM_WORKSPACE_UI.snapshot('notice-panel')};
+ }
+ const state=shallowReactive({page:null,frame:readFrame(),revision:0,pageError:false});
+ const portals=shallowRef([]),mounted=new WeakMap(),stages=new Map();let serial=0,app,active=false,applying=0,pendingPath=null,scheduled=false,disposed=false,frame=null,restoreRenderer,stopNavigation;
  const warn=(message,error)=>console.warn('[SUNOBOOM] '+message,error);
  function scopedStage(stage,run){
   const get=document.getElementById,query=document.querySelector,all=document.querySelectorAll;
@@ -25,13 +36,13 @@ export async function activateApplicationShell({pinia,sharedUi,activations}){
  }
  function prepare(stage,page){
   let model=null;try{model=scopedStage(stage,()=>composePage(page,activations,sharedUi));}catch(error){warn('Page preparation failed; native page retained.',error);}
-  const revision=state.revision+1;stages.set(revision,{page,model});state.page=model;state.pageError=!model;state.frame=adapter.frame();state.revision=revision;
+  const revision=state.revision+1;stages.set(revision,{page,model});state.page=model;state.pageError=!model;state.frame=readFrame();state.revision=revision;
   void nextTick().then(()=>{
    if(disposed)return;for(const key of stages.keys())if(key!==state.revision)stages.delete(key);
    window.dispatchEvent(new Event('sunoboom:shell-rendered'));
   });
  }
- const resources={attach(revision,target){const source=stages.get(revision);if(!source||!target)return;if(source.model)restoreNativeBoundaries(source.page,source.model);target.replaceChildren(...source.page.childNodes);},failed(revision,error){if(revision===state.revision)state.pageError=true;warn('Page component failed; native page retained.',error);}};
+ const resources={navigate:id=>navigateFromVueMenu(id,{legacyApi:window.SUNOBOOM_LEGACY_NAV}),canGo:direction=>canGo(direction),restore:direction=>traverse(direction),attach(revision,target){const source=stages.get(revision);if(!source||!target)return;if(source.model)restoreNativeBoundaries(source.page,source.model);target.replaceChildren(...source.page.childNodes);},failed(revision,error){if(revision===state.revision)state.pageError=true;warn('Page component failed; native page retained.',error);}};
  function recordCurrent(mode){
   if(applying||!active)return;
   const path=routePath(adapter.current());pendingPath={path,mode:mode||'push'};
@@ -62,7 +73,7 @@ export async function activateApplicationShell({pinia,sharedUi,activations}){
   return ()=>removePortal(record);
  }
  function canGo(direction){if(adapter.current().nav==='tracks'&&adapter.current().edit)return false;const path=router.options.history.state[direction==='back'?'back':'forward'];return typeof path==='string'&&path.startsWith('/')&&adapter.canRestore(parseRoute(path));}
- async function traverse(direction){if(!canGo(direction))return false;await traverseLegacyMemoryHistory(direction);return new Promise(resolve=>{const stop=router.afterEach((_to,_from,failure)=>{if(failure)return;stop();void nextTick().then(()=>resolve(true));});router.go(direction==='back'?-1:1);});}
+ async function traverse(direction){if(!canGo(direction))return false;return new Promise(resolve=>{const stop=router.afterEach((_to,_from,failure)=>{if(failure)return;stop();void nextTick().then(()=>resolve(true));});router.go(direction==='back'?-1:1);});}
  const api={get active(){return active;},renderHTML,afterRender:callback=>frame?callback():nextTick().then(()=>{if(!disposed)callback();}),
   navigate:id=>router.push(routePath({nav:id})),recordCurrent,
   canGo,back:()=>traverse('back'),forward:()=>traverse('forward'),
@@ -80,14 +91,15 @@ export async function activateApplicationShell({pinia,sharedUi,activations}){
   // replaying the original address over the user's more recent action.
   await router.replace(routePath(adapter.current()));
   // Capture the latest native fields, including edits made while the bundle loaded.
+  stopNavigation=installNavigationService({shell:api,sharedUi,legacyApi:window.SUNOBOOM_LEGACY_NAV});
   const page=root.querySelector('[data-sb-vue-page]');prepare(root,page);
   let initialError;
   // A setup wrapper keeps the portal ref reactive without making component definitions reactive.
   app=createApp({setup:()=>()=>{return h(ApplicationShell,{state,portals:portals.value,resources});}});
   app.use(pinia);app.use(router);app.config.errorHandler=(error,instance,info)=>{initialError??=error;warn('Shell error ('+(instance?.$options?.name||info)+').',error);};app.mount(root);await nextTick();if(initialError)throw initialError;
-  active=true;window.SUNOBOOM_SHELL=api;restoreRenderer=adapter.installRenderer(renderNative);
+  active=true;window.SUNOBOOM_SHELL=api;state.frame=readFrame();restoreRenderer=adapter.installRenderer(renderNative);
   if(routePath(adapter.current())!==router.currentRoute.value.fullPath){applying++;try{adapter.apply(parseRoute(router.currentRoute.value.fullPath));}finally{applying--;}}
   await nextTick();const actual=routePath(adapter.current());if(actual!==router.currentRoute.value.fullPath)await router.replace(actual);
   return api;
- }catch(error){disposed=true;active=false;restoreRenderer?.();try{app?.unmount();}finally{root.replaceChildren(...initialNodes);}warn('Shell unavailable; native interface retained.',error);return null;}
+ }catch(error){disposed=true;active=false;stopNavigation?.();restoreRenderer?.();try{app?.unmount();}finally{root.replaceChildren(...initialNodes);}warn('Shell unavailable; native interface retained.',error);return null;}
 }

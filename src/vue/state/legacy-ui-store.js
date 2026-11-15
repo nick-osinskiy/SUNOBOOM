@@ -13,8 +13,8 @@ import { normalizeIdeaDraftSummary, normalizePromptDraftSummary } from './editor
 import { normalizePoetrySourceSummary, normalizePoetryAnalysisSummary, normalizePoetryAmbiguitySummary } from './poetry-ui-model.js';
 import { normalizePerformanceTagsSummary } from './performance-tags-ui-model.js';
 
-// Read-only UI projections across the independent Vue islands.
-// The legacy go(), data object and browser storage remain authoritative.
+// Read-only UI projections within the single Vue application.
+// Browser Router owns navigation; core owners retain all user records.
 // Never copy lyrics, audio, projects, notifications or personal records here.
 const EMPTY_ITEMS = Object.freeze([]);
 const EMPTY_STATS = Object.freeze({ ideaCount: 0, promptCount: 0, eventCount: 0, revision: 0 });

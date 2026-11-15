@@ -1,6 +1,6 @@
 # SUNOBOOM — PROJECT_CONTEXT.md
 
-> **v0.215 — этап 3: единая оболочка Vue и реальная маршрутизация.** Постоянный root, RouterView и browser hash history; прежние ссылки, функции и данные сохранены. Детали и пределы — [STAGE3_CONTEXT.md](./STAGE3_CONTEXT.md), раздел 65. Этап 2 закрыт на v0.214; исторические разделы ниже описывают прежнюю архитектуру. Этап 3 принят и закрыт: 151 тест, сборка, полный smoke, CI, Pages и live-проверка — PASS.
+> **v0.216 — этап 4, блок навигации и оболочек.** Удалены второй memory Router, независимый multi-app startup и старые shell bridges. Меню, шапка, история и уведомления — непосредственные компоненты одной оболочки; production не устанавливает DOM observers и не генерирует повторную native оболочку. Этапы 2–3 закрыты. **Этап 4 открыт:** native подготовка содержимого страниц остаётся; следующий блок — прямые props/layout из state и transient drafts. См. [STAGE4_CONTEXT.md](./STAGE4_CONTEXT.md), раздел 66. Публикация v0.216 ожидает приёмки.
 
 ## 1. Что это и где работает
 
@@ -1072,3 +1072,11 @@ Native render/go остаются временными adapters: генерир�
 
 
 Публикация v0.215 подтверждена 15 ноября 2026 г.: source [846505a](https://github.com/nick-osinskiy/SUNOBOOM/commit/846505af0c0a53e0b43c5ed1c9498570cb81dbd9), проверенный bundle [8db8125](https://github.com/nick-osinskiy/SUNOBOOM/commit/8db8125e9276bb5bf78fd1902654a9f58319d3e3). **151/151 Node tests**, build и полный desktop/mobile/native browser smoke: [CI success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43717870267). [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43718309930). На [опубликованном сайте](https://nick-osinskiy.github.io/SUNOBOOM/?v=215) пройдены shell/router acceptance desktop/mobile, native canonical routes и delayed deep-link/draft, старые JSON/IDB bytes/IDs/links/backup, Studio/arranger/mixer/preferences quota/reload Vue desktop/mobile и native mobile. JS/CSS опубликованной CI-сборки совпали с main по SHA-256 после нормализации переносов строк. Внешний вид проверен на desktop/mobile. **Этап 3 принят и закрыт.** Этап 4 — удаление оставшегося дублирования native renderers и навигационных/lifecycle adapters — не начинался.
+
+## 66. v0.216 — очистка навигации, оболочек и запуска
+
+Удалены legacy-router-mirror, legacy-history-restore, legacyBridge, legacyTopHeaderBridge, createFeatureMounter, VueFeatureHost и legacyPageBridge. Один browser Router владеет URL и историей; navigation-service сохраняет только совместимый API-проекцию без отдельного ledger, очереди и ожидания memory history. Bootstrap вызывает один идемпотентный startApplication. Ошибка запуска оставляет native интерфейс без альтернативного набора Vue roots.
+
+Shell напрямую включает NavigationMenu, TopHeader, VueHistoryControls и Notifications. Штатная native подготовка возвращает только содержимое page boundary, без sidebar/top/mobile/footer/notification overlay. Feature contracts собираются без subscriptions; runtime hooks установлены только для внешних диалогов и именованных editor/lazy boundaries и используют явные события. Приложение не создаёт MutationObserver. Данные, ключи JSON/IDB, файлы и исходные расчёты не меняются.
+
+134 актуальных Node tests проходят; сняты проверки удалённой отдельной memory history и заменены runtime/router/lifecycle acceptance. Сборка и полный desktop/mobile/native smoke — PASS. CI, Pages и live проверяются после отправки в main. **Весь этап 4 не объявлять закрытым:** native generators содержимого пока нужны для snapshots/полей и восстановления. Следующий блок — убрать эту зависимость из штатного Vue render, сохранив fallback, drafts и живые editor/media boundaries. Подробности — STAGE4_CONTEXT.md.

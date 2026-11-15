@@ -3,9 +3,18 @@ import assert from 'node:assert/strict';
 export async function checkShellRouting(browser,base){
  for(const mobile of [false,true]){
   const context=await browser.newContext({viewport:mobile?{width:375,height:812}:{width:1440,height:900},isMobile:mobile,hasTouch:mobile}),page=await context.newPage(),errors=[];
+  await context.addInitScript(()=>{
+   // Exclude only Playwright's own injected listener-removal detector.
+   window.__observers216=0;const NativeObserver=window.MutationObserver;
+   window.MutationObserver=class extends NativeObserver{constructor(...args){super(...args);if(!new Error().stack.includes("InjectedScript"))window.__observers216++;}};
+  });
   page.on('pageerror',e=>errors.push(e.message));page.on('console',m=>{if(m.type()==='warning'&&/Shell error|Page preparation failed/.test(m.text()))errors.push(m.text());});
   try{
    await page.goto(base,{waitUntil:'networkidle'});await page.waitForFunction(()=>window.SUNOBOOM_SHELL?.active);
+   await page.evaluate(()=>{
+    window.__pages216=0;const nativeChrome=chrome;
+    chrome=function(body){const html=nativeChrome(body);if(SUNOBOOM_SHELL.active){window.__pages216++;if(/class="app"|data-sb-vue-top|data-sb-vue-sidebar/.test(html))throw Error('Native page regenerated shell');}return html;};
+   });
    await page.evaluate(()=>{window.__shell215=document.querySelector('[data-sb-vue-shell]');window.__app215=document.getElementById('app').__vue_app__;window.__side215=document.querySelector('.side');});
    await page.evaluate(()=>Promise.all(['studio','songs','home'].map(id=>SUNOBOOM_SHELL.navigate(id))));
    await page.waitForFunction(()=>view.nav==='home'&&SUNOBOOM_SHELL.snapshot().route==='/home');
@@ -16,6 +25,7 @@ export async function checkShellRouting(browser,base){
     assert.match(page.url(),new RegExp('#/'+nav+'$'));
     assert.equal(await page.evaluate(()=>window.__shell215===document.querySelector('[data-sb-vue-shell]')&&window.__app215===document.getElementById('app').__vue_app__&&window.__side215===document.querySelector('.side')&&[...document.querySelectorAll('*')].filter(n=>n.__vue_app__).length===1),true);
    }
+   assert.equal(await page.evaluate(()=>window.__pages216>0),true,'page preparation omits duplicate native chrome');
    await page.goBack();await page.waitForFunction(()=>view.nav==='ideas');await page.goForward();await page.waitForFunction(()=>view.nav==='account');
    await page.locator(`${menu} button[data-nav="catalog"]`).click();await page.waitForURL('**#/catalog');
    await page.evaluate(()=>openGenre('reggae-ska'));await page.waitForURL('**/overview');
@@ -48,6 +58,7 @@ export async function checkShellRouting(browser,base){
    await page.waitForFunction(()=>document.querySelector('#sbsong-shared h1')?.textContent==='Legacy shared route 215');
    assert.match(page.url(),/#\/shared\?card=/);
    await page.goto(base+'#sb-song=broken',{waitUntil:'networkidle'});await page.locator('#sbsong-shared').waitFor();assert.match(await page.locator('#app').textContent(),/Ссылка повреждена/);
+   assert.equal(await page.evaluate(()=>window.__observers216),0,'no DOM observers installed');
    assert.deepEqual(errors,[]);console.log(`One persistent Vue app, browser routes/Back/Forward/reload, nested IDs and legacy links ${mobile?'mobile':'desktop'} PASS`);
   }finally{await context.close();}
  }

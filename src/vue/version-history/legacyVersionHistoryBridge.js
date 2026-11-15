@@ -8,6 +8,7 @@ export function activateLegacyVersionHistory({ mountVueFeature }) {
   if (!api?.snapshot || !document.body) return () => {};
   return observeLegacyIsland({
     root: document.body,
+    subscribe:sync=>{window.addEventListener("sunoboom:version-dialog",sync);return ()=>window.removeEventListener("sunoboom:version-dialog",sync);},
     selectTarget: parent => parent.querySelector('#sb-vue-version-history'),
     readSnapshot: () => {
       const model = api.snapshot();

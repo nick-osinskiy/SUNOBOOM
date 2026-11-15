@@ -1,3 +1,5 @@
+> Текущее состояние v0.216: единый browser Router и один Vue root; memory mirror, независимые island roots и повторный native chrome удалены. Текущая архитектура/остаток: [STAGE4_CONTEXT.md](../../STAGE4_CONTEXT.md). Разделы v0.94–0.215 ниже — история, а не инструкции к новому bootstrap.
+
 # SUNOBOOM — постепенный переход на Vue 3
 
 Этот каталог — **часть существующего SUNOBOOM**, а не новый сайт или отдельный HTML-прототип.

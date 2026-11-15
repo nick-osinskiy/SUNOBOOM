@@ -1,5 +1,4 @@
 import HomeDashboard from './HomeDashboard.vue';
-import { legacyMirrorRouter } from '../navigation/legacy-router-mirror.js';
 import { navigateFromVueShortcut } from '../navigation/navigation-dispatch.js';
 import { observeLegacyIsland } from '../legacy/observeLegacyIsland.js';
 
@@ -17,7 +16,6 @@ export function activateLegacyHomeDashboard({ mountVueFeature, sharedUi }) {
       return mountVueFeature(node, HomeDashboard, {
         model,
         navigate: id => navigateFromVueShortcut(id, {
-          router: legacyMirrorRouter,
           legacyApi: window.SUNOBOOM_LEGACY_NAV
         })
       });

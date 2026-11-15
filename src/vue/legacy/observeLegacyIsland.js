@@ -1,10 +1,10 @@
 import { collectLegacyIsland,availableIsland } from './featureCollection.js';
-// v0.184 — one lifecycle for simple Vue islands inside the original HTML shell.
-// Observe only direct child replacement on the supplied root. Observing subtree
-// would make Vue's own render trigger unnecessary remounts and input loss.
+// Descriptor collection during page preparation, explicit subscriptions for
+// live native boundaries. No DOM observer is installed by application startup.
+// An optional external observer adapter remains injectable for isolated hosts.
 export function observeLegacyIsland({
   root, selectTarget, readSnapshot, mount, subscribe, readRevision,
-  createObserver = callback => new MutationObserver(callback)
+  createObserver
 }) {
   if (!root || typeof selectTarget !== 'function' ||
       typeof readSnapshot !== 'function' || typeof mount !== 'function')
@@ -36,8 +36,8 @@ export function observeLegacyIsland({
     if (typeof unmount === 'function') current = { target, unmount, revision };
   }
 
-  const observer = createObserver(sync);
-  observer.observe(root, { childList: true });
+  const observer = createObserver?.(sync);
+  observer?.observe(root, { childList: true });
   // Optional external events (e.g. <details> toggle) do not alter #app children.
   const unsubscribe = typeof subscribe === 'function' ? subscribe(sync) : null;
   if(typeof window!=='undefined')window.addEventListener('sunoboom:shell-rendered',sync);
@@ -47,7 +47,7 @@ export function observeLegacyIsland({
     if (disposed) return;
     disposed = true;
     if(typeof window!=='undefined')window.removeEventListener('sunoboom:shell-rendered',sync);
-    observer.disconnect();
+    observer?.disconnect();
     if (typeof unsubscribe === 'function') unsubscribe();
     unmountCurrent();
   };

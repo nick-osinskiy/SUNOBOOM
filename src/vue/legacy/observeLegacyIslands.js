@@ -1,8 +1,9 @@
 import { collectLegacyIsland,availableIsland } from './featureCollection.js';
-// v0.190: one shallow observer for several independent legacy Vue hosts.
-// Do not observe descendants: Vue updates and text input must not trigger remounts.
+// Descriptor collection during page preparation, explicit subscriptions for
+// live native boundaries. No DOM observer is installed by application startup.
+// An optional external observer adapter remains injectable for isolated hosts.
 export function observeLegacyIslands({
-  root, islands, subscribe, beforeSync, createObserver = callback => new MutationObserver(callback)
+  root, islands, subscribe, beforeSync, createObserver
 }) {
   if (!root || !Array.isArray(islands) || !islands.length ||
       islands.some(item => !item || typeof item.key !== 'string' ||
@@ -40,8 +41,8 @@ export function observeLegacyIslands({
       if (typeof unmount === 'function') active.set(island.key, { target, revision, unmount });
     }
   }
-  const observer = createObserver(sync);
-  observer.observe(root, { childList: true });
+  const observer = createObserver?.(sync);
+  observer?.observe(root, { childList: true });
   // Optional native lifecycle events for islands created/closed below #app.
   // Keep the observer shallow: Vue's own DOM updates are not navigation.
   const unsubscribe = typeof subscribe === 'function' ? subscribe(sync) : null;
@@ -51,7 +52,7 @@ export function observeLegacyIslands({
     if (disposed) return;
     disposed = true;
     if(typeof window!=='undefined')window.removeEventListener('sunoboom:shell-rendered',sync);
-    observer.disconnect();
+    observer?.disconnect();
     if (typeof unsubscribe === 'function') unsubscribe();
     for (const { unmount } of active.values()) unmount();
     active.clear();

@@ -2,10 +2,8 @@
 import { computed, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { useLegacyUiStore } from '../state/legacy-ui-store.js';
-import { memoryHistoryRevision } from './legacy-router-mirror.js';
 
-// The controls do not own any navigation or browser history. Their two actions
-// invoke the same guarded restore adapter used in v0.135.
+// Both actions traverse the one browser Router through its guarded adapter.
 const props = defineProps({
   canRestore: { type: Function, required: true },
   onRestore: { type: Function, required: true }
@@ -14,13 +12,9 @@ const route = useRoute();
 const ui = useLegacyUiStore();
 const busy = ref(false);
 const available = computed(() => {
-  // Both route and legacy revisions are reactive; the memory ledger is read
-  // only after the route has settled. No timers or polling.
-  void route.path;void route.fullPath;
+  // A nested record/editor can change availability without changing menu ID.
+  void route.fullPath;
   void ui.route.revision;
-  // The memory route changes before its async ledger is committed. Recompute
-  // disabled states when that ledger settles, even if the path stays unchanged.
-  void memoryHistoryRevision.value;
   return {
     back: !busy.value && props.canRestore('back'),
     forward: !busy.value && props.canRestore('forward')

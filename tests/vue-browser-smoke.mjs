@@ -341,8 +341,9 @@ async function checkAccountHomeDelay205() {
     const stable=await page.evaluate(async()=>{
       const root=document.getElementById('sb-vue-account-home'),first=root.querySelector('.account-tile');
       const marker=document.createElement('i');document.getElementById('app').append(marker);queueMicrotask(()=>marker.remove());await new Promise(r=>setTimeout(r,50));
-      const module=await import('./dist/vue/sunoboom-vue.js');const stop=module.startLegacyAccountSummary();stop();
-      return first===root.querySelector('.account-tile')&&root.querySelectorAll('[data-v-app]').length===0;
+      const module=await import('./dist/vue/sunoboom-vue.js');const shell=SUNOBOOM_SHELL;
+      if(await module.startApplication()!==shell||module.startLegacyAccountSummary)throw Error('Duplicate application startup path');
+      return first===root.querySelector('.account-tile')&&root.querySelectorAll('[data-v-app]').length===0&&[...document.querySelectorAll('*')].filter(n=>n.__vue_app__).length===1;
     });
     if(!stable)throw Error('v0.205 remounted draft or activated competing summary roots');
   }finally{release();await context.close();}
@@ -541,40 +542,34 @@ async function checkLayout(mobile) {
 
   try {
     await page.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 30000 });
-    // Exercise real production Vue error handling, including swallowed render errors.
-    await page.evaluate(async () => {
-      const { mountVueFeature, unmountVueFeature } = await import('./dist/vue/sunoboom-vue.js');
-      const host = document.createElement('div');
-      host.innerHTML='<button type="button">Native fallback</button>';
+    // Portal lifecycle in the real single application, including render/setup/mounted failures.
+    await page.waitForFunction(()=>window.SUNOBOOM_SHELL?.active);
+    await page.evaluate(async()=>{
+      const {mountFeature,unmountFeature}=SUNOBOOM_SHELL;
+      const tick=()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+      const host=document.createElement('div');host.innerHTML='<button type="button">Native fallback</button>';
       host.setAttribute('v-cloak','');document.body.append(host);
-      let clicks=0, cleanups=0;
-      host.addEventListener('click',()=>clicks++);
-      const assertFallback=()=>{
-        if(host.innerHTML!=='<button type="button">Native fallback</button>' ||
-          host.hasAttribute('data-v-app') || !host.hasAttribute('v-cloak'))
-          throw Error('v0.195 native fallback or host attributes lost');
-        host.querySelector('button').click();
+      const original=host.firstElementChild;let clicks=0,cleanups=0;
+      original.addEventListener('click',()=>clicks++);
+      const fallback=()=>{
+        if(host.firstElementChild!==original||host.children.length!==1||host.hasAttribute('data-v-app')||!host.hasAttribute('v-cloak'))
+          throw Error('Portal lost native control identity or attributes');
+        original.click();
       };
-      try {
-        const first=mountVueFeature(host,{render:()=>null,unmounted(){cleanups++;}});
-        const second=mountVueFeature(host,{render:()=>null,unmounted(){cleanups++;}});
-        first();if(cleanups!==1)throw Error('v0.195 stale disposer removed replacement');
-        second();second();unmountVueFeature(host);
-        if(cleanups!==2)throw Error('v0.195 duplicate or missing cleanup');
-        assertFallback();
-        for(const stage of ['setup','render','mounted']){
-          const stale=mountVueFeature(host,{render:()=>null});
-          const component={render:()=>null,[stage](){throw Error('intentional v0.195 '+stage);}};
-          if(mountVueFeature(host,component)!==null)throw Error('v0.195 failed app retained');
-          stale();assertFallback();unmountVueFeature(host);
+      try{
+        const first=mountFeature(host,{render:()=>null,unmounted(){cleanups++;}});await tick();
+        const second=mountFeature(host,{render:()=>null,unmounted(){cleanups++;}});await tick();
+        first();await tick();if(cleanups!==1)throw Error('Stale portal disposer removed replacement');
+        second();second();unmountFeature(host);await tick();
+        if(cleanups!==2)throw Error('Portal cleanup was not exactly once');fallback();
+        for(const phase of ['setup','render','mounted']){
+          const component={render:()=>null,[phase](){throw Error('intentional portal '+phase);}};
+          mountFeature(host,component);await tick();fallback();unmountFeature(host);await tick();
         }
-        const retry=mountVueFeature(host,{render:()=>null});
-        if(typeof retry!=='function')throw Error('v0.195 failed host cannot retry');
-        retry();assertFallback();
-        if(clicks!==5)throw Error('v0.195 native delegated action broken');
-      } finally {unmountVueFeature(host);host.remove();}
+        const retry=mountFeature(host,{render:()=>null});await tick();retry();await tick();fallback();
+        if(clicks!==5)throw Error('Native fallback listener lost');
+      }finally{unmountFeature(host);await tick();host.remove();}
     });
-
 
     // Both menus are enhanced; the initial Master link must already exist.
     try {
@@ -680,7 +675,7 @@ async function checkLayout(mobile) {
       throw new Error('Shared Pinia state disagrees with legacy route, menu or dashboard counters');
     }
 
-    // v0.164: the Vue dashboard and menus share the same memory router.
+    // Dashboard and menus use the same browser Router.
     // A shortcut performs ONE original go(), preserves browser URL/storage,
     // and supports actual Back/Forward restoration for safe workspaces.
     const baseUrl164 = page.url();
@@ -702,8 +697,7 @@ async function checkLayout(mobile) {
     }
     if (after164.active !== 'myideas' || (!await page.evaluate(()=>!!window.SUNOBOOM_SHELL?.active)&&page.url() !== baseUrl164) ||
         after164.storage !== before164.storage ||
-        after164.route.menuPushes !== before164.route.menuPushes ||
-        after164.route.shortcutPushes !== before164.route.shortcutPushes + 1) {
+        after164.route.path !== '/account/myideas') {
       throw new Error('Vue dashboard shortcut bypassed shared router or dispatched twice');
     }
     if (!await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.back())) {
@@ -954,8 +948,7 @@ async function checkLayout(mobile) {
     }
 
     // v0.130: both Vue menus share one read-only legacy route observer.
-    // v0.131: Vue Router follows legacy navigation in MEMORY only.
-    // It must never alter location/history or become a second source of pages.
+    // Browser Router owns URL/history; the shared UI projection must match.
     await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.routerSnapshot()?.path === '/home');
     await page.waitForFunction(() => ['[data-sb-vue-sidebar]', '[data-sb-vue-mobile]']
       .every(selector => document.querySelector(selector + ' button[data-nav="home"]')
@@ -1080,9 +1073,8 @@ async function checkLayout(mobile) {
     await master.waitFor();
     if (await master.count() !== 1) throw new Error('Master link missing or duplicated');
 
-    const beforeMenuPush134 = await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.routerSnapshot().menuPushes);
     // v0.133: the Vue Router menu adapter must dispatch EXACTLY ONE legacy
-    // go() per click, even though the Vue route mirror also updates.
+    // go() per click while the browser route and UI projection update.
     await page.evaluate(() => {
       window.__sb133GoCalls = 0;
       window.__sb133OldGo = go;
@@ -1106,11 +1098,9 @@ async function checkLayout(mobile) {
     await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.snapshot()?.route === 'producer');
     await page.waitForFunction(() => {
       const route = window.SUNOBOOM_VUE_ROUTE?.routerSnapshot();
-      return route?.path === '/producer' && route?.transition === 'push';
+      return route?.path === '/producer';
     });
-    if (await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.routerSnapshot().menuPushes) !== beforeMenuPush134 + 1) {
-      throw new Error('Vue menu click should add exactly one memory history entry');
-    }
+    if (!page.url().endsWith('#/producer')) throw Error('Master browser URL missing');
     await page.waitForFunction(() => ['[data-sb-vue-sidebar]', '[data-sb-vue-mobile]']
       .every(selector => document.querySelector(selector + ' button[data-nav="producer"]')
         ?.getAttribute('data-vue-router-path') === '/producer'));
@@ -1126,11 +1116,10 @@ async function checkLayout(mobile) {
     await page.locator(nav + ' button[data-nav="studio"].active').waitFor({ timeout: 10000 });
     await page.waitForFunction(expected => {
       const route = window.SUNOBOOM_VUE_ROUTE?.routerSnapshot();
-      return route?.path === '/studio' && route?.menuPushes === expected;
-    }, beforeMenuPush134 + 2);
+      return route?.path === '/studio';
+    });
 
-    // v0.135: explicit memory Back/Forward safely restores ONLY valid
-    // top-level routes using the existing go(), never browser history.
+    // Browser Back/Forward restore validated top-level routes.
     // v0.136 exercises actual Vue toolbar clicks, not only the diagnostic API.
     await page.waitForFunction(() => {
       const buttons = document.querySelectorAll('[data-sb-vue-history] button');
@@ -1139,15 +1128,14 @@ async function checkLayout(mobile) {
     await back136.click();
     await page.waitForFunction(() => {
       const route = window.SUNOBOOM_VUE_ROUTE?.routerSnapshot();
-      return route?.path === '/producer' && route.transition === 'back' &&
+      return route?.path === '/producer' &&
         view.nav === 'producer';
     });
     const back135 = await page.evaluate(() => ({
       after: window.SUNOBOOM_VUE_ROUTE.routerSnapshot(),
       legacyRoute: view.nav
     }));
-    if (back135.legacyRoute !== 'producer' || !back135.after.canGoForward ||
-        back135.after.menuPushes !== beforeMenuPush134 + 2) {
+    if (back135.legacyRoute !== 'producer' || !back135.after.canGoForward) {
       throw new Error('Vue Back button did not restore Master: ' + JSON.stringify(back135));
     }
     await page.locator(nav + ' button[data-nav="producer"].active').waitFor({ timeout: 10000 });
@@ -1157,14 +1145,14 @@ async function checkLayout(mobile) {
     await forward136.click();
     await page.waitForFunction(() => {
       const route = window.SUNOBOOM_VUE_ROUTE?.routerSnapshot();
-      return route?.path === '/studio' && route.transition === 'forward' &&
+      return route?.path === '/studio' &&
         view.nav === 'studio';
     });
     const forward135 = await page.evaluate(() => ({
       after: window.SUNOBOOM_VUE_ROUTE.routerSnapshot(), legacyRoute: view.nav
     }));
     if (forward135.legacyRoute !== 'studio' ||
-        forward135.after.canGoForward || forward135.after.menuPushes !== beforeMenuPush134 + 2 ||
+        forward135.after.canGoForward ||
         (!await page.evaluate(()=>!!window.SUNOBOOM_SHELL?.active)&&page.url() !== BASE)) {
       throw new Error('Vue Forward button changed URL or failed: ' + JSON.stringify(forward135));
     }
@@ -1405,18 +1393,17 @@ async function checkLayout(mobile) {
     const genreRoute130 = await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE?.snapshot());
     await page.waitForFunction(() => {
       const mirror = window.SUNOBOOM_VUE_ROUTE?.routerSnapshot();
-      return mirror?.path === '/catalog/detail' &&
+      return mirror?.path === '/catalog/reggae-ska/overview' &&
         mirror?.context?.kind === 'genre' &&
         mirror.context.id === 'reggae-ska' && mirror.context.tab === 'overview';
     });
     const afterGenre137 = await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE.routerSnapshot());
-    if (!afterGenre137.canGoBack || afterGenre137.historyDepth !== beforeGenre137.historyDepth + 1 ||
-        afterGenre137.menuPushes !== beforeGenre137.menuPushes) {
+    if (!afterGenre137.canGoBack || !page.url().endsWith('#/catalog/reggae-ska/overview')) {
       throw new Error('Genre detail did not record a context-aware history entry');
     }
     await page.waitForFunction(() => ['[data-sb-vue-sidebar]', '[data-sb-vue-mobile]']
       .every(selector => document.querySelector(selector + ' button[data-nav="catalog"]')
-        ?.getAttribute('data-vue-router-path') === (window.SUNOBOOM_SHELL?.active ? '/catalog/reggae-ska/overview' : '/catalog/detail')));
+        ?.getAttribute('data-vue-router-path') === (window.SUNOBOOM_SHELL?.active ? '/catalog/reggae-ska/overview' : '/catalog/reggae-ska/overview')));
     if (genreRoute130?.route !== 'detail' || genreRoute130.active !== 'catalog' ||
         await page.locator('[data-sb-vue-sidebar] button[data-nav="catalog"][aria-current="page"]').count() !== 1 ||
         await page.locator('[data-sb-vue-mobile] button[data-nav="catalog"][aria-current="page"]').count() !== 1) {
@@ -1482,7 +1469,7 @@ async function checkLayout(mobile) {
       return focus?.genreId === 'reggae-ska' && focus?.tab === 'artists';
     });
     // v0.137: restore the exact genre and Vue-managed Artists tab, not just
-    // the generic /catalog/detail route. The browser URL must not change.
+    // the actual genre path; browser Back preserves the catalog context.
     await page.waitForFunction(() =>
       window.SUNOBOOM_VUE_ROUTE?.routerSnapshot()?.context?.tab === 'artists');
     const genreHistoryBack137 = page.locator('[data-sb-vue-history] [data-sb-history-back]');
@@ -1513,7 +1500,7 @@ async function checkLayout(mobile) {
       mirror: window.SUNOBOOM_VUE_ROUTE.routerSnapshot()
     }));
     if (restoredGenre137.id !== 'reggae-ska' || restoredGenre137.tab !== 'artists' ||
-        restoredGenre137.route !== 'detail' || restoredGenre137.mirror.path !== '/catalog/detail' ||
+        restoredGenre137.route !== 'detail' || restoredGenre137.mirror.path !== '/catalog/reggae-ska/artists' ||
         restoredGenre137.mirror.context?.id !== 'reggae-ska' ||
         restoredGenre137.mirror.context?.tab !== 'artists' || (!await page.evaluate(()=>!!window.SUNOBOOM_SHELL?.active)&&page.url() !== BASE)) {
       throw new Error('History did not restore the selected genre and Artists tab: ' +
@@ -3540,20 +3527,20 @@ async function checkLayout(mobile) {
     const masterA152 = await page.evaluate(() => data.productions.find(
       work => work.title === 'History Master 152 A')?.id);
     await page.waitForFunction(id => window.SUNOBOOM_VUE_ROUTE?.routerSnapshot()?.path ===
-      '/producer/detail/' + id, masterA152);
+      '/producer/' + id, masterA152);
     await page.locator('#sbpc-new-title').fill('History Master 152 B');
     await page.locator('[data-pc-action="create"]').click();
     const masterB152 = await page.evaluate(() => data.productions.find(
       work => work.title === 'History Master 152 B')?.id);
     await page.waitForFunction(id => window.SUNOBOOM_VUE_ROUTE?.routerSnapshot()?.path ===
-      '/producer/detail/' + id, masterB152);
+      '/producer/' + id, masterB152);
     await page.locator('#sbpc-search').fill('History Master 152');
     if (await page.locator('#sbpc-list .sbpc-song').count() !== 2) {
       throw new Error('Master history fixture search must show both working cards');
     }
     await page.locator('#sbpc-list .sbpc-song[data-id="' + masterA152 + '"]').click();
     await page.waitForFunction(id => window.SUNOBOOM_VUE_ROUTE?.routerSnapshot()?.context?.id === id &&
-      window.SUNOBOOM_VUE_ROUTE.routerSnapshot().path === '/producer/detail/' + id, masterA152);
+      window.SUNOBOOM_VUE_ROUTE.routerSnapshot().path === '/producer/' + id, masterA152);
     await page.locator('[data-sb-vue-history] [data-sb-history-back]').click();
     await page.waitForFunction(id => window.SUNOBOOM_VUE_ROUTE?.routerSnapshot()?.context?.id === id &&
       document.querySelector('#sbpc-title')?.value === 'History Master 152 B', masterB152);
@@ -3571,17 +3558,8 @@ async function checkLayout(mobile) {
 
     // v0.126: Vue owns only passport filters/cards; the old editor, detail,
     // version manager, release calculation and persistence must still work.
-    const beforeLegacyReplace134 = await page.evaluate(() => window.SUNOBOOM_VUE_ROUTE?.routerSnapshot().menuPushes);
     await page.evaluate(() => go('tracks'));
-    await page.waitForFunction(() => {
-      const route = window.SUNOBOOM_VUE_ROUTE?.snapshot();
-      return route?.route === 'tracks' && route.active === 'account';
-    });
-    await page.waitForFunction(expected => {
-      const route = window.SUNOBOOM_VUE_ROUTE?.routerSnapshot();
-      return route?.path === '/account/tracks' && route.transition === 'replace' &&
-        route.menuPushes === expected;
-    }, beforeLegacyReplace134);
+    await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.snapshot()?.active==='account');
     await page.waitForFunction(() => window.SUNOBOOM_VUE_ROUTE?.routerSnapshot()?.path === '/account/tracks');
     await page.waitForFunction(() => ['[data-sb-vue-sidebar]', '[data-sb-vue-mobile]']
       .every(selector => document.querySelector(selector + ' button[data-nav="account"]')
@@ -3765,7 +3743,7 @@ async function checkLayout(mobile) {
     // v0.138: real Vue buttons restore the filtered list and its specific passport.
     await page.waitForFunction(id => {
       const route = window.SUNOBOOM_VUE_ROUTE?.routerSnapshot();
-      return route?.path === '/account/tracks/detail' &&
+      return route?.path === '/account/tracks/' + id &&
         route.context?.kind === 'track' && route.context.id === id;
     }, track126.id);
     try {
