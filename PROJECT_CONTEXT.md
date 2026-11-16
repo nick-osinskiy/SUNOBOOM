@@ -2,7 +2,7 @@
 
 **Рабочая ветка: `codex/develop`. `main` — защищённый продакшен; изменения в него только через Pull Request и успешный verify-and-build. Прежние инструкции прямого push в main больше не действуют.**
 
-> **v0.225 — аудитор промптов: все темы и длинный предпросмотр.** Отдельная sbpa-панель, вкладки, оценка, поля, сообщения и предложение следуют палитре. Восстановлен приватный protected-clause helper в core: предпросмотр >1000 больше не падает, правила/исходный текст не меняются. 136 Node tests, browser palette checks/build — PASS; выпуск через PR/main CI. Раздел 76.
+> **v0.226 — закреплённая верхняя панель.** Верхнее меню и история разделов объединены в отдельную Vue-панель, которая остаётся сверху при прокрутке. Палитры, мобильные экраны и резервный интерфейс сохранены. 136 Node tests, import audit, build и целевая browser-проверка — PASS. Полный smoke и публикация через PR/main CI; фактический результат — в PR. Раздел 77.
 
 ## 1. Что это и где работает
 
@@ -1197,3 +1197,14 @@ Backdrop теперь neutral black alpha .48 для dark palettes и .25 для
 Локально: import audit, 136 Node tests, build — PASS. 40 вариантов (8 палитр + system dark/light × desktop/mobile × Vue/native): Studio/manual, duplicate/tempo issues, over-limit counter, incomplete proposal/alert, editing/closing proposal. Проверены цвета container/score/active/primary/inputs, диагностический контраст проверенных текстов/сообщений, overflow. После каждого варианта builder и полный arrangement exportDraft совпадают с исходными, manual source сохраняется при preview/edit/close. Визуально просмотрены Sunset clean и Pink Pastel over-limit. Проверка опубликованного сайта обязательна после main CI/deploy; фактические результаты — в PR.
 
 Версия 0.225, app-themes.css?v=225. Google Drive остаётся отключённым; миграцию Vue не открывать заново.
+
+
+## 77. v0.226 — отдельная закреплённая верхняя панель
+
+В ApplicationShell верхнее меню и история разделов объединены в TopPanel.vue. Панель остаётся единственным постоянным узлом при переходах, закреплена CSS sticky с отступом safe-area, использует panel/stroke/text активной темы. Кнопки истории теперь также следуют палитре. ResizeObserver измеряет высоту самой панели для scroll-padding и отступов существующих sticky результатов Studio/аранжировщика; при удалении компонента observer и CSS-переменная освобождаются. Модели, состояние, данные и действия не менялись.
+
+Нативная оболочка использует тот же header и CSS; пустая native history host скрыта. На узких экранах результат Studio остаётся в обычном потоке. Уведомления открываются ниже панели, на коротком экране получают компактное размещение; слои модальных окон выше меню. Панель не создаёт второй Vue root или MutationObserver.
+
+Постоянная browser-регрессия tests/vue-top-panel.mjs включена в общий smoke: 8 палитр, ширины 1440/768/375/320 и landscape 812×375, прокрутка на 1500px, неизменность узла при переходах/resize, отсутствие overflow и выходящих за панель кнопок, измеренная высота, уведомления/закрытие, Back/Forward/настройки и native fallback с заблокированным bundle. Целевая проверка, 136 Node tests, audit импортов (104 source/105 reachable, missing/unused 0) и production build — PASS; screenshots desktop/mobile просмотрены. Полный browser smoke и публикация проверяются через PR/main CI, после deploy обязательна проверка живого сайта.
+
+Версия 0.226; данные/JSON/IndexedDB/аудио не мигрируют. Google Drive остаётся отключённым.

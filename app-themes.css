@@ -955,3 +955,33 @@ html #sbpa-auditor .sbpa-clear{background:color-mix(in srgb,var(--cyan) 10%,var(
 html #sbpa-auditor button:hover{filter:brightness(1.05)}
 html #sbpa-auditor :is(button,select,textarea,summary):focus-visible{outline:2px solid var(--sbpa-accent)!important;outline-offset:3px}
 html .sbpa-editor-entry span{color:var(--muted)}
+
+/* One persistent sticky navigation surface. The Vue wrapper measures its own
+   height for anchor/keyboard scrolling and existing sticky result panels. */
+html{--sb-top-panel-edge:max(8px,env(safe-area-inset-top,0px));scroll-padding-top:calc(var(--sb-top-panel-height,124px) + var(--sb-top-panel-edge) + 16px)}
+html .sb-top-panel{
+ position:sticky;top:var(--sb-top-panel-edge);z-index:55;
+ padding:14px 16px;margin-bottom:24px;min-width:0;
+ border:1px solid var(--stroke);border-radius:16px;
+ background:var(--panel);color:var(--text);box-shadow:0 8px 28px #00000024;
+}
+html .sb-top-panel>.top{margin:0;padding:0 0 12px;border-bottom-color:var(--stroke);min-width:0}
+html .sb-top-panel .breadcrumbs{min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html .sb-top-panel .top-right{flex-shrink:0}
+html .sb-top-panel .sb-vue-history-toolbar{margin:10px 0 0;min-height:32px}
+html .sb-top-panel .sb-vue-history-caption{color:var(--muted)}
+html .sb-top-panel .sb-vue-history-button{background:var(--panel3);border-color:var(--stroke);color:var(--text)}
+html .sb-top-panel .sb-vue-history-button:not(:disabled):is(:hover,:focus-visible){background:var(--panel2);border-color:var(--sb-theme-accent,var(--violet))}
+html .sb-top-panel .sb-vue-history-host:empty{display:none}
+html .app:not([data-sb-vue-shell]) .main{--sb-top-panel-height:76px}
+html .studio-grid>.panel:last-child,html .sba-result{top:calc(var(--sb-top-panel-height,124px) + var(--sb-top-panel-edge) + 16px)!important}
+@media(max-width:700px){
+ html .sb-top-panel{padding:10px;margin-bottom:20px;border-radius:13px}
+ html .sb-top-panel>.top{padding-bottom:10px}
+ html .sb-top-panel .sb-vue-history-toolbar{margin-top:8px}
+}
+
+html .sb-top-panel .sb-vue-history-button:focus-visible{outline:2px solid var(--sb-theme-accent,var(--violet))!important;outline-offset:2px}
+html .sb-notice-panel{top:calc(var(--sb-top-panel-height,124px) + var(--sb-top-panel-edge) + 16px);max-height:calc(100dvh - var(--sb-top-panel-height,124px) - var(--sb-top-panel-edge) - 32px)}
+@media(max-width:1180px){html .studio-grid>.panel:last-child{position:static!important;top:auto!important}}
+@media(max-height:480px){html .sb-notice-panel{top:16px;max-height:calc(100dvh - 32px)}}
