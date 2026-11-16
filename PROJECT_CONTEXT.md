@@ -1,6 +1,6 @@
 # SUNOBOOM — PROJECT_CONTEXT.md
 
-> **v0.220 — стартовые перерисовки.** Синхронные обновления при установке inline-расширений объединены: native #app writes 32 → 11. Первый рабочий интерфейс сохранён; финальный flush выполнен до внешних модулей. Пользовательские render/go не откладываются. Подробности и фактические проверки — PERFORMANCE_ACCEPTANCE.md, раздел 70.
+> **v0.220 — стартовые перерисовки.** Синхронные обновления при установке inline-расширений объединены: native #app writes 32 → 11. Первый рабочий интерфейс сохранён; финальный flush выполнен до внешних модулей. Пользовательские render/go не откладываются. 134 теста, build, полный smoke, CI/Pages/live — PASS. Подробности — PERFORMANCE_ACCEPTANCE.md, раздел 70.
 
 ## 1. Что это и где работает
 
@@ -1121,7 +1121,7 @@ Shell напрямую включает NavigationMenu, TopHeader, VueHistoryCon
 
 Публикация v0.219 подтверждена 16 ноября 2026 г.: source [5b6b2dd](https://github.com/nick-osinskiy/SUNOBOOM/commit/5b6b2dd31476ea59691a475a8ed4540f571f7410), проверенная CI-сборка [567cdb9](https://github.com/nick-osinskiy/SUNOBOOM/commit/567cdb9aae2330da7edec0733d2733a47c45108b). [GitHub Actions success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43798243674): audit, 134 Node tests, build, полный desktop/mobile/native smoke. [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43798685578). На [сайте v0.219](https://nick-osinskiy.github.io/SUNOBOOM/?v=219) пройдены direct pages/recovery, draft/node/FileList handoff, browser routing/Back/Forward/reload, native canonical URLs, прежние JSON/IDB/audio и Studio/preferences. Финальные JS/CSS совпали с main по SHA-256 после нормализации CRLF. Функции/дизайн/данные/fallback сохранены. Этот блок оптимизации принят; дальнейшие CPU/layout улучшения требуют отдельного измерения.
 
-Pages mobile emulation (median ×3): ready 5051 → 4700 мс (−6,9%), FCP 1988 → 1992 мс, Vue transfer 150506 → 132607 байт; ровно один Vue fetch. Не выдавать эти лабораторные результаты за измерения на реальном телефоне. Следующий предложенный блок — профилировать native startup/layout и убрать только подтверждённые лишние стартовые перерисовки; он ещё не начат.
+Pages mobile emulation (median ×3): ready 5051 → 4700 мс (−6,9%), FCP 1988 → 1992 мс, Vue transfer 150506 → 132607 байт; ровно один Vue fetch. Не выдавать эти лабораторные результаты за измерения на реальном телефоне. Предложенный блок стартовых перерисовок выполнен в v0.220; см. раздел 70.
 
 
 ## 70. v0.220 — убрать лишние стартовые перерисовки
@@ -1130,4 +1130,9 @@ Pages mobile emulation (median ×3): ready 5051 → 4700 мс (−6,9%), FCP 198
 
 Локально в одинаковой эмуляции (median ×3) writes 32 → 11, суммарный HTML 557747 → 191203 UTF-16 units, setter time 138 → 48 мс. ScriptDuration 0,345338 → 0,237913 с; TaskDuration 3,206259 → 2,583541 с. Ready 12164 → 12443 мс: ускорение общей загрузки этим локальным замером не подтверждено. Не подменять снижение CPU/DOM работы обещанием ускорения на реальном телефоне.
 
-Финальный native #app.innerHTML побайтово одинаков на 8 маршрутах desktop/mobile до изменения release label. Новый browser guard проверяет бюджет startup writes, итоговый dashboard/catalogue, синхронную навигацию и сохранность черновика при повторном flush. Обязательны полный existing smoke, CI/Pages/live перед приёмкой. Raw samples — benchmarks/mobile-load-v220.json. Миграционные этапы остаются закрытыми; форматы/данные/компоненты/стили не меняются.
+Финальный native #app.innerHTML побайтово одинаков на 8 маршрутах desktop/mobile до изменения release label. Новый browser guard проверяет бюджет startup writes, итоговый dashboard/catalogue, синхронную навигацию и сохранность черновика при повторном flush. Полный existing smoke, CI/Pages/live подтверждены ниже. Raw samples — benchmarks/mobile-load-v220.json. Миграционные этапы остаются закрытыми; форматы/данные/компоненты/стили не меняются.
+
+
+Публикация v0.220 подтверждена 16 ноября 2026 г.: source [6ad1e2c](https://github.com/nick-osinskiy/SUNOBOOM/commit/6ad1e2c60b8ac2e18821b893292077c801d6a392). [GitHub Actions success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43804576010): import audit, 134/134 Node tests, build, полный desktop/mobile/native smoke с новым startup guard. [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43804575661). На [сайте v0.220](https://nick-osinskiy.github.io/SUNOBOOM/?v=220) отдельно пройдены startup write budget, native dashboard/catalogue и синхронные действия, direct pages/recovery, draft/node/FileList handoff, routes/Back/Forward/reload, native deep links, прежние JSON/IDB/audio и Studio/preferences. Опубликованные Vue JS/CSS совпали с main и прежними CI assets по SHA-256 с нормализацией CRLF; CI повторно собрал те же assets и не создал отдельный bundle commit. Функции/дизайн/данные/fallback сохранены. Этот согласованный блок принят и завершён; миграционные этапы не открываются заново.
+
+Pages mobile emulation (median ×3, Chromium 158.0.8127.18): native writes 32 → 11; setter time 108 → 47 мс; ScriptDuration 0,260794 → 0,189336 с (−27%); ready 4764 → 4485 мс, FCP 2004 → 1996 мс. Локальный ready не улучшился, диагностический long-task excess на Pages также не улучшился: не обещать ускорение на каждом телефоне. Подтверждённое достижение — меньше повторной DOM/JS работы при первом подключении. Следующий предложенный блок — подробный профиль оставшихся долгих задач первой отрисовки/layout; он ещё не начат.

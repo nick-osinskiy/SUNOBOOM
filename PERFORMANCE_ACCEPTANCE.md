@@ -1,10 +1,10 @@
 # Мобильная загрузка — v0.219–v0.220
 
-Статус: **v0.219 опубликована и принята 16 ноября 2026 г.**
+Статус: **v0.220 опубликована и принята 16 ноября 2026 г.** Результаты v0.219 сохранены ниже.
 
 ## v0.220 — стартовые перерисовки
 
-Локальная приёмка: import audit (103 modules, missing/unused 0), 134/134 Node tests, build и полный desktop/mobile/native browser smoke — PASS. CI/Pages/live-приёмка фиксируются после публикации. Baseline — main ec54e27 (v0.219). Существующие Linux CI assets сохранены: исходники Vue/стили/Vite config не менялись; локальная Windows сборка успешно проверена, различающиеся generated hashes не публикуются вместо прежних assets.
+Локальная приёмка: import audit (103 modules, missing/unused 0), 134/134 Node tests, build и полный desktop/mobile/native browser smoke — PASS. CI/Pages/live-приёмка подтверждены ниже. Baseline — main ec54e27 (v0.219). Существующие Linux CI assets сохранены: исходники Vue/стили/Vite config не менялись; локальная Windows сборка успешно проверена, различающиеся generated hashes не публикуются вместо прежних assets.
 
 В режиме cold mobile Chromium профилировщик перехватывает setter innerHTML только для native #app до активации Vue. В production этого перехвата нет. Baseline — 32 полные записи. 21 промежуточное обновление, вызванное синхронной установкой inline-расширений, устранено: явные install refresh лишь помечают очередь, финальный flush вызывает актуальный render после завершения всех inline-расширений, до external modules. Первый исходный render остаётся доступен. Обычные пользовательские render/go не входят в очередь; нет таймеров, новых отложенных задач, второго владельца данных или изменений схем хранения.
 
@@ -23,6 +23,26 @@
 Объём повторной DOM-работы снижен примерно на 66%, ScriptDuration — на 31%, TaskDuration — на 19% в этом профиле. Общая загрузка не ускорилась в локальном замере; нельзя объявлять её ускоренной на основании этих данных. Три запуска, разные состояния ОС/соединений и эмуляция не заменяют реальные телефоны. Повторное измерение Pages выполняется отдельно; raw samples в benchmarks/mobile-load-v220.json. nativeHTMLChars означает длину строки в UTF-16 units, не сетевые байты. В измерениях не было параллельных functional tests.
 
 Проверка эквивалентности до изменения номера версии: итоговый native #app.innerHTML полностью совпал с baseline на home/catalog/events/projects/account/myideas/tracks/artists, desktop и mobile. Компоненты/стили/core/storage и обработчики действий не менялись. Новый checkStartupRenderBatch входит в полный browser smoke и CI: бюджет до 12 native startup writes, финальные dashboard/catalogue, синхронная навигация и отсутствие повторного flush поверх черновика. Остальные тесты проверяют delayed/error startup, native fallback, старые JSON/IDB/audio, настройки стартовой страницы и routes. Этапы миграции остаются закрытыми.
+
+### v0.220 — опубликованные измерения
+
+| Pages, одинаковая mobile эмуляция, median ×3 | v0.219 | v0.220 |
+| --- | ---: | ---: |
+| Native #app writes | 32 | 11 |
+| Native setter time | 108 мс | 47 мс |
+| CDP ScriptDuration | 0,260794 с | 0,189336 с |
+| CDP TaskDuration | 2,160268 с | 2,020963 с |
+| CDP LayoutDuration | 1,028636 с | 0,989013 с |
+| FCP | 2004 мс | 1996 мс |
+| LCP до ready+200 мс | 2832 мс | 2244 мс |
+| Vue shell ready | 4764 мс | 4485 мс |
+| Диагностическая сумма long-task excess | 974 мс | 1006 мс |
+
+Стартовых full DOM writes стало на 66% меньше, ScriptDuration в этом профиле снизилось на 27%, TaskDuration — на 6,4%. Ready в этих трёх Pages samples улучшился на 5,9%, но локальный замер не показал ускорения общей загрузки, а long-task excess на Pages не улучшился. Снижение повторной DOM/JS работы подтверждено; универсальное ускорение загрузки и устранение оставшихся длинных задач не заявляются. FCP практически прежний. Chromium 158.0.8127.18; raw samples и baseline source commit сохранены в benchmarks/mobile-load-v220.json. CSS и Vue JS опубликованной сборки совпадают с прежним canonical bundle по SHA-256 после нормализации CRLF.
+
+### v0.220 — приёмка
+
+Публикация v0.220 подтверждена 16 ноября 2026 г.: source [6ad1e2c](https://github.com/nick-osinskiy/SUNOBOOM/commit/6ad1e2c60b8ac2e18821b893292077c801d6a392). [GitHub Actions success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43804576010): import audit, 134/134 Node tests, build, полный desktop/mobile/native smoke с новым startup guard. [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43804575661). На [сайте v0.220](https://nick-osinskiy.github.io/SUNOBOOM/?v=220) отдельно пройдены startup write budget, native dashboard/catalogue и синхронные действия, direct pages/recovery, draft/node/FileList handoff, routes/Back/Forward/reload, native deep links, прежние JSON/IDB/audio и Studio/preferences. Опубликованные Vue JS/CSS совпали с main и прежними CI assets по SHA-256 с нормализацией CRLF; CI повторно собрал те же assets и не создал отдельный bundle commit. Функции/дизайн/данные/fallback сохранены. Этот согласованный блок принят и завершён; миграционные этапы не открываются заново.
 
 ---
 

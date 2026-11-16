@@ -1141,5 +1141,388 @@
         "resourceBytes": 1371096
       }
     }
-  ]
+  ],
+  "acceptedPages": [
+    {
+      "run": 1,
+      "nativeWrites": 11,
+      "nativeWriteMs": 47,
+      "nativeHTMLChars": 191203,
+      "vueFetches": 1,
+      "vueStartMs": 2507,
+      "vueLoadMs": 1828,
+      "readyMs": 4485,
+      "fcpMs": 1996,
+      "lcpMs": 2244,
+      "domContentLoadedMs": 3919,
+      "documentBytes": 254202,
+      "resourceBytes": 403122,
+      "longTasks": 4,
+      "blockingMs": 1006,
+      "largest": [
+        {
+          "name": "sunoboom-vue.js?v=220",
+          "type": "script",
+          "bytes": 132607,
+          "decoded": 449513,
+          "duration": 1828,
+          "start": 2507
+        },
+        {
+          "name": "arrangement-builder.js?v=220",
+          "type": "script",
+          "bytes": 17698,
+          "decoded": 66676,
+          "duration": 1203,
+          "start": 2523
+        },
+        {
+          "name": "artists-expanded.js?v=0542",
+          "type": "script",
+          "bytes": 16924,
+          "decoded": 62055,
+          "duration": 1206,
+          "start": 2520
+        },
+        {
+          "name": "my-songs.js?v=220",
+          "type": "script",
+          "bytes": 16918,
+          "decoded": 62378,
+          "duration": 1217,
+          "start": 2524
+        },
+        {
+          "name": "version-history.js?v=220",
+          "type": "script",
+          "bytes": 16895,
+          "decoded": 67781,
+          "duration": 1216,
+          "start": 2525
+        },
+        {
+          "name": "arrangement-core.js?v=220",
+          "type": "script",
+          "bytes": 13268,
+          "decoded": 40925,
+          "duration": 755,
+          "start": 578
+        },
+        {
+          "name": "epic-music.js?v=053",
+          "type": "script",
+          "bytes": 12684,
+          "decoded": 40108,
+          "duration": 1078,
+          "start": 2508
+        },
+        {
+          "name": "artist-profiles.js?v=220",
+          "type": "script",
+          "bytes": 11982,
+          "decoded": 40684,
+          "duration": 1096,
+          "start": 2521
+        },
+        {
+          "name": "performance-tags.js?v=220",
+          "type": "script",
+          "bytes": 10751,
+          "decoded": 32605,
+          "duration": 1022,
+          "start": 2519
+        },
+        {
+          "name": "artist-expansion.js?v=055",
+          "type": "script",
+          "bytes": 10078,
+          "decoded": 37910,
+          "duration": 944,
+          "start": 2520
+        },
+        {
+          "name": "arrangement-builder.css?v=075",
+          "type": "link",
+          "bytes": 9885,
+          "decoded": 40296,
+          "duration": 767,
+          "start": 504
+        },
+        {
+          "name": "genre-tree.js?v=220",
+          "type": "script",
+          "bytes": 9825,
+          "decoded": 32102,
+          "duration": 958,
+          "start": 2521
+        }
+      ],
+      "cpu": {
+        "RecalcStyleCount": 17,
+        "LayoutDuration": 0.989013,
+        "ScriptDuration": 0.194458,
+        "TaskDuration": 2.027996
+      }
+    },
+    {
+      "run": 2,
+      "nativeWrites": 11,
+      "nativeWriteMs": 44,
+      "nativeHTMLChars": 191203,
+      "vueFetches": 1,
+      "vueStartMs": 2463,
+      "vueLoadMs": 1819,
+      "readyMs": 4422,
+      "fcpMs": 1972,
+      "lcpMs": 2208,
+      "domContentLoadedMs": 3876,
+      "documentBytes": 254202,
+      "resourceBytes": 403122,
+      "longTasks": 4,
+      "blockingMs": 951,
+      "largest": [
+        {
+          "name": "sunoboom-vue.js?v=220",
+          "type": "script",
+          "bytes": 132607,
+          "decoded": 449513,
+          "duration": 1819,
+          "start": 2463
+        },
+        {
+          "name": "arrangement-builder.js?v=220",
+          "type": "script",
+          "bytes": 17698,
+          "decoded": 66676,
+          "duration": 1222,
+          "start": 2472
+        },
+        {
+          "name": "artists-expanded.js?v=0542",
+          "type": "script",
+          "bytes": 16924,
+          "decoded": 62055,
+          "duration": 1209,
+          "start": 2469
+        },
+        {
+          "name": "my-songs.js?v=220",
+          "type": "script",
+          "bytes": 16918,
+          "decoded": 62378,
+          "duration": 1206,
+          "start": 2473
+        },
+        {
+          "name": "version-history.js?v=220",
+          "type": "script",
+          "bytes": 16895,
+          "decoded": 67781,
+          "duration": 1220,
+          "start": 2474
+        },
+        {
+          "name": "arrangement-core.js?v=220",
+          "type": "script",
+          "bytes": 13268,
+          "decoded": 40925,
+          "duration": 752,
+          "start": 574
+        },
+        {
+          "name": "epic-music.js?v=053",
+          "type": "script",
+          "bytes": 12684,
+          "decoded": 40108,
+          "duration": 1074,
+          "start": 2465
+        },
+        {
+          "name": "artist-profiles.js?v=220",
+          "type": "script",
+          "bytes": 11982,
+          "decoded": 40684,
+          "duration": 1084,
+          "start": 2470
+        },
+        {
+          "name": "performance-tags.js?v=220",
+          "type": "script",
+          "bytes": 10751,
+          "decoded": 32605,
+          "duration": 1024,
+          "start": 2468
+        },
+        {
+          "name": "artist-expansion.js?v=055",
+          "type": "script",
+          "bytes": 10078,
+          "decoded": 37910,
+          "duration": 962,
+          "start": 2469
+        },
+        {
+          "name": "arrangement-builder.css?v=075",
+          "type": "link",
+          "bytes": 9885,
+          "decoded": 40296,
+          "duration": 785,
+          "start": 494
+        },
+        {
+          "name": "genre-tree.js?v=220",
+          "type": "script",
+          "bytes": 9825,
+          "decoded": 32102,
+          "duration": 945,
+          "start": 2470
+        }
+      ],
+      "cpu": {
+        "RecalcStyleCount": 17,
+        "LayoutDuration": 0.953967,
+        "ScriptDuration": 0.18322,
+        "TaskDuration": 1.931247
+      }
+    },
+    {
+      "run": 3,
+      "nativeWrites": 11,
+      "nativeWriteMs": 48,
+      "nativeHTMLChars": 191203,
+      "vueFetches": 1,
+      "vueStartMs": 2535,
+      "vueLoadMs": 1819,
+      "readyMs": 4493,
+      "fcpMs": 2008,
+      "lcpMs": 2264,
+      "domContentLoadedMs": 3937,
+      "documentBytes": 254202,
+      "resourceBytes": 403122,
+      "longTasks": 4,
+      "blockingMs": 1038,
+      "largest": [
+        {
+          "name": "sunoboom-vue.js?v=220",
+          "type": "script",
+          "bytes": 132607,
+          "decoded": 449513,
+          "duration": 1819,
+          "start": 2535
+        },
+        {
+          "name": "arrangement-builder.js?v=220",
+          "type": "script",
+          "bytes": 17698,
+          "decoded": 66676,
+          "duration": 1198,
+          "start": 2549
+        },
+        {
+          "name": "artists-expanded.js?v=0542",
+          "type": "script",
+          "bytes": 16924,
+          "decoded": 62055,
+          "duration": 1201,
+          "start": 2546
+        },
+        {
+          "name": "my-songs.js?v=220",
+          "type": "script",
+          "bytes": 16918,
+          "decoded": 62378,
+          "duration": 1213,
+          "start": 2550
+        },
+        {
+          "name": "version-history.js?v=220",
+          "type": "script",
+          "bytes": 16895,
+          "decoded": 67781,
+          "duration": 1227,
+          "start": 2552
+        },
+        {
+          "name": "arrangement-core.js?v=220",
+          "type": "script",
+          "bytes": 13268,
+          "decoded": 40925,
+          "duration": 756,
+          "start": 574
+        },
+        {
+          "name": "epic-music.js?v=053",
+          "type": "script",
+          "bytes": 12684,
+          "decoded": 40108,
+          "duration": 1055,
+          "start": 2536
+        },
+        {
+          "name": "artist-profiles.js?v=220",
+          "type": "script",
+          "bytes": 11982,
+          "decoded": 40684,
+          "duration": 1090,
+          "start": 2547
+        },
+        {
+          "name": "performance-tags.js?v=220",
+          "type": "script",
+          "bytes": 10751,
+          "decoded": 32605,
+          "duration": 1015,
+          "start": 2545
+        },
+        {
+          "name": "artist-expansion.js?v=055",
+          "type": "script",
+          "bytes": 10078,
+          "decoded": 37910,
+          "duration": 968,
+          "start": 2546
+        },
+        {
+          "name": "arrangement-builder.css?v=075",
+          "type": "link",
+          "bytes": 9885,
+          "decoded": 40296,
+          "duration": 773,
+          "start": 494
+        },
+        {
+          "name": "genre-tree.js?v=220",
+          "type": "script",
+          "bytes": 9825,
+          "decoded": 32102,
+          "duration": 935,
+          "start": 2547
+        }
+      ],
+      "cpu": {
+        "RecalcStyleCount": 17,
+        "LayoutDuration": 1.037353,
+        "ScriptDuration": 0.189336,
+        "TaskDuration": 2.020963
+      }
+    },
+    {
+      "summary": {
+        "runs": 3,
+        "url": "https://nick-osinskiy.github.io/SUNOBOOM/?profile=220-after",
+        "profile": "375x812; cold cache; 1.6 Mbps down / 0.75 Mbps up; 150ms latency; 4x CPU slowdown",
+        "nativeWrites": 11,
+        "nativeWriteMs": 47,
+        "readyMs": 4485,
+        "fcpMs": 1996,
+        "lcpMs": 2244,
+        "blockingMs": 1006,
+        "documentBytes": 254202,
+        "resourceBytes": 403122
+      }
+    }
+  ],
+  "sourceCommit": "6ad1e2c60b8ac2e18821b893292077c801d6a392",
+  "chromiumVersion": "158.0.8127.18",
+  "publishedJS_SHA256_LF": "b59e7ff9f56370c1739d15c9636664ded1cfd275355c27c9536b98546c36a28e"
 }
