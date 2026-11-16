@@ -1,5 +1,5 @@
 /* SUNOBOOM v0.123 — app-wide appearance settings.
-   Dark mode is the original design, untouched. Light mode overrides visual
+   Dark mode retains the original surfaces. Light mode overrides visual
    surfaces only: component IDs, local data, routing and player logic persist. */
 html.sb-theme-light{
   color-scheme:light;
@@ -15,6 +15,7 @@ html.sb-theme-light{
   --cyan:#087b8a;
   --orange:#a65921;
 }
+
 html.sb-theme-light body{
   background:radial-gradient(circle at 78% 0%,#e9e2fa 0,transparent 31%),
     radial-gradient(circle at 8% 83%,#dceaf5 0,transparent 33%),var(--bg)!important;
@@ -761,4 +762,59 @@ html[data-sb-theme="pink-pastel"] :is(.sbp-secondary,.sbab-modes button:not([ari
  background:var(--sb-theme-accent-soft,var(--panel3))!important;
  border-color:var(--sb-theme-accent-border,var(--stroke))!important;
  color:var(--sb-genre-accent)!important;
+}
+
+/* Header actions share a palette in both Vue and the native fallback.
+   System appearance resolves to data-sb-theme="dark" or "light". */
+:root{
+ --sb-header-gradient:linear-gradient(135deg,#aa3d90,#6f49c6);
+ --sb-header-ink:#fff;--sb-header-badge:#c13a85;
+ --sb-header-badge-ink:#fff;--sb-header-shadow:#793baf45;
+}
+html[data-sb-theme="light"]{
+ --sb-header-gradient:linear-gradient(135deg,#8257cc,#366db4);
+ --sb-header-badge:#7350aa;--sb-header-shadow:#6750ad30;
+}
+html[data-sb-theme="ocean"]{
+ --sb-header-gradient:linear-gradient(135deg,#087b8d,#2857a1);
+ --sb-header-badge:#116b91;--sb-header-shadow:#087b8d45;
+}
+html[data-sb-theme="forest"]{
+ --sb-header-gradient:linear-gradient(135deg,#287b55,#477139);
+ --sb-header-badge:#357345;--sb-header-shadow:#287b5545;
+}
+html[data-sb-theme="sunset"]{
+ --sb-header-gradient:linear-gradient(135deg,#b64c34,#a23c69);
+ --sb-header-badge:#a63f56;--sb-header-shadow:#b64c3445;
+}
+html[data-sb-theme="amethyst"]{
+ --sb-header-gradient:linear-gradient(135deg,#8050b8,#5742a0);
+ --sb-header-badge:#7540a3;--sb-header-shadow:#8050b845;
+}
+html[data-sb-theme="pink"]{
+ --sb-header-gradient:linear-gradient(135deg,#b3337b,#933ab0);
+ --sb-header-badge:#b33275;--sb-header-shadow:#b3337b45;
+}
+html[data-sb-theme="pink-pastel"]{
+ --sb-header-gradient:linear-gradient(135deg,#f5bbd6,#c6b8ef);
+ --sb-header-ink:#5c355e;--sb-header-badge:#a63d74;
+ --sb-header-shadow:#ac6c9a30;
+}
+html .top-right :is(.sb-notice-bell,.account-shortcut){
+ background:var(--sb-header-gradient);
+ color:var(--sb-header-ink);
+ box-shadow:0 7px 20px var(--sb-header-shadow);
+}
+html .top-right .sb-notice-bell-icon svg{stroke:currentColor}
+html .top-right .sb-notice-count{
+ background:var(--sb-header-badge);color:var(--sb-header-badge-ink);
+}
+html .top-right .sb-notice-bell-unread{
+ box-shadow:0 7px 20px var(--sb-header-shadow),0 0 0 2px color-mix(in srgb,var(--sb-header-badge) 35%,transparent);
+}
+html .top-right :is(.sb-notice-bell,.account-shortcut):is(:hover,:focus-visible){
+ filter:brightness(1.08);box-shadow:0 9px 24px var(--sb-header-shadow);
+}
+html .top-right :is(.sb-notice-bell,.account-shortcut):focus-visible{
+ outline:2px solid var(--sb-header-badge)!important;outline-offset:3px;
 }
