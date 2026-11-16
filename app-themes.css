@@ -925,3 +925,33 @@ html .sba-shell :is(.sba-drop-target,.sba-snake-drop-target){box-shadow:0 0 0 3p
 html .sba-shell .sba-preset-group-title{background:var(--panel)!important;border-color:var(--stroke)!important}
 html .sba-shell :is(.sba-sound-group,.sba-smart-group-title){border-color:var(--stroke)!important}
 html .sba-shell :is(.sba-chart,.sba-preset-results,.sba-sound-list){scrollbar-color:var(--stroke) var(--panel2)}
+
+/* Prompt Auditor is an independent Studio surface, including manual/preview states. */
+html #sbpa-auditor{
+ --sbpa-accent:var(--sb-theme-accent,var(--violet));
+ --sbpa-error:#ffb3c2;--sbpa-warning:#ffd390;
+ background:linear-gradient(135deg,var(--panel),var(--panel2));border-color:var(--stroke);color:var(--text);
+}
+html.sb-theme-light #sbpa-auditor{--sbpa-error:#a9254e;--sbpa-warning:#8a4a09}
+html #sbpa-auditor :is(h2,h4,label,.sbpa-score-info strong,.sbpa-item strong){color:var(--text)}
+html #sbpa-auditor :is(.sbpa-head p,.sbpa-context,.sbpa-score-info span,.sbpa-item p,.sbpa-item small,.sbpa-proposal p,.sbpa-proposal details,.sbpa-proposal>small,.sbpa-foot){color:var(--muted)}
+html #sbpa-auditor .sbpa-eyebrow{color:var(--sbpa-accent)}
+html #sbpa-auditor :is(.sbpa-local,.sbpa-meter){background:var(--panel3);color:var(--muted);border-color:var(--stroke)}
+html #sbpa-auditor .sbpa-tabs{border-color:var(--stroke)}
+html #sbpa-auditor button{background:var(--panel3);color:var(--text);border-color:var(--stroke)}
+html #sbpa-auditor :is(.sbpa-tabs button.active,.sbpa-primary,.sbpa-score),
+html .sbpa-editor-entry button{background:var(--sb-header-gradient);color:var(--sb-header-ink);border-color:var(--stroke)}
+html #sbpa-auditor .sbpa-score small{color:inherit}
+html #sbpa-auditor .sbpa-meter span{background:linear-gradient(90deg,var(--sbpa-accent),var(--cyan))}
+html #sbpa-auditor :is(textarea,select){background-color:var(--panel2)!important;color:var(--text)!important;border-color:var(--stroke)!important}
+html #sbpa-auditor textarea::placeholder{color:var(--muted)!important;opacity:1}
+html #sbpa-auditor :is(.sbpa-item,.sbpa-proposal){background:var(--panel2);border-color:var(--stroke);color:var(--text)}
+html #sbpa-auditor .sbpa-item.sbpa-error{border-left-color:var(--sbpa-error)}
+html #sbpa-auditor .sbpa-item.sbpa-warn{border-left-color:var(--sbpa-warning)}
+html #sbpa-auditor .sbpa-item.sbpa-tip{border-left-color:var(--sbpa-accent)}
+html #sbpa-auditor :is(.sbpa-limit,.sbpa-proposal h4 small){color:var(--cyan)}
+html #sbpa-auditor :is(.sbpa-limit.over,.sbpa-alert){color:var(--sbpa-error)}
+html #sbpa-auditor .sbpa-clear{background:color-mix(in srgb,var(--cyan) 10%,var(--panel2));border-color:var(--cyan);color:var(--text)}
+html #sbpa-auditor button:hover{filter:brightness(1.05)}
+html #sbpa-auditor :is(button,select,textarea,summary):focus-visible{outline:2px solid var(--sbpa-accent)!important;outline-offset:3px}
+html .sbpa-editor-entry span{color:var(--muted)}
