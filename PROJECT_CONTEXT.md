@@ -1,6 +1,6 @@
 # SUNOBOOM — PROJECT_CONTEXT.md
 
-> **v0.219 — мобильная загрузка.** Финальная browser-сборка Vue минифицирована; предварительная загрузка начинается после начального native-интерфейса и до последней группы скриптов. Компоненты/дизайн/данные и активация/fallback сохранены. Локальная приёмка и публикация описаны в [PERFORMANCE_ACCEPTANCE.md](./PERFORMANCE_ACCEPTANCE.md), раздел 69. Этапы миграции остаются закрытыми.
+> **v0.219 — мобильная загрузка.** Финальная browser-сборка Vue минифицирована; предварительная загрузка начинается после начального native-интерфейса и до последней группы скриптов. Компоненты/дизайн/данные и активация/fallback сохранены. Приёмка, успешные CI/Pages и live-замеры описаны в [PERFORMANCE_ACCEPTANCE.md](./PERFORMANCE_ACCEPTANCE.md), раздел 69. Этапы миграции остаются закрытыми.
 
 ## 1. Что это и где работает
 
@@ -1117,3 +1117,8 @@ Shell напрямую включает NavigationMenu, TopHeader, VueHistoryCon
 Измерен cold-cache startup в Chromium: 375×812, 1,6 Мбит/с download, 150 мс задержки, CPU ×4, медиана трёх запусков. Это лабораторная эмуляция, не данные реального телефона. Предварительная загрузка Vue перенесена после первого native-интерфейса: вариант в head ухудшал FCP и отклонён. Vite/rolldown минифицирует конечный исполняемый bundle, сохраняя прежний URL/exports и bootstrap. Компоненты и бизнес-логика не менялись.
 
 Воспроизведение: `node scripts/profile-mobile-load.mjs URL 3` (`npm run profile:mobile -- URL 3`). Raw samples — `benchmarks/mobile-load-v219.json`; результаты/ограничения/публикация — PERFORMANCE_ACCEPTANCE.md. Локально bundle LF 570217 → 449304 байт, gzip тем же Node 147113 → 131418. На одном local HTTP server медианы ready 13023 → 12159 мс, FCP 3368 → 3376 мс. Сжатый Pages измеряется отдельно. Работа не открывает этапы миграции заново.
+
+
+Публикация v0.219 подтверждена 16 ноября 2026 г.: source [5b6b2dd](https://github.com/nick-osinskiy/SUNOBOOM/commit/5b6b2dd31476ea59691a475a8ed4540f571f7410), проверенная CI-сборка [567cdb9](https://github.com/nick-osinskiy/SUNOBOOM/commit/567cdb9aae2330da7edec0733d2733a47c45108b). [GitHub Actions success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43798243674): audit, 134 Node tests, build, полный desktop/mobile/native smoke. [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43798685578). На [сайте v0.219](https://nick-osinskiy.github.io/SUNOBOOM/?v=219) пройдены direct pages/recovery, draft/node/FileList handoff, browser routing/Back/Forward/reload, native canonical URLs, прежние JSON/IDB/audio и Studio/preferences. Финальные JS/CSS совпали с main по SHA-256 после нормализации CRLF. Функции/дизайн/данные/fallback сохранены. Этот блок оптимизации принят; дальнейшие CPU/layout улучшения требуют отдельного измерения.
+
+Pages mobile emulation (median ×3): ready 5051 → 4700 мс (−6,9%), FCP 1988 → 1992 мс, Vue transfer 150506 → 132607 байт; ровно один Vue fetch. Не выдавать эти лабораторные результаты за измерения на реальном телефоне. Следующий предложенный блок — профилировать native startup/layout и убрать только подтверждённые лишние стартовые перерисовки; он ещё не начат.
