@@ -1,3 +1,5 @@
+> v0.220: в index.html объединены только синхронные startup refresh расширений. Компоненты и Vue bootstrap не меняют поведение; обычные команды остаются синхронными. Измерения — PERFORMANCE_ACCEPTANCE.md.
+
 > v0.219: компактная browser-сборка и предварительная загрузка Vue после начального native-интерфейса. Измерения — PERFORMANCE_ACCEPTANCE.md; активация и fallback прежние.
 
 > Текущее состояние v0.218: единые Vue app/browser Router и прямые page factories; архивные feature bridges/collector удалены. Остались шесть действующих boundary/preferences adapters. `npm run audit:vue-imports` проверяет весь граф src/vue и запускается в CI. Архитектура: [STAGE4_CONTEXT.md](../../STAGE4_CONTEXT.md); итоговая очистка: [CLEANUP_ACCEPTANCE.md](../../CLEANUP_ACCEPTANCE.md). Версионные разделы ниже — история, не инструкции к текущему bootstrap.

@@ -1,4 +1,5 @@
 import {checkDirectPages} from './vue-direct-pages.mjs';
+import {checkStartupRenderBatch} from './vue-startup-render.mjs';
 import {checkShellRouting} from './vue-shell-routing.mjs';
 import {checkStage2Acceptance} from './vue-stage2-acceptance.mjs';
 import {checkStudioCore} from './vue-studio-core.mjs';
@@ -4549,6 +4550,7 @@ async function checkEditorFallback() {
 try {
   await ready();
   browser = await chromium.launch({ headless: true });
+  await checkStartupRenderBatch(browser,BASE);
   await checkDirectPages(browser,BASE);
   await checkShellRouting(browser,BASE);
   await checkStage2Acceptance(browser,BASE);

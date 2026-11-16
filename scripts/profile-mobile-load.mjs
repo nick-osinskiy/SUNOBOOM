@@ -11,7 +11,13 @@ try{
   await cdp.send('Network.emulateNetworkConditions',{offline:false,latency:150,downloadThroughput:200000,uploadThroughput:93750,connectionType:'cellular4g'});
   await cdp.send('Emulation.setCPUThrottlingRate',{rate:4});await cdp.send('Performance.enable');
   await page.addInitScript(()=>{
-   window.__loadProfile={longTasks:[],lcp:0,ready:0};
+   window.__loadProfile={longTasks:[],lcp:0,ready:0,nativeWrites:0,nativeWriteMs:0,nativeHTMLChars:0};
+   const html=Object.getOwnPropertyDescriptor(Element.prototype,'innerHTML');
+   Object.defineProperty(Element.prototype,'innerHTML',{...html,set(value){
+    if(this.id!=='app'||window.SUNOBOOM_SHELL?.active)return html.set.call(this,value);
+    const p=window.__loadProfile,start=performance.now();p.nativeWrites++;p.nativeHTMLChars+=String(value).length;
+    try{return html.set.call(this,value);}finally{p.nativeWriteMs+=performance.now()-start;}
+   }});
    new PerformanceObserver(list=>{for(const e of list.getEntries())window.__loadProfile.longTasks.push({start:e.startTime,duration:e.duration});}).observe({type:'longtask',buffered:true});
    new PerformanceObserver(list=>{for(const e of list.getEntries())window.__loadProfile.lcp=e.startTime;}).observe({type:'largest-contentful-paint',buffered:true});
    const ready=()=>{if(window.SUNOBOOM_SHELL?.active){window.__loadProfile.ready=performance.now();}else requestAnimationFrame(ready);};requestAnimationFrame(ready);
@@ -21,11 +27,11 @@ try{
    const nav=performance.getEntriesByType('navigation')[0],p=window.__loadProfile;
    const resources=performance.getEntriesByType('resource').map(r=>({name:r.name.split('/').at(-1),type:r.initiatorType,bytes:r.encodedBodySize,decoded:r.decodedBodySize,duration:Math.round(r.duration),start:Math.round(r.startTime)}));
    const vue=resources.filter(r=>/^sunoboom-vue\.js(?:\?|$)/.test(r.name));
-   return {vueFetches:vue.length,vueStartMs:vue[0]?.start,vueLoadMs:vue[0]?.duration,readyMs:Math.round(p.ready),fcpMs:Math.round(performance.getEntriesByName('first-contentful-paint')[0]?.startTime||0),lcpMs:Math.round(p.lcp),domContentLoadedMs:Math.round(nav.domContentLoadedEventEnd),documentBytes:nav.encodedBodySize,resourceBytes:resources.reduce((n,r)=>n+r.bytes,0),longTasks:p.longTasks.length,blockingMs:Math.round(p.longTasks.reduce((n,e)=>n+Math.max(0,e.duration-50),0)),largest:resources.sort((a,b)=>b.bytes-a.bytes).slice(0,12)};
+   return {nativeWrites:p.nativeWrites,nativeWriteMs:Math.round(p.nativeWriteMs),nativeHTMLChars:p.nativeHTMLChars,vueFetches:vue.length,vueStartMs:vue[0]?.start,vueLoadMs:vue[0]?.duration,readyMs:Math.round(p.ready),fcpMs:Math.round(performance.getEntriesByName('first-contentful-paint')[0]?.startTime||0),lcpMs:Math.round(p.lcp),domContentLoadedMs:Math.round(nav.domContentLoadedEventEnd),documentBytes:nav.encodedBodySize,resourceBytes:resources.reduce((n,r)=>n+r.bytes,0),longTasks:p.longTasks.length,blockingMs:Math.round(p.longTasks.reduce((n,e)=>n+Math.max(0,e.duration-50),0)),largest:resources.sort((a,b)=>b.bytes-a.bytes).slice(0,12)};
   });
   const metrics=await cdp.send('Performance.getMetrics');sample.cpu=Object.fromEntries(metrics.metrics.filter(m=>['ScriptDuration','TaskDuration','LayoutDuration','RecalcStyleCount'].includes(m.name)).map(m=>[m.name,m.value]));samples.push(sample);
   console.log(JSON.stringify({run:i+1,...sample}));await context.close();
  }
  const median=key=>samples.map(s=>s[key]).sort((a,b)=>a-b)[Math.floor(samples.length/2)];
- console.log(JSON.stringify({summary:{runs,url,profile:'375x812; cold cache; 1.6 Mbps down / 0.75 Mbps up; 150ms latency; 4x CPU slowdown',readyMs:median('readyMs'),fcpMs:median('fcpMs'),lcpMs:median('lcpMs'),blockingMs:median('blockingMs'),documentBytes:median('documentBytes'),resourceBytes:median('resourceBytes')}}));
+ console.log(JSON.stringify({summary:{runs,url,profile:'375x812; cold cache; 1.6 Mbps down / 0.75 Mbps up; 150ms latency; 4x CPU slowdown',nativeWrites:median('nativeWrites'),nativeWriteMs:median('nativeWriteMs'),readyMs:median('readyMs'),fcpMs:median('fcpMs'),lcpMs:median('lcpMs'),blockingMs:median('blockingMs'),documentBytes:median('documentBytes'),resourceBytes:median('resourceBytes')}}));
 }finally{await browser.close();}

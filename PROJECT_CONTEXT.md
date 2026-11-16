@@ -1,6 +1,6 @@
 # SUNOBOOM — PROJECT_CONTEXT.md
 
-> **v0.219 — мобильная загрузка.** Финальная browser-сборка Vue минифицирована; предварительная загрузка начинается после начального native-интерфейса и до последней группы скриптов. Компоненты/дизайн/данные и активация/fallback сохранены. Приёмка, успешные CI/Pages и live-замеры описаны в [PERFORMANCE_ACCEPTANCE.md](./PERFORMANCE_ACCEPTANCE.md), раздел 69. Этапы миграции остаются закрытыми.
+> **v0.220 — стартовые перерисовки.** Синхронные обновления при установке inline-расширений объединены: native #app writes 32 → 11. Первый рабочий интерфейс сохранён; финальный flush выполнен до внешних модулей. Пользовательские render/go не откладываются. Подробности и фактические проверки — PERFORMANCE_ACCEPTANCE.md, раздел 70.
 
 ## 1. Что это и где работает
 
@@ -1122,3 +1122,12 @@ Shell напрямую включает NavigationMenu, TopHeader, VueHistoryCon
 Публикация v0.219 подтверждена 16 ноября 2026 г.: source [5b6b2dd](https://github.com/nick-osinskiy/SUNOBOOM/commit/5b6b2dd31476ea59691a475a8ed4540f571f7410), проверенная CI-сборка [567cdb9](https://github.com/nick-osinskiy/SUNOBOOM/commit/567cdb9aae2330da7edec0733d2733a47c45108b). [GitHub Actions success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43798243674): audit, 134 Node tests, build, полный desktop/mobile/native smoke. [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43798685578). На [сайте v0.219](https://nick-osinskiy.github.io/SUNOBOOM/?v=219) пройдены direct pages/recovery, draft/node/FileList handoff, browser routing/Back/Forward/reload, native canonical URLs, прежние JSON/IDB/audio и Studio/preferences. Финальные JS/CSS совпали с main по SHA-256 после нормализации CRLF. Функции/дизайн/данные/fallback сохранены. Этот блок оптимизации принят; дальнейшие CPU/layout улучшения требуют отдельного измерения.
 
 Pages mobile emulation (median ×3): ready 5051 → 4700 мс (−6,9%), FCP 1988 → 1992 мс, Vue transfer 150506 → 132607 байт; ровно один Vue fetch. Не выдавать эти лабораторные результаты за измерения на реальном телефоне. Следующий предложенный блок — профилировать native startup/layout и убрать только подтверждённые лишние стартовые перерисовки; он ещё не начат.
+
+
+## 70. v0.220 — убрать лишние стартовые перерисовки
+
+Измерение v0.219 подтвердило 32 полных native-записи #app до Vue. Только явные startup refresh в синхронных inline extension scripts переведены на sbRequestStartupRender; sbFlushStartupRender вызывается один раз после полного inline-блока, до epic-music и остальных external scripts. Первый исходный render сохранён. Нет таймеров/RAF/отложенных пользовательских команд. Флаг снимается до вызова текущего render; повторный flush без requests ничего не делает. Обычные render/go, render wrappers и native fallback не менялись.
+
+Локально в одинаковой эмуляции (median ×3) writes 32 → 11, суммарный HTML 557747 → 191203 UTF-16 units, setter time 138 → 48 мс. ScriptDuration 0,345338 → 0,237913 с; TaskDuration 3,206259 → 2,583541 с. Ready 12164 → 12443 мс: ускорение общей загрузки этим локальным замером не подтверждено. Не подменять снижение CPU/DOM работы обещанием ускорения на реальном телефоне.
+
+Финальный native #app.innerHTML побайтово одинаков на 8 маршрутах desktop/mobile до изменения release label. Новый browser guard проверяет бюджет startup writes, итоговый dashboard/catalogue, синхронную навигацию и сохранность черновика при повторном flush. Обязательны полный existing smoke, CI/Pages/live перед приёмкой. Raw samples — benchmarks/mobile-load-v220.json. Миграционные этапы остаются закрытыми; форматы/данные/компоненты/стили не меняются.
