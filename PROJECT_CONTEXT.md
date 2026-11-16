@@ -2,7 +2,7 @@
 
 **Рабочая ветка: `codex/develop`. `main` — защищённый продакшен; изменения в него только через Pull Request и успешный verify-and-build. Прежние инструкции прямого push в main больше не действуют.**
 
-> **v0.223 — панель уведомлений следует всем темам.** Убраны жёсткие фиолетовые цвета окна: фон, заголовок, карточки, текст, действия и прочитанные состояния используют активную палитру. Затемнение нейтральное (без фиолетового оттенка), тема не меняется при открытии/закрытии. Раздел 74.
+> **v0.224 — Suno Studio и Arrangement LAB следуют теме.** Поля, промпт, подсказки, флажки, карточки аранжировки, поиск шаблонов, библиотека инструментов, переходы и предпросмотр используют активную палитру. Семантические метки энергии сохранены. Алгоритмы, исходники Vue/native компонентов, данные и черновики не менялись. Раздел 75.
 
 ## 1. Что это и где работает
 
@@ -1175,3 +1175,14 @@ Backdrop теперь neutral black alpha .48 для dark palettes и .25 для
 Локально: 80 комбинаций (8 палитр + system dark/light × desktop/mobile × Vue/native × empty/populated); внутри populated проверены unread → read one → read all. Проверены неизменность resolved theme, persisted preference и body background при открытии, соответствие panel/text/muted активным tokens, нейтральность overlay, viewport fit/overflow, контраст основного/поясняющего текста, notes и empty CTA ≥4,5:1, закрытие X/overlay и создание события. Диагностика контраста не является полной сертификацией доступности. Просмотрены screenshot всех empty palettes и populated Pink Pastel. Import audit, 134 Node tests, build — PASS. Полный smoke и выпуск — через PR/main CI; обязательно проверить также опубликованный сайт, не ограничиваться картинками.
 
 Версия 0.223, app-themes.css?v=223. CSS-only исправление: существующие Vue/native шаблоны не переписывались, загружаемый production bundle собирается обычным CI.
+
+
+## 75. v0.224 — оставшиеся синие поверхности Suno Studio
+
+По двум скриншотам пользователя исправлены hardcoded dark surfaces в Studio и Arrangement LAB. Общие scoped overrides в app-themes.css охватывают .studio-grid, #song-blueprint, .sba-shell, .sba-jump. Поля/outputs/notices/check labels/profile pills используют panel2; outer panels и headers используют градиенты поверхностей темы; primary actions используют ранее подобранный доступный gradient/ink активной палитры. Внутренние sba панели, меню/поиск шаблонов, заголовки групп, рекомендации/библиотека звуков, переходы, добавление блоков, график, теги/Style/Lyrics/перенос, hover/focus/drop highlights и scrollbars больше не фиксированы на синей/фиолетовой схеме.
+
+Левые границы блоков/змейки, обозначающие уровни энергии, сохранены как семантические цвета; высота графика/значения энергии, drag/drop geometry и алгоритмы не менялись. Root тем и owners не меняются, CSS не трогает остальные страницы. Прямые DOM/HTML parsing, новые stores/handlers/network endpoints не добавлялись. Google Drive остаётся отключённым.
+
+Локально проверены 40 вариантов (8 тем + system dark/light × desktop/mobile × Vue/native): 18 ключевых поверхностей/ink по palette tokens, диагностический контраст основных проверенных текстов ≥4,5:1, отсутствие horizontal overflow; обе popup-панели (preset и sounds) и заголовки групп; поиск «ска»; переключение Style/Lyrics. После каждого варианта builder и полный exportDraft аранжировки совпадают с исходными; границы энергии сохранены. Проверены Studio/arranger/mixer/preferences/quota/draft/reload acceptance в трёх режимах. Визуально просмотрены Studio Pink и Arrangement Pink Pastel; screenshots дополнительно сохранены для Light/Sunset/Pink/Pink Pastel. Import audit/134 Node tests/build — PASS; полный browser smoke и публикация через CI, затем обязательная проверка живого Studio.
+
+Версия 0.224, app-themes.css?v=224. Это исправление внешнего вида работающих компонентов, не продолжение миграции Vue.
