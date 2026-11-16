@@ -1,24 +1,18 @@
-name: Vue navigation build and smoke tests
+name: SUNOBOOM checks and production
 
 on:
   push:
+    branches: [main, codex/develop]
+  pull_request:
     branches: [main]
-    paths:
-      - '.github/workflows/vue-navigation.yml'
-      - 'src/vue/**'
-      - 'core/**'
-      - '*.js'
-      - 'index.html'
-      - 'tests/core-*'
-      - 'tests/fixtures/**'
-      - 'tests/vue-*'
-      - 'package.json'
-      - 'vite.config.js'
-      - 'scripts/audit-vue-imports.mjs'
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   verify-and-build:
@@ -59,13 +53,34 @@ jobs:
       - name: Test both production layouts
         run: npm run test:vue-browser
 
-      - name: Commit verified bundle only (do not enable live interface)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      # Publish exactly the files that passed the tests, without a bot push to main.
+      - name: Assemble verified production site
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -f dist/vue/sunoboom-vue.js dist/vue/sunoboom-vue.css
-          if ! git diff --cached --quiet; then
-            git commit -m 'build: add browser-tested Vue navigation assets'
-            git push origin HEAD:main
-          fi
+          mkdir -p _site
+          git archive HEAD | tar -x -C _site
+          mkdir -p _site/dist/vue
+          cp dist/vue/sunoboom-vue.js dist/vue/sunoboom-vue.css _site/dist/vue/
+
+      - name: Upload verified production site
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy-production:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: verify-and-build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Configure production Pages
+        uses: actions/configure-pages@v5
+      - name: Deploy tested main to production
+        id: deployment
+        uses: actions/deploy-pages@v4
