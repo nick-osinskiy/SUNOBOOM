@@ -151,3 +151,26 @@ test('auditor accepts explicit inputs, detects contradictions and keeps source t
  assert.ok(report.issues.some(x=>x.title.includes('Вокал и инструментал')));assert.ok(report.issues.some(x=>x.title.includes('темпов')));assert.ok(report.repeatCount>0);
  const proposed=auditor.propose(text);assert.ok(proposed.removed.length>0);assert.equal(proposed.text.match(/bright drums/g).length,1);assert.deepEqual(studio.state,before);
 });
+
+test('auditor over-limit preview preserves protected clauses and reports incomplete reduction',()=>{
+ const {auditor,studio}=setup(),before=structuredClone(studio.state);
+ const text=Array.from({length:90},(_,i)=>'no whispering condition '+i).join(', ');
+ assert.ok(text.length>1000);
+ const proposal=auditor.propose(text);
+ assert.equal(proposal.complete,false);
+ assert.equal(proposal.text,text);
+ assert.deepEqual(proposal.removed,[]);
+ assert.deepEqual(studio.state,before);
+});
+
+test('auditor over-limit preview trims optional clauses without dropping exclusions',()=>{
+ const {auditor,studio}=setup(),before=structuredClone(studio.state);
+ const text='no whispering, '+Array.from({length:90},(_,i)=>'gentle texture '+i).join(', ');
+ const proposal=auditor.propose(text);
+ assert.equal(proposal.complete,true);
+ assert.ok(proposal.text.length<=1000);
+ assert.ok(proposal.text.startsWith('no whispering'));
+ assert.ok(proposal.removed.length>0);
+ assert.ok(proposal.removed.every(x=>!x.part.includes('no whispering')));
+ assert.deepEqual(studio.state,before);
+});

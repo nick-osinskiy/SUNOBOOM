@@ -1,6 +1,7 @@
 /* Original local prompt inspection and reduction rules with explicit inputs. */
 (function(root){'use strict';function create({getGenres}){const GENRES=getGenres();
 const MAX=1000;
+const important=phrase=>/\b(?:no|without|never|avoid|exclude|bpm|vocals?|lyrics|instrumental|studio|choir|whisper|raspy|male|female|duet|genre)\b|без\s+|не\s+ш[её]пот/iu.test(phrase);
 const normalize=text=>String(text||"").toLocaleLowerCase("ru").normalize("NFKC").replace(/[.!?()[\]{}"'“”«»]+/g," ").replace(/[\s\-–—_]+/g," ").trim();
 const clauses=text=>String(text||"").split(/[,;\n]+/g).map(x=>x.trim()).filter(Boolean);
 const words=text=>(String(text||"").match(/[\p{L}\p{N}]+/gu)||[]);

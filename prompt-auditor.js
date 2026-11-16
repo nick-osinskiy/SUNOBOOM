@@ -14,7 +14,6 @@
   const currentText=()=>state.mode==="studio"?String(promptValue()||""):state.manual;
   const genre=()=>typeof GENRES!=="undefined"?GENRES.find(g=>g.id===currentGenreId())||null:null;
 
-  const important=phrase=>/\b(?:no|without|never|avoid|exclude|bpm|vocals?|lyrics|instrumental|studio|choir|whisper|raspy|male|female|duet|genre)\b|без\s+|не\s+ш[её]пот/iu.test(phrase);
 
   const itemHTML=x=>'<li class="sbpa-item sbpa-'+x.kind+'"><div><strong>'+esc(x.title)+'</strong><p>'+esc(x.detail)+'</p><small>'+esc(x.fix)+'</small></div></li>';
 

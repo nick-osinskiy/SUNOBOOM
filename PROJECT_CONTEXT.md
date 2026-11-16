@@ -2,7 +2,7 @@
 
 **Рабочая ветка: `codex/develop`. `main` — защищённый продакшен; изменения в него только через Pull Request и успешный verify-and-build. Прежние инструкции прямого push в main больше не действуют.**
 
-> **v0.224 — Suno Studio и Arrangement LAB следуют теме.** Поля, промпт, подсказки, флажки, карточки аранжировки, поиск шаблонов, библиотека инструментов, переходы и предпросмотр используют активную палитру. Семантические метки энергии сохранены. Алгоритмы, исходники Vue/native компонентов, данные и черновики не менялись. Раздел 75.
+> **v0.225 — аудитор промптов: все темы и длинный предпросмотр.** Отдельная sbpa-панель, вкладки, оценка, поля, сообщения и предложение следуют палитре. Восстановлен приватный protected-clause helper в core: предпросмотр >1000 больше не падает, правила/исходный текст не меняются. 136 Node tests, browser palette checks/build — PASS; выпуск через PR/main CI. Раздел 76.
 
 ## 1. Что это и где работает
 
@@ -1186,3 +1186,14 @@ Backdrop теперь neutral black alpha .48 для dark palettes и .25 для
 Локально проверены 40 вариантов (8 тем + system dark/light × desktop/mobile × Vue/native): 18 ключевых поверхностей/ink по palette tokens, диагностический контраст основных проверенных текстов ≥4,5:1, отсутствие horizontal overflow; обе popup-панели (preset и sounds) и заголовки групп; поиск «ска»; переключение Style/Lyrics. После каждого варианта builder и полный exportDraft аранжировки совпадают с исходными; границы энергии сохранены. Проверены Studio/arranger/mixer/preferences/quota/draft/reload acceptance в трёх режимах. Визуально просмотрены Studio Pink и Arrangement Pink Pastel; screenshots дополнительно сохранены для Light/Sunset/Pink/Pink Pastel. Import audit/134 Node tests/build — PASS; полный browser smoke и публикация через CI, затем обязательная проверка живого Studio.
 
 Версия 0.224, app-themes.css?v=224. Это исправление внешнего вида работающих компонентов, не продолжение миграции Vue.
+
+
+## 76. v0.225 — пропущенный аудитор Studio
+
+Пользователь указал на отдельную sbpa-auditor, не входящую в .studio-grid/.sba-shell. Scoped правила в app-themes.css теперь покрывают контейнер/заголовок, local badge, вкладки, score/meter/limit, manual textarea/select, issue cards, clear state, proposal/editing/пояснения/кнопки и editor-entry. Поверхности/ink/muted следуют palette tokens; active/primary/score используют выбранный header gradient/ink. Цвета error/warn отдельны для тёмных/светлых палитр; семантика сохраняется. Нативный fallback получает те же стили; размеры/шаблоны/действия не переписывались.
+
+При проверке over-limit preview найден ReferenceError: core/prompt-auditor-core.js вызывал important(), объявленный только в приватном legacy scope. Прежний regex без изменения перенесён внутрь core factory; неиспользуемая legacy копия удалена. Это восстановление предназначенных правил после extraction, не новая стратегия сокращения. Два регрессионных теста проверяют protected clauses (complete=false) и сокращение optional clauses до лимита без удаления исключений; Studio не меняется.
+
+Локально: import audit, 136 Node tests, build — PASS. 40 вариантов (8 палитр + system dark/light × desktop/mobile × Vue/native): Studio/manual, duplicate/tempo issues, over-limit counter, incomplete proposal/alert, editing/closing proposal. Проверены цвета container/score/active/primary/inputs, диагностический контраст проверенных текстов/сообщений, overflow. После каждого варианта builder и полный arrangement exportDraft совпадают с исходными, manual source сохраняется при preview/edit/close. Визуально просмотрены Sunset clean и Pink Pastel over-limit. Проверка опубликованного сайта обязательна после main CI/deploy; фактические результаты — в PR.
+
+Версия 0.225, app-themes.css?v=225. Google Drive остаётся отключённым; миграцию Vue не открывать заново.
