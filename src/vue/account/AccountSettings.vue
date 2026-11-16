@@ -36,7 +36,7 @@ onMounted(() => {
       <div class="sbs-heading-row">
         <div>
           <h1>Настройки</h1>
-          <p>Настрой музыкальную мастерскую под себя. Изменения применяются сразу и сохраняются в этом браузере.</p>
+          <p>Настрой музыкальную мастерскую под себя. Доступные настройки применяются сразу и сохраняются в этом браузере.</p>
         </div>
         <span class="sbs-badge">⚙️ ПЕРСОНАЛИЗАЦИЯ</span>
       </div>
@@ -76,6 +76,31 @@ onMounted(() => {
             </select>
           </label>
           <p class="sbs-help">Применяется при следующем открытии или обновлении сайта. Ссылки на конкретные карточки жанров сохраняют свой переход.</p>
+        </section>
+        <section id="sbs-drive-preview" class="sbs-panel sbs-storage-panel" aria-labelledby="sbs-drive-title" aria-describedby="sbs-drive-notice">
+          <div class="sbs-panel-head">
+            <span class="sbs-symbol" aria-hidden="true">☁️</span>
+            <div><h2 id="sbs-drive-title">Google Диск</h2><p>Хранилище аудио · скоро</p></div>
+          </div>
+          <p id="sbs-drive-notice" class="sbs-storage-notice">Пока недоступно. Подключение появится после запуска серверной части. Сейчас файлы остаются в браузере.</p>
+          <div class="sbs-storage-account"><strong>Аккаунт не подключён</strong><span class="sbs-help">Подключи свой Google Диск для хранения треков</span></div>
+          <button type="button" class="sbs-primary" disabled>Подключить Google Диск</button>
+          <label class="sbs-field" for="sbs-drive-folder">
+            <span>Папка для треков SUNOBOOM</span>
+            <input id="sbs-drive-folder" type="text" disabled placeholder="Папка не выбрана">
+          </label>
+          <button type="button" class="sbs-secondary" disabled>Выбрать папку</button>
+          <label class="sbs-field" for="sbs-drive-cache">
+            <span>Лимит кэша аудио на устройстве</span>
+            <select id="sbs-drive-cache" disabled>
+              <option>512 МБ</option><option selected>1 ГБ</option><option>2 ГБ</option><option>5 ГБ</option>
+            </select>
+          </label>
+          <p class="sbs-help">Предварительный вариант настройки. Лимит пока не применяется, кэш не изменяется.</p>
+          <div class="sbs-storage-actions">
+            <button type="button" class="sbs-secondary" disabled>Очистить кэш аудио</button>
+            <button type="button" class="sbs-secondary" disabled>Отключить Google Диск</button>
+          </div>
         </section>
         <section class="sbs-panel">
           <div class="sbs-panel-head">
