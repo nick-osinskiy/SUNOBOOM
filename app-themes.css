@@ -818,3 +818,33 @@ html .top-right :is(.sb-notice-bell,.account-shortcut):is(:hover,:focus-visible)
 html .top-right :is(.sb-notice-bell,.account-shortcut):focus-visible{
  outline:2px solid var(--sb-header-badge)!important;outline-offset:3px;
 }
+
+/* Notification dialog: use the same surfaces and ink as the active theme.
+   A neutral backdrop dims the page without casting a different palette over it. */
+html .sb-notice-overlay{background:rgb(0 0 0 / .48)}
+html.sb-theme-light .sb-notice-overlay{background:rgb(0 0 0 / .25)}
+html .sb-notice-panel{
+ --sb-notice-accent:var(--sb-theme-accent,var(--pink));
+ background:var(--panel);color:var(--text);border-color:var(--stroke);
+ box-shadow:0 24px 70px #0006;
+}
+html .sb-notice-panel-head{
+ background:radial-gradient(circle at 100% 0%,color-mix(in srgb,var(--sb-notice-accent) 16%,transparent),transparent 70%),linear-gradient(135deg,var(--panel3),var(--panel2));
+ border-color:var(--stroke);
+}
+html .sb-notice-panel :is(h2,h3){color:var(--text)}
+html .sb-notice-panel :is(.sb-notice-panel-head p,.sb-notice-item-meta,.sb-notice-item p,.sb-notice-none p,.sb-notice-seen,.sb-notice-period,.sb-notice-disclaimer){color:var(--muted)}
+html .sb-notice-panel :is(.sb-notice-eyebrow,.sb-notice-when,.sb-notice-when.sb-notice-today,.sb-notice-item-actions button,.sb-notice-panel-foot button){color:var(--sb-notice-accent)}
+html .sb-notice-panel .sb-notice-close{
+ background:var(--panel3);color:var(--text);border-color:var(--stroke);
+}
+html .sb-notice-panel .sb-notice-item{background:var(--panel2);border-color:var(--stroke)}
+html .sb-notice-panel .sb-notice-item.sb-notice-read{opacity:1;background:var(--panel);border-color:var(--stroke)}
+html .sb-notice-panel :is(.sb-notice-panel-foot,.sb-notice-disclaimer){border-color:var(--stroke)}
+html .sb-notice-panel .sb-notice-none .btn{
+ background:var(--panel3);color:var(--text);border-color:var(--stroke);
+}
+html .sb-notice-panel :is(button,a):hover{border-color:var(--sb-notice-accent)}
+html .sb-notice-panel :is(button,a):focus-visible{
+ outline:2px solid var(--sb-notice-accent)!important;outline-offset:2px;
+}
