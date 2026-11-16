@@ -1,6 +1,8 @@
 # SUNOBOOM — PROJECT_CONTEXT.md
 
-> **v0.220 — стартовые перерисовки.** Синхронные обновления при установке inline-расширений объединены: native #app writes 32 → 11. Первый рабочий интерфейс сохранён; финальный flush выполнен до внешних модулей. Пользовательские render/go не откладываются. 134 теста, build, полный smoke, CI/Pages/live — PASS. Подробности — PERFORMANCE_ACCEPTANCE.md, раздел 70.
+**Рабочая ветка: `codex/develop`. `main` — защищённый продакшен; изменения в него только через Pull Request и успешный verify-and-build. Прежние инструкции прямого push в main больше не действуют.**
+
+> **v0.221 — разработка: макет Google Диска в настройках.** Продакшен остаётся v0.220. Новый блок есть в Vue и native fallback: все действия/поля disabled, явное «Пока недоступно», нет OAuth/API/новых сохранённых данных/очистки аудио. Пользователь прямо поручил пока не делать интеграцию рабочей. Раздел 72.
 
 ## 1. Что это и где работает
 
@@ -1140,4 +1142,13 @@ Pages mobile emulation (median ×3, Chromium 158.0.8127.18): native writes 32 �
 
 ## 71. Разделение разработки и продакшена (без изменения v0.220)
 
-По поручению пользователя от 16 ноября 2026 г. вводятся main (production) и codex/develop (разработка). Следующие задачи не отправлять напрямую в main. Workflow проверяет push обеих веток и PR в main без path filters (required check не должен оставаться Pending на документации). Только main после успешного verify-and-build получает Pages artifact/deploy; develop и PR не публикуются. Bot commits bundles в main удалены. Настройки Pages/защиты main и фактическая приёмка подтверждаются после установки. Инструкция — DEVELOPMENT.md. Это организационная настройка, версия приложения остаётся 0.220; Vue-миграция не возобновляется.
+По поручению пользователя от 16 ноября 2026 г. вводятся main (production) и codex/develop (разработка). Следующие задачи не отправлять напрямую в main. Workflow проверяет push обеих веток и PR в main без path filters (required check не должен оставаться Pending на документации). Только main после успешного verify-and-build получает Pages artifact/deploy; develop и PR не публикуются. Bot commits bundles в main удалены. Настройки подтверждены через GitHub API: Pages build_type=workflow; environment github-pages разрешает только branch main; main требует Pull Request (0 обязательных сторонних approvals), актуальный verify-and-build, разрешённые обсуждения; защита распространяется на администратора, force push/delete запрещены. Репозиторий сохраняет default branch main и не удаляет ветки автоматически после merge. Рабочая папка переключена на codex/develop с tracking origin/codex/develop. Результаты прогонов — [Actions](https://github.com/nick-osinskiy/SUNOBOOM/actions/workflows/vue-navigation.yml); deploy-production в develop/PR должен быть skipped. Первый административный commit настройки — [e61bc2d](https://github.com/nick-osinskiy/SUNOBOOM/commit/e61bc2d). Следующие изменения, включая этот уточняющий контекст, отправляются только в develop. Инструкция — DEVELOPMENT.md. Это организационная настройка, версия приложения остаётся 0.220; Vue-миграция не возобновляется.
+
+
+## 72. v0.221 (develop) — нерабочий макет Google Диска
+
+Поручение пользователя: добавить функционал в настройки, но пока не делать рабочим. Реализован статический раздел Google Диска перед профилем: неподключённый аккаунт, кнопка подключения, папка/выбор папки, предварительный лимит кэша (512 МБ, 1/2/5 ГБ), очистка кэша и отключение. Все шесть controls отключены, нет обработчиков, data-sbs-setting/action, OAuth/API, сетевых запросов в Google или сохранения новых значений. Значение 1 ГБ — только демонстрационный вариант, оно не ограничивает действующее хранилище. Очистка не удаляет прежнее аудио. Явное уведомление объясняет, что интеграция ещё недоступна и файлы сейчас остаются в браузере.
+
+Основной AccountSettings.vue и native account-settings.js показывают одинаковый статический блок; оформление в общих account-settings.css с адаптацией существующей темы. Ранее работающие настройки и core owners не менялись. Сборка/import audit, 134 Node tests — PASS. В браузере проверены desktop/mobile, Vue/native, pink-pastel после смены темы: блок один, все controls disabled, Google requests отсутствуют, клики не меняют localStorage, горизонтального overflow нет. Existing Studio/arranger/mixer/preferences/quota/draft/reload acceptance — PASS в трёх вариантах. Полный browser smoke также выполняется CI. Версия находится в codex/develop; main/production не изменять без отдельного выпуска через PR.
+
+Будущее согласованное направление, ещё не реализовано: каждый пользователь подключает свой Google Диск и выбирает папку; оригиналы аудио в Drive, metadata/file IDs в PostgreSQL на собственном сервере пользователя, выдача через backend и ограниченный локальный кэш. Это требует отдельной серверной работы; не превращать disabled макет в имитацию успешного подключения.
