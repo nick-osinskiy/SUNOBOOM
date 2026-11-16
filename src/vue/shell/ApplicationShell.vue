@@ -2,6 +2,7 @@
 import {defineComponent,h,onErrorCaptured,Teleport} from 'vue';
 import NavigationMenu from '../navigation/NavigationMenu.vue';
 import TopHeader from '../navigation/TopHeader.vue';
+import TopPanel from '../navigation/TopPanel.vue';
 import VueHistoryControls from '../navigation/VueHistoryControls.vue';
 import Notifications from '../workspace/Notifications.vue';
 import {RouterView} from 'vue-router';
@@ -20,8 +21,10 @@ const PortalFeature=defineComponent({props:['entry'],setup(p){
    <div class="side-bottom"><strong><i class="mini-dot"></i> Творческая лаборатория</strong><p>Прототип без сервера. Данные хранятся на твоём устройстве.</p></div>
   </aside>
   <main class="main">
-   <div class="top" data-sb-vue-top data-v-app data-sb-shell-owned><TopHeader :model="state.frame.header" /></div>
-   <div data-sb-vue-history data-v-app data-sb-shell-owned class="sb-vue-history-host"><VueHistoryControls :canRestore="resources.canGo" :onRestore="resources.restore" /></div>
+   <TopPanel>
+    <div class="top" data-sb-vue-top data-v-app data-sb-shell-owned><TopHeader :model="state.frame.header" /></div>
+    <div data-sb-vue-history data-v-app data-sb-shell-owned class="sb-vue-history-host"><VueHistoryControls :canRestore="resources.canGo" :onRestore="resources.restore" /></div>
+   </TopPanel>
    <div data-sb-vue-page data-v-app :data-sb-page-fallback="state.pageError?'':undefined" style="display:contents">
     <RouterView v-slot="{Component}"><component :is="Component" :key="state.revision" :model="state.page" :revision="state.revision" :resources="resources" /></RouterView>
    </div>

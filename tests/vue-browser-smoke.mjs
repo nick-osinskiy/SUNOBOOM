@@ -1,6 +1,7 @@
 import {checkDirectPages} from './vue-direct-pages.mjs';
 import {checkStartupRenderBatch} from './vue-startup-render.mjs';
 import {checkShellRouting} from './vue-shell-routing.mjs';
+import {checkTopPanel} from './vue-top-panel.mjs';
 import {checkStage2Acceptance} from './vue-stage2-acceptance.mjs';
 import {checkStudioCore} from './vue-studio-core.mjs';
 import {checkSongCore} from './vue-song-core.mjs';
@@ -4553,6 +4554,7 @@ try {
   await checkStartupRenderBatch(browser,BASE);
   await checkDirectPages(browser,BASE);
   await checkShellRouting(browser,BASE);
+  await checkTopPanel(browser,BASE);
   await checkStage2Acceptance(browser,BASE);
   await checkStudioCore(browser,BASE);
   await checkLayout(false);
