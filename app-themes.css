@@ -985,3 +985,9 @@ html .sb-top-panel .sb-vue-history-button:focus-visible{outline:2px solid var(--
 html .sb-notice-panel{top:calc(var(--sb-top-panel-height,124px) + var(--sb-top-panel-edge) + 16px);max-height:calc(100dvh - var(--sb-top-panel-height,124px) - var(--sb-top-panel-edge) - 32px)}
 @media(max-width:1180px){html .studio-grid>.panel:last-child{position:static!important;top:auto!important}}
 @media(max-height:480px){html .sb-notice-panel{top:16px;max-height:calc(100dvh - 32px)}}
+
+/* The original logo stays intact: recolor its white lettering only on light surfaces. */
+html.sb-theme-light .side .brand .sb-brand-version-row .sb-brand-logo,
+html.sb-theme-light .top .brand-mobile .sb-logo-lockup .sb-mobile-logo{
+ filter:url("#sb-logo-light-ink") drop-shadow(0 2px 6px #f242931a);
+}
