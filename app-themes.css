@@ -848,3 +848,80 @@ html .sb-notice-panel :is(button,a):hover{border-color:var(--sb-notice-accent)}
 html .sb-notice-panel :is(button,a):focus-visible{
  outline:2px solid var(--sb-notice-accent)!important;outline-offset:2px;
 }
+
+/* Suno Studio and Arrangement LAB: surfaces follow the selected palette.
+   Energy-coded left borders remain semantic; layout and control behavior stay intact. */
+html :is(.studio-grid,#song-blueprint,.sba-shell,.sba-jump){
+ --sb-studio-accent:var(--sb-theme-accent,var(--pink));
+ --sba-rose:var(--sb-studio-accent);--sba-cyan:var(--cyan);
+ --sba-muted:var(--muted);--sba-line:var(--stroke);--sba-soft:var(--panel2);
+ color:var(--text);scrollbar-color:var(--stroke) var(--panel2);
+}
+html :is(.studio-grid,#song-blueprint) :is(.panel,.output,.notice,.saved-item,.checkrow label,.list-pills>span){
+ background:var(--panel2)!important;border-color:var(--stroke)!important;color:var(--text)!important;
+}
+html :is(.studio-grid>.panel,#song-blueprint){
+ background:linear-gradient(145deg,var(--panel),var(--panel2))!important;border-color:var(--stroke)!important;color:var(--text)!important;
+}
+html :is(.studio-grid,#song-blueprint) :is(h3,label,strong,.range output){color:var(--text)!important}
+html :is(.studio-grid,#song-blueprint) :is(.muted,.counter,.info-label,.hint,.sub,p){color:var(--muted)!important}
+html :is(.studio-grid,#song-blueprint) :is(.eyebrow,#tempo-num,#prompt-count){color:var(--sb-studio-accent)!important}
+html :is(.studio-grid,#song-blueprint,.sba-shell) :is(textarea,select,input:not([type=range]):not([type=checkbox]):not([type=radio])){
+ background-color:var(--panel2)!important;color:var(--text)!important;border-color:var(--stroke)!important;
+}
+html :is(.studio-grid,#song-blueprint,.sba-shell) :is(input,textarea)::placeholder{color:var(--muted)!important;opacity:1}
+html :is(.studio-grid,#song-blueprint,.sba-shell) :is(input[type=checkbox],input[type=range]){accent-color:var(--sb-studio-accent)}
+html .sba-jump{
+ background:linear-gradient(135deg,var(--panel3),var(--panel2))!important;border-color:var(--stroke)!important;color:var(--text)!important;
+}
+html .sba-jump span:first-child{background:var(--panel3);color:var(--sb-studio-accent)}
+html .sba-jump small{color:var(--muted)}
+html .sba-jump span:last-child{color:var(--sb-studio-accent)}
+html .sba-shell :where(*){color:var(--text)!important}
+html .sba-shell :is(.sba-hero,.sba-result){
+ background:linear-gradient(135deg,var(--panel3),var(--panel))!important;border-color:var(--stroke)!important;
+}
+html .sba-shell :is(.sba-body,.sba-toolbar,.sba-snake-overview,.sba-transition-hub,.sba-preset-menu,.sba-preset-results,.sba-sound-list){
+ background:var(--panel)!important;border-color:var(--stroke)!important;
+}
+html .sba-shell :is(.sba-block,.sba-transition-hub-row,.sba-transition-wrap,.sba-add,.sba-chart-panel,.sba-transfer-preview,.sba-quick-sounds,.sba-sound-panel,.sba-smart-purpose,.sba-transition-suggestion,.sba-confirm,.sba-message,.sba-snake-empty,.sba-transition-hub-empty,.sba-empty,.sba-preset-search-row){
+ background:var(--panel2)!important;border-top-color:var(--stroke)!important;border-right-color:var(--stroke)!important;border-bottom-color:var(--stroke)!important;
+}
+html .sba-shell :is(.sba-result textarea,.sba-transfer-preview code,.sba-transition-tag code){
+ background:var(--panel2)!important;border-color:var(--stroke)!important;
+}
+html .sba-shell button{background:var(--panel3)!important;color:var(--text)!important}
+html .sba-shell button:not(.sba-snake-chip){border-color:var(--stroke)!important}
+html .sba-shell :is(.sba-snake-chip,.sba-count,.sba-hero-label,.sba-emoji,.sba-transition-hub-meta,.sba-transition-hub-number){
+ background:var(--panel3)!important;border-top-color:var(--stroke)!important;border-right-color:var(--stroke)!important;border-bottom-color:var(--stroke)!important;
+}
+html .sba-shell :is(.sba-preset-results [role=option],.sba-sound-option,.sba-sound-genre-row){background:var(--panel2)!important}
+html .sba-shell :is(.sba-transition-active,.sba-transition-hub-active,.sba-preview-tabs button[aria-pressed=true],.sba-preset-filters button[aria-pressed=true],.sba-preset-results [role=option][aria-selected=true]){
+ background:color-mix(in srgb,var(--sb-studio-accent) 15%,var(--panel2))!important;border-color:var(--sb-studio-accent)!important;
+}
+html .sba-shell :is(p,small,label,.sba-draft-saved,.sba-index,.sba-head-energy,.sba-snake-meta,.sba-snake-num,.sba-snake-level,.sba-preview-count,.sba-transition-explain,.sba-transition-summary span,.sba-quick-top>span,.sba-add-title>span,.sba-smart-purpose>span){color:var(--muted)!important}
+html .sba-shell :is(.sba-eyebrow,.sba-snake-eyebrow,.sba-transition-hub-kicker,.sba-transition-hub-heading h3,.sba-sound-group,.sba-smart-group-title,.sba-smart-purpose strong,.sba-quick-top b,.sba-emoji,.sba-snake-icon,.sba-transition-link,.sba-transition-hub-number,.sba-snake-transition,h2>span,h3>span){color:var(--sb-studio-accent)!important}
+html .sba-shell :is(.sba-help,.sba-chart){border-color:var(--stroke)!important;color:var(--sb-studio-accent)!important}
+html .sba-shell .sba-chart-column i{
+ background:linear-gradient(180deg,var(--sb-studio-accent),color-mix(in srgb,var(--sb-studio-accent) 70%,var(--panel3)))!important;
+ box-shadow:0 0 9px color-mix(in srgb,var(--sb-studio-accent) 20%,transparent);
+}
+html :is(.studio-grid,#song-blueprint) .btn.ghost{background:var(--panel3)!important;color:var(--text)!important;border-color:var(--stroke)!important}
+html :is(.studio-grid,#song-blueprint) .btn.primary,
+html .sba-shell :is(.sba-preset-btn,.sba-add-btn,.sba-copy-btn,.sba-preview-buttons button:first-child,.sba-confirm button:first-of-type){
+ background:var(--sb-header-gradient)!important;color:var(--sb-header-ink)!important;border-color:var(--stroke)!important;
+}
+html .sba-shell :is(.sba-preset-btn,.sba-add-btn,.sba-copy-btn,.sba-preview-buttons button:first-child,.sba-confirm button:first-of-type) :where(*){color:inherit!important}
+html :is(.studio-grid,#song-blueprint,.sba-shell) :is(button,input,select,textarea):focus-visible,
+html .sba-jump:focus-visible{outline:2px solid var(--sb-studio-accent)!important;outline-offset:2px}
+html .sba-shell button:hover:not(:disabled){border-top-color:var(--sb-studio-accent)!important;border-right-color:var(--sb-studio-accent)!important;border-bottom-color:var(--sb-studio-accent)!important}
+
+html .sba-shell :is(.sba-transition-hub-row,.sba-transition-wrap,.sba-add,.sba-chart-panel,.sba-transfer-preview,.sba-quick-sounds,.sba-sound-panel,.sba-smart-purpose,.sba-transition-suggestion,.sba-confirm,.sba-message,.sba-snake-empty,.sba-transition-hub-empty,.sba-empty,.sba-preset-search-row,.sba-count,.sba-hero-label,.sba-transition-hub-meta,.sba-transition-hub-number){border-left-color:var(--stroke)!important}
+html .sba-shell .sba-preset-results [aria-selected=true] span:before{color:var(--sb-studio-accent)!important}
+
+html .sba-shell :is(.sba-snake-row,.sba-snake-chip)::after{border-color:var(--stroke)!important;color:var(--sb-studio-accent)!important}
+html .sba-shell :is(.sba-drop-target,.sba-snake-drop-target){box-shadow:0 0 0 3px color-mix(in srgb,var(--sb-studio-accent) 45%,transparent),0 6px 13px #0005;border-top-color:var(--sb-studio-accent)!important;border-right-color:var(--sb-studio-accent)!important;border-bottom-color:var(--sb-studio-accent)!important}
+
+html .sba-shell .sba-preset-group-title{background:var(--panel)!important;border-color:var(--stroke)!important}
+html .sba-shell :is(.sba-sound-group,.sba-smart-group-title){border-color:var(--stroke)!important}
+html .sba-shell :is(.sba-chart,.sba-preset-results,.sba-sound-list){scrollbar-color:var(--stroke) var(--panel2)}
