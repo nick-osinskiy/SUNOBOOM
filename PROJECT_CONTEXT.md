@@ -1,6 +1,6 @@
 # SUNOBOOM — PROJECT_CONTEXT.md
 
-> **v0.218 — итоговая очистка после закрытия этапа 4.** Удалены 38 неиспользуемых архивных bridge-модулей, account-home wrapper и старый DOM collector. Все 103 оставшихся JS/Vue/JSON модуля src/vue входят в рабочий граф; отсутствующих импортов и orphan modules нет. Шесть действующих adapters, fallback, функции/дизайн/данные сохранены. Автоматический import audit добавлен в CI. Подробности — [CLEANUP_ACCEPTANCE.md](./CLEANUP_ACCEPTANCE.md), раздел 68. Итоговая очистка принята: audit, 134 теста, build, полный smoke, CI, Pages и live — PASS.
+> **v0.219 — мобильная загрузка.** Финальная browser-сборка Vue минифицирована; предварительная загрузка начинается после начального native-интерфейса и до последней группы скриптов. Компоненты/дизайн/данные и активация/fallback сохранены. Локальная приёмка и публикация описаны в [PERFORMANCE_ACCEPTANCE.md](./PERFORMANCE_ACCEPTANCE.md), раздел 69. Этапы миграции остаются закрытыми.
 
 ## 1. Что это и где работает
 
@@ -1110,3 +1110,10 @@ Shell напрямую включает NavigationMenu, TopHeader, VueHistoryCon
 
 
 Публикация итоговой очистки v0.218 подтверждена 15 ноября 2026 г.: source [deca0fc](https://github.com/nick-osinskiy/SUNOBOOM/commit/deca0fcc71603e9d444766481b0d09528ce59405), проверенная CI-сборка [1cc1b35](https://github.com/nick-osinskiy/SUNOBOOM/commit/1cc1b3541470b32a3dd0df7b32e0a9992af7fba8). Import audit (103 src/vue modules, 104 reachable, 0 missing/unused), **134/134 Node tests**, build и полный desktop/mobile/native smoke: [CI success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43737840780). [Pages success](https://github.com/nick-osinskiy/SUNOBOOM/actions/runs/43738283127). На [сайте v0.218](https://nick-osinskiy.github.io/SUNOBOOM/?v=218) пройдены direct-page/native recovery, draft/node/FileList handoffs без autosave, artistDnaId, browser routes/Back/Forward/reload, native canonical URLs и прежняя JSON/IDB/audio + Studio/preferences acceptance. JS/CSS опубликованной CI-сборки совпали с main по SHA-256 после нормализации переносов строк. Все Vue component sources и CSS CI-сборки идентичны v0.217; дизайн не менялся. **Итоговая очистка принята и завершена.** Этап 4 остаётся закрытым, рабочие функции/данные/native fallback сохранены.
+
+
+## 69. v0.219 — измерение и ускорение мобильной загрузки
+
+Измерен cold-cache startup в Chromium: 375×812, 1,6 Мбит/с download, 150 мс задержки, CPU ×4, медиана трёх запусков. Это лабораторная эмуляция, не данные реального телефона. Предварительная загрузка Vue перенесена после первого native-интерфейса: вариант в head ухудшал FCP и отклонён. Vite/rolldown минифицирует конечный исполняемый bundle, сохраняя прежний URL/exports и bootstrap. Компоненты и бизнес-логика не менялись.
+
+Воспроизведение: `node scripts/profile-mobile-load.mjs URL 3` (`npm run profile:mobile -- URL 3`). Raw samples — `benchmarks/mobile-load-v219.json`; результаты/ограничения/публикация — PERFORMANCE_ACCEPTANCE.md. Локально bundle LF 570217 → 449304 байт, gzip тем же Node 147113 → 131418. На одном local HTTP server медианы ready 13023 → 12159 мс, FCP 3368 → 3376 мс. Сжатый Pages измеряется отдельно. Работа не открывает этапы миграции заново.

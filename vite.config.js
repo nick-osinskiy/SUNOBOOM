@@ -12,6 +12,8 @@ export default defineConfig({
   build: {
     outDir: 'dist/vue',
     emptyOutDir: true,
+    // This is the final browser executable, so keep no library whitespace.
+    rolldownOptions: { output: { minify: true } },
     lib: {
       entry: fileURLToPath(new URL('./src/vue/entry.js', import.meta.url)),
       formats: ['es'],
