@@ -1358,34 +1358,107 @@ html .genre-bright--grunge .genre-detail-layout :is(button,input):focus-visible{
 }
 
 /* Catalog cards preview the artwork and palette of their concert headers. */
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"]){
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"]){
  background:rgb(var(--gb-poster-base))!important;
  border-color:var(--gb-poster-frame)!important;
  color:var(--gb-poster-text)!important;
  box-shadow:0 10px 24px var(--gb-poster-shadow);
 }
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"]) .art{
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"]) .art{
  opacity:1;
  background:
   linear-gradient(90deg,rgb(var(--gb-poster-base) / .94),rgb(var(--gb-poster-base) / .65) 52%,rgb(var(--gb-poster-base) / .2)),
   linear-gradient(0deg,rgb(var(--gb-poster-base)) 0%,transparent 70%),
   var(--gb-poster-image) center 35% / cover no-repeat;
 }
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"])::before,
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"])::after{
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"])::before,
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"])::after{
  content:none;
 }
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"]) h3{
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"]) h3{
  color:var(--gb-poster-text)!important;text-shadow:0 2px 8px #0008;
 }
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"]) :is(p,.foot){
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"]) :is(p,.foot){
  color:var(--gb-poster-text)!important;
 }
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"]) :is(.kicker,.foot span:last-child){
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"]) :is(.kicker,.foot span:last-child){
  color:var(--gb-poster-eyebrow)!important;
 }
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"]):is(:hover,:focus-visible){
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"]):is(:hover,:focus-visible){
  border-color:var(--gb-poster-action)!important;
  box-shadow:0 15px 32px var(--gb-poster-shadow);
  outline-color:var(--gb-poster-focus)!important;
+}
+
+/* Punk rock uses red stage light, worn cream and charcoal. */
+.gb-hero--punk-rock,
+.genre-card[data-id="punk-rock"]{
+ --gb-poster-image:url("./assets/academy/punk-rock-live.webp");
+ --gb-poster-base:28 21 21;
+ --gb-poster-text:#fff4e8;--gb-poster-muted:#e4c7bc;--gb-poster-eyebrow:#ffad94;
+ --gb-poster-frame:#75443f;--gb-poster-shadow:#170b0b60;
+ --gb-poster-panel:#2b1d1c;--gb-poster-stroke:#845047;
+ --gb-poster-action:#ff8875;--gb-poster-action-border:#ffc5a7;--gb-poster-action-ink:#291613;
+ --gb-poster-button:#3b2523;--gb-poster-button-border:#b87160;--gb-poster-button-hover:#64392f;
+ --gb-poster-focus:#ffd0ab;
+}
+
+/* Punk rock continues its red and charcoal DIY concert palette. */
+html .genre-bright--punk-rock{
+ color-scheme:dark;
+ --bg:#1c1515;--panel:#2b1d1c;--panel2:#3b2523;--panel3:#482c29;
+ --text:#fff4e8;--muted:#e4c7bc;--stroke:#845047;
+ --pink:#ff8875;--violet:#ff8875;--cyan:#e4c7bc;
+ --sb-theme-accent:#ffad94;--sb-theme-accent-soft:#64392f;--sb-theme-accent-border:#b87160;
+ --sb-genre-panel-bg:linear-gradient(140deg,#392522,#2b1d1c);
+ --sb-genre-panel-inset:#482c29;--sb-genre-panel-border:#845047;
+ --sb-genre-ink:#fff4e8;--sb-genre-muted:#e4c7bc;--sb-genre-accent:#ffad94;
+}
+html .genre-bright--punk-rock .genre-detail-layout{
+ background:#1c1515;padding:16px;border-radius:16px;border:1px solid #75443f;
+}
+html .genre-bright--punk-rock .genre-side-nav{box-shadow:0 12px 26px #0004}
+html .genre-bright--punk-rock .genre-detail-layout :is(.gb-panel,.idea,.panel,.ahx-card,.ahx-intro,.ahx-toolbar){
+ background:var(--sb-genre-panel-bg)!important;
+ border-color:var(--stroke)!important;color:var(--text)!important;border-radius:12px;
+}
+html .genre-bright--punk-rock .genre-detail-layout :is(h2,h3,h4,strong,label){
+ color:var(--text)!important;
+}
+html .genre-bright--punk-rock .genre-detail-layout :is(p,small,.info-label,.ahx-era,.ahx-count,.ahx-footnote){
+ color:var(--muted)!important;
+}
+html .genre-bright--punk-rock .genre-detail-layout :is(.gb-sup,.gb-bpm-value,.gb-eyebrow,.ahx-eyebrow){
+ color:var(--sb-genre-accent)!important;
+}
+html .genre-bright--punk-rock .genre-detail-layout :is(.gb-unit b,.ahx-avatar,.ahx-num,.idea-badge){
+ background:#64392f!important;color:#ffd0ab!important;border-color:#b87160!important;
+}
+html .genre-bright--punk-rock .genre-detail-layout :is(.gb-unit,.gb-idea,.gb-artists span,.ahx-track,.ahx-role){
+ background:var(--panel3)!important;color:var(--text)!important;border-color:var(--stroke)!important;
+}
+html .genre-bright--punk-rock .genre-detail-layout :is(button,input){
+ border-color:var(--stroke)!important;
+}
+html .genre-bright--punk-rock .genre-detail-layout :is(.btn,.sb-ap-inline-actions button,.ahx-filter-buttons button,.ahx-toolbar button){
+ background:var(--panel2)!important;color:var(--text)!important;
+}
+html .genre-bright--punk-rock .genre-detail-layout .btn.primary{
+ background:#ff8875!important;color:#291613!important;border-color:#ffc5a7!important;box-shadow:none;
+}
+html .genre-bright--punk-rock .genre-detail-layout :is(.genre-side-item.active,.ahx-toolbar button.on,.ahx-filter-buttons button[aria-pressed=true]){
+ background:#64392f!important;color:#ffd0ab!important;border-color:#b87160!important;
+}
+html .genre-bright--punk-rock .genre-detail-layout input{
+ background:var(--panel2)!important;color:var(--text)!important;
+}
+html .genre-bright--punk-rock .genre-detail-layout input::placeholder{color:var(--muted)!important;opacity:1}
+html .genre-bright--punk-rock .genre-detail-layout button:hover:not(:disabled){
+ border-color:#ff8875!important;
+}
+html .genre-bright--punk-rock .genre-detail-layout :is(button,input):focus-visible{
+ outline-color:#ffd0ab!important;
+}
+@media(max-width:580px){
+ html .genre-bright--punk-rock .genre-detail-layout{padding:10px}
 }
