@@ -43,8 +43,8 @@ async function chooseTab(tab) {
 </script>
 
 <template>
-  <div class="genre-bright" :class="['alternative-rock', 'indie-rock', 'grunge', 'punk-rock', 'progressive-rock', 'pop-rock', 'hard-rock', 'folk-rock'].includes(genre.id) ? 'genre-bright--' + genre.id : null" :style="{ '--accent': genre.color }">
-    <div class="gb-hero" :class="['alternative-rock', 'indie-rock', 'grunge', 'punk-rock', 'progressive-rock', 'pop-rock', 'hard-rock', 'folk-rock'].includes(genre.id) ? 'gb-hero--poster gb-hero--' + genre.id : null">
+  <div class="genre-bright" :class="['alternative-rock', 'indie-rock', 'grunge', 'punk-rock', 'progressive-rock', 'pop-rock', 'hard-rock', 'folk-rock', 'rock-and-roll'].includes(genre.id) ? 'genre-bright--' + genre.id : null" :style="{ '--accent': genre.color }">
+    <div class="gb-hero" :class="['alternative-rock', 'indie-rock', 'grunge', 'punk-rock', 'progressive-rock', 'pop-rock', 'hard-rock', 'folk-rock', 'rock-and-roll'].includes(genre.id) ? 'gb-hero--poster gb-hero--' + genre.id : null">
       <div class="gb-top">
         <button type="button" class="back" data-action="academy-back"
           aria-label="Назад к разделу Академии">← Назад</button>
