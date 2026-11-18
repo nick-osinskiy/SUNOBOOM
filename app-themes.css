@@ -1221,3 +1221,63 @@ html .genre-bright--alternative-rock .genre-detail-layout :is(button,input):focu
 @media(max-width:580px){
  html .genre-bright--alternative-rock .genre-detail-layout{padding:10px}
 }
+
+/* The indie-rock detail screen continues its intimate concert palette. */
+html .genre-bright--indie-rock{
+ color-scheme:dark;
+ --bg:#101b1c;--panel:#192b2b;--panel2:#203838;--panel3:#29413f;
+ --text:#fff5e7;--muted:#d2e0d8;--stroke:#416560;
+ --pink:#f2c28b;--violet:#f2c28b;--cyan:#d2e0d8;
+ --sb-theme-accent:#f4c591;--sb-theme-accent-soft:#35534c;--sb-theme-accent-border:#5d8278;
+ --sb-genre-panel-bg:linear-gradient(140deg,#213634,#192b2b);
+ --sb-genre-panel-inset:#29413f;--sb-genre-panel-border:#416560;
+ --sb-genre-ink:#fff5e7;--sb-genre-muted:#d2e0d8;--sb-genre-accent:#f4c591;
+}
+html .genre-bright--indie-rock .genre-detail-layout{
+ background:#101b1c;padding:16px;border-radius:16px;border:1px solid #416360;
+}
+html .genre-bright--indie-rock .genre-side-nav{box-shadow:0 12px 26px #0004}
+html .genre-bright--indie-rock .genre-detail-layout :is(.gb-panel,.idea,.panel,.ahx-card,.ahx-intro,.ahx-toolbar){
+ background:var(--sb-genre-panel-bg)!important;
+ border-color:var(--stroke)!important;color:var(--text)!important;border-radius:12px;
+}
+html .genre-bright--indie-rock .genre-detail-layout :is(h2,h3,h4,strong,label){
+ color:var(--text)!important;
+}
+html .genre-bright--indie-rock .genre-detail-layout :is(p,small,.info-label,.ahx-era,.ahx-count,.ahx-footnote){
+ color:var(--muted)!important;
+}
+html .genre-bright--indie-rock .genre-detail-layout :is(.gb-sup,.gb-bpm-value,.gb-eyebrow,.ahx-eyebrow){
+ color:var(--sb-genre-accent)!important;
+}
+html .genre-bright--indie-rock .genre-detail-layout :is(.gb-unit b,.ahx-avatar,.ahx-num,.idea-badge){
+ background:#35534c!important;color:#ffdfa9!important;border-color:#5d8278!important;
+}
+html .genre-bright--indie-rock .genre-detail-layout :is(.gb-unit,.gb-idea,.gb-artists span,.ahx-track,.ahx-role){
+ background:var(--panel3)!important;color:var(--text)!important;border-color:var(--stroke)!important;
+}
+html .genre-bright--indie-rock .genre-detail-layout :is(button,input){
+ border-color:var(--stroke)!important;
+}
+html .genre-bright--indie-rock .genre-detail-layout :is(.btn,.sb-ap-inline-actions button,.ahx-filter-buttons button,.ahx-toolbar button){
+ background:var(--panel2)!important;color:var(--text)!important;
+}
+html .genre-bright--indie-rock .genre-detail-layout .btn.primary{
+ background:#f2c28b!important;color:#23201b!important;border-color:#ffe0b9!important;box-shadow:none;
+}
+html .genre-bright--indie-rock .genre-detail-layout :is(.genre-side-item.active,.ahx-toolbar button.on,.ahx-filter-buttons button[aria-pressed=true]){
+ background:#35534c!important;color:#ffdfa9!important;border-color:#5d8278!important;
+}
+html .genre-bright--indie-rock .genre-detail-layout input{
+ background:var(--panel2)!important;color:var(--text)!important;
+}
+html .genre-bright--indie-rock .genre-detail-layout input::placeholder{color:var(--muted)!important;opacity:1}
+html .genre-bright--indie-rock .genre-detail-layout button:hover:not(:disabled){
+ border-color:#f2c28b!important;
+}
+html .genre-bright--indie-rock .genre-detail-layout :is(button,input):focus-visible{
+ outline-color:#ffdfa9!important;
+}
+@media(max-width:580px){
+ html .genre-bright--indie-rock .genre-detail-layout{padding:10px}
+}
