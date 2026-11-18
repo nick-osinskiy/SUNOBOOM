@@ -37,7 +37,7 @@ export async function checkTopPanel(browser,base){
     await page.waitForFunction(theme=>document.documentElement.dataset.sbTheme===theme,theme);
     assert.equal(await page.locator('.sb-top-panel').evaluate(el=>getComputedStyle(el).backgroundColor),await page.evaluate(()=>{const probe=document.createElement('i');probe.style.color='var(--panel)';document.body.append(probe);const color=getComputedStyle(probe).color;probe.remove();return color;}));
     const palette = await versionPalette(page);
-    assert.ok(palette.contrast >= 4.5, 'version badge text contrast for ' + theme);
+    assert.ok(palette.contrast >= 4.5, 'version badge text contrast for ' + theme + ': ' + JSON.stringify(palette));
     palettes.set(theme, palette);
    }
    assert.equal(new Set([...palettes.values()].map(palette => palette.background)).size, palettes.size,

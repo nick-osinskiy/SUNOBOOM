@@ -974,6 +974,8 @@ html .sb-top-panel .sb-app-version{
  background:color-mix(in srgb,var(--sb-version-accent) 14%,var(--panel2));
  border-color:var(--sb-theme-accent-border,var(--stroke));
  color:var(--text);
+ /* Switch the foreground and background on the same frame. */
+ transition:none;
 }
 html .sb-top-panel .sb-app-version:is(:hover,:focus-visible){
  background:var(--panel3);
@@ -981,7 +983,7 @@ html .sb-top-panel .sb-app-version:is(:hover,:focus-visible){
  border-color:var(--sb-version-accent);
 }
 html .sb-top-panel .sb-app-version:focus-visible{
- outline:2px solid var(--sb-version-accent);outline-offset:3px;
+ outline:2px solid var(--sb-version-accent)!important;outline-offset:3px;
 }
 html .sb-top-panel .sb-vue-history-toolbar{margin:10px 0 0;min-height:32px}
 html .sb-top-panel .sb-vue-history-caption{color:var(--muted)}
