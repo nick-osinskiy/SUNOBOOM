@@ -1358,33 +1358,33 @@ html .genre-bright--grunge .genre-detail-layout :is(button,input):focus-visible{
 }
 
 /* Catalog cards preview the artwork and palette of their concert headers. */
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"]){
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"]){
  background:rgb(var(--gb-poster-base))!important;
  border-color:var(--gb-poster-frame)!important;
  color:var(--gb-poster-text)!important;
  box-shadow:0 10px 24px var(--gb-poster-shadow);
 }
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"]) .art{
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"]) .art{
  opacity:1;
  background:
   linear-gradient(90deg,rgb(var(--gb-poster-base) / .94),rgb(var(--gb-poster-base) / .65) 52%,rgb(var(--gb-poster-base) / .2)),
   linear-gradient(0deg,rgb(var(--gb-poster-base)) 0%,transparent 70%),
   var(--gb-poster-image) center 35% / cover no-repeat;
 }
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"])::before,
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"])::after{
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"])::before,
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"])::after{
  content:none;
 }
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"]) h3{
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"]) h3{
  color:var(--gb-poster-text)!important;text-shadow:0 2px 8px #0008;
 }
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"]) :is(p,.foot){
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"]) :is(p,.foot){
  color:var(--gb-poster-text)!important;
 }
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"]) :is(.kicker,.foot span:last-child){
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"]) :is(.kicker,.foot span:last-child){
  color:var(--gb-poster-eyebrow)!important;
 }
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"]):is(:hover,:focus-visible){
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"]):is(:hover,:focus-visible){
  border-color:var(--gb-poster-action)!important;
  box-shadow:0 15px 32px var(--gb-poster-shadow);
  outline-color:var(--gb-poster-focus)!important;
@@ -1461,4 +1461,77 @@ html .genre-bright--punk-rock .genre-detail-layout :is(button,input):focus-visib
 }
 @media(max-width:580px){
  html .genre-bright--punk-rock .genre-detail-layout{padding:10px}
+}
+
+/* Progressive rock combines midnight stage blue with golden light. */
+.gb-hero--progressive-rock,
+.genre-card[data-id="progressive-rock"]{
+ --gb-poster-image:url("./assets/academy/progressive-rock-live.webp");
+ --gb-poster-base:16 22 39;
+ --gb-poster-text:#fff5df;--gb-poster-muted:#cbd6e8;--gb-poster-eyebrow:#f0d599;
+ --gb-poster-frame:#50617f;--gb-poster-shadow:#080e2260;
+ --gb-poster-panel:#192235;--gb-poster-stroke:#536581;
+ --gb-poster-action:#e8c982;--gb-poster-action-border:#fff0c8;--gb-poster-action-ink:#20283a;
+ --gb-poster-button:#23314a;--gb-poster-button-border:#8294b3;--gb-poster-button-hover:#3a4762;
+ --gb-poster-focus:#ffebbd;
+}
+
+/* Progressive rock continues its midnight-blue and gold stage palette. */
+html .genre-bright--progressive-rock{
+ color-scheme:dark;
+ --bg:#101627;--panel:#192235;--panel2:#23314a;--panel3:#2c3c57;
+ --text:#fff5df;--muted:#cbd6e8;--stroke:#536581;
+ --pink:#e8c982;--violet:#e8c982;--cyan:#cbd6e8;
+ --sb-theme-accent:#f0d599;--sb-theme-accent-soft:#3a4762;--sb-theme-accent-border:#8294b3;
+ --sb-genre-panel-bg:linear-gradient(140deg,#23304a,#192235);
+ --sb-genre-panel-inset:#2c3c57;--sb-genre-panel-border:#536581;
+ --sb-genre-ink:#fff5df;--sb-genre-muted:#cbd6e8;--sb-genre-accent:#f0d599;
+}
+html .genre-bright--progressive-rock .genre-detail-layout{
+ background:#101627;padding:16px;border-radius:16px;border:1px solid #50617f;
+}
+html .genre-bright--progressive-rock .genre-side-nav{box-shadow:0 12px 26px #0004}
+html .genre-bright--progressive-rock .genre-detail-layout :is(.gb-panel,.idea,.panel,.ahx-card,.ahx-intro,.ahx-toolbar){
+ background:var(--sb-genre-panel-bg)!important;
+ border-color:var(--stroke)!important;color:var(--text)!important;border-radius:12px;
+}
+html .genre-bright--progressive-rock .genre-detail-layout :is(h2,h3,h4,strong,label){
+ color:var(--text)!important;
+}
+html .genre-bright--progressive-rock .genre-detail-layout :is(p,small,.info-label,.ahx-era,.ahx-count,.ahx-footnote){
+ color:var(--muted)!important;
+}
+html .genre-bright--progressive-rock .genre-detail-layout :is(.gb-sup,.gb-bpm-value,.gb-eyebrow,.ahx-eyebrow){
+ color:var(--sb-genre-accent)!important;
+}
+html .genre-bright--progressive-rock .genre-detail-layout :is(.gb-unit b,.ahx-avatar,.ahx-num,.idea-badge){
+ background:#3a4762!important;color:#ffebbd!important;border-color:#8294b3!important;
+}
+html .genre-bright--progressive-rock .genre-detail-layout :is(.gb-unit,.gb-idea,.gb-artists span,.ahx-track,.ahx-role){
+ background:var(--panel3)!important;color:var(--text)!important;border-color:var(--stroke)!important;
+}
+html .genre-bright--progressive-rock .genre-detail-layout :is(button,input){
+ border-color:var(--stroke)!important;
+}
+html .genre-bright--progressive-rock .genre-detail-layout :is(.btn,.sb-ap-inline-actions button,.ahx-filter-buttons button,.ahx-toolbar button){
+ background:var(--panel2)!important;color:var(--text)!important;
+}
+html .genre-bright--progressive-rock .genre-detail-layout .btn.primary{
+ background:#e8c982!important;color:#20283a!important;border-color:#fff0c8!important;box-shadow:none;
+}
+html .genre-bright--progressive-rock .genre-detail-layout :is(.genre-side-item.active,.ahx-toolbar button.on,.ahx-filter-buttons button[aria-pressed=true]){
+ background:#3a4762!important;color:#ffebbd!important;border-color:#8294b3!important;
+}
+html .genre-bright--progressive-rock .genre-detail-layout input{
+ background:var(--panel2)!important;color:var(--text)!important;
+}
+html .genre-bright--progressive-rock .genre-detail-layout input::placeholder{color:var(--muted)!important;opacity:1}
+html .genre-bright--progressive-rock .genre-detail-layout button:hover:not(:disabled){
+ border-color:#e8c982!important;
+}
+html .genre-bright--progressive-rock .genre-detail-layout :is(button,input):focus-visible{
+ outline-color:#ffebbd!important;
+}
+@media(max-width:580px){
+ html .genre-bright--progressive-rock .genre-detail-layout{padding:10px}
 }
