@@ -1161,3 +1161,63 @@ html .genre-family-summary [data-sb-last-genre]:is(:hover,:focus-visible){
  background:var(--panel2);
  border-color:var(--sb-theme-accent,var(--violet));
 }
+
+/* The alternative-rock detail screen continues its concert-poster palette. */
+html .genre-bright--alternative-rock{
+ color-scheme:dark;
+ --bg:#181412;--panel:#231a17;--panel2:#2f211b;--panel3:#35261f;
+ --text:#fff8ef;--muted:#e1c8b9;--stroke:#795342;
+ --pink:#f8a480;--violet:#f8a480;--cyan:#e1c8b9;
+ --sb-theme-accent:#ffac85;--sb-theme-accent-soft:#4c3026;--sb-theme-accent-border:#9e6b54;
+ --sb-genre-panel-bg:linear-gradient(140deg,#2b201b,#231a17);
+ --sb-genre-panel-inset:#35261f;--sb-genre-panel-border:#795342;
+ --sb-genre-ink:#fff8ef;--sb-genre-muted:#e1c8b9;--sb-genre-accent:#ffac85;
+}
+html .genre-bright--alternative-rock .genre-detail-layout{
+ background:#181412;padding:16px;border-radius:16px;border:1px solid #614337;
+}
+html .genre-bright--alternative-rock .genre-side-nav{box-shadow:0 12px 26px #0004}
+html .genre-bright--alternative-rock .genre-detail-layout :is(.gb-panel,.idea,.panel,.ahx-card,.ahx-intro,.ahx-toolbar){
+ background:var(--sb-genre-panel-bg)!important;
+ border-color:var(--stroke)!important;color:var(--text)!important;border-radius:12px;
+}
+html .genre-bright--alternative-rock .genre-detail-layout :is(h2,h3,h4,strong,label){
+ color:var(--text)!important;
+}
+html .genre-bright--alternative-rock .genre-detail-layout :is(p,small,.info-label,.ahx-era,.ahx-count,.ahx-footnote){
+ color:var(--muted)!important;
+}
+html .genre-bright--alternative-rock .genre-detail-layout :is(.gb-sup,.gb-bpm-value,.gb-eyebrow,.ahx-eyebrow){
+ color:var(--sb-genre-accent)!important;
+}
+html .genre-bright--alternative-rock .genre-detail-layout :is(.gb-unit b,.ahx-avatar,.ahx-num,.idea-badge){
+ background:#4c3026!important;color:#ffd1b9!important;border-color:#9e6b54!important;
+}
+html .genre-bright--alternative-rock .genre-detail-layout :is(.gb-unit,.gb-idea,.gb-artists span,.ahx-track,.ahx-role){
+ background:var(--panel3)!important;color:var(--text)!important;border-color:var(--stroke)!important;
+}
+html .genre-bright--alternative-rock .genre-detail-layout :is(button,input){
+ border-color:var(--stroke)!important;
+}
+html .genre-bright--alternative-rock .genre-detail-layout :is(.btn,.sb-ap-inline-actions button,.ahx-filter-buttons button,.ahx-toolbar button){
+ background:var(--panel2)!important;color:var(--text)!important;
+}
+html .genre-bright--alternative-rock .genre-detail-layout .btn.primary{
+ background:#f8a480!important;color:#201411!important;border-color:#ffc9ac!important;box-shadow:none;
+}
+html .genre-bright--alternative-rock .genre-detail-layout :is(.genre-side-item.active,.ahx-toolbar button.on,.ahx-filter-buttons button[aria-pressed=true]){
+ background:#4c3026!important;color:#ffd1b9!important;border-color:#9e6b54!important;
+}
+html .genre-bright--alternative-rock .genre-detail-layout input{
+ background:var(--panel2)!important;color:var(--text)!important;
+}
+html .genre-bright--alternative-rock .genre-detail-layout input::placeholder{color:var(--muted)!important;opacity:1}
+html .genre-bright--alternative-rock .genre-detail-layout button:hover:not(:disabled){
+ border-color:#f8a480!important;
+}
+html .genre-bright--alternative-rock .genre-detail-layout :is(button,input):focus-visible{
+ outline-color:#ffd1b9!important;
+}
+@media(max-width:580px){
+ html .genre-bright--alternative-rock .genre-detail-layout{padding:10px}
+}
