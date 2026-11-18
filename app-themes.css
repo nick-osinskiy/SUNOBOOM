@@ -968,6 +968,21 @@ html .sb-top-panel{
 html .sb-top-panel>.top{margin:0;padding:0 0 12px;border-bottom-color:var(--stroke);min-width:0}
 html .sb-top-panel .breadcrumbs{min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 html .sb-top-panel .top-right{flex-shrink:0}
+html .sb-top-panel .sb-app-version{
+ --sb-version-accent:var(--sb-theme-accent,var(--pink));
+ background:var(--panel3);
+ background:color-mix(in srgb,var(--sb-version-accent) 14%,var(--panel2));
+ border-color:var(--sb-theme-accent-border,var(--stroke));
+ color:var(--text);
+}
+html .sb-top-panel .sb-app-version:is(:hover,:focus-visible){
+ background:var(--panel3);
+ background:color-mix(in srgb,var(--sb-version-accent) 22%,var(--panel2));
+ border-color:var(--sb-version-accent);
+}
+html .sb-top-panel .sb-app-version:focus-visible{
+ outline:2px solid var(--sb-version-accent);outline-offset:3px;
+}
 html .sb-top-panel .sb-vue-history-toolbar{margin:10px 0 0;min-height:32px}
 html .sb-top-panel .sb-vue-history-caption{color:var(--muted)}
 html .sb-top-panel .sb-vue-history-button{background:var(--panel3);border-color:var(--stroke);color:var(--text)}

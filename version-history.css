@@ -1,7 +1,5 @@
 /* SUNOBOOM v0.86 · Global search across version tabs */
 .sb-version-trigger{appearance:none;-webkit-appearance:none;font-family:inherit;cursor:pointer;line-height:1;text-align:center}
-.sb-version-trigger:hover,.sb-version-trigger:focus-visible{border-color:#f8b6e7;background:linear-gradient(115deg,#86457c,#555a9f);color:#fff;box-shadow:0 0 0 2px #db8cdf55,0 6px 20px #c159ae33}
-.sb-version-trigger:focus-visible{outline:2px solid #96e6f0;outline-offset:3px}
 body.sb-vh-open{overflow:hidden}
 .sb-vh-overlay{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;padding:20px;color:#ebedf9}
 .sb-vh-overlay *{box-sizing:border-box}
