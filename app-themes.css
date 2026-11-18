@@ -1110,3 +1110,54 @@ html .account-tile > .account-tile-arrow,
 html .account-tile > svg{
  color:var(--sb-theme-accent,var(--pink));
 }
+
+/* Academy toolbar and artist directory share the active appearance palette. */
+html :is(.sb-ap-hub,.sb-ap-tools){
+ background:var(--panel);
+ border-color:var(--stroke);
+ color:var(--text);
+}
+html .sb-ap-hub :is(h2,strong,label){color:var(--text)}
+html .sb-ap-hub :is(p,small,.sb-ap-count,.sb-ap-disclaimer){color:var(--muted)}
+html .sb-ap-hub :is(.sb-ap-sym,.sb-ap-avatar,.sb-ap-total,.sb-ap-chips span){
+ background:var(--panel3);
+ border-color:var(--stroke);
+ color:var(--text);
+}
+html .sb-ap-hub :is(.sb-ap-chevron,.sb-ap-overline){color:var(--sb-theme-accent,var(--pink))}
+html #sb-ap-hub-content{border-color:var(--stroke)}
+html .sb-ap-hub :is(input[type=search],select){
+ background:var(--panel2);
+ border-color:var(--stroke);
+ color:var(--text);
+}
+html .sb-ap-hub :is(.sb-ap-card-actions button,.sb-ap-more){
+ background:var(--panel3);
+ border-color:var(--stroke);
+ color:var(--text);
+}
+html .sb-ap-hub :is(input,button,select,summary):focus-visible{
+ outline-color:var(--sb-theme-accent,var(--violet))!important;
+}
+html .genre-family-toolbar .search-box{
+ background:var(--panel);
+ border-color:var(--stroke);
+ box-shadow:0 6px 23px #00000012;
+ color:var(--text);
+}
+html .genre-family-toolbar .search-box input{
+ background:transparent!important;
+ color:var(--text)!important;
+}
+html .genre-family-toolbar .search-box input::placeholder,
+html .genre-family-toolbar .search-box svg{color:var(--muted)!important;opacity:1}
+html :is(.genre-family-toolbar,.genre-family-summary) .hint{color:var(--muted)}
+html .genre-family-summary [data-sb-last-genre]{
+ background:var(--panel3);
+ color:var(--text);
+ border-color:var(--stroke);
+}
+html .genre-family-summary [data-sb-last-genre]:is(:hover,:focus-visible){
+ background:var(--panel2);
+ border-color:var(--sb-theme-accent,var(--violet));
+}
