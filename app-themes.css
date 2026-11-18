@@ -1019,7 +1019,8 @@ html.sb-theme-light .top .brand-mobile .sb-logo-lockup .sb-mobile-logo{
 }
 
 /* Concert poster artwork and palette for the two rock genre headers. */
-.gb-hero--alternative-rock{
+.gb-hero--alternative-rock,
+.genre-card[data-id="alternative-rock"]{
  --gb-poster-image:url("./assets/academy/alternative-rock-live.webp");
  --gb-poster-base:24 20 18;
  --gb-poster-text:#fff8ef;--gb-poster-muted:#f0d8ca;--gb-poster-eyebrow:#ffac85;
@@ -1029,7 +1030,8 @@ html.sb-theme-light .top .brand-mobile .sb-logo-lockup .sb-mobile-logo{
  --gb-poster-button:#2f211b;--gb-poster-button-border:#9e6b54;--gb-poster-button-hover:#4c3026;
  --gb-poster-focus:#ffd1b9;
 }
-.gb-hero--indie-rock{
+.gb-hero--indie-rock,
+.genre-card[data-id="indie-rock"]{
  --gb-poster-image:url("./assets/academy/indie-rock-live.webp");
  --gb-poster-base:16 27 28;
  --gb-poster-text:#fff5e7;--gb-poster-muted:#d2e0d8;--gb-poster-eyebrow:#f4c591;
@@ -1283,7 +1285,8 @@ html .genre-bright--indie-rock .genre-detail-layout :is(button,input):focus-visi
 }
 
 /* Grunge uses olive shadows and worn mustard stage light. */
-.gb-hero--grunge{
+.gb-hero--grunge,
+.genre-card[data-id="grunge"]{
  --gb-poster-image:url("./assets/academy/grunge-live.webp");
  --gb-poster-base:26 28 21;
  --gb-poster-text:#f7f0dd;--gb-poster-muted:#d4d3bd;--gb-poster-eyebrow:#e1c989;
@@ -1352,4 +1355,37 @@ html .genre-bright--grunge .genre-detail-layout :is(button,input):focus-visible{
 }
 @media(max-width:580px){
  html .genre-bright--grunge .genre-detail-layout{padding:10px}
+}
+
+/* Catalog cards preview the artwork and palette of their concert headers. */
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"]){
+ background:rgb(var(--gb-poster-base))!important;
+ border-color:var(--gb-poster-frame)!important;
+ color:var(--gb-poster-text)!important;
+ box-shadow:0 10px 24px var(--gb-poster-shadow);
+}
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"]) .art{
+ opacity:1;
+ background:
+  linear-gradient(90deg,rgb(var(--gb-poster-base) / .94),rgb(var(--gb-poster-base) / .65) 52%,rgb(var(--gb-poster-base) / .2)),
+  linear-gradient(0deg,rgb(var(--gb-poster-base)) 0%,transparent 70%),
+  var(--gb-poster-image) center 35% / cover no-repeat;
+}
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"])::before,
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"])::after{
+ content:none;
+}
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"]) h3{
+ color:var(--gb-poster-text)!important;text-shadow:0 2px 8px #0008;
+}
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"]) :is(p,.foot){
+ color:var(--gb-poster-text)!important;
+}
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"]) :is(.kicker,.foot span:last-child){
+ color:var(--gb-poster-eyebrow)!important;
+}
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"]):is(:hover,:focus-visible){
+ border-color:var(--gb-poster-action)!important;
+ box-shadow:0 15px 32px var(--gb-poster-shadow);
+ outline-color:var(--gb-poster-focus)!important;
 }
