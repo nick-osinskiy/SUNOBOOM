@@ -1018,15 +1018,35 @@ html.sb-theme-light .top .brand-mobile .sb-logo-lockup .sb-mobile-logo{
  filter:url("#sb-logo-light-ink") drop-shadow(0 2px 6px #f242931a);
 }
 
-/* Alternative rock is a dark concert-poster treatment within any app palette. */
-.gb-hero.gb-hero--alternative-rock{
- color:#fff8ef;
- background:#181412;
- border-color:#614337;
- border-radius:16px;
- box-shadow:0 14px 34px #160c092e;
+/* Concert poster artwork and palette for the two rock genre headers. */
+.gb-hero--alternative-rock{
+ --gb-poster-image:url("./assets/academy/alternative-rock-live.webp");
+ --gb-poster-base:24 20 18;
+ --gb-poster-text:#fff8ef;--gb-poster-muted:#f0d8ca;--gb-poster-eyebrow:#ffac85;
+ --gb-poster-frame:#614337;--gb-poster-shadow:#160c092e;
+ --gb-poster-panel:#231a17;--gb-poster-stroke:#795342;
+ --gb-poster-action:#f8a480;--gb-poster-action-border:#ffc9ac;--gb-poster-action-ink:#201411;
+ --gb-poster-button:#2f211b;--gb-poster-button-border:#9e6b54;--gb-poster-button-hover:#4c3026;
+ --gb-poster-focus:#ffd1b9;
 }
-.gb-hero--alternative-rock::before{
+.gb-hero--indie-rock{
+ --gb-poster-image:url("./assets/academy/indie-rock-live.webp");
+ --gb-poster-base:16 27 28;
+ --gb-poster-text:#fff5e7;--gb-poster-muted:#d2e0d8;--gb-poster-eyebrow:#f4c591;
+ --gb-poster-frame:#416360;--gb-poster-shadow:#101b1c40;
+ --gb-poster-panel:#192b2b;--gb-poster-stroke:#416560;
+ --gb-poster-action:#f2c28b;--gb-poster-action-border:#ffe0b9;--gb-poster-action-ink:#23201b;
+ --gb-poster-button:#203838;--gb-poster-button-border:#5d8278;--gb-poster-button-hover:#2d4d48;
+ --gb-poster-focus:#ffdfa9;
+}
+.gb-hero.gb-hero--poster{
+ color:var(--gb-poster-text);
+ background:rgb(var(--gb-poster-base));
+ border-color:var(--gb-poster-frame);
+ border-radius:16px;
+ box-shadow:0 14px 34px var(--gb-poster-shadow);
+}
+.gb-hero--poster::before{
  inset:0 0 0 auto;
  width:68%;
  height:auto;
@@ -1034,50 +1054,50 @@ html.sb-theme-light .top .brand-mobile .sb-logo-lockup .sb-mobile-logo{
  border-radius:0;
  box-shadow:none;
  background:
-  linear-gradient(90deg,#181412 0%,#181412eb 13%,#1814124d 46%,#1814120a 100%),
-  linear-gradient(0deg,#181412 0%,#18141200 37%,#18141200 74%,#18141280 100%),
-  url("./assets/academy/alternative-rock-live.webp") center 42% / cover no-repeat;
+  linear-gradient(90deg,rgb(var(--gb-poster-base)) 0%,rgb(var(--gb-poster-base) / .922) 13%,rgb(var(--gb-poster-base) / .302) 46%,rgb(var(--gb-poster-base) / .039) 100%),
+  linear-gradient(0deg,rgb(var(--gb-poster-base)) 0%,rgb(var(--gb-poster-base) / 0) 37%,rgb(var(--gb-poster-base) / 0) 74%,rgb(var(--gb-poster-base) / .502) 100%),
+  var(--gb-poster-image) center 42% / cover no-repeat;
 }
-.gb-hero--alternative-rock .gb-content{display:block;max-width:58%}
-.gb-hero--alternative-rock .gb-vinyl{display:none}
-.gb-hero--alternative-rock .gb-title{
- color:#fff8ef;
+.gb-hero--poster .gb-content{display:block;max-width:58%}
+.gb-hero--poster .gb-vinyl{display:none}
+.gb-hero--poster .gb-title{
+ color:var(--gb-poster-text);
  font-size:clamp(37px,5.4vw,72px);
  font-weight:900;
  line-height:.99;
  letter-spacing:-.055em;
 }
-.gb-hero--alternative-rock .gb-eyebrow{color:#ffac85}
-.gb-hero--alternative-rock :is(.gb-desc,.gb-top small,.gb-fact small){color:#f0d8ca}
-.gb-hero--alternative-rock :is(.gb-tags span,.gb-fact){
- background:#231a17;
- border-color:#795342;
+.gb-hero--poster .gb-eyebrow{color:var(--gb-poster-eyebrow)}
+.gb-hero--poster :is(.gb-desc,.gb-top small,.gb-fact small){color:var(--gb-poster-muted)}
+.gb-hero--poster :is(.gb-tags span,.gb-fact){
+ background:var(--gb-poster-panel);
+ border-color:var(--gb-poster-stroke);
  backdrop-filter:none;
 }
-.gb-hero--alternative-rock .gb-fact{border-radius:8px}
-.gb-hero--alternative-rock .gb-buttons .btn.primary{
- background:#f8a480;
- border-color:#ffc9ac;
- color:#201411;
+.gb-hero--poster .gb-fact{border-radius:8px}
+.gb-hero--poster .gb-buttons .btn.primary{
+ background:var(--gb-poster-action);
+ border-color:var(--gb-poster-action-border);
+ color:var(--gb-poster-action-ink);
 }
-.gb-hero--alternative-rock .gb-buttons .btn.ghost{
- background:#2f211b;
- border-color:#9e6b54;
- color:#fff8ef;
+.gb-hero--poster .gb-buttons .btn.ghost{
+ background:var(--gb-poster-button);
+ border-color:var(--gb-poster-button-border);
+ color:var(--gb-poster-text);
 }
-.gb-hero--alternative-rock .gb-buttons .btn.ghost:hover{background:#4c3026}
-.gb-hero--alternative-rock :is(.back,.gb-buttons .btn):focus-visible{
- outline-color:#ffd1b9!important;
+.gb-hero--poster .gb-buttons .btn.ghost:hover{background:var(--gb-poster-button-hover)}
+.gb-hero--poster :is(.back,.gb-buttons .btn):focus-visible{
+ outline-color:var(--gb-poster-focus)!important;
 }
 @media(max-width:700px){
- .gb-hero--alternative-rock::before{
+ .gb-hero--poster::before{
   inset:0 0 auto;
   width:100%;
   height:235px;
   background:
-   linear-gradient(0deg,#181412 0%,#18141200 56%,#18141200 73%,#181412b3 100%),
-   url("./assets/academy/alternative-rock-live.webp") center 36% / cover no-repeat;
+   linear-gradient(0deg,rgb(var(--gb-poster-base)) 0%,rgb(var(--gb-poster-base) / 0) 56%,rgb(var(--gb-poster-base) / 0) 73%,rgb(var(--gb-poster-base) / .702) 100%),
+   var(--gb-poster-image) center 36% / cover no-repeat;
  }
- .gb-hero--alternative-rock .gb-content{max-width:none;padding-top:112px}
- .gb-hero--alternative-rock .gb-title{font-size:clamp(34px,9.6vw,54px)}
+ .gb-hero--poster .gb-content{max-width:none;padding-top:112px}
+ .gb-hero--poster .gb-title{font-size:clamp(34px,9.6vw,54px)}
 }
