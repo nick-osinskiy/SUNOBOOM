@@ -474,6 +474,7 @@
    };
   }
  });
- // The editor wrapper takes effect on the next render. Do not reset any saved lyrics.
- render();
+ // Only the currently open poetry/idea editor needs an immediate refresh.
+ // Other pages will use the installed wrapper on their next normal navigation.
+ if(view.nav==='myideas')render();
 })();
