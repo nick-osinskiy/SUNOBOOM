@@ -30,7 +30,7 @@ export async function checkShellRouting(browser,base){
    await page.goBack();await page.waitForFunction(()=>view.nav==='ideas');await page.goForward();await page.waitForFunction(()=>view.nav==='account');
    await page.locator(`${menu} button[data-nav="catalog"]`).click();await page.waitForURL('**#/catalog');
    await page.evaluate(()=>openGenre('reggae-ska'));await page.waitForURL('**/overview');
-   assert.equal(await page.locator('.gb-hero--alternative-rock').count(),0);
+   assert.equal(await page.locator('.gb-hero--poster').count(),0);
    assert.equal(await page.locator('.gb-vinyl').count(),1);
    await page.locator('.genre-side-item[data-tab="artists"]').click();await page.waitForURL('**/artists');
    await page.locator('[data-sb-history-back]').click();await page.waitForURL('**#/catalog');await page.waitForFunction(()=>view.nav==='catalog');
@@ -54,15 +54,17 @@ export async function checkShellRouting(browser,base){
    await page.waitForURL('**#/songs');
    assert.equal(await page.evaluate(()=>SUNOBOOM_CORE.songs.records.length),1);
    await page.goto(base+'#genre-reggae-ska',{waitUntil:'networkidle'});await page.waitForFunction(()=>window.SUNOBOOM_SHELL?.active&&view.nav==='detail'&&view.selected==='reggae-ska');assert.match(page.url(),/#\/catalog\/reggae-ska\/overview$/);
-   await page.evaluate(()=>openGenre('alternative-rock'));
-   await page.waitForURL('**#/catalog/alternative-rock/overview');
-   const rockHero=page.locator('.gb-hero--alternative-rock');
-   await rockHero.waitFor();
-   assert.equal(await rockHero.getByRole('heading',{name:'Альтернативный рок'}).count(),1);
-   assert.match(await rockHero.evaluate(el=>getComputedStyle(el,'::before').backgroundImage),/alternative-rock-live\.webp/);
-   assert.equal(await rockHero.locator('.gb-vinyl').isVisible(),false);
-   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
-   assert.equal(await rockHero.getByRole('button',{name:'Создать в Suno'}).isVisible(),true);
+   for (const [id,name] of [['alternative-rock','Альтернативный рок'],['indie-rock','Инди-рок']]) {
+    await page.evaluate(id=>openGenre(id),id);
+    await page.waitForURL('**#/catalog/'+id+'/overview');
+    const rockHero=page.locator('.gb-hero--poster.gb-hero--'+id);
+    await rockHero.waitFor();
+    assert.equal(await rockHero.getByRole('heading',{name,exact:true}).count(),1);
+    assert.ok((await rockHero.evaluate(el=>getComputedStyle(el,'::before').backgroundImage)).includes(id+'-live.webp'));
+    assert.equal(await rockHero.locator('.gb-vinyl').isVisible(),false);
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+    assert.equal(await rockHero.getByRole('button',{name:'Создать в Suno'}).isVisible(),true);
+   }
    await page.goto(base+'#/account/settings',{waitUntil:'networkidle'});await page.locator('#sbs-theme').waitFor();await page.reload({waitUntil:'networkidle'});await page.locator('#sbs-theme').waitFor();
    await page.goto(base+'#/songs/new',{waitUntil:'networkidle'});await page.locator('#sbsong-save-form').waitFor();
    const card=Buffer.from(JSON.stringify({v:1,title:'Legacy shared route 215'}),'utf8').toString('base64url');
@@ -87,6 +89,8 @@ export async function checkShellRouting(browser,base){
   await page.waitForFunction(()=>view.nav==='detail'&&view.selected==='reggae-ska'&&view.tab==='artists');
   await page.evaluate(()=>openGenre('alternative-rock'));
   await page.locator('.gb-hero--alternative-rock').waitFor();
+  await page.evaluate(()=>openGenre('indie-rock'));
+  await page.locator('.gb-hero--poster.gb-hero--indie-rock').waitFor();
   console.log('Canonical routes remain usable with Vue bundle unavailable PASS');
  }finally{await native.close();}
  const delayed=await browser.newContext();let release;
