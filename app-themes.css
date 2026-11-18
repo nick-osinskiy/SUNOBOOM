@@ -1017,3 +1017,67 @@ html.sb-theme-light .side .brand .sb-brand-version-row .sb-brand-logo,
 html.sb-theme-light .top .brand-mobile .sb-logo-lockup .sb-mobile-logo{
  filter:url("#sb-logo-light-ink") drop-shadow(0 2px 6px #f242931a);
 }
+
+/* Alternative rock is a dark concert-poster treatment within any app palette. */
+.gb-hero.gb-hero--alternative-rock{
+ color:#fff8ef;
+ background:#181412;
+ border-color:#614337;
+ border-radius:16px;
+ box-shadow:0 14px 34px #160c092e;
+}
+.gb-hero--alternative-rock::before{
+ inset:0 0 0 auto;
+ width:68%;
+ height:auto;
+ border:0;
+ border-radius:0;
+ box-shadow:none;
+ background:
+  linear-gradient(90deg,#181412 0%,#181412eb 13%,#1814124d 46%,#1814120a 100%),
+  linear-gradient(0deg,#181412 0%,#18141200 37%,#18141200 74%,#18141280 100%),
+  url("./assets/academy/alternative-rock-live.webp") center 42% / cover no-repeat;
+}
+.gb-hero--alternative-rock .gb-content{display:block;max-width:58%}
+.gb-hero--alternative-rock .gb-vinyl{display:none}
+.gb-hero--alternative-rock .gb-title{
+ color:#fff8ef;
+ font-size:clamp(37px,5.4vw,72px);
+ font-weight:900;
+ line-height:.99;
+ letter-spacing:-.055em;
+}
+.gb-hero--alternative-rock .gb-eyebrow{color:#ffac85}
+.gb-hero--alternative-rock :is(.gb-desc,.gb-top small,.gb-fact small){color:#f0d8ca}
+.gb-hero--alternative-rock :is(.gb-tags span,.gb-fact){
+ background:#231a17;
+ border-color:#795342;
+ backdrop-filter:none;
+}
+.gb-hero--alternative-rock .gb-fact{border-radius:8px}
+.gb-hero--alternative-rock .gb-buttons .btn.primary{
+ background:#f8a480;
+ border-color:#ffc9ac;
+ color:#201411;
+}
+.gb-hero--alternative-rock .gb-buttons .btn.ghost{
+ background:#2f211b;
+ border-color:#9e6b54;
+ color:#fff8ef;
+}
+.gb-hero--alternative-rock .gb-buttons .btn.ghost:hover{background:#4c3026}
+.gb-hero--alternative-rock :is(.back,.gb-buttons .btn):focus-visible{
+ outline-color:#ffd1b9!important;
+}
+@media(max-width:700px){
+ .gb-hero--alternative-rock::before{
+  inset:0 0 auto;
+  width:100%;
+  height:235px;
+  background:
+   linear-gradient(0deg,#181412 0%,#18141200 56%,#18141200 73%,#181412b3 100%),
+   url("./assets/academy/alternative-rock-live.webp") center 36% / cover no-repeat;
+ }
+ .gb-hero--alternative-rock .gb-content{max-width:none;padding-top:112px}
+ .gb-hero--alternative-rock .gb-title{font-size:clamp(34px,9.6vw,54px)}
+}
