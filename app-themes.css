@@ -1358,33 +1358,33 @@ html .genre-bright--grunge .genre-detail-layout :is(button,input):focus-visible{
 }
 
 /* Catalog cards preview the artwork and palette of their concert headers. */
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"]){
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"],[data-id="hard-rock"]){
  background:rgb(var(--gb-poster-base))!important;
  border-color:var(--gb-poster-frame)!important;
  color:var(--gb-poster-text)!important;
  box-shadow:0 10px 24px var(--gb-poster-shadow);
 }
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"]) .art{
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"],[data-id="hard-rock"]) .art{
  opacity:1;
  background:
   linear-gradient(90deg,rgb(var(--gb-poster-base) / .94),rgb(var(--gb-poster-base) / .65) 52%,rgb(var(--gb-poster-base) / .2)),
   linear-gradient(0deg,rgb(var(--gb-poster-base)) 0%,transparent 70%),
   var(--gb-poster-image) center 35% / cover no-repeat;
 }
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"])::before,
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"])::after{
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"],[data-id="hard-rock"])::before,
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"],[data-id="hard-rock"])::after{
  content:none;
 }
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"]) h3{
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"],[data-id="hard-rock"]) h3{
  color:var(--gb-poster-text)!important;text-shadow:0 2px 8px #0008;
 }
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"]) :is(p,.foot){
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"],[data-id="hard-rock"]) :is(p,.foot){
  color:var(--gb-poster-text)!important;
 }
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"]) :is(.kicker,.foot span:last-child){
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"],[data-id="hard-rock"]) :is(.kicker,.foot span:last-child){
  color:var(--gb-poster-eyebrow)!important;
 }
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"]):is(:hover,:focus-visible){
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"],[data-id="hard-rock"]):is(:hover,:focus-visible){
  border-color:var(--gb-poster-action)!important;
  box-shadow:0 15px 32px var(--gb-poster-shadow);
  outline-color:var(--gb-poster-focus)!important;
@@ -1537,6 +1537,7 @@ html .genre-bright--progressive-rock .genre-detail-layout :is(button,input):focu
 }
 
 /* Pop rock pairs cobalt stage light with warm coral accents. */
+.genre-bright--pop-rock,
 .gb-hero--pop-rock,
 .genre-card[data-id="pop-rock"]{
  --gb-poster-image:url("./assets/academy/pop-rock-live.jpg");
@@ -1549,66 +1550,89 @@ html .genre-bright--progressive-rock .genre-detail-layout :is(button,input):focu
  --gb-poster-focus:#ffe0d4;
 }
 
-/* The same palette covers navigation and every pop-rock section. */
+/* Hard rock uses amber spotlights, warm copper and charcoal. */
+.genre-bright--hard-rock,
+.gb-hero--hard-rock,
+.genre-card[data-id="hard-rock"]{
+ --gb-poster-image:url("./assets/academy/hard-rock-live.jpg");
+ --gb-poster-base:26 21 19;
+ --gb-poster-text:#fff3e6;--gb-poster-muted:#dec7b6;--gb-poster-eyebrow:#ffc18c;
+ --gb-poster-frame:#8a5035;--gb-poster-shadow:#1c0d0866;
+ --gb-poster-panel:#30221d;--gb-poster-stroke:#805942;
+ --gb-poster-action:#ffba80;--gb-poster-action-border:#ffe0bf;--gb-poster-action-ink:#2a1a13;
+ --gb-poster-button:#422d24;--gb-poster-button-border:#a97251;--gb-poster-button-hover:#59392a;
+ --gb-poster-focus:#ffe2c4;
+}
+html .genre-bright--hard-rock{
+ --panel3:#503427;
+ --cyan:#f3cb9f;
+ --sb-genre-panel-bg:linear-gradient(140deg,#492e23,#30221d);
+}
 html .genre-bright--pop-rock{
- color-scheme:dark;
- --bg:#0a182b;--panel:#122a43;--panel2:#193654;--panel3:#214464;
- --text:#fff6ef;--muted:#c6dceb;--stroke:#52728d;
- --pink:#ffa58e;--violet:#ffa58e;--cyan:#85ddf5;
- --sb-theme-accent:#ffb09b;--sb-theme-accent-soft:#294d68;--sb-theme-accent-border:#729bb5;
+ --panel3:#214464;
+ --cyan:#85ddf5;
  --sb-genre-panel-bg:linear-gradient(140deg,#1b3b58,#122a43);
- --sb-genre-panel-inset:#214464;--sb-genre-panel-border:#52728d;
- --sb-genre-ink:#fff6ef;--sb-genre-muted:#c6dceb;--sb-genre-accent:#ffb09b;
 }
-html .genre-bright--pop-rock .genre-detail-layout{
- background:#0a182b;padding:16px;border-radius:16px;border:1px solid #3d718e;
+
+/* Theme the genre menu and all four detail sections. */
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock){
+ color-scheme:dark;
+ --bg:rgb(var(--gb-poster-base));--panel:var(--gb-poster-panel);--panel2:var(--gb-poster-button);
+ --text:var(--gb-poster-text);--muted:var(--gb-poster-muted);--stroke:var(--gb-poster-stroke);
+ --pink:var(--gb-poster-action);--violet:var(--gb-poster-action);
+ --sb-theme-accent:var(--gb-poster-eyebrow);--sb-theme-accent-soft:var(--gb-poster-button-hover);--sb-theme-accent-border:var(--gb-poster-button-border);
+ --sb-genre-panel-inset:var(--panel3);--sb-genre-panel-border:var(--stroke);
+ --sb-genre-ink:var(--text);--sb-genre-muted:var(--muted);--sb-genre-accent:var(--gb-poster-eyebrow);
 }
-html .genre-bright--pop-rock .genre-side-nav{box-shadow:0 12px 26px #0004}
-html .genre-bright--pop-rock .genre-detail-layout :is(.gb-panel,.idea,.panel,.ahx-card,.ahx-intro,.ahx-toolbar){
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock) .genre-detail-layout{
+ background:var(--bg);padding:16px;border-radius:16px;border:1px solid var(--gb-poster-frame);
+}
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock) .genre-side-nav{box-shadow:0 12px 26px #0004}
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock) .genre-detail-layout :is(.gb-panel,.idea,.panel,.ahx-card,.ahx-intro,.ahx-toolbar){
  background:var(--sb-genre-panel-bg)!important;
  border-color:var(--stroke)!important;color:var(--text)!important;border-radius:12px;
 }
-html .genre-bright--pop-rock .genre-detail-layout :is(h2,h3,h4,strong,label){
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock) .genre-detail-layout :is(h2,h3,h4,strong,label){
  color:var(--text)!important;
 }
-html .genre-bright--pop-rock .genre-detail-layout :is(p,small,.info-label,.ahx-era,.ahx-count,.ahx-footnote){
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock) .genre-detail-layout :is(p,small,.info-label,.ahx-era,.ahx-count,.ahx-footnote){
  color:var(--muted)!important;
 }
-html .genre-bright--pop-rock .genre-detail-layout :is(.gb-sup,.gb-bpm-value,.gb-eyebrow,.ahx-eyebrow){
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock) .genre-detail-layout :is(.gb-sup,.gb-bpm-value,.gb-eyebrow,.ahx-eyebrow){
  color:var(--sb-genre-accent)!important;
 }
-html .genre-bright--pop-rock .genre-detail-layout :is(.gb-unit b,.ahx-avatar,.ahx-num,.idea-badge){
- background:#294d68!important;color:#ffe0d4!important;border-color:#729bb5!important;
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock) .genre-detail-layout :is(.gb-unit b,.ahx-avatar,.ahx-num,.idea-badge){
+ background:var(--gb-poster-button-hover)!important;color:var(--gb-poster-focus)!important;border-color:var(--gb-poster-button-border)!important;
 }
-html .genre-bright--pop-rock .genre-detail-layout :is(.gb-unit,.gb-idea,.gb-artists span,.ahx-track,.ahx-role){
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock) .genre-detail-layout :is(.gb-unit,.gb-idea,.gb-artists span,.ahx-track,.ahx-role){
  background:var(--panel3)!important;color:var(--text)!important;border-color:var(--stroke)!important;
 }
-html .genre-bright--pop-rock .genre-detail-layout :is(button,input){
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock) .genre-detail-layout :is(button,input){
  border-color:var(--stroke)!important;
 }
-html .genre-bright--pop-rock .genre-detail-layout :is(.btn,.sb-ap-inline-actions button,.ahx-filter-buttons button,.ahx-toolbar button){
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock) .genre-detail-layout :is(.btn,.sb-ap-inline-actions button,.ahx-filter-buttons button,.ahx-toolbar button){
  background:var(--panel2)!important;color:var(--text)!important;
 }
-html .genre-bright--pop-rock .genre-detail-layout .btn.primary{
- background:#ffa58e!important;color:#152a3d!important;border-color:#ffd6c7!important;box-shadow:none;
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock) .genre-detail-layout .btn.primary{
+ background:var(--gb-poster-action)!important;color:var(--gb-poster-action-ink)!important;border-color:var(--gb-poster-action-border)!important;box-shadow:none;
 }
-html .genre-bright--pop-rock .genre-detail-layout :is(.genre-side-item.active,.ahx-toolbar button.on,.ahx-filter-buttons button[aria-pressed=true]){
- background:#294d68!important;color:#ffe0d4!important;border-color:#729bb5!important;
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock) .genre-detail-layout :is(.genre-side-item.active,.ahx-toolbar button.on,.ahx-filter-buttons button[aria-pressed=true]){
+ background:var(--gb-poster-button-hover)!important;color:var(--gb-poster-focus)!important;border-color:var(--gb-poster-button-border)!important;
 }
-html .genre-bright--pop-rock .genre-detail-layout input{
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock) .genre-detail-layout input{
  background:var(--panel2)!important;color:var(--text)!important;
 }
-html .genre-bright--pop-rock .genre-detail-layout input::placeholder{color:var(--muted)!important;opacity:1}
-html .genre-bright--pop-rock .genre-detail-layout button:hover:not(:disabled){
- border-color:#ffa58e!important;
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock) .genre-detail-layout input::placeholder{color:var(--muted)!important;opacity:1}
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock) .genre-detail-layout button:hover:not(:disabled){
+ border-color:var(--gb-poster-action)!important;
 }
-html .genre-bright--pop-rock .genre-detail-layout :is(button,input):focus-visible{
- outline-color:#ffe0d4!important;
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock) .genre-detail-layout :is(button,input):focus-visible{
+ outline-color:var(--gb-poster-focus)!important;
 }
 @media(max-width:580px){
- html .genre-bright--pop-rock .genre-detail-layout{padding:10px}
+ html :is(.genre-bright--pop-rock,.genre-bright--hard-rock) .genre-detail-layout{padding:10px}
 }
 
 @media(max-width:700px){
- .gb-hero--pop-rock::before{background-position:center,72% 36%}
+ :is(.gb-hero--pop-rock,.gb-hero--hard-rock)::before{background-position:center,72% 36%}
 }
