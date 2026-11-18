@@ -44,7 +44,7 @@ async function chooseTab(tab) {
 
 <template>
   <div class="genre-bright" :style="{ '--accent': genre.color }">
-    <div class="gb-hero">
+    <div class="gb-hero" :class="{ 'gb-hero--alternative-rock': genre.id === 'alternative-rock' }">
       <div class="gb-top">
         <button type="button" class="back" data-action="academy-back"
           aria-label="Назад к разделу Академии">← Назад</button>
