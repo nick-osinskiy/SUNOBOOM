@@ -42,6 +42,15 @@ html.sb-theme-light :is(.nav-button.active,.mobile-nav button.active){
   background:#f6dfed!important;
 }
 html.sb-theme-light .mobile-nav button.active svg{color:#b43b85;filter:none}
+/* Set the sidebar hover foreground and surface from the same palette. */
+html .side .nav-button:not(.active):is(:hover,:focus-visible){
+  background:var(--panel3);
+  border-color:var(--sb-theme-accent-border,var(--stroke));
+  color:var(--text)!important;
+}
+html .side .nav-button:focus-visible{
+  outline-color:var(--sb-theme-accent,var(--violet))!important;
+}
 html.sb-theme-light .top{color:#333951}
 html.sb-theme-light .breadcrumbs{color:#606b85}
 html.sb-theme-light .breadcrumbs b{color:#303851}
