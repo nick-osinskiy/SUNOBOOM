@@ -1358,33 +1358,33 @@ html .genre-bright--grunge .genre-detail-layout :is(button,input):focus-visible{
 }
 
 /* Catalog cards preview the artwork and palette of their concert headers. */
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"],[data-id="hard-rock"],[data-id="folk-rock"],[data-id="rock-and-roll"],[data-id="folk-russian"],[data-id="folk-kazakh"],[data-id="folk-belarusian"],[data-id="folk-modern"],[data-id="folk-pop"],[data-id="folk-electro"],[data-id="folk-nordic"]){
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"],[data-id="hard-rock"],[data-id="folk-rock"],[data-id="rock-and-roll"],[data-id="folk-russian"],[data-id="folk-kazakh"],[data-id="folk-belarusian"],[data-id="folk-modern"],[data-id="folk-pop"],[data-id="folk-electro"],[data-id="folk-nordic"],[data-id="orthodox-devotional"]){
  background:rgb(var(--gb-poster-base))!important;
  border-color:var(--gb-poster-frame)!important;
  color:var(--gb-poster-text)!important;
  box-shadow:0 10px 24px var(--gb-poster-shadow);
 }
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"],[data-id="hard-rock"],[data-id="folk-rock"],[data-id="rock-and-roll"],[data-id="folk-russian"],[data-id="folk-kazakh"],[data-id="folk-belarusian"],[data-id="folk-modern"],[data-id="folk-pop"],[data-id="folk-electro"],[data-id="folk-nordic"]) .art{
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"],[data-id="hard-rock"],[data-id="folk-rock"],[data-id="rock-and-roll"],[data-id="folk-russian"],[data-id="folk-kazakh"],[data-id="folk-belarusian"],[data-id="folk-modern"],[data-id="folk-pop"],[data-id="folk-electro"],[data-id="folk-nordic"],[data-id="orthodox-devotional"]) .art{
  opacity:1;
  background:
   linear-gradient(90deg,rgb(var(--gb-poster-base) / .94),rgb(var(--gb-poster-base) / .65) 52%,rgb(var(--gb-poster-base) / .2)),
   linear-gradient(0deg,rgb(var(--gb-poster-base)) 0%,transparent 70%),
   var(--gb-poster-image) center 35% / cover no-repeat;
 }
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"],[data-id="hard-rock"],[data-id="folk-rock"],[data-id="rock-and-roll"],[data-id="folk-russian"],[data-id="folk-kazakh"],[data-id="folk-belarusian"],[data-id="folk-modern"],[data-id="folk-pop"],[data-id="folk-electro"],[data-id="folk-nordic"])::before,
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"],[data-id="hard-rock"],[data-id="folk-rock"],[data-id="rock-and-roll"],[data-id="folk-russian"],[data-id="folk-kazakh"],[data-id="folk-belarusian"],[data-id="folk-modern"],[data-id="folk-pop"],[data-id="folk-electro"],[data-id="folk-nordic"])::after{
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"],[data-id="hard-rock"],[data-id="folk-rock"],[data-id="rock-and-roll"],[data-id="folk-russian"],[data-id="folk-kazakh"],[data-id="folk-belarusian"],[data-id="folk-modern"],[data-id="folk-pop"],[data-id="folk-electro"],[data-id="folk-nordic"],[data-id="orthodox-devotional"])::before,
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"],[data-id="hard-rock"],[data-id="folk-rock"],[data-id="rock-and-roll"],[data-id="folk-russian"],[data-id="folk-kazakh"],[data-id="folk-belarusian"],[data-id="folk-modern"],[data-id="folk-pop"],[data-id="folk-electro"],[data-id="folk-nordic"],[data-id="orthodox-devotional"])::after{
  content:none;
 }
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"],[data-id="hard-rock"],[data-id="folk-rock"],[data-id="rock-and-roll"],[data-id="folk-russian"],[data-id="folk-kazakh"],[data-id="folk-belarusian"],[data-id="folk-modern"],[data-id="folk-pop"],[data-id="folk-electro"],[data-id="folk-nordic"]) h3{
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"],[data-id="hard-rock"],[data-id="folk-rock"],[data-id="rock-and-roll"],[data-id="folk-russian"],[data-id="folk-kazakh"],[data-id="folk-belarusian"],[data-id="folk-modern"],[data-id="folk-pop"],[data-id="folk-electro"],[data-id="folk-nordic"],[data-id="orthodox-devotional"]) h3{
  color:var(--gb-poster-text)!important;text-shadow:0 2px 8px #0008;
 }
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"],[data-id="hard-rock"],[data-id="folk-rock"],[data-id="rock-and-roll"],[data-id="folk-russian"],[data-id="folk-kazakh"],[data-id="folk-belarusian"],[data-id="folk-modern"],[data-id="folk-pop"],[data-id="folk-electro"],[data-id="folk-nordic"]) :is(p,.foot){
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"],[data-id="hard-rock"],[data-id="folk-rock"],[data-id="rock-and-roll"],[data-id="folk-russian"],[data-id="folk-kazakh"],[data-id="folk-belarusian"],[data-id="folk-modern"],[data-id="folk-pop"],[data-id="folk-electro"],[data-id="folk-nordic"],[data-id="orthodox-devotional"]) :is(p,.foot){
  color:var(--gb-poster-text)!important;
 }
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"],[data-id="hard-rock"],[data-id="folk-rock"],[data-id="rock-and-roll"],[data-id="folk-russian"],[data-id="folk-kazakh"],[data-id="folk-belarusian"],[data-id="folk-modern"],[data-id="folk-pop"],[data-id="folk-electro"],[data-id="folk-nordic"]) :is(.kicker,.foot span:last-child){
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"],[data-id="hard-rock"],[data-id="folk-rock"],[data-id="rock-and-roll"],[data-id="folk-russian"],[data-id="folk-kazakh"],[data-id="folk-belarusian"],[data-id="folk-modern"],[data-id="folk-pop"],[data-id="folk-electro"],[data-id="folk-nordic"],[data-id="orthodox-devotional"]) :is(.kicker,.foot span:last-child){
  color:var(--gb-poster-eyebrow)!important;
 }
-html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"],[data-id="hard-rock"],[data-id="folk-rock"],[data-id="rock-and-roll"],[data-id="folk-russian"],[data-id="folk-kazakh"],[data-id="folk-belarusian"],[data-id="folk-modern"],[data-id="folk-pop"],[data-id="folk-electro"],[data-id="folk-nordic"]):is(:hover,:focus-visible){
+html .genre-card:is([data-id="alternative-rock"],[data-id="indie-rock"],[data-id="grunge"],[data-id="punk-rock"],[data-id="progressive-rock"],[data-id="pop-rock"],[data-id="hard-rock"],[data-id="folk-rock"],[data-id="rock-and-roll"],[data-id="folk-russian"],[data-id="folk-kazakh"],[data-id="folk-belarusian"],[data-id="folk-modern"],[data-id="folk-pop"],[data-id="folk-electro"],[data-id="folk-nordic"],[data-id="orthodox-devotional"]):is(:hover,:focus-visible){
  border-color:var(--gb-poster-action)!important;
  box-shadow:0 15px 32px var(--gb-poster-shadow);
  outline-color:var(--gb-poster-focus)!important;
@@ -1757,8 +1757,31 @@ html .genre-bright--folk-nordic{
  hyphens:none;
 }
 
+/* Orthodox devotional song pairs warm candlelight with muted aubergine. */
+.genre-bright--orthodox-devotional,
+.gb-hero--orthodox-devotional,
+.genre-card[data-id="orthodox-devotional"]{
+ --gb-poster-image:url("./assets/academy/orthodox-devotional-live.jpg");
+ --gb-poster-base:32 21 29;
+ --gb-poster-text:#fff3e3;--gb-poster-muted:#e5d0cc;--gb-poster-eyebrow:#edc59c;
+ --gb-poster-frame:#8e6a73;--gb-poster-shadow:#190f1777;
+ --gb-poster-panel:#432e3d;--gb-poster-stroke:#8e6e79;
+ --gb-poster-action:#edc39b;--gb-poster-action-border:#ffe2c2;--gb-poster-action-ink:#39242e;
+ --gb-poster-button:#503647;--gb-poster-button-border:#ad8490;--gb-poster-button-hover:#674656;
+ --gb-poster-focus:#ffe3c5;
+}
+html .genre-bright--orthodox-devotional{
+ --panel3:#563c4e;
+ --cyan:#e2c1d3;
+ --sb-genre-panel-bg:linear-gradient(140deg,#503647,#432e3d);
+}
+.gb-hero--orthodox-devotional .gb-title{
+ font-size:clamp(28px,4.8vw,58px);
+ hyphens:none;
+}
+
 /* Theme the genre menu and all four detail sections. */
-html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic){
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic,.genre-bright--orthodox-devotional){
  color-scheme:dark;
  --bg:rgb(var(--gb-poster-base));--panel:var(--gb-poster-panel);--panel2:var(--gb-poster-button);
  --text:var(--gb-poster-text);--muted:var(--gb-poster-muted);--stroke:var(--gb-poster-stroke);
@@ -1767,55 +1790,55 @@ html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-ro
  --sb-genre-panel-inset:var(--panel3);--sb-genre-panel-border:var(--stroke);
  --sb-genre-ink:var(--text);--sb-genre-muted:var(--muted);--sb-genre-accent:var(--gb-poster-eyebrow);
 }
-html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic) .genre-detail-layout{
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic,.genre-bright--orthodox-devotional) .genre-detail-layout{
  background:var(--bg);padding:16px;border-radius:16px;border:1px solid var(--gb-poster-frame);
 }
-html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic) .genre-side-nav{box-shadow:0 12px 26px #0004}
-html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic) .genre-detail-layout :is(.gb-panel,.idea,.panel,.ahx-card,.ahx-intro,.ahx-toolbar){
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic,.genre-bright--orthodox-devotional) .genre-side-nav{box-shadow:0 12px 26px #0004}
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic,.genre-bright--orthodox-devotional) .genre-detail-layout :is(.gb-panel,.idea,.panel,.ahx-card,.ahx-intro,.ahx-toolbar){
  background:var(--sb-genre-panel-bg)!important;
  border-color:var(--stroke)!important;color:var(--text)!important;border-radius:12px;
 }
-html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic) .genre-detail-layout :is(h2,h3,h4,strong,label){
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic,.genre-bright--orthodox-devotional) .genre-detail-layout :is(h2,h3,h4,strong,label){
  color:var(--text)!important;
 }
-html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic) .genre-detail-layout :is(p,small,.info-label,.ahx-era,.ahx-count,.ahx-footnote){
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic,.genre-bright--orthodox-devotional) .genre-detail-layout :is(p,small,.info-label,.ahx-era,.ahx-count,.ahx-footnote){
  color:var(--muted)!important;
 }
-html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic) .genre-detail-layout :is(.gb-sup,.gb-bpm-value,.gb-eyebrow,.ahx-eyebrow){
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic,.genre-bright--orthodox-devotional) .genre-detail-layout :is(.gb-sup,.gb-bpm-value,.gb-eyebrow,.ahx-eyebrow){
  color:var(--sb-genre-accent)!important;
 }
-html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic) .genre-detail-layout :is(.gb-unit b,.ahx-avatar,.ahx-num,.idea-badge){
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic,.genre-bright--orthodox-devotional) .genre-detail-layout :is(.gb-unit b,.ahx-avatar,.ahx-num,.idea-badge){
  background:var(--gb-poster-button-hover)!important;color:var(--gb-poster-focus)!important;border-color:var(--gb-poster-button-border)!important;
 }
-html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic) .genre-detail-layout :is(.gb-unit,.gb-idea,.gb-artists span,.ahx-track,.ahx-role){
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic,.genre-bright--orthodox-devotional) .genre-detail-layout :is(.gb-unit,.gb-idea,.gb-artists span,.ahx-track,.ahx-role){
  background:var(--panel3)!important;color:var(--text)!important;border-color:var(--stroke)!important;
 }
-html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic) .genre-detail-layout :is(button,input){
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic,.genre-bright--orthodox-devotional) .genre-detail-layout :is(button,input){
  border-color:var(--stroke)!important;
 }
-html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic) .genre-detail-layout :is(.btn,.sb-ap-inline-actions button,.ahx-filter-buttons button,.ahx-toolbar button){
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic,.genre-bright--orthodox-devotional) .genre-detail-layout :is(.btn,.sb-ap-inline-actions button,.ahx-filter-buttons button,.ahx-toolbar button){
  background:var(--panel2)!important;color:var(--text)!important;
 }
-html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic) .genre-detail-layout .btn.primary{
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic,.genre-bright--orthodox-devotional) .genre-detail-layout .btn.primary{
  background:var(--gb-poster-action)!important;color:var(--gb-poster-action-ink)!important;border-color:var(--gb-poster-action-border)!important;box-shadow:none;
 }
-html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic) .genre-detail-layout :is(.genre-side-item.active,.ahx-toolbar button.on,.ahx-filter-buttons button[aria-pressed=true]){
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic,.genre-bright--orthodox-devotional) .genre-detail-layout :is(.genre-side-item.active,.ahx-toolbar button.on,.ahx-filter-buttons button[aria-pressed=true]){
  background:var(--gb-poster-button-hover)!important;color:var(--gb-poster-focus)!important;border-color:var(--gb-poster-button-border)!important;
 }
-html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic) .genre-detail-layout input{
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic,.genre-bright--orthodox-devotional) .genre-detail-layout input{
  background:var(--panel2)!important;color:var(--text)!important;
 }
-html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic) .genre-detail-layout input::placeholder{color:var(--muted)!important;opacity:1}
-html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic) .genre-detail-layout button:hover:not(:disabled){
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic,.genre-bright--orthodox-devotional) .genre-detail-layout input::placeholder{color:var(--muted)!important;opacity:1}
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic,.genre-bright--orthodox-devotional) .genre-detail-layout button:hover:not(:disabled){
  border-color:var(--gb-poster-action)!important;
 }
-html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic) .genre-detail-layout :is(button,input):focus-visible{
+html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic,.genre-bright--orthodox-devotional) .genre-detail-layout :is(button,input):focus-visible{
  outline-color:var(--gb-poster-focus)!important;
 }
 @media(max-width:580px){
- html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic) .genre-detail-layout{padding:10px}
+ html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-rock,.genre-bright--rock-and-roll,.genre-bright--folk-russian,.genre-bright--folk-kazakh,.genre-bright--folk-belarusian,.genre-bright--folk-modern,.genre-bright--folk-pop,.genre-bright--folk-electro,.genre-bright--folk-nordic,.genre-bright--orthodox-devotional) .genre-detail-layout{padding:10px}
 }
 
 @media(max-width:700px){
- :is(.gb-hero--pop-rock,.gb-hero--hard-rock,.gb-hero--folk-rock,.gb-hero--rock-and-roll,.gb-hero--folk-russian,.gb-hero--folk-kazakh,.gb-hero--folk-belarusian,.gb-hero--folk-modern,.gb-hero--folk-pop,.gb-hero--folk-electro,.gb-hero--folk-nordic)::before{background-position:center,72% 36%}
+ :is(.gb-hero--pop-rock,.gb-hero--hard-rock,.gb-hero--folk-rock,.gb-hero--rock-and-roll,.gb-hero--folk-russian,.gb-hero--folk-kazakh,.gb-hero--folk-belarusian,.gb-hero--folk-modern,.gb-hero--folk-pop,.gb-hero--folk-electro,.gb-hero--folk-nordic,.gb-hero--orthodox-devotional)::before{background-position:center,72% 36%}
 }
