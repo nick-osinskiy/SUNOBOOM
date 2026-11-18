@@ -43,7 +43,7 @@ async function chooseTab(tab) {
 </script>
 
 <template>
-  <div class="genre-bright" :style="{ '--accent': genre.color }">
+  <div class="genre-bright" :class="{ 'genre-bright--alternative-rock': genre.id === 'alternative-rock' }" :style="{ '--accent': genre.color }">
     <div class="gb-hero" :class="['alternative-rock', 'indie-rock'].includes(genre.id) ? 'gb-hero--poster gb-hero--' + genre.id : null">
       <div class="gb-top">
         <button type="button" class="back" data-action="academy-back"

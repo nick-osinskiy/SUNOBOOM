@@ -3184,8 +3184,8 @@ async function checkLayout(mobile) {
     if (genreCardsPastel155.length !== 4 ||
         new Set(genreCardsPastel155.map(x => x.background)).size !== 1 ||
         new Set(genreCardsPastel155.map(x => x.color)).size !== 1 ||
-        !genreCardsPastel155[0].background.includes('rgb(255, 250, 253)')) {
-      throw new Error('Genre overview cards do not share pastel palette: ' +
+        !genreCardsPastel155[0].background.includes('rgb(35, 26, 23)')) {
+      throw new Error('Alternative rock overview cards do not retain concert palette: ' +
         JSON.stringify(genreCardsPastel155));
     }
     await page.locator('.genre-side-item[data-tab="artists"]').click();
@@ -3193,7 +3193,7 @@ async function checkLayout(mobile) {
     const genreArtistsPastel155 = await page.locator('.genre-bright .ahx-card')
       .evaluateAll(items => items.map(el => getComputedStyle(el).backgroundImage));
     if (genreArtistsPastel155.length < 2 || new Set(genreArtistsPastel155).size !== 1) {
-      throw new Error('Genre artist cards do not share pastel palette: ' +
+      throw new Error('Alternative rock artist cards have inconsistent surfaces: ' +
         JSON.stringify(genreArtistsPastel155));
     }
     await page.evaluate(() => go('player'));
