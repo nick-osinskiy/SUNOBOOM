@@ -1,5 +1,5 @@
 import {checkDirectPages} from './vue-direct-pages.mjs';
-import {checkStartupRenderBatch} from './vue-startup-render.mjs';
+import {checkStartupRenderBatch,checkTagInstallRefresh} from './vue-startup-render.mjs';
 import {checkShellRouting} from './vue-shell-routing.mjs';
 import {checkTopPanel} from './vue-top-panel.mjs';
 import {checkStage2Acceptance} from './vue-stage2-acceptance.mjs';
@@ -4552,6 +4552,13 @@ try {
   await ready();
   browser = await chromium.launch({ headless: true });
   await checkStartupRenderBatch(browser,BASE);
+  await checkTagInstallRefresh(browser,BASE);
+  // Verify the laboratory profiler against the real built app, not only synthetic trace fixtures.
+  await new Promise((resolve,reject)=>{
+    const profile=spawn(process.execPath,['scripts/profile-startup-trace.mjs',BASE,'1'],{stdio:'inherit'});
+    profile.once('error',reject);
+    profile.once('exit',(code,signal)=>code===0?resolve():reject(new Error('startup trace failed: '+(signal||code))));
+  });
   await checkDirectPages(browser,BASE);
   await checkShellRouting(browser,BASE);
   await checkTopPanel(browser,BASE);

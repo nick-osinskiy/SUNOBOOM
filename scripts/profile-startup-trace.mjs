@@ -41,6 +41,8 @@ try{
    }finally{clearTimeout(timeout);}
    const timing=await page.evaluate(()=>({readyMs:performance.getEntriesByName('sb-profile-ready')[0].startTime,fcpMs:performance.getEntriesByName('first-contentful-paint')[0]?.startTime??null}));
    const sample={run:i+1,...timing,...summarizeStartupTrace(events)};
+   if(sample.taskEvents===0)throw new Error('Renderer trace contains no recognized complete task events');
+   if(!Object.values(sample.categories).some(c=>c.events>0))throw new Error('Renderer trace contains no recognized timeline events');
    samples.push(sample);console.log(JSON.stringify(sample));
   }finally{await context.close();}
  }
