@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
 
-async function versionPalette(page) {
- const badge = page.locator('.sb-top-panel .sb-app-version:visible');
- return badge.evaluate(button => {
+async function buttonPalette(locator) {
+ return locator.evaluate(async button => {
   const style = getComputedStyle(button);
+  // Resolve the hover surface after the button's shared color transition.
+  const animations = button.getAnimations();
+  await Promise.all(animations.map(animation => animation.finished.catch(() => {})));
   const pixel = document.createElement('canvas').getContext('2d', {willReadFrequently:true});
   function luminance(color) {
    pixel.fillStyle = color;
@@ -23,12 +25,27 @@ async function versionPalette(page) {
  });
 }
 
+async function checkSidebarContrast(page, theme) {
+ const player = page.locator('.side .nav-button[data-nav="player"]');
+ await player.hover();
+ const hover = await buttonPalette(player);
+ assert.ok(hover.contrast >= 4.5, 'sidebar hover contrast for ' + theme + ': ' + JSON.stringify(hover));
+ assert.equal(await player.locator('svg').evaluate(svg => getComputedStyle(svg).stroke), hover.foreground);
+ await page.mouse.move(0, 0);
+ await page.keyboard.press('Tab');
+ await player.focus();
+ assert.ok(await player.evaluate(button => button.matches(':focus-visible')));
+ assert.deepEqual(await buttonPalette(player), hover, 'sidebar keyboard focus colors for ' + theme);
+ await player.blur();
+}
+
 export async function checkTopPanel(browser,base){
  const context=await browser.newContext(),page=await context.newPage(),errors=[];
  page.on('pageerror',error=>errors.push(error.message));
  try{
   await page.goto(base+'#/account/settings',{waitUntil:'networkidle'});
   await page.waitForFunction(()=>window.SUNOBOOM_SHELL?.active);
+  const badge = page.locator('.sb-top-panel .sb-app-version:visible');
   for (const viewport of [{width:1440,height:900}, {width:375,height:812}]) {
    await page.setViewportSize(viewport);
    const palettes = new Map();
@@ -36,9 +53,10 @@ export async function checkTopPanel(browser,base){
     await page.locator('#sbs-theme').selectOption(theme);
     await page.waitForFunction(theme=>document.documentElement.dataset.sbTheme===theme,theme);
     assert.equal(await page.locator('.sb-top-panel').evaluate(el=>getComputedStyle(el).backgroundColor),await page.evaluate(()=>{const probe=document.createElement('i');probe.style.color='var(--panel)';document.body.append(probe);const color=getComputedStyle(probe).color;probe.remove();return color;}));
-    const palette = await versionPalette(page);
+    const palette = await buttonPalette(badge);
     assert.ok(palette.contrast >= 4.5, 'version badge text contrast for ' + theme + ': ' + JSON.stringify(palette));
     palettes.set(theme, palette);
+    if (viewport.width > 700) await checkSidebarContrast(page, theme);
    }
    assert.equal(new Set([...palettes.values()].map(palette => palette.background)).size, palettes.size,
     'the version badge background follows all themes');
@@ -46,7 +64,8 @@ export async function checkTopPanel(browser,base){
    for (const colorScheme of ['light','dark']) {
     await page.emulateMedia({colorScheme});
     await page.waitForFunction(scheme=>document.documentElement.dataset.sbTheme===scheme,colorScheme);
-    assert.deepEqual(await versionPalette(page), palettes.get(colorScheme), 'system version badge palette');
+    assert.deepEqual(await buttonPalette(badge), palettes.get(colorScheme), 'system version badge palette');
+    if (viewport.width > 700) await checkSidebarContrast(page, 'system/' + colorScheme);
    }
   }
   await page.evaluate(()=>{window.__topPanel=document.querySelector('.sb-top-panel');go('studio');});
@@ -80,17 +99,20 @@ export async function checkTopPanel(browser,base){
  await native.route('**/dist/vue/*.js*',route=>route.abort());
  try{
   const page=await native.newPage();await page.goto(base+'#/studio',{waitUntil:'networkidle'});
+  const badge = page.locator('.sb-top-panel .sb-app-version:visible');
   await page.evaluate(()=>window.scrollTo(0,1500));
   await page.waitForFunction(()=>Math.abs(document.querySelector('.sb-top-panel').getBoundingClientRect().top-8)<1.1);
   await page.locator('.sb-top-panel .sb-settings-shortcut').click();await page.locator('#sbs-theme').waitFor();
   await page.locator('#sbs-theme').selectOption('dark');
   await page.waitForFunction(()=>document.documentElement.dataset.sbTheme==='dark');
-  const dark = await versionPalette(page);
+  const dark = await buttonPalette(badge);
   await page.locator('#sbs-theme').selectOption('light');
   await page.waitForFunction(()=>document.documentElement.dataset.sbTheme==='light');
-  const light = await versionPalette(page);
+  const light = await buttonPalette(badge);
   assert.notEqual(dark.background, light.background, 'native version badge responds to theme changes');
   assert.ok(light.contrast >= 4.5, 'native light version badge text contrast');
+  await page.setViewportSize({width:1440,height:900});
+  await checkSidebarContrast(page, 'native light');
   console.log('Sticky native fallback controls and version palette PASS');
  }finally{await native.close();}
 }
