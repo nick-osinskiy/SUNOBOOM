@@ -1281,3 +1281,75 @@ html .genre-bright--indie-rock .genre-detail-layout :is(button,input):focus-visi
 @media(max-width:580px){
  html .genre-bright--indie-rock .genre-detail-layout{padding:10px}
 }
+
+/* Grunge uses olive shadows and worn mustard stage light. */
+.gb-hero--grunge{
+ --gb-poster-image:url("./assets/academy/grunge-live.webp");
+ --gb-poster-base:26 28 21;
+ --gb-poster-text:#f7f0dd;--gb-poster-muted:#d4d3bd;--gb-poster-eyebrow:#e1c989;
+ --gb-poster-frame:#5b6241;--gb-poster-shadow:#14160f50;
+ --gb-poster-panel:#25291e;--gb-poster-stroke:#686e49;
+ --gb-poster-action:#d8bc71;--gb-poster-action-border:#f1dda3;--gb-poster-action-ink:#222416;
+ --gb-poster-button:#303726;--gb-poster-button-border:#8c9563;--gb-poster-button-hover:#4e5837;
+ --gb-poster-focus:#f0dea0;
+}
+
+/* Grunge detail cards continue the worn club-poster palette. */
+html .genre-bright--grunge{
+ color-scheme:dark;
+ --bg:#1a1c15;--panel:#25291e;--panel2:#303726;--panel3:#3a422e;
+ --text:#f7f0dd;--muted:#d4d3bd;--stroke:#686e49;
+ --pink:#d8bc71;--violet:#d8bc71;--cyan:#d4d3bd;
+ --sb-theme-accent:#e1c989;--sb-theme-accent-soft:#4e5837;--sb-theme-accent-border:#8c9563;
+ --sb-genre-panel-bg:linear-gradient(140deg,#303526,#25291e);
+ --sb-genre-panel-inset:#3a422e;--sb-genre-panel-border:#686e49;
+ --sb-genre-ink:#f7f0dd;--sb-genre-muted:#d4d3bd;--sb-genre-accent:#e1c989;
+}
+html .genre-bright--grunge .genre-detail-layout{
+ background:#1a1c15;padding:16px;border-radius:16px;border:1px solid #5b6241;
+}
+html .genre-bright--grunge .genre-side-nav{box-shadow:0 12px 26px #0004}
+html .genre-bright--grunge .genre-detail-layout :is(.gb-panel,.idea,.panel,.ahx-card,.ahx-intro,.ahx-toolbar){
+ background:var(--sb-genre-panel-bg)!important;
+ border-color:var(--stroke)!important;color:var(--text)!important;border-radius:12px;
+}
+html .genre-bright--grunge .genre-detail-layout :is(h2,h3,h4,strong,label){
+ color:var(--text)!important;
+}
+html .genre-bright--grunge .genre-detail-layout :is(p,small,.info-label,.ahx-era,.ahx-count,.ahx-footnote){
+ color:var(--muted)!important;
+}
+html .genre-bright--grunge .genre-detail-layout :is(.gb-sup,.gb-bpm-value,.gb-eyebrow,.ahx-eyebrow){
+ color:var(--sb-genre-accent)!important;
+}
+html .genre-bright--grunge .genre-detail-layout :is(.gb-unit b,.ahx-avatar,.ahx-num,.idea-badge){
+ background:#4e5837!important;color:#f0dea0!important;border-color:#8c9563!important;
+}
+html .genre-bright--grunge .genre-detail-layout :is(.gb-unit,.gb-idea,.gb-artists span,.ahx-track,.ahx-role){
+ background:var(--panel3)!important;color:var(--text)!important;border-color:var(--stroke)!important;
+}
+html .genre-bright--grunge .genre-detail-layout :is(button,input){
+ border-color:var(--stroke)!important;
+}
+html .genre-bright--grunge .genre-detail-layout :is(.btn,.sb-ap-inline-actions button,.ahx-filter-buttons button,.ahx-toolbar button){
+ background:var(--panel2)!important;color:var(--text)!important;
+}
+html .genre-bright--grunge .genre-detail-layout .btn.primary{
+ background:#d8bc71!important;color:#222416!important;border-color:#f1dda3!important;box-shadow:none;
+}
+html .genre-bright--grunge .genre-detail-layout :is(.genre-side-item.active,.ahx-toolbar button.on,.ahx-filter-buttons button[aria-pressed=true]){
+ background:#4e5837!important;color:#f0dea0!important;border-color:#8c9563!important;
+}
+html .genre-bright--grunge .genre-detail-layout input{
+ background:var(--panel2)!important;color:var(--text)!important;
+}
+html .genre-bright--grunge .genre-detail-layout input::placeholder{color:var(--muted)!important;opacity:1}
+html .genre-bright--grunge .genre-detail-layout button:hover:not(:disabled){
+ border-color:#d8bc71!important;
+}
+html .genre-bright--grunge .genre-detail-layout :is(button,input):focus-visible{
+ outline-color:#f0dea0!important;
+}
+@media(max-width:580px){
+ html .genre-bright--grunge .genre-detail-layout{padding:10px}
+}
