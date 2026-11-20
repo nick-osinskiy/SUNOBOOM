@@ -2316,7 +2316,7 @@ html :is(.genre-bright--pop-rock,.genre-bright--hard-rock,.genre-bright--folk-ro
 .genre-bright--hiphop-gangsta,
 .gb-hero--hiphop-gangsta,
 .genre-card[data-id="hiphop-gangsta"]{
- --gb-poster-image:url("./assets/academy/hiphop-gangsta-night-session.svg");
+ --gb-poster-image:url("./assets/academy/hiphop-gangsta-night-session.jpg");
  --gb-poster-base:25 25 29;
  --gb-poster-text:#fff2e9;--gb-poster-muted:#cfc1bd;--gb-poster-eyebrow:#f2a18c;
  --gb-poster-frame:#986458;--gb-poster-shadow:#10090e80;
@@ -2330,8 +2330,8 @@ html .genre-bright--hiphop-gangsta{
  --cyan:#f2a18c;
  --sb-genre-panel-bg:linear-gradient(140deg,#46343a,#352c30);
 }
-html .gb-hero--hiphop-gangsta::before{background-position:center,76% 48%}
-html .genre-card[data-id="hiphop-gangsta"] .art{background-position:center,center,76% 48%}
+html .gb-hero--hiphop-gangsta::before{background-position:center,64% 42%}
+html .genre-card[data-id="hiphop-gangsta"] .art{background-position:center,center,64% 42%}
 
 /* First-wave ska: sepia studio heritage, independent of the parent genre. */
 html .gb-hero--ska-jamaican::before{background-position:center,76% 35%}
