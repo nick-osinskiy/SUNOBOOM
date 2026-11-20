@@ -69,6 +69,7 @@ export async function checkShellRouting(browser,base){
    await page.evaluate(()=>openGenre('experimental-concrete'));
    await page.waitForURL('**#/catalog/experimental-concrete/overview');
    await page.locator('.genre-bright--experimental-concrete').waitFor();
+   assert.ok((await page.locator('.gb-hero--experimental-concrete').evaluate(el=>getComputedStyle(el,'::before').backgroundImage)).includes('experimental-concrete-vector-studio.jpg'));
    const topPanel=page.locator('.sb-top-panel');
    const themedTop=()=>topPanel.evaluate(el=>getComputedStyle(el).backgroundImage);
    assert.ok((await themedTop()).includes('sunoboom-concrete-top-header.jpg'));
