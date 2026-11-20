@@ -66,6 +66,26 @@ export async function checkShellRouting(browser,base){
     assert.equal(await gangstaHero.isVisible(),true);
    }
 
+   await page.evaluate(()=>openGenre('experimental-concrete'));
+   await page.waitForURL('**#/catalog/experimental-concrete/overview');
+   await page.locator('.genre-bright--experimental-concrete').waitFor();
+   const topPanel=page.locator('.sb-top-panel');
+   const themedTop=()=>topPanel.evaluate(el=>getComputedStyle(el).backgroundImage);
+   assert.ok((await themedTop()).includes('sunoboom-concrete-top-header.jpg'));
+   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+   for(const tab of ['artists','ideas','prompts','overview']){
+    await page.locator('.genre-side-item[data-tab="'+tab+'"]').click();
+    await page.waitForURL('**/catalog/experimental-concrete/'+tab);
+    assert.ok((await themedTop()).includes('sunoboom-concrete-top-header.jpg'));
+   }
+   await page.evaluate(()=>openGenre('hiphop-gangsta'));
+   await page.waitForURL('**#/catalog/hiphop-gangsta/overview');
+   await page.locator('.genre-bright--hiphop-gangsta').waitFor();
+   assert.ok(!(await themedTop()).includes('sunoboom-concrete-top-header.jpg'));
+   await page.locator(`${menu} button[data-nav="catalog"]`).click();
+   await page.waitForURL('**#/catalog');
+   await page.waitForFunction(()=>!document.querySelector('.genre-bright--experimental-concrete')&&!getComputedStyle(document.querySelector('.sb-top-panel')).backgroundImage.includes('sunoboom-concrete-top-header.jpg'));
+
    const project=await page.evaluate(()=>{const r=application.execute('project.create',{title:'Route 215',genre:'alternative-rock'});view.selectedProject=r.value.id;go('projects');return r.value.id;});
    await page.waitForURL('**#/account/projects/'+project);await page.reload({waitUntil:'networkidle'});
    await page.waitForFunction(id=>view.nav==='projects'&&view.selectedProject===id,project);
@@ -134,8 +154,12 @@ export async function checkShellRouting(browser,base){
   const gangstaHero=page.locator('.gb-hero--poster.gb-hero--hiphop-gangsta');
   await gangstaHero.waitFor();
   assert.ok((await gangstaHero.evaluate(el=>getComputedStyle(el,'::before').backgroundImage)).includes('hiphop-gangsta-night-session.jpg'));
+  await page.goto(base+'#/catalog/experimental-concrete/overview',{waitUntil:'networkidle'});
+  await page.locator('.genre-bright--experimental-concrete').waitFor();
+  assert.ok((await page.locator('.sb-top-panel').evaluate(el=>getComputedStyle(el).backgroundImage)).includes('sunoboom-concrete-top-header.jpg'));
   await page.evaluate(()=>openGenre('alternative-rock'));
   await page.locator('.gb-hero--alternative-rock').waitFor();
+  assert.ok(!(await page.locator('.sb-top-panel').evaluate(el=>getComputedStyle(el).backgroundImage)).includes('sunoboom-concrete-top-header.jpg'));
   await page.evaluate(()=>openGenre('indie-rock'));
   await page.locator('.gb-hero--poster.gb-hero--indie-rock').waitFor();
   console.log('Canonical routes remain usable with Vue bundle unavailable PASS');
