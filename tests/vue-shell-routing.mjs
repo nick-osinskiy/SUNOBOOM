@@ -72,12 +72,12 @@ export async function checkShellRouting(browser,base){
    assert.ok((await page.locator('.gb-hero--experimental-concrete').evaluate(el=>getComputedStyle(el,'::before').backgroundImage)).includes('experimental-concrete-vector-studio.jpg'));
    const topPanel=page.locator('.sb-top-panel');
    const themedTop=()=>topPanel.evaluate(el=>getComputedStyle(el).backgroundImage);
-   assert.ok((await themedTop()).includes('sunoboom-concrete-top-header.jpg'));
+   assert.ok(!(await themedTop()).includes('sunoboom-concrete-top-header.jpg'));
    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
    for(const tab of ['artists','ideas','prompts','overview']){
     await page.locator('.genre-side-item[data-tab="'+tab+'"]').click();
     await page.waitForURL('**/catalog/experimental-concrete/'+tab);
-    assert.ok((await themedTop()).includes('sunoboom-concrete-top-header.jpg'));
+    assert.ok(!(await themedTop()).includes('sunoboom-concrete-top-header.jpg'));
    }
    await page.evaluate(()=>openGenre('hiphop-gangsta'));
    await page.waitForURL('**#/catalog/hiphop-gangsta/overview');
@@ -157,7 +157,7 @@ export async function checkShellRouting(browser,base){
   assert.ok((await gangstaHero.evaluate(el=>getComputedStyle(el,'::before').backgroundImage)).includes('hiphop-gangsta-night-session.jpg'));
   await page.goto(base+'#/catalog/experimental-concrete/overview',{waitUntil:'networkidle'});
   await page.locator('.genre-bright--experimental-concrete').waitFor();
-  assert.ok((await page.locator('.sb-top-panel').evaluate(el=>getComputedStyle(el).backgroundImage)).includes('sunoboom-concrete-top-header.jpg'));
+  assert.ok(!(await page.locator('.sb-top-panel').evaluate(el=>getComputedStyle(el).backgroundImage)).includes('sunoboom-concrete-top-header.jpg'));
   await page.evaluate(()=>openGenre('alternative-rock'));
   await page.locator('.gb-hero--alternative-rock').waitFor();
   assert.ok(!(await page.locator('.sb-top-panel').evaluate(el=>getComputedStyle(el).backgroundImage)).includes('sunoboom-concrete-top-header.jpg'));

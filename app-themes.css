@@ -2336,28 +2336,3 @@ html .genre-card[data-id="hiphop-gangsta"] .art{background-position:center,cente
 /* First-wave ska: sepia studio heritage, independent of the parent genre. */
 html .gb-hero--ska-jamaican::before{background-position:center,76% 35%}
 html .genre-card[data-id="ska-jamaican"] .art{background-position:center,center,76% 35%}
-
-/* Route-scoped illustrated shell: no global appearance state or navigation changes. */
-html .main:has(.genre-bright--experimental-concrete) > .sb-top-panel{
- color-scheme:dark;
- --text:#fff4e8;--muted:#d5e2dd;--stroke:#527775;
- --panel2:#254345;--panel3:#183233;
- --sb-theme-accent:#efb485;--sb-theme-accent-border:#a68064;
- border-color:#527775;
- background:linear-gradient(90deg,#0a2025b0,#10292d38 52%,#0a202590),
-  url("./assets/academy/sunoboom-concrete-top-header.jpg") center 48% / cover no-repeat;
- color:var(--text);
- min-height:148px;
-}
-html .main:has(.genre-bright--experimental-concrete) > .sb-top-panel .breadcrumbs,
-html .main:has(.genre-bright--experimental-concrete) > .sb-top-panel .breadcrumbs b{
- color:#fff4e8;text-shadow:0 1px 5px #000;
-}
-html .main:has(.genre-bright--experimental-concrete) > .sb-top-panel .sb-brand-tagline{
- color:#c8ddda;
-}
-@media(max-width:700px){
- html .main:has(.genre-bright--experimental-concrete) > .sb-top-panel{
-  min-height:112px;background-position:center,60% 44%;
- }
-}
