@@ -52,6 +52,20 @@ export async function checkShellRouting(browser,base){
     assert.equal(await jamaicanHero.isVisible(),true);
    }
 
+   await page.evaluate(()=>openGenre('hiphop-gangsta'));
+   await page.waitForURL('**#/catalog/hiphop-gangsta/overview');
+   const gangstaHero=page.locator('.gb-hero--poster.gb-hero--hiphop-gangsta');
+   await gangstaHero.waitFor();
+   assert.equal(await gangstaHero.getByRole('heading',{name:'Гангста-рэп',exact:true}).count(),1);
+   assert.ok((await gangstaHero.evaluate(el=>getComputedStyle(el,'::before').backgroundImage)).includes('hiphop-gangsta-night-session.svg'));
+   assert.equal(await gangstaHero.locator('.gb-vinyl').isVisible(),false);
+   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+   for(const tab of ['artists','ideas','prompts','overview']){
+    await page.locator('.genre-side-item[data-tab="'+tab+'"]').click();
+    await page.waitForURL('**/catalog/hiphop-gangsta/'+tab);
+    assert.equal(await gangstaHero.isVisible(),true);
+   }
+
    const project=await page.evaluate(()=>{const r=application.execute('project.create',{title:'Route 215',genre:'alternative-rock'});view.selectedProject=r.value.id;go('projects');return r.value.id;});
    await page.waitForURL('**#/account/projects/'+project);await page.reload({waitUntil:'networkidle'});
    await page.waitForFunction(id=>view.nav==='projects'&&view.selectedProject===id,project);
@@ -115,6 +129,11 @@ export async function checkShellRouting(browser,base){
   const jamaicanHero=page.locator('.gb-hero--poster.gb-hero--ska-jamaican');
   await jamaicanHero.waitFor();
   assert.ok((await jamaicanHero.evaluate(el=>getComputedStyle(el,'::before').backgroundImage)).includes('reggae-ska-kingston-session.webp'));
+  await page.goto(base+'#/catalog/hiphop-gangsta/artists',{waitUntil:'networkidle'});
+  await page.waitForFunction(()=>view.nav==='detail'&&view.selected==='hiphop-gangsta'&&view.tab==='artists');
+  const gangstaHero=page.locator('.gb-hero--poster.gb-hero--hiphop-gangsta');
+  await gangstaHero.waitFor();
+  assert.ok((await gangstaHero.evaluate(el=>getComputedStyle(el,'::before').backgroundImage)).includes('hiphop-gangsta-night-session.svg'));
   await page.evaluate(()=>openGenre('alternative-rock'));
   await page.locator('.gb-hero--alternative-rock').waitFor();
   await page.evaluate(()=>openGenre('indie-rock'));
