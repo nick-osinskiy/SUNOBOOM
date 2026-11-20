@@ -38,6 +38,20 @@ export async function checkShellRouting(browser,base){
    await page.locator('[data-sb-history-back]').click();await page.waitForURL('**#/catalog');await page.waitForFunction(()=>view.nav==='catalog');
    await page.locator('[data-sb-history-forward]').click();await page.waitForURL('**/artists');await page.waitForFunction(()=>view.tab==='artists');
 
+   await page.evaluate(()=>openGenre('ska-jamaican'));
+   await page.waitForURL('**#/catalog/ska-jamaican/overview');
+   const jamaicanHero=page.locator('.gb-hero--poster.gb-hero--ska-jamaican');
+   await jamaicanHero.waitFor();
+   assert.equal(await jamaicanHero.getByRole('heading',{name:'Ямайское ска (первая волна)',exact:true}).count(),1);
+   assert.ok((await jamaicanHero.evaluate(el=>getComputedStyle(el,'::before').backgroundImage)).includes('reggae-ska-kingston-session.webp'));
+   assert.equal(await jamaicanHero.locator('.gb-vinyl').isVisible(),false);
+   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+   for(const tab of ['artists','ideas','prompts','overview']){
+    await page.locator('.genre-side-item[data-tab="'+tab+'"]').click();
+    await page.waitForURL('**/catalog/ska-jamaican/'+tab);
+    assert.equal(await jamaicanHero.isVisible(),true);
+   }
+
    const project=await page.evaluate(()=>{const r=application.execute('project.create',{title:'Route 215',genre:'alternative-rock'});view.selectedProject=r.value.id;go('projects');return r.value.id;});
    await page.waitForURL('**#/account/projects/'+project);await page.reload({waitUntil:'networkidle'});
    await page.waitForFunction(id=>view.nav==='projects'&&view.selectedProject===id,project);
@@ -96,6 +110,11 @@ export async function checkShellRouting(browser,base){
   const skaHero=page.locator('.gb-hero--poster.gb-hero--reggae-ska');
   await skaHero.waitFor();
   assert.ok((await skaHero.evaluate(el=>getComputedStyle(el,'::before').backgroundImage)).includes('reggae-ska-kingston-session.webp'));
+  await page.goto(base+'#/catalog/ska-jamaican/artists',{waitUntil:'networkidle'});
+  await page.waitForFunction(()=>view.nav==='detail'&&view.selected==='ska-jamaican'&&view.tab==='artists');
+  const jamaicanHero=page.locator('.gb-hero--poster.gb-hero--ska-jamaican');
+  await jamaicanHero.waitFor();
+  assert.ok((await jamaicanHero.evaluate(el=>getComputedStyle(el,'::before').backgroundImage)).includes('reggae-ska-kingston-session.webp'));
   await page.evaluate(()=>openGenre('alternative-rock'));
   await page.locator('.gb-hero--alternative-rock').waitFor();
   await page.evaluate(()=>openGenre('indie-rock'));
