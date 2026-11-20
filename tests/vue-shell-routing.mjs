@@ -30,8 +30,10 @@ export async function checkShellRouting(browser,base){
    await page.goBack();await page.waitForFunction(()=>view.nav==='ideas');await page.goForward();await page.waitForFunction(()=>view.nav==='account');
    await page.locator(`${menu} button[data-nav="catalog"]`).click();await page.waitForURL('**#/catalog');
    await page.evaluate(()=>openGenre('reggae-ska'));await page.waitForURL('**/overview');
-   assert.equal(await page.locator('.gb-hero--poster').count(),0);
-   assert.equal(await page.locator('.gb-vinyl').count(),1);
+   const skaHero=page.locator('.gb-hero--poster.gb-hero--reggae-ska');
+   await skaHero.waitFor();
+   assert.ok((await skaHero.evaluate(el=>getComputedStyle(el,'::before').backgroundImage)).includes('reggae-ska-kingston-session.webp'));
+   assert.equal(await skaHero.locator('.gb-vinyl').isVisible(),false);
    await page.locator('.genre-side-item[data-tab="artists"]').click();await page.waitForURL('**/artists');
    await page.locator('[data-sb-history-back]').click();await page.waitForURL('**#/catalog');await page.waitForFunction(()=>view.nav==='catalog');
    await page.locator('[data-sb-history-forward]').click();await page.waitForURL('**/artists');await page.waitForFunction(()=>view.tab==='artists');
@@ -65,6 +67,10 @@ export async function checkShellRouting(browser,base){
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
     assert.equal(await rockHero.getByRole('button',{name:'Создать в Suno'}).isVisible(),true);
    }
+   await page.evaluate(()=>openGenre('reggae-rocksteady'));
+   await page.waitForURL('**#/catalog/reggae-rocksteady/overview');
+   await page.locator('.gb-hero .gb-vinyl').waitFor({state:'attached'});
+   assert.equal(await page.locator('.gb-hero--poster').count(),0);
    await page.goto(base+'#/account/settings',{waitUntil:'networkidle'});await page.locator('#sbs-theme').waitFor();await page.reload({waitUntil:'networkidle'});await page.locator('#sbs-theme').waitFor();
    await page.goto(base+'#/songs/new',{waitUntil:'networkidle'});await page.locator('#sbsong-save-form').waitFor();
    const card=Buffer.from(JSON.stringify({v:1,title:'Legacy shared route 215'}),'utf8').toString('base64url');
@@ -87,6 +93,9 @@ export async function checkShellRouting(browser,base){
   await page.locator('#sbs-theme').waitFor();
   await page.goto(base+'#/catalog/reggae-ska/artists',{waitUntil:'networkidle'});
   await page.waitForFunction(()=>view.nav==='detail'&&view.selected==='reggae-ska'&&view.tab==='artists');
+  const skaHero=page.locator('.gb-hero--poster.gb-hero--reggae-ska');
+  await skaHero.waitFor();
+  assert.ok((await skaHero.evaluate(el=>getComputedStyle(el,'::before').backgroundImage)).includes('reggae-ska-kingston-session.webp'));
   await page.evaluate(()=>openGenre('alternative-rock'));
   await page.locator('.gb-hero--alternative-rock').waitFor();
   await page.evaluate(()=>openGenre('indie-rock'));
